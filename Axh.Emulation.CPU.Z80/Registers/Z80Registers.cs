@@ -43,8 +43,8 @@
         {
             lock (this.switchToAlternativeLockingContext)
             {
-                this.GeneralPurposeRegisters = isAlternative ? this.primaryGeneralPurposeRegisterSet : this.alternativeGeneralPurposeRegisterSet;
-                isAlternative = !isAlternative;
+                this.isAlternative = !isAlternative;
+                this.GeneralPurposeRegisters = isAlternative ? this.alternativeGeneralPurposeRegisterSet : this.primaryGeneralPurposeRegisterSet;
             }
         }
 
@@ -82,6 +82,25 @@
             this.InterruptFlipFlop1 = state.InterruptFlipFlop1;
             this.InterruptFlipFlop2 = state.InterruptFlipFlop2;
             this.InterruptMode = state.InterruptMode;
+        }
+
+        public Z80RegisterState GetRegisterState()
+        {
+            return new Z80RegisterState
+            {
+                AlternativeRegisterState = this.alternativeGeneralPurposeRegisterSet.GetRegisterState(),
+                I = this.I,
+                IX = this.IX,
+                IY = this.IY,
+                InterruptFlipFlop1 = this.InterruptFlipFlop1,
+                InterruptFlipFlop2 = this.InterruptFlipFlop2,
+                InterruptMode = this.InterruptMode,
+                IsAlternative = this.isAlternative,
+                PrimaryRegisterState = this.primaryGeneralPurposeRegisterSet.GetRegisterState(),
+                ProgramCounter = this.ProgramCounter,
+                R = this.R,
+                StackPointer = this.StackPointer
+            };
         }
     }
 }

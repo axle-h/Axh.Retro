@@ -30,5 +30,6 @@
         void Reset();
 
         void ResetToState(Z80RegisterState state);
+        Z80RegisterState GetRegisterState();
     }
 }
