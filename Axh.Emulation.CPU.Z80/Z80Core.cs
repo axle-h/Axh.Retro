@@ -6,17 +6,11 @@
 
     public class Z80Core
     {
-        private readonly IRegisterSet primaryRegisterSet;
-        private readonly IRegisterSet alternativeRegisterSet;
-        private IRegisterSet currentRegisterSet;
-        private bool isAlternative;
-
-        public Z80Core(IRegisterSetFactory registerSetFactory)
+        private readonly IZ80Registers registers;
+        
+        public Z80Core(IRegisterFactory registerFactory)
         {
-            this.primaryRegisterSet = registerSetFactory.GetRegisterSet();
-            this.alternativeRegisterSet = registerSetFactory.GetRegisterSet();
-            this.currentRegisterSet = this.primaryRegisterSet;
-            this.isAlternative = false;
+            this.registers = registerFactory.GetInitialZ80Registers();
         }
 
         public async Task StartCoreProcess()

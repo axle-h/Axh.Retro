@@ -11,8 +11,8 @@ namespace Axh.Emulation.CPU.Z80.Contracts.Registers
         bool ParityOverflow { get; set; }
         bool Subtract { get; set; }
         bool Carry { get; set; }
-        void SetResultFlags(byte res);
         void SetUndocumentedFlags(byte res);
+        void SetResultFlags(byte res);
         void SetParityFlags(byte res);
         void ResetFlags();
         void SetFlags();

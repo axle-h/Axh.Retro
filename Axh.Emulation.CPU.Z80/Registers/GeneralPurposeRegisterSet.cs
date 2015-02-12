@@ -2,8 +2,9 @@
 {
     using System;
     using Axh.Emulation.CPU.Z80.Contracts.Registers;
+    using Axh.Emulation.CPU.Z80.Contracts.State;
 
-    public class RegisterSet : IRegisterSet
+    public class GeneralPurposeRegisterSet : IGeneralPurposeRegisterSet
     {
         public byte A { get; set; }
         public byte B { get; set; }
@@ -72,14 +73,32 @@
             }
         }
 
-        public RegisterSet(IFlagsRegister flagsRegister)
+        public GeneralPurposeRegisterSet(IFlagsRegister flagsRegister)
         {
             this.Flags = flagsRegister;
         }
 
+        public void Reset()
+        {
+            A = B = C = D = E = H = L = 0;
+            this.Flags.ResetFlags();
+        }
+
+        public void ResetToState(Z80GeneralPurposeRegisterState state)
+        {
+            A = state.A;
+            B = state.B;
+            C = state.C;
+            D = state.D;
+            E = state.E;
+            Flags.Register = state.F;
+            H = state.H;
+            L = state.L;
+        }
+
         private static ushort To16Bit(byte rH, byte rL)
         {
-            return (ushort)((rH << 8) | rL); //this is big endian for some reason
+            return (ushort)((rH << 8) | rL);
         }
 
         private static byte[] To8Bit(ushort r0)

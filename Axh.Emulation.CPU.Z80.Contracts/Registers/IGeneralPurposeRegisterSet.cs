@@ -1,6 +1,8 @@
 namespace Axh.Emulation.CPU.Z80.Contracts.Registers
 {
-    public interface IRegisterSet
+    using Axh.Emulation.CPU.Z80.Contracts.State;
+
+    public interface IGeneralPurposeRegisterSet
     {
         byte A { get; set; }
         byte B { get; set; }
@@ -14,5 +16,9 @@ namespace Axh.Emulation.CPU.Z80.Contracts.Registers
         ushort BC { get; set; }
         ushort DE { get; set; }
         ushort HL { get; set; }
+
+        void Reset();
+
+        void ResetToState(Z80GeneralPurposeRegisterState state);
     }
 }

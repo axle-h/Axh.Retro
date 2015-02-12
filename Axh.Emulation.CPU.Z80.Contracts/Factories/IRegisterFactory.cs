@@ -2,8 +2,12 @@
 {
     using Axh.Emulation.CPU.Z80.Contracts.Registers;
 
-    public interface IFlagsRegisterFactory
+    public interface IRegisterFactory
     {
+        IZ80Registers GetInitialZ80Registers();
+
+        IGeneralPurposeRegisterSet GetRegisterSet();
+
         IFlagsRegister GetFlagsRegister();
     }
 }

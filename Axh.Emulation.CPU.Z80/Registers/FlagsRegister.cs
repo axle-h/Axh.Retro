@@ -5,47 +5,76 @@
 
     public class FlagsRegister : IFlagsRegister
     {
-        private const byte SignMask = 0x80;
-        private const byte ZeroMask = 0x40;
-        private const byte Flag5Mask = 0x20;
-        private const byte HalfCarryMask = 0x10;
-        private const byte Flag3Mask = 0x08;
-        private const byte ParityOverflowMask = 0x04;
-        private const byte SubtractMask = 0x02;
-        private const byte CarryMask = 0x01;
+        private const byte SignMask = 1 << 7;
+        private const byte ZeroMask = 1 << 6;
+        private const byte Flag5Mask = 1 << 5;
+        private const byte HalfCarryMask = 1 << 4;
+        private const byte Flag3Mask = 1 << 3;
+        private const byte ParityOverflowMask = 1 << 2;
+        private const byte SubtractMask = 1 << 1;
+        private const byte CarryMask = 1;
 
         public byte Register
         {
             get
             {
-                return (byte)(0x00
-                               | (this.Sign ? 1 : 0) << 7
-                               | (this.Zero ? 1 : 0) << 6
-                               | (this.Flag5 ? 1 : 0) << 5
-                               | (this.HalfCarry ? 1 : 0) << 4
-                               | (this.Flag3 ? 1 : 0) << 3
-                               | (this.ParityOverflow ? 1 : 0) << 2
-                               | (this.Subtract ? 1 : 0) << 1
-                               | (this.Carry ? 1 : 0));
+                byte ans = 0x00;
+
+                if (this.Sign)
+                {
+                    ans |= SignMask;
+                }
+
+                if (this.Zero)
+                {
+                    ans |= ZeroMask;
+                }
+
+                if (this.Flag5)
+                {
+                    ans |= Flag5Mask;
+                }
+
+                if (this.HalfCarry)
+                {
+                    ans |= HalfCarryMask;
+                }
+
+                if (this.Flag3)
+                {
+                    ans |= Flag3Mask;
+                }
+
+                if (this.ParityOverflow)
+                {
+                    ans |= ParityOverflowMask;
+                }
+
+                if (this.Subtract)
+                {
+                    ans |= SubtractMask;
+                }
+
+                if (this.Carry)
+                {
+                    ans |= CarryMask;
+                }
+
+                return ans;
             }
             set
             {
-                this.Sign = (value & (1 << 7)) != 0;
-                this.Zero = (value & (1 << 6)) != 0;
-                this.Flag5 = (value & (1 << 5)) != 0;
-                this.HalfCarry = (value & (1 << 4)) != 0;
-                this.Flag3 = (value & (1 << 3)) != 0;
-                this.ParityOverflow = (value & (1 << 2)) != 0;
-                this.Subtract = (value & (1 << 1)) != 0;
-                this.Carry = (value & 1) != 0;
+                this.Sign = (value & SignMask) > 0;
+                this.Zero = (value & ZeroMask) > 0;
+                this.Flag5 = (value & Flag5Mask) > 0;
+                this.HalfCarry = (value & HalfCarryMask) > 0;
+                this.Flag3 = (value & Flag3Mask) > 0;
+                this.ParityOverflow = (value & ParityOverflowMask) > 0;
+                this.Subtract = (value & SubtractMask) > 0;
+                this.Carry = (value & CarryMask) > 0;
             }
         }
-
-        private static void SetFlag(byte flagMask, bool value)
-        {
-            
-        }
-
+        
         // Flags
         public bool Sign { get; set; }
         public bool Zero { get; set; }
@@ -56,19 +85,29 @@
         public bool Subtract { get; set; }
         public bool Carry { get; set; }
 
-        public void SetResultFlags(byte res)
+        public FlagsRegister()
         {
-            this.Sign = (res & 0x80) != 0;
-            this.Zero = res == 0;
-            this.SetUndocumentedFlags(res);
+            ResetFlags();
         }
 
         public void SetUndocumentedFlags(byte res)
         {
-            this.Flag5 = (res & 0x20) != 0;
-            this.Flag3 = (res & 0x08) != 0;
+            // Undocumented flags are set from corresponding result bits.
+            this.Flag5 = (res & Flag5Mask) > 0;
+            this.Flag3 = (res & Flag3Mask) > 0;
         }
 
+        public void SetResultFlags(byte res)
+        {
+            // Sign flag is a copy of the sign bit.
+            this.Sign = (res & SignMask) > 0;
+            
+            // Set Zero flag is result = 0
+            this.Zero = res == 0;
+
+            this.SetUndocumentedFlags(res);
+        }
+        
         public void SetParityFlags(byte res)
         {
             this.SetResultFlags(res);

@@ -39,11 +39,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Factories\IFlagsRegisterFactory.cs" />
-    <Compile Include="Factories\IRegisterSetFactory.cs" />
+    <Compile Include="Config\IInitialStateConfig.cs" />
+    <Compile Include="Factories\IRegisterFactory.cs" />
+    <Compile Include="Opcodes\InterruptMode.cs" />
+    <Compile Include="Opcodes\PrefixDdFdOpCodes.cs" />
+    <Compile Include="Opcodes\PrefixEdOpCodes.cs" />
+    <Compile Include="Opcodes\PrimaryOpCodes.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="State\Z80GeneralPurposeRegisterState.cs" />
     <Compile Include="Registers\IFlagsRegister.cs" />
-    <Compile Include="Registers\IRegisterSet.cs" />
+    <Compile Include="Registers\IGeneralPurposeRegisterSet.cs" />
+    <Compile Include="Registers\IZ80Registers.cs" />
+    <Compile Include="State\Z80RegisterState.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
