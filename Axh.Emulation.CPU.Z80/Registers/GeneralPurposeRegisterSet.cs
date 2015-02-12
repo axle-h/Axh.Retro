@@ -96,6 +96,21 @@
             L = state.L;
         }
 
+        public Z80GeneralPurposeRegisterState GetRegisterState()
+        {
+            return new Z80GeneralPurposeRegisterState
+            {
+                A = A,
+                B = B,
+                C = C,
+                D = D,
+                E = E,
+                F = Flags.Register,
+                H = H,
+                L = L
+            };
+        }
+
         private static ushort To16Bit(byte rH, byte rL)
         {
             return (ushort)((rH << 8) | rL);

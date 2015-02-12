@@ -109,5 +109,33 @@
             this.flagsRegister.VerifySet(x => x.Register = It.Is<byte>(y => y == state.F));
         }
 
+        [Test]
+        public void GetRegisterStateTest()
+        {
+            const byte A = 0xaa, B = 0xbb, C = 0xcc, D = 0xdd, E = 0xee, F = 0xff, H = 0x11, L = 0x22;
+
+            this.generalPurposeRegisterSet.A = A;
+            this.generalPurposeRegisterSet.B = B;
+            this.generalPurposeRegisterSet.C = C;
+            this.generalPurposeRegisterSet.D = D;
+            this.generalPurposeRegisterSet.E = E;
+            this.generalPurposeRegisterSet.H = H;
+            this.generalPurposeRegisterSet.L = L;
+            this.flagsRegister.Setup(x => x.Register).Returns(F);
+
+            var state = this.generalPurposeRegisterSet.GetRegisterState();
+
+            Assert.AreEqual(A, state.A);
+            Assert.AreEqual(B, state.B);
+            Assert.AreEqual(C, state.C);
+            Assert.AreEqual(D, state.D);
+            Assert.AreEqual(E, state.E);
+            Assert.AreEqual(F, state.F);
+            Assert.AreEqual(H, state.H);
+            Assert.AreEqual(L, state.L);
+
+        }
+
+
     }
 }

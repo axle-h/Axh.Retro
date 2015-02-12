@@ -20,5 +20,6 @@ namespace Axh.Emulation.CPU.Z80.Contracts.Registers
         void Reset();
 
         void ResetToState(Z80GeneralPurposeRegisterState state);
+        Z80GeneralPurposeRegisterState GetRegisterState();
     }
 }
