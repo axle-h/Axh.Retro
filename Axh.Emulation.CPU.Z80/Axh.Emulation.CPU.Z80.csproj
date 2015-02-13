@@ -39,14 +39,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Config\InitialStateConfig.cs" />
+    <Compile Include="Factories\MmuFactory.cs" />
     <Compile Include="Factories\RegisterFactory.cs" />
+    <Compile Include="Memory\ArrayBackedMemoryBank.cs" />
+    <Compile Include="Opcodes\PrefixDdFdOpCodes.cs" />
+    <Compile Include="Opcodes\PrefixEdOpCodes.cs" />
+    <Compile Include="Opcodes\PrimaryOpCodes.cs" />
     <Compile Include="Registers\FlagsRegister.cs" />
     <Compile Include="Registers\GeneralPurposeRegisterSet.cs" />
     <Compile Include="Registers\Z80Registers.cs" />
     <Compile Include="Util\ByteExtensions.cs" />
     <Compile Include="Z80Core.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Z80Mmu.cs" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

@@ -1,6 +1,5 @@
 ﻿namespace Axh.Emulation.CPU.Z80.Registers
 {
-    using Axh.Emulation.CPU.Z80.Contracts.Opcodes;
     using Axh.Emulation.CPU.Z80.Contracts.Registers;
     using Axh.Emulation.CPU.Z80.Contracts.State;
 

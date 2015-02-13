@@ -1,6 +1,6 @@
-﻿namespace Axh.Emulation.CPU.Z80.Contracts.Opcodes
+﻿namespace Axh.Emulation.CPU.Z80.Opcodes
 {
-    public enum PrefixDdFdOpCodes
+    public enum PrefixDdFdOpCodes : byte
     {
         LD_A_mIXYd = 0x7E,
         LD_B_mIXYd = 0x46,

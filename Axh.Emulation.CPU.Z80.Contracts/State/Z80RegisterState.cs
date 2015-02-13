@@ -1,6 +1,6 @@
 ﻿namespace Axh.Emulation.CPU.Z80.Contracts.State
 {
-    using Axh.Emulation.CPU.Z80.Contracts.Opcodes;
+    using Axh.Emulation.CPU.Z80.Contracts.Registers;
 
     public struct Z80RegisterState
     {

@@ -1,6 +1,6 @@
-﻿namespace Axh.Emulation.CPU.Z80.Contracts.Opcodes
+﻿namespace Axh.Emulation.CPU.Z80.Opcodes
 {
-    public enum PrimaryOpCodes
+    public enum PrimaryOpCodes : byte
     {
         NOP = 0x00,
         HALT = 0x76,

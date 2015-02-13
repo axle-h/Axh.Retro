@@ -1,7 +1,7 @@
 ﻿namespace Axh.Emulation.CPU.Z80.Tests.Registers
 {
     using System.Security.Cryptography.X509Certificates;
-    using Axh.Emulation.CPU.Z80.Contracts.Opcodes;
+
     using Axh.Emulation.CPU.Z80.Contracts.Registers;
     using Axh.Emulation.CPU.Z80.Registers;
     using Moq;
@@ -62,7 +62,7 @@
         {
             const byte I = 0x11, R = 0x22, IX = 0x33, IY = 0x44, ProgramCounter = 0x55, StackPointer = 0x66;
             const bool InterruptFlipFlop1 = true, InterruptFlipFlop2 = false;
-            const InterruptMode InterruptMode = Contracts.Opcodes.InterruptMode.InterruptMode1;
+            const InterruptMode InterruptMode = InterruptMode.InterruptMode1;
 
             this.z80Registers.I = I;
             this.z80Registers.R = R;

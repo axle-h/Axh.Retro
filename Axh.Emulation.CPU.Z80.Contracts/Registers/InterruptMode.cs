@@ -1,4 +1,4 @@
-﻿namespace Axh.Emulation.CPU.Z80.Contracts.Opcodes
+﻿namespace Axh.Emulation.CPU.Z80.Contracts.Registers
 {
     public enum InterruptMode
     {

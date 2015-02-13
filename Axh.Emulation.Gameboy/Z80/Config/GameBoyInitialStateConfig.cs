@@ -1,10 +1,10 @@
-﻿namespace Axh.Emulation.CPU.Z80.Config
+﻿namespace Axh.Emulation.GameBoy.Z80.Config
 {
     using Axh.Emulation.CPU.Z80.Contracts.Config;
-    using Axh.Emulation.CPU.Z80.Contracts.Opcodes;
+    using Axh.Emulation.CPU.Z80.Contracts.Registers;
     using Axh.Emulation.CPU.Z80.Contracts.State;
 
-    public class InitialStateConfig : IInitialStateConfig
+    public class GameBoyInitialStateConfig : IInitialStateConfig
     {
         private const ushort InitialStackPointer = 0x0;
         private const ushort InitialProgramCounter = 0x1000;
