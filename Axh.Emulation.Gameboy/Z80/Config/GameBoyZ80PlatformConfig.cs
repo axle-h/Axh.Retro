@@ -6,8 +6,6 @@
 
     public class GameBoyZ80PlatformConfig : IZ80PlatformConfig
     {
-        private const ushort Z80AddressSpace = 0xffff;
-
         private const WriteFaultMode Z80WriteFaultMode = WriteFaultMode.Continue;
 
         private const ushort SystemMemoryBankLength = 0x0fff;
@@ -20,14 +18,6 @@
             var systemMemoryBank1Config = new MemoryBankConfig(1, SystemMemoryBank1Address, SystemMemoryBankLength);
 
             this.RandomAccessMemoryBanks = new[] { systemMemoryBank0Config, systemMemoryBank1Config };
-        }
-
-        public ushort AddressSpace
-        {
-            get
-            {
-                return Z80AddressSpace;
-            }
         }
 
         public WriteFaultMode WriteFaultMode

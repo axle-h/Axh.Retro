@@ -43,6 +43,8 @@
     <Compile Include="Config\IMemoryBankConfig.cs" />
     <Compile Include="Config\IZ80PlatformConfig.cs" />
     <Compile Include="Config\WriteFaultMode.cs" />
+    <Compile Include="Exceptions\MmuAddressSegmentGapException.cs" />
+    <Compile Include="Exceptions\MmuAddressSegmentOverlapException.cs" />
     <Compile Include="Exceptions\SegmentationFaultException.cs" />
     <Compile Include="Exceptions\Z80ConfigurationException.cs" />
     <Compile Include="Factories\IMmuFactory.cs" />

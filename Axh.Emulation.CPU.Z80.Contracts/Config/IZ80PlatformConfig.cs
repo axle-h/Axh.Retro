@@ -4,8 +4,6 @@
 
     public interface IZ80PlatformConfig
     {
-        ushort AddressSpace { get; }
-
         WriteFaultMode WriteFaultMode { get; }
 
         IEnumerable<IMemoryBankConfig> RandomAccessMemoryBanks { get; }

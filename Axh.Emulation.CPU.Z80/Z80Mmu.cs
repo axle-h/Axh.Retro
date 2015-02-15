@@ -28,17 +28,27 @@
             ushort lastAddress = 0x0000;
             foreach (var segment in segments)
             {
+                if (segment.Length < 1)
+                {
+                    throw new Z80ConfigurationException(string.Format("Segment length is less than 1 at 0x{0:x4}", segment.Address));
+                }
+
                 if (segment.Address > lastAddress)
                 {
-                    throw new Z80ConfigurationException(string.Format("Gap in configured address segments from 0x{0:x4} to 0x{1:x4}", lastAddress, segment.Address));
+                    throw new MmuAddressSegmentGapException(lastAddress, segment.Address);
                 }
 
                 if (segment.Address < lastAddress)
                 {
-                    throw new Z80ConfigurationException(string.Format("Overlapping configured address segments from 0x{0:x4} to 0x{1:x4}", segment.Address, lastAddress));
+                    throw new MmuAddressSegmentOverlapException(segment.Address, lastAddress);
                 }
 
-                lastAddress += (ushort)(segment.Length + 1);
+                lastAddress += segment.Length;
+            }
+
+            if (lastAddress < ushort.MaxValue)
+            {
+                throw new MmuAddressSegmentGapException(lastAddress, ushort.MaxValue);   
             }
         }
         
