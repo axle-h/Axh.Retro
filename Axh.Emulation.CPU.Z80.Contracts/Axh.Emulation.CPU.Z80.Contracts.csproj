@@ -44,6 +44,7 @@
     <Compile Include="Config\IZ80PlatformConfig.cs" />
     <Compile Include="Config\WriteFaultMode.cs" />
     <Compile Include="Exceptions\SegmentationFaultException.cs" />
+    <Compile Include="Exceptions\Z80ConfigurationException.cs" />
     <Compile Include="Factories\IMmuFactory.cs" />
     <Compile Include="Factories\IRegisterFactory.cs" />
     <Compile Include="ICpuCore.cs" />

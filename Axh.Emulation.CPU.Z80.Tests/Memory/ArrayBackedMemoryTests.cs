@@ -16,7 +16,6 @@
         
         private IAddressSegment memory;
 
-
         [TestFixtureSetUp]
         public void TestFixtureSetUp()
         {
