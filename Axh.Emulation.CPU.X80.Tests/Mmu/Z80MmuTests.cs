@@ -54,54 +54,7 @@
 
             this.mmu = new Z80Mmu(new IAddressSegment[] { this.segment0R.Object, this.segment0W.Object, this.segment1.Object, this.segment2.Object });
         }
-
-        private void VerifyRead<TAddressSegment, TAddressSegment1, TAddressSegment2>(
-            ushort segmentAddress,
-            ushort length,
-            Mock<TAddressSegment> segment,
-            Mock<TAddressSegment1> otherSegment1,
-            Mock<TAddressSegment2> otherSegment2) where TAddressSegment : class, IReadableAddressSegment where TAddressSegment1 : class, IReadableAddressSegment
-            where TAddressSegment2 : class, IReadableAddressSegment
-        {
-            segment.ResetCalls();
-            otherSegment1.ResetCalls();
-            otherSegment2.ResetCalls();
-
-            foreach (ushort percentile in GetAddressRangePercentiles(segmentAddress, length))
-            {
-                this.mmu.ReadByte(percentile);
-                var address = (ushort)(percentile - segmentAddress);
-                segment.Verify(x => x.ReadByte(address), Times.Once);
-            }
-
-            otherSegment1.Verify(x => x.ReadByte(It.IsAny<ushort>()), Times.Never);
-            otherSegment2.Verify(x => x.ReadByte(It.IsAny<ushort>()), Times.Never);
-        }
-
-        private void VerifyWrite<TAddressSegment, TAddressSegment1, TAddressSegment2>(
-            ushort segmentAddress,
-            ushort length,
-            Mock<TAddressSegment> segment,
-            Mock<TAddressSegment1> otherSegment1,
-            Mock<TAddressSegment2> otherSegment2) where TAddressSegment : class, IWriteableAddressSegment where TAddressSegment1 : class, IWriteableAddressSegment
-            where TAddressSegment2 : class, IWriteableAddressSegment
-        {
-            segment.ResetCalls();
-            otherSegment1.ResetCalls();
-            otherSegment2.ResetCalls();
-
-            foreach (ushort percentile in GetAddressRangePercentiles(segmentAddress, length))
-            {
-                var value = (byte)this.random.Next(0xff);
-                this.mmu.WriteByte(percentile, value);
-                var address = (ushort)(percentile - segmentAddress);
-                segment.Verify(x => x.WriteByte(address, value), Times.Once);
-            }
-
-            otherSegment1.Verify(x => x.WriteByte(It.IsAny<ushort>(), It.IsAny<byte>()), Times.Never);
-            otherSegment2.Verify(x => x.WriteByte(It.IsAny<ushort>(), It.IsAny<byte>()), Times.Never);
-        }
-
+        
         [Test]
         public void ReadFromSegment0()
         {
@@ -124,6 +77,69 @@
         public void WriteToSegment1()
         {
             VerifyWrite(Address1, Length1, segment1, segment0W, segment2);
+        }
+
+        [Test]
+        public void ReadFromSegment2()
+        {
+            VerifyRead(Address2, Length2, segment2, segment0R, segment1);
+        }
+
+        [Test]
+        public void WriteToSegment2()
+        {
+            VerifyWrite(Address2, Length2, segment2, segment0W, segment1);
+        }
+
+        private void VerifyRead<TAddressSegment, TAddressSegment1, TAddressSegment2>(
+            ushort segmentAddress,
+            ushort length,
+            Mock<TAddressSegment> segment,
+            Mock<TAddressSegment1> otherSegment1,
+            Mock<TAddressSegment2> otherSegment2)
+            where TAddressSegment : class, IReadableAddressSegment
+            where TAddressSegment1 : class, IReadableAddressSegment
+            where TAddressSegment2 : class, IReadableAddressSegment
+        {
+            segment.ResetCalls();
+            otherSegment1.ResetCalls();
+            otherSegment2.ResetCalls();
+
+            foreach (var percentile in GetAddressRangePercentiles(segmentAddress, length))
+            {
+                this.mmu.ReadByte(percentile);
+                var address = (ushort)(percentile - segmentAddress);
+                segment.Verify(x => x.ReadByte(address), Times.Once);
+            }
+
+            otherSegment1.Verify(x => x.ReadByte(It.IsAny<ushort>()), Times.Never);
+            otherSegment2.Verify(x => x.ReadByte(It.IsAny<ushort>()), Times.Never);
+        }
+
+        private void VerifyWrite<TAddressSegment, TAddressSegment1, TAddressSegment2>(
+            ushort segmentAddress,
+            ushort length,
+            Mock<TAddressSegment> segment,
+            Mock<TAddressSegment1> otherSegment1,
+            Mock<TAddressSegment2> otherSegment2)
+            where TAddressSegment : class, IWriteableAddressSegment
+            where TAddressSegment1 : class, IWriteableAddressSegment
+            where TAddressSegment2 : class, IWriteableAddressSegment
+        {
+            segment.ResetCalls();
+            otherSegment1.ResetCalls();
+            otherSegment2.ResetCalls();
+
+            foreach (var percentile in GetAddressRangePercentiles(segmentAddress, length))
+            {
+                var value = (byte)this.random.Next(0xff);
+                this.mmu.WriteByte(percentile, value);
+                var address = (ushort)(percentile - segmentAddress);
+                segment.Verify(x => x.WriteByte(address, value), Times.Once);
+            }
+
+            otherSegment1.Verify(x => x.WriteByte(It.IsAny<ushort>(), It.IsAny<byte>()), Times.Never);
+            otherSegment2.Verify(x => x.WriteByte(It.IsAny<ushort>(), It.IsAny<byte>()), Times.Never);
         }
 
         private static IEnumerable<ushort> GetAddressRangePercentiles(ushort baseAddress, ushort length)
