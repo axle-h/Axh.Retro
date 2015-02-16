@@ -155,8 +155,8 @@
             }
 
             var segment = segments[index];
-            
-            segmentAddress = (ushort)(segment.Address - address);
+
+            segmentAddress = (ushort)(address - segment.Address);
 
             return segment;
         }
@@ -175,7 +175,7 @@
 
             segment = segments[segmentIndex];
 
-            segmentAddress = (ushort)(segment.Address - address);
+            segmentAddress = (ushort)(address - segment.Address);
 
             return segmentAddress + length < segment.Length;
         }

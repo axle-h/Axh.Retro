@@ -10,7 +10,7 @@
     using NUnit.Framework;
 
     [TestFixture]
-    public class Z80MmuConfigTestsTests
+    public class Z80MmuConfigTests
     {
         private Mock<IReadableAddressSegment> segment0R;
         private Mock<IWriteableAddressSegment> segment0W;
