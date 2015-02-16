@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{84D4DAC3-9B2E-4A9A-9C85-16A7E58DEEB8}</ProjectGuid>
+    <ProjectGuid>{15E8BFF0-AA13-420F-8527-9187A37F6360}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Axh.Emulation.GameBoy</RootNamespace>
-    <AssemblyName>Axh.Emulation.GameBoy</AssemblyName>
+    <RootNamespace>Axh.Emulation.CPU.X80.Contracts</RootNamespace>
+    <AssemblyName>Axh.Emulation.CPU.X80.Contracts</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -39,17 +39,32 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Config\GameBoyInitialStateConfig.cs" />
-    <Compile Include="Config\GameBoyPlatformConfig.cs" />
+    <Compile Include="Config\IInitialStateConfig.cs" />
+    <Compile Include="Config\IMemoryBankConfig.cs" />
+    <Compile Include="Config\IPlatformConfig.cs" />
+    <Compile Include="CpuMode.cs" />
+    <Compile Include="Exceptions\MmuAddressSegmentGapException.cs" />
+    <Compile Include="Exceptions\MmuAddressSegmentOverlapException.cs" />
+    <Compile Include="Exceptions\SegmentationFaultException.cs" />
+    <Compile Include="Exceptions\PlatformConfigurationException.cs" />
+    <Compile Include="Factories\IMmuFactory.cs" />
+    <Compile Include="Factories\IRegisterFactory.cs" />
+    <Compile Include="ICpuCore.cs" />
+    <Compile Include="IMmu.cs" />
+    <Compile Include="Memory\IAddressSegment.cs" />
+    <Compile Include="Memory\IReadableAddressSegment.cs" />
+    <Compile Include="Memory\IWriteableAddressSegment.cs" />
+    <Compile Include="Registers\InterruptMode.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Config\SystemMemoryBankConfig.cs" />
+    <Compile Include="Registers\IRegisters.cs" />
+    <Compile Include="State\GeneralPurposeRegisterState.cs" />
+    <Compile Include="Registers\IFlagsRegister.cs" />
+    <Compile Include="Registers\IGeneralPurposeRegisterSet.cs" />
+    <Compile Include="Registers\IZ80Registers.cs" />
+    <Compile Include="State\RegisterState.cs" />
+    <Compile Include="State\Z80RegisterState.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Axh.Emulation.CPU.X80.Contracts\Axh.Emulation.CPU.X80.Contracts.csproj">
-      <Project>{15e8bff0-aa13-420f-8527-9187a37f6360}</Project>
-      <Name>Axh.Emulation.CPU.X80.Contracts</Name>
-    </ProjectReference>
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
