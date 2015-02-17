@@ -70,18 +70,18 @@
             var segmentLength = nextSegment.Length - segmentAddress;
             var nextBytes = nextSegment.ReadBytes(segmentAddress, segmentLength);
             Array.Copy(nextBytes, 0, bytes, 0, segmentLength);
-            length -= segmentLength;
+            var lengthRemaining = length - segmentLength;
 
             // Read from consecutive segments until all bytes have been read.
-            while (length > 0)
+            while (lengthRemaining > 0)
             {
                 segmentIndex = (segmentIndex + 1) % this.readSegments.Length;
                 nextSegment = this.readSegments[segmentIndex];
-                segmentLength = Math.Min(length, nextSegment.Length);
+                segmentLength = Math.Min(lengthRemaining, nextSegment.Length);
                 nextBytes = nextSegment.ReadBytes(0, segmentLength);
 
-                Array.Copy(nextBytes, 0, bytes, length, segmentLength);
-                length -= segmentLength;
+                Array.Copy(nextBytes, 0, bytes, length - lengthRemaining, segmentLength);
+                lengthRemaining -= segmentLength;
             }
             
             return bytes;
@@ -101,7 +101,7 @@
             IWriteableAddressSegment segment;
             if (TryGetSegmentIndexForAddress(writeSegmentAddresses, writeSegments, address, sizeof(ushort), out segment, out segmentIndex, out segmentAddress))
             {
-                segment.WriteWord(address, word);
+                segment.WriteWord(segmentAddress, word);
                 return;
             }
 
@@ -118,27 +118,31 @@
             IWriteableAddressSegment segment;
             if (TryGetSegmentIndexForAddress(writeSegmentAddresses, writeSegments, address, bytes.Length, out segment, out segmentIndex, out segmentAddress))
             {
-                segment.WriteBytes(address, bytes);
+                segment.WriteBytes(segmentAddress, bytes);
+                return;
             }
             
             // Write to first segment
-            var length = bytes.Length;
             var segmentLength = segment.Length - segmentAddress;
             var nextBytes = new byte[segmentLength];
             Array.Copy(bytes, 0, nextBytes, 0, segmentLength);
             segment.WriteBytes(segmentAddress, nextBytes);
-            length -= segmentLength;
+            var nextIndex = segmentLength;
+            var lengthRemaining = bytes.Length - segmentLength;
 
             // Write to consecutive segments until all bytes have been written.
-            while (length > 0)
+            while (lengthRemaining > 0)
             {
                 segmentIndex = (segmentIndex + 1) % this.writeSegments.Length;
                 segment = this.writeSegments[segmentIndex];
                 
-                segmentLength = Math.Min(length, segment.Length);
+                segmentLength = Math.Min(lengthRemaining, segment.Length);
                 nextBytes = new byte[segmentLength];
-                Array.Copy(bytes, length, nextBytes, 0, segmentLength);
-                length -= segmentLength;
+                Array.Copy(bytes, nextIndex, nextBytes, 0, segmentLength);
+                segment.WriteBytes(0, nextBytes);
+
+                lengthRemaining -= segmentLength;
+                nextIndex += segmentLength;
             }
         }
 
