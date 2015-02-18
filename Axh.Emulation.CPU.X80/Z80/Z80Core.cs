@@ -5,6 +5,7 @@
 
     using Axh.Emulation.CPU.X80.Contracts;
     using Axh.Emulation.CPU.X80.Contracts.Factories;
+    using Axh.Emulation.CPU.X80.Contracts.Memory;
     using Axh.Emulation.CPU.X80.Contracts.Registers;
     using Axh.Emulation.CPU.X80.Factories;
     using Axh.Emulation.CPU.X80.Opcodes;

@@ -42,6 +42,7 @@
     <Compile Include="Factories\MmuFactory.cs" />
     <Compile Include="Factories\RegisterFactory.cs" />
     <Compile Include="Memory\ArrayBackedMemoryBank.cs" />
+    <Compile Include="Memory\ReadOnlyMemoryBank.cs" />
     <Compile Include="Opcodes\PrefixDdFdOpCodes.cs" />
     <Compile Include="Opcodes\PrefixEdOpCodes.cs" />
     <Compile Include="Opcodes\PrimaryOpCodes.cs" />
@@ -52,11 +53,11 @@
     <Compile Include="Util\ByteExtensions.cs" />
     <Compile Include="Z80\Z80Core.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Z80\Z80Mmu.cs" />
+    <Compile Include="Mmu\SegmentMmu.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="GameBoy\" />
     <Folder Include="Intel8080\" />
-    <Folder Include="SharpLR35902\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Axh.Emulation.CPU.X80.Contracts\Axh.Emulation.CPU.X80.Contracts.csproj">

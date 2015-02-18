@@ -7,5 +7,10 @@
         ushort Address { get; }
 
         ushort Length { get; }
+
+        /// <summary>
+        /// Initial state of the memory bank.
+        /// </summary>
+        byte[] State { get; }
     }
 }

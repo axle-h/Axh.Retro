@@ -5,9 +5,10 @@
 
     using Axh.Emulation.CPU.X80.Contracts;
     using Axh.Emulation.CPU.X80.Contracts.Config;
+    using Axh.Emulation.CPU.X80.Contracts.Factories;
     using Axh.Emulation.CPU.X80.Contracts.Memory;
     using Axh.Emulation.CPU.X80.Memory;
-    using Axh.Emulation.CPU.X80.Z80;
+    using Axh.Emulation.CPU.X80.Mmu;
 
     public class MmuFactory : IMmuFactory
     {
@@ -29,7 +30,7 @@
                 case CpuMode.GameBoy:
                     throw new NotImplementedException();
                 case CpuMode.Z80:
-                    return new Z80Mmu(memoryBanks);
+                    return new SegmentMmu(memoryBanks);
                 default:
                     throw new ArgumentOutOfRangeException();
             }

@@ -43,6 +43,7 @@
     <Compile Include="Config\IMemoryBankConfig.cs" />
     <Compile Include="Config\IPlatformConfig.cs" />
     <Compile Include="CpuMode.cs" />
+    <Compile Include="Exceptions\MemoryConfigStateException.cs" />
     <Compile Include="Exceptions\MmuAddressSegmentGapException.cs" />
     <Compile Include="Exceptions\MmuAddressSegmentOverlapException.cs" />
     <Compile Include="Exceptions\SegmentationFaultException.cs" />
@@ -50,7 +51,7 @@
     <Compile Include="Factories\IMmuFactory.cs" />
     <Compile Include="Factories\IRegisterFactory.cs" />
     <Compile Include="ICpuCore.cs" />
-    <Compile Include="IMmu.cs" />
+    <Compile Include="Memory\IMmu.cs" />
     <Compile Include="Memory\IAddressSegment.cs" />
     <Compile Include="Memory\IReadableAddressSegment.cs" />
     <Compile Include="Memory\IWriteableAddressSegment.cs" />

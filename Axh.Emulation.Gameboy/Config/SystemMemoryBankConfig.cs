@@ -9,6 +9,7 @@
             this.BankId = bankId;
             this.Address = address;
             this.Length = length;
+            this.State = new byte[length];
         }
 
         public int BankId { get; private set; }
@@ -16,5 +17,7 @@
         public ushort Address { get; private set; }
 
         public ushort Length { get; private set; }
+
+        public byte[] State { get; private set; }
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace Axh.Emulation.CPU.X80.Contracts
+﻿namespace Axh.Emulation.CPU.X80.Contracts.Memory
 {
     public interface IMmu
     {

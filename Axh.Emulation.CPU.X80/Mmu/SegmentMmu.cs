@@ -1,14 +1,13 @@
-﻿namespace Axh.Emulation.CPU.X80.Z80
+﻿namespace Axh.Emulation.CPU.X80.Mmu
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
 
-    using Axh.Emulation.CPU.X80.Contracts;
     using Axh.Emulation.CPU.X80.Contracts.Exceptions;
     using Axh.Emulation.CPU.X80.Contracts.Memory;
 
-    public class Z80Mmu : IMmu
+    public class SegmentMmu : IMmu
     {
         private readonly ushort[] readSegmentAddresses;
         private readonly IReadableAddressSegment[] readSegments;
@@ -16,7 +15,7 @@
         private readonly ushort[] writeSegmentAddresses;
         private readonly IWriteableAddressSegment[] writeSegments;
 
-        public Z80Mmu(IEnumerable<IAddressSegment> addressSegments)
+        public SegmentMmu(IEnumerable<IAddressSegment> addressSegments)
         {
             var sortedSegments = addressSegments.OrderBy(x => x.Address).ToArray();
 
@@ -33,7 +32,7 @@
         public byte ReadByte(ushort address)
         {
             ushort segmentAddress;
-            var addressSegment = GetAddressSegmentForAddress(readSegmentAddresses, readSegments, address, out segmentAddress);
+            var addressSegment = GetAddressSegmentForAddress(this.readSegmentAddresses, this.readSegments, address, out segmentAddress);
             return addressSegment.ReadByte(segmentAddress);
         }
 
@@ -42,7 +41,7 @@
             ushort segmentAddress;
             int segmentIndex;
             IReadableAddressSegment segment;
-            if (TryGetSegmentIndexForAddress(readSegmentAddresses, readSegments, address, sizeof(ushort), out segment, out segmentIndex, out segmentAddress))
+            if (TryGetSegmentIndexForAddress(this.readSegmentAddresses, this.readSegments, address, sizeof(ushort), out segment, out segmentIndex, out segmentAddress))
             {
                 return this.readSegments[segmentIndex].ReadWord(segmentAddress);
             }
@@ -58,7 +57,7 @@
             ushort segmentAddress;
             int segmentIndex;
             IReadableAddressSegment segment;
-            if (TryGetSegmentIndexForAddress(readSegmentAddresses, readSegments, address, length, out segment, out segmentIndex, out segmentAddress))
+            if (TryGetSegmentIndexForAddress(this.readSegmentAddresses, this.readSegments, address, length, out segment, out segmentIndex, out segmentAddress))
             {
                 return this.readSegments[segmentIndex].ReadBytes(segmentAddress, length);
             }
@@ -90,7 +89,7 @@
         public void WriteByte(ushort address, byte value)
         {
             ushort segmentAddress;
-            var addressSegment = GetAddressSegmentForAddress(writeSegmentAddresses, writeSegments, address, out segmentAddress);
+            var addressSegment = GetAddressSegmentForAddress(this.writeSegmentAddresses, this.writeSegments, address, out segmentAddress);
             addressSegment.WriteByte(segmentAddress, value);
         }
 
@@ -99,7 +98,7 @@
             ushort segmentAddress;
             int segmentIndex;
             IWriteableAddressSegment segment;
-            if (TryGetSegmentIndexForAddress(writeSegmentAddresses, writeSegments, address, sizeof(ushort), out segment, out segmentIndex, out segmentAddress))
+            if (TryGetSegmentIndexForAddress(this.writeSegmentAddresses, this.writeSegments, address, sizeof(ushort), out segment, out segmentIndex, out segmentAddress))
             {
                 segment.WriteWord(segmentAddress, word);
                 return;
@@ -116,7 +115,7 @@
             ushort segmentAddress;
             int segmentIndex;
             IWriteableAddressSegment segment;
-            if (TryGetSegmentIndexForAddress(writeSegmentAddresses, writeSegments, address, bytes.Length, out segment, out segmentIndex, out segmentAddress))
+            if (TryGetSegmentIndexForAddress(this.writeSegmentAddresses, this.writeSegments, address, bytes.Length, out segment, out segmentIndex, out segmentAddress))
             {
                 segment.WriteBytes(segmentAddress, bytes);
                 return;

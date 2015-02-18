@@ -1,26 +1,44 @@
 ﻿namespace Axh.Emulation.CPU.X80.Tests.Memory
 {
     using System;
+    using System.Linq;
 
     using Axh.Emulation.CPU.X80.Contracts.Config;
     using Axh.Emulation.CPU.X80.Contracts.Exceptions;
     using Axh.Emulation.CPU.X80.Memory;
 
     using Moq;
+
     using NUnit.Framework;
 
     [TestFixture]
-    public class ArrayBackedMemoryTests
+    public class ReadOnlyMemoryBankTests
     {
         private const ushort Address = 0xf00d;
         private const ushort Length = 0x0bad;
-        
+
+        private static readonly byte[] ByteContent;
+        private static readonly ushort[] WordContent;
+
+        static ReadOnlyMemoryBankTests()
+        {
+            ByteContent = new byte[Length];
+            var random = new Random(1234);
+            random.NextBytes(ByteContent);
+
+            WordContent = new ushort[Length / 2];
+            for (var i = 0; i < Length / 2; i++)
+            {
+                WordContent[i] = BitConverter.ToUInt16(ByteContent, i * 2);
+            }
+        }
+
         private static Mock<IMemoryBankConfig> SetupMemoryBankConfigMock()
         {
             var memoryBankConfig = new Mock<IMemoryBankConfig>();
             memoryBankConfig.Setup(x => x.Address).Returns(Address);
             memoryBankConfig.Setup(x => x.Length).Returns(Length);
-            memoryBankConfig.Setup(x => x.State).Returns(null as byte[]);
+            memoryBankConfig.Setup(x => x.State).Returns(ByteContent);
             return memoryBankConfig;
         }
 
@@ -51,66 +69,33 @@
         }
 
         [Test]
-        public void StateIsSetInConstructor()
+        public void ReadByteReturnsCorrectContent()
         {
-            var random = new Random(1234);
-            var state = new byte[Length];
-            random.NextBytes(state);
-
             var memoryBankConfig = SetupMemoryBankConfigMock();
-            memoryBankConfig.Setup(x => x.State).Returns(state);
-            var memory = new ArrayBackedMemoryBank(memoryBankConfig.Object);
+            var memory = new ReadOnlyMemoryBank(memoryBankConfig.Object);
 
-            var memoryBytes = memory.ReadBytes(0, Length);
-            CollectionAssert.AreEqual(state, memoryBytes);
+            var readAllBytes = Enumerable.Range(0, Length).Select(i => memory.ReadByte((ushort)i)).ToArray();
+            CollectionAssert.AreEqual(ByteContent, readAllBytes);
         }
 
         [Test]
-        public void CanReadAndWriteSingleBytes()
+        public void ReadWordReturnsCorrectContent()
         {
             var memoryBankConfig = SetupMemoryBankConfigMock();
-            var memory = new ArrayBackedMemoryBank(memoryBankConfig.Object);
-            var random = new Random(1234);
-            for (ushort i = 0; i < Length; i++)
-            {
-                var expected = (byte)random.Next(byte.MaxValue);
-                memory.WriteByte(i, expected);
-                var actual = memory.ReadByte(i);
-                Assert.AreEqual(expected, actual);
-            }
+            var memory = new ReadOnlyMemoryBank(memoryBankConfig.Object);
+
+            var readAllWords = Enumerable.Range(0, Length / 2).Select(i => memory.ReadWord((ushort)(i * 2))).ToArray();
+            CollectionAssert.AreEqual(WordContent, readAllWords);
         }
 
         [Test]
-        public void CanReadAndWriteSingleWords()
+        public void ReadBytesReturnsCorrectContent()
         {
             var memoryBankConfig = SetupMemoryBankConfigMock();
-            var memory = new ArrayBackedMemoryBank(memoryBankConfig.Object);
-            var random = new Random(1234);
-            for (ushort i = 0; i < Length - 1; i++)
-            {
-                var expected = (ushort)random.Next(ushort.MaxValue);
-                memory.WriteWord(i, expected);
-                var actual = memory.ReadWord(i);
-                Assert.AreEqual(expected, actual);
-            }
-        }
+            var memory = new ReadOnlyMemoryBank(memoryBankConfig.Object);
 
-        [Test]
-        public void CanReadAndWriteByteArrays()
-        {
-            var memoryBankConfig = SetupMemoryBankConfigMock();
-            var memory = new ArrayBackedMemoryBank(memoryBankConfig.Object);
-            const ushort ByteArrayAddress = Length / 4;
-            const ushort ByteArrayLength = Length / 2;
-
-            var random = new Random(1234);
-            var bytes = new byte[ByteArrayLength];
-            random.NextBytes(bytes);
-
-            memory.WriteBytes(ByteArrayAddress, bytes);
-            var observed = memory.ReadBytes(ByteArrayAddress, ByteArrayLength);
-
-            CollectionAssert.AreEqual(bytes, observed);
+            var readAllBytes = memory.ReadBytes(0, Length);
+            CollectionAssert.AreEqual(ByteContent, readAllBytes);
         }
 
     }

@@ -3,6 +3,7 @@
     using System;
 
     using Axh.Emulation.CPU.X80.Contracts.Config;
+    using Axh.Emulation.CPU.X80.Contracts.Exceptions;
     using Axh.Emulation.CPU.X80.Contracts.Memory;
 
     public class ArrayBackedMemoryBank : IReadableAddressSegment, IWriteableAddressSegment
@@ -14,6 +15,17 @@
             this.memory = new byte[memoryBankConfig.Length];
             this.Address = memoryBankConfig.Address;
             this.Length = memoryBankConfig.Length;
+
+            if (memoryBankConfig.State == null)
+            {
+                return;
+            }
+
+            if (memoryBankConfig.Length != memoryBankConfig.State.Length)
+            {
+                throw new MemoryConfigStateException(memoryBankConfig.Address, memoryBankConfig.Length, memoryBankConfig.State.Length);
+            }
+            Array.Copy(memoryBankConfig.State, 0, this.memory, 0, memoryBankConfig.State.Length);
         }
 
         public ushort Address { get; private set; }

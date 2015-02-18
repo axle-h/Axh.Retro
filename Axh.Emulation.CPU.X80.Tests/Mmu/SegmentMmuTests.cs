@@ -1,20 +1,18 @@
 ﻿namespace Axh.Emulation.CPU.X80.Tests.Mmu
 {
     using System;
-    using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
 
-    using Axh.Emulation.CPU.X80.Contracts;
     using Axh.Emulation.CPU.X80.Contracts.Memory;
-    using Axh.Emulation.CPU.X80.Z80;
+    using Axh.Emulation.CPU.X80.Mmu;
 
     using Moq;
 
     using NUnit.Framework;
 
     [TestFixture]
-    public class Z80MmuTests
+    public class SegmentMmuTests
     {
         private const ushort Address0 = 0x0000;
         private const ushort Address1 = 0x8000;
@@ -52,7 +50,7 @@
 
             SetupSegmentForRead(segment2, Address2, Length2);
 
-            this.mmu = new Z80Mmu(new IAddressSegment[] { this.segment0R.Object, this.segment0W.Object, this.segment1.Object, this.segment2.Object });
+            this.mmu = new SegmentMmu(new IAddressSegment[] { this.segment0R.Object, this.segment0W.Object, this.segment1.Object, this.segment2.Object });
         }
 
         private static void SetupSegment<TAddressSegment>(Mock<TAddressSegment> segment, ushort address, ushort length)

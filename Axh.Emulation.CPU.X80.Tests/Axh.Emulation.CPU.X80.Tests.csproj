@@ -53,14 +53,15 @@
   </Choose>
   <ItemGroup>
     <Compile Include="Memory\ArrayBackedMemoryTests.cs" />
+    <Compile Include="Memory\ReadOnlyMemoryBankTests.cs" />
     <Compile Include="Mmu\IReadableWriteableAddressSegment.cs" />
-    <Compile Include="Mmu\Z80MmuTests.cs" />
+    <Compile Include="Mmu\SegmentMmuTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Registers\FlagsRegisterTests.cs" />
     <Compile Include="Registers\GeneralPurposeRegisterSetTests.cs" />
     <Compile Include="Registers\RegisterTestObjects.cs" />
     <Compile Include="Registers\Z80RegistersTests.cs" />
-    <Compile Include="Mmu\Z80MmuConfigTests.cs" />
+    <Compile Include="Mmu\MmuConfigTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
