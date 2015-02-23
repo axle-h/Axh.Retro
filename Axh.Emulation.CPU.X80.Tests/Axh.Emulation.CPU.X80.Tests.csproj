@@ -62,7 +62,7 @@
     <Compile Include="Registers\RegisterTestObjects.cs" />
     <Compile Include="Registers\Z80RegistersTests.cs" />
     <Compile Include="Mmu\MmuConfigTests.cs" />
-    <Compile Include="Z80\Z80InstructionDecoderTests.cs" />
+    <Compile Include="Z80\Z80InstructionDecoder8BitLoadTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

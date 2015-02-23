@@ -9,6 +9,6 @@ namespace Axh.Emulation.CPU.X80.Contracts.Z80
 
     public interface IZ80InstructionDecoder
     {
-        Expression<Action<IZ80Registers, IMmu>> DecodeOperation(PrimaryOpCode opCode);
+        Expression<Action<IZ80Registers, IMmu>> DecodeSingleOperation(PrimaryOpCode opCode);
     }
 }
