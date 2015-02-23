@@ -1,6 +1,6 @@
-﻿namespace Axh.Emulation.CPU.X80.Opcodes
+﻿namespace Axh.Emulation.CPU.X80.Contracts.OpCodes
 {
-    public enum PrefixEdOpCodes : byte
+    public enum PrefixEdOpCode : byte
     {
         //8 Bit Load
         LD_A_I = 0x57,

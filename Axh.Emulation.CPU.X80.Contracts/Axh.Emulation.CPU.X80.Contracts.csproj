@@ -55,6 +55,9 @@
     <Compile Include="Memory\IAddressSegment.cs" />
     <Compile Include="Memory\IReadableAddressSegment.cs" />
     <Compile Include="Memory\IWriteableAddressSegment.cs" />
+    <Compile Include="OpCodes\PrefixDdFdOpCode.cs" />
+    <Compile Include="OpCodes\PrefixEdOpCode.cs" />
+    <Compile Include="OpCodes\PrimaryOpCode.cs" />
     <Compile Include="Registers\InterruptMode.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Registers\IRegisters.cs" />
@@ -64,6 +67,7 @@
     <Compile Include="Registers\IZ80Registers.cs" />
     <Compile Include="State\RegisterState.cs" />
     <Compile Include="State\Z80RegisterState.cs" />
+    <Compile Include="Z80\IZ80InstructionDecoder.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
