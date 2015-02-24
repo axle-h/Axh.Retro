@@ -42,7 +42,6 @@
             registers = new Mock<IZ80Registers>();
             gpRegisters = new Mock<IGeneralPurposeRegisterSet>();
             registers.Setup(x => x.GeneralPurposeRegisters).Returns(gpRegisters.Object);
-            SetupRegisters();
 
             mmu = new Mock<IMmu>();
 
@@ -82,6 +81,8 @@
             cache.SetupSequence(x => x.GetNextByte()).Returns((byte)PrimaryOpCode.NOP).Returns((byte)PrimaryOpCode.NOP).Returns((byte)PrimaryOpCode.HALT);
             var block = decoder.DecodeNextBlock(Address);
             Assert.IsNotNull(block);
+            Assert.AreEqual(3, block.MachineCycles);
+            Assert.AreEqual(12, block.ThrottlingStates);
             
             registers.SetupProperty(x => x.R, (byte)0x5f);
             registers.SetupProperty(x => x.ProgramCounter, (ushort)0x1234);
@@ -101,6 +102,8 @@
             cache.Setup(x => x.GetNextByte()).Returns((byte)PrimaryOpCode.HALT);
             var block = decoder.DecodeNextBlock(Address);
             Assert.IsNotNull(block);
+            Assert.AreEqual(1, block.MachineCycles);
+            Assert.AreEqual(4, block.ThrottlingStates);
 
             registers.SetupProperty(x => x.R, (byte)0x7f);
             registers.SetupProperty(x => x.ProgramCounter, (ushort)0xffff);
@@ -171,9 +174,15 @@
             var block = decoder.DecodeNextBlock(Address);
             Assert.IsNotNull(block);
 
+            Assert.AreEqual(2, block.MachineCycles);
+            Assert.AreEqual(8, block.ThrottlingStates);
+
             block.Action(registers.Object, mmu.Object);
 
             cache.Verify(x => x.GetNextByte(), Times.Exactly(2));
+
+            // 8-bit load doesn't set the flags.
+            gpRegisters.Verify(x => x.Flags, Times.Never);
 
             switch (opcode)
             {

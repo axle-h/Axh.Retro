@@ -77,10 +77,11 @@
             var mmuCache = mmuFactory.GetMmuCache(mmu, address);
 
             var expressions = new List<Expression>();
+            var timer = new InstructionTimer();
 
             while (true)
             {
-                var canContinue = TryDecodeNextOperation(mmuCache, expressions);
+                var canContinue = TryDecodeNextOperation(mmuCache, expressions, timer);
 
                 if (!canContinue || mmuCache.TotalBytesRead >= ushort.MaxValue)
                 {
@@ -90,7 +91,35 @@
 
             var expressionBlock = Expression.Block(expressions);
             var lambda = Expression.Lambda<Action<IZ80Registers, IMmu>>(expressionBlock, RegistersParameterExpression, MmuParameterExpression);
-            return new Z80DynamicallyRecompiledBlock { Address = address, Action = lambda.Compile(), Length = (ushort)mmuCache.TotalBytesRead };
+            return new Z80DynamicallyRecompiledBlock
+                   {
+                       Address = address,
+                       Action = lambda.Compile(),
+                       Length = (ushort)mmuCache.TotalBytesRead,
+                       MachineCycles = timer.MachineCycles,
+                       ThrottlingStates = timer.ThrottlingStates
+                   };
+        }
+
+        /// <summary>
+        /// This is just to clean up incrementing the cycle counters per instruction. Calls to Add 'should' be inlined by the JIT compiler.
+        /// </summary>
+        private class InstructionTimer
+        {
+            public InstructionTimer()
+            {
+                MachineCycles = 0;
+                ThrottlingStates = 0;
+            }
+
+            public int MachineCycles { get; private set; }
+            public int ThrottlingStates { get; private set; }
+
+            public void Add(int mCycles, int tStates)
+            {
+                MachineCycles += mCycles;
+                ThrottlingStates += tStates;
+            }
         }
 
         /// <summary>
@@ -98,9 +127,9 @@
         /// </summary>
         /// <param name="mmuCache"></param>
         /// <param name="expressions"></param>
-        /// <param name="length"></param>
+        /// <param name="timer"></param>
         /// <returns>True if we can continue to decode operations sequentially, false if it can't e.g. a jumo</returns>
-        private static bool TryDecodeNextOperation(IMmuCache mmuCache, ICollection<Expression> expressions)
+        private static bool TryDecodeNextOperation(IMmuCache mmuCache, ICollection<Expression> expressions, InstructionTimer timer)
         {
             var opCode = (PrimaryOpCode)mmuCache.GetNextByte();
 
@@ -110,156 +139,163 @@
             switch (opCode)
             {
                 case PrimaryOpCode.NOP:
+                    timer.Add(1, 4);
                     break;
                 case PrimaryOpCode.HALT:
+                    timer.Add(1, 4);
                     return false;
 
                 // ********* 8-bit load *********
                 case PrimaryOpCode.LD_A_A:
+                    timer.Add(1, 4);
                     break;
                 case PrimaryOpCode.LD_B_A:
                     expressions.Add(Expression.Assign(B, A));
+                    timer.Add(1, 4);
                     break;
                 case PrimaryOpCode.LD_C_A:
                     expressions.Add(Expression.Assign(C, A));
+                    timer.Add(1, 4);
                     break;
                 case PrimaryOpCode.LD_D_A:
                     expressions.Add(Expression.Assign(D, A));
+                    timer.Add(1, 4);
                     break;
                 case PrimaryOpCode.LD_E_A:
                     expressions.Add(Expression.Assign(E, A));
-                    break;
+                    timer.Add(1, 4); break;
                 case PrimaryOpCode.LD_H_A:
                     expressions.Add(Expression.Assign(H, A));
-                    break;
+                    timer.Add(1, 4); break;
                 case PrimaryOpCode.LD_L_A:
                     expressions.Add(Expression.Assign(L, A));
-                    break;
+                    timer.Add(1, 4); break;
                 case PrimaryOpCode.LD_A_B:
                     expressions.Add(Expression.Assign(A, B));
-                    break;
+                    timer.Add(1, 4); break;
                 case PrimaryOpCode.LD_B_B:
-                    break;
+                    timer.Add(1, 4); break;
                 case PrimaryOpCode.LD_C_B:
                     expressions.Add(Expression.Assign(C, B));
-                    break;
+                    timer.Add(1, 4); break;
                 case PrimaryOpCode.LD_D_B:
                     expressions.Add(Expression.Assign(D, B));
-                    break;
+                    timer.Add(1, 4); break;
                 case PrimaryOpCode.LD_E_B:
                     expressions.Add(Expression.Assign(E, B));
-                    break;
+                    timer.Add(1, 4); break;
                 case PrimaryOpCode.LD_H_B:
                     expressions.Add(Expression.Assign(H, B));
-                    break;
+                    timer.Add(1, 4); break;
                 case PrimaryOpCode.LD_L_B:
                     expressions.Add(Expression.Assign(L, B));
-                    break;
+                    timer.Add(1, 4); break;
                 case PrimaryOpCode.LD_A_C:
                     expressions.Add(Expression.Assign(A, C));
-                    break;
+                    timer.Add(1, 4); break;
                 case PrimaryOpCode.LD_B_C:
                     expressions.Add(Expression.Assign(B, C));
-                    break;
+                    timer.Add(1, 4); break;
                 case PrimaryOpCode.LD_C_C:
-                    break;
+                    timer.Add(1, 4); break;
                 case PrimaryOpCode.LD_D_C:
                     expressions.Add(Expression.Assign(D, C));
-                    break;
+                    timer.Add(1, 4); break;
                 case PrimaryOpCode.LD_E_C:
                     expressions.Add(Expression.Assign(E, C));
-                    break;
+                    timer.Add(1, 4); break;
                 case PrimaryOpCode.LD_H_C:
                     expressions.Add(Expression.Assign(H, C));
-                    break;
+                    timer.Add(1, 4); break;
                 case PrimaryOpCode.LD_L_C:
                     expressions.Add(Expression.Assign(L, C));
-                    break;
+                    timer.Add(1, 4); break;
                 case PrimaryOpCode.LD_A_D:
                     expressions.Add(Expression.Assign(A, D));
-                    break;
+                    timer.Add(1, 4); break;
                 case PrimaryOpCode.LD_B_D:
                     expressions.Add(Expression.Assign(B, D));
-                    break;
+                    timer.Add(1, 4); break;
                 case PrimaryOpCode.LD_C_D:
                     expressions.Add(Expression.Assign(C, D));
-                    break;
+                    timer.Add(1, 4); break;
                 case PrimaryOpCode.LD_D_D:
-                    break;
+                    timer.Add(1, 4); break;
                 case PrimaryOpCode.LD_E_D:
                     expressions.Add(Expression.Assign(E, D));
-                    break;
+                    timer.Add(1, 4); break;
                 case PrimaryOpCode.LD_H_D:
                     expressions.Add(Expression.Assign(H, D));
-                    break;
+                    timer.Add(1, 4); break;
                 case PrimaryOpCode.LD_L_D:
                     expressions.Add(Expression.Assign(L, D));
-                    break;
+                    timer.Add(1, 4); break;
                 case PrimaryOpCode.LD_A_E:
                     expressions.Add(Expression.Assign(A, E));
-                    break;
+                    timer.Add(1, 4); break;
                 case PrimaryOpCode.LD_B_E:
                     expressions.Add(Expression.Assign(B, E));
-                    break;
+                    timer.Add(1, 4); break;
                 case PrimaryOpCode.LD_C_E:
                     expressions.Add(Expression.Assign(C, E));
-                    break;
+                    timer.Add(1, 4); break;
                 case PrimaryOpCode.LD_D_E:
                     expressions.Add(Expression.Assign(D, E));
-                    break;
+                    timer.Add(1, 4); break;
                 case PrimaryOpCode.LD_E_E:
-                    break;
+                    timer.Add(1, 4); break;
                 case PrimaryOpCode.LD_H_E:
                     expressions.Add(Expression.Assign(H, E));
-                    break;
+                    timer.Add(1, 4); break;
                 case PrimaryOpCode.LD_L_E:
                     expressions.Add(Expression.Assign(L, E));
-                    break;
+                    timer.Add(1, 4); break;
                 case PrimaryOpCode.LD_A_H:
                     expressions.Add(Expression.Assign(A, H));
-                    break;
+                    timer.Add(1, 4); break;
                 case PrimaryOpCode.LD_B_H:
                     expressions.Add(Expression.Assign(B, H));
-                    break;
+                    timer.Add(1, 4); break;
                 case PrimaryOpCode.LD_C_H:
                     expressions.Add(Expression.Assign(C, H));
-                    break;
+                    timer.Add(1, 4); break;
                 case PrimaryOpCode.LD_D_H:
                     expressions.Add(Expression.Assign(D, H));
-                    break;
+                    timer.Add(1, 4); break;
                 case PrimaryOpCode.LD_E_H:
                     expressions.Add(Expression.Assign(E, H));
-                    break;
+                    timer.Add(1, 4); break;
                 case PrimaryOpCode.LD_H_H:
-                    break;
+                    timer.Add(1, 4); break;
                 case PrimaryOpCode.LD_L_H:
                     expressions.Add(Expression.Assign(L, H));
-                    break;
+                    timer.Add(1, 4); break;
                 case PrimaryOpCode.LD_A_L:
                     expressions.Add(Expression.Assign(A, L));
-                    break;
+                    timer.Add(1, 4); break;
                 case PrimaryOpCode.LD_B_L:
                     expressions.Add(Expression.Assign(B, L));
-                    break;
+                    timer.Add(1, 4); break;
                 case PrimaryOpCode.LD_C_L:
                     expressions.Add(Expression.Assign(C, L));
-                    break;
+                    timer.Add(1, 4); break;
                 case PrimaryOpCode.LD_D_L:
                     expressions.Add(Expression.Assign(D, L));
-                    break;
+                    timer.Add(1, 4); break;
                 case PrimaryOpCode.LD_E_L:
                     expressions.Add(Expression.Assign(E, L));
-                    break;
+                    timer.Add(1, 4); break;
                 case PrimaryOpCode.LD_H_L:
                     expressions.Add(Expression.Assign(H, L));
-                    break;
+                    timer.Add(1, 4); break;
                 case PrimaryOpCode.LD_L_L:
-                    break;
+                    timer.Add(1, 4); break;
 
                 // ********* Jump *********
                 case PrimaryOpCode.JP:
                     var address = mmuCache.GetNextWord();
                     expressions.Add(Expression.Assign(Pc, Expression.Constant(address, typeof(ushort))));
+                    timer.Add(3, 10);
                     return false;
                 default:
                     throw new NotImplementedException(opCode.ToString());
