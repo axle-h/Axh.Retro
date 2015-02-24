@@ -4,6 +4,9 @@
 
     using Axh.Emulation.CPU.X80.Contracts.Memory;
 
+    /// <summary>
+    /// Should speed up sequential access to the MMU e.g. reading op-codes
+    /// </summary>
     public class MmuCache : IMmuCache
     {
         private const int CacheSize = 64;
@@ -23,7 +26,7 @@
             this.ReBuildCache(address);
         }
 
-        public byte GetNextByte()
+        public byte NextByte()
         {
             var value = this.cache[this.cachePointer];
             
@@ -36,18 +39,18 @@
             return value;
         }
 
-        public byte[] GetNextBytes(int length)
+        public byte[] NextBytes(int length)
         {
             var bytes = new byte[length];
             var bytesRead = 0;
 
             while (bytesRead < length)
             {
-                var bytesToRead = Math.Min(length, CacheSize - this.cachePointer);
+                var bytesToRead = Math.Min(length - bytesRead, CacheSize - this.cachePointer);
                 Array.Copy(this.cache, this.cachePointer, bytes, bytesRead, bytesToRead);
                 bytesRead += bytesToRead;
 
-                this.cachePointer += bytesRead;
+                this.cachePointer += bytesToRead;
                 if (this.cachePointer == CacheSize)
                 {
                     this.NudgeCache();
@@ -58,13 +61,13 @@
             return bytes;
         }
 
-        public ushort GetNextWord()
+        public ushort NextWord()
         {
             if (CacheSize - this.cachePointer == 1)
             {
                 // If there's only one byte left then we need to read it then the next byte from the next cache
-                var lsb = this.GetNextByte();
-                var msb = this.GetNextByte();
+                var lsb = this.NextByte();
+                var msb = this.NextByte();
 
                 return BitConverter.ToUInt16(new[] { lsb, msb }, 0);
             }

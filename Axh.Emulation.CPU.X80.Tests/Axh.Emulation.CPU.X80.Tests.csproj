@@ -55,6 +55,7 @@
     <Compile Include="Memory\ArrayBackedMemoryTests.cs" />
     <Compile Include="Memory\ReadOnlyMemoryBankTests.cs" />
     <Compile Include="Mmu\IReadableWriteableAddressSegment.cs" />
+    <Compile Include="Mmu\MmuCacheTests.cs" />
     <Compile Include="Mmu\SegmentMmuTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Registers\FlagsRegisterTests.cs" />

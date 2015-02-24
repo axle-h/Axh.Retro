@@ -2,11 +2,11 @@
 {
     public interface IMmuCache
     {
-        byte GetNextByte();
+        byte NextByte();
 
-        byte[] GetNextBytes(int length);
+        byte[] NextBytes(int length);
 
-        ushort GetNextWord();
+        ushort NextWord();
 
         void ReBuildCache(ushort newAddress);
 

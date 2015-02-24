@@ -131,7 +131,7 @@
         /// <returns>True if we can continue to decode operations sequentially, false if it can't e.g. a jumo</returns>
         private static bool TryDecodeNextOperation(IMmuCache mmuCache, ICollection<Expression> expressions, InstructionTimer timer)
         {
-            var opCode = (PrimaryOpCode)mmuCache.GetNextByte();
+            var opCode = (PrimaryOpCode)mmuCache.NextByte();
 
             expressions.Add(IncrementMemoryRefreshRegisterExpression);
             expressions.Add(IncrementProgramCounterRegisterExpression);
@@ -293,7 +293,7 @@
 
                 // ********* Jump *********
                 case PrimaryOpCode.JP:
-                    var address = mmuCache.GetNextWord();
+                    var address = mmuCache.NextWord();
                     expressions.Add(Expression.Assign(Pc, Expression.Constant(address, typeof(ushort))));
                     timer.Add(3, 10);
                     return false;

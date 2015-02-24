@@ -78,7 +78,7 @@
         {
             ResetMocks();
 
-            cache.SetupSequence(x => x.GetNextByte()).Returns((byte)PrimaryOpCode.NOP).Returns((byte)PrimaryOpCode.NOP).Returns((byte)PrimaryOpCode.HALT);
+            cache.SetupSequence(x => x.NextByte()).Returns((byte)PrimaryOpCode.NOP).Returns((byte)PrimaryOpCode.NOP).Returns((byte)PrimaryOpCode.HALT);
             var block = decoder.DecodeNextBlock(Address);
             Assert.IsNotNull(block);
             Assert.AreEqual(3, block.MachineCycles);
@@ -89,7 +89,7 @@
 
             block.Action(registers.Object, mmu.Object);
             
-            cache.Verify(x => x.GetNextByte(), Times.Exactly(3));
+            cache.Verify(x => x.NextByte(), Times.Exactly(3));
             Assert.AreEqual(0x62, registers.Object.R);
             Assert.AreEqual(0x1237, registers.Object.ProgramCounter);
         }
@@ -99,7 +99,7 @@
         {
             ResetMocks();
 
-            cache.Setup(x => x.GetNextByte()).Returns((byte)PrimaryOpCode.HALT);
+            cache.Setup(x => x.NextByte()).Returns((byte)PrimaryOpCode.HALT);
             var block = decoder.DecodeNextBlock(Address);
             Assert.IsNotNull(block);
             Assert.AreEqual(1, block.MachineCycles);
@@ -110,7 +110,7 @@
             
             block.Action(registers.Object, mmu.Object);
 
-            cache.Verify(x => x.GetNextByte(), Times.Once);
+            cache.Verify(x => x.NextByte(), Times.Once);
             Assert.AreEqual(0x00, registers.Object.R);
             Assert.AreEqual(0x0000, registers.Object.ProgramCounter);
         }
@@ -169,7 +169,7 @@
             SetupRegisters();
             ResetMocks();
 
-            cache.SetupSequence(x => x.GetNextByte()).Returns((byte)opcode).Returns((byte)PrimaryOpCode.HALT);
+            cache.SetupSequence(x => x.NextByte()).Returns((byte)opcode).Returns((byte)PrimaryOpCode.HALT);
 
             var block = decoder.DecodeNextBlock(Address);
             Assert.IsNotNull(block);
@@ -179,7 +179,7 @@
 
             block.Action(registers.Object, mmu.Object);
 
-            cache.Verify(x => x.GetNextByte(), Times.Exactly(2));
+            cache.Verify(x => x.NextByte(), Times.Exactly(2));
 
             // 8-bit load doesn't set the flags.
             gpRegisters.Verify(x => x.Flags, Times.Never);
