@@ -240,5 +240,9 @@
         SCF = 0x37,
         DI = 0xF3,
         EI = 0xFB,
+
+
+
+        JP = 0xC3,
     }
 }

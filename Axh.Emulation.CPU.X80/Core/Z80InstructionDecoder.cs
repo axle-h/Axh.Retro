@@ -1,15 +1,15 @@
-﻿namespace Axh.Emulation.CPU.X80.Z80
+﻿namespace Axh.Emulation.CPU.X80.Core
 {
     using System;
-    using System.Collections;
     using System.Collections.Generic;
     using System.Linq.Expressions;
     using System.Reflection;
 
+    using Axh.Emulation.CPU.X80.Contracts.Factories;
     using Axh.Emulation.CPU.X80.Contracts.Memory;
     using Axh.Emulation.CPU.X80.Contracts.OpCodes;
     using Axh.Emulation.CPU.X80.Contracts.Registers;
-    using Axh.Emulation.CPU.X80.Contracts.Z80;
+    using Axh.Emulation.CPU.X80.Contracts.Core;
 
     public class Z80InstructionDecoder : IZ80InstructionDecoder
     {
@@ -62,165 +62,210 @@
 
         }
 
-        public Expression<Action<IZ80Registers, IMmu>> DecodeSingleOperation(PrimaryOpCode opCode)
+        private readonly IMmuFactory mmuFactory;
+
+        private readonly IMmu mmu;
+
+        public Z80InstructionDecoder(IMmuFactory mmuFactory, IMmu mmu)
         {
-            var operationExpressions = DecodeOperation(opCode);
-            var expressionBlock = Expression.Block(operationExpressions);
-            return Expression.Lambda<Action<IZ80Registers, IMmu>>(expressionBlock, RegistersParameterExpression, MmuParameterExpression);
+            this.mmuFactory = mmuFactory;
+            this.mmu = mmu;
         }
 
-        private static IEnumerable<Expression> DecodeOperation(PrimaryOpCode opCode)
+        public Z80DynamicallyRecompiledBlock DecodeNextBlock(ushort address)
         {
-            yield return IncrementMemoryRefreshRegisterExpression;
-            yield return IncrementProgramCounterRegisterExpression;
+            var mmuCache = mmuFactory.GetMmuCache(mmu, address);
+
+            var expressions = new List<Expression>();
+
+            while (true)
+            {
+                var canContinue = TryDecodeNextOperation(mmuCache, expressions);
+
+                if (!canContinue || mmuCache.TotalBytesRead >= ushort.MaxValue)
+                {
+                    break;
+                }
+            }
+
+            var expressionBlock = Expression.Block(expressions);
+            var lambda = Expression.Lambda<Action<IZ80Registers, IMmu>>(expressionBlock, RegistersParameterExpression, MmuParameterExpression);
+            return new Z80DynamicallyRecompiledBlock { Address = address, Action = lambda.Compile(), Length = (ushort)mmuCache.TotalBytesRead };
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mmuCache"></param>
+        /// <param name="expressions"></param>
+        /// <param name="length"></param>
+        /// <returns>True if we can continue to decode operations sequentially, false if it can't e.g. a jumo</returns>
+        private static bool TryDecodeNextOperation(IMmuCache mmuCache, ICollection<Expression> expressions)
+        {
+            var opCode = (PrimaryOpCode)mmuCache.GetNextByte();
+
+            expressions.Add(IncrementMemoryRefreshRegisterExpression);
+            expressions.Add(IncrementProgramCounterRegisterExpression);
 
             switch (opCode)
             {
                 case PrimaryOpCode.NOP:
                     break;
+                case PrimaryOpCode.HALT:
+                    return false;
+
+                // ********* 8-bit load *********
                 case PrimaryOpCode.LD_A_A:
                     break;
                 case PrimaryOpCode.LD_B_A:
-                    yield return Expression.Assign(B, A);
+                    expressions.Add(Expression.Assign(B, A));
                     break;
                 case PrimaryOpCode.LD_C_A:
-                    yield return Expression.Assign(C, A);
+                    expressions.Add(Expression.Assign(C, A));
                     break;
                 case PrimaryOpCode.LD_D_A:
-                    yield return Expression.Assign(D, A);
+                    expressions.Add(Expression.Assign(D, A));
                     break;
                 case PrimaryOpCode.LD_E_A:
-                    yield return Expression.Assign(E, A);
+                    expressions.Add(Expression.Assign(E, A));
                     break;
                 case PrimaryOpCode.LD_H_A:
-                    yield return Expression.Assign(H, A);
+                    expressions.Add(Expression.Assign(H, A));
                     break;
                 case PrimaryOpCode.LD_L_A:
-                    yield return Expression.Assign(L, A);
+                    expressions.Add(Expression.Assign(L, A));
                     break;
                 case PrimaryOpCode.LD_A_B:
-                    yield return Expression.Assign(A, B);
+                    expressions.Add(Expression.Assign(A, B));
                     break;
                 case PrimaryOpCode.LD_B_B:
                     break;
                 case PrimaryOpCode.LD_C_B:
-                    yield return Expression.Assign(C, B);
+                    expressions.Add(Expression.Assign(C, B));
                     break;
                 case PrimaryOpCode.LD_D_B:
-                    yield return Expression.Assign(D, B);
+                    expressions.Add(Expression.Assign(D, B));
                     break;
                 case PrimaryOpCode.LD_E_B:
-                    yield return Expression.Assign(E, B);
+                    expressions.Add(Expression.Assign(E, B));
                     break;
                 case PrimaryOpCode.LD_H_B:
-                    yield return Expression.Assign(H, B);
+                    expressions.Add(Expression.Assign(H, B));
                     break;
                 case PrimaryOpCode.LD_L_B:
-                    yield return Expression.Assign(L, B);
+                    expressions.Add(Expression.Assign(L, B));
                     break;
                 case PrimaryOpCode.LD_A_C:
-                    yield return Expression.Assign(A, C);
+                    expressions.Add(Expression.Assign(A, C));
                     break;
                 case PrimaryOpCode.LD_B_C:
-                    yield return Expression.Assign(B, C);
+                    expressions.Add(Expression.Assign(B, C));
                     break;
                 case PrimaryOpCode.LD_C_C:
                     break;
                 case PrimaryOpCode.LD_D_C:
-                    yield return Expression.Assign(D, C);
+                    expressions.Add(Expression.Assign(D, C));
                     break;
                 case PrimaryOpCode.LD_E_C:
-                    yield return Expression.Assign(E, C);
+                    expressions.Add(Expression.Assign(E, C));
                     break;
                 case PrimaryOpCode.LD_H_C:
-                    yield return Expression.Assign(H, C);
+                    expressions.Add(Expression.Assign(H, C));
                     break;
                 case PrimaryOpCode.LD_L_C:
-                    yield return Expression.Assign(L, C);
+                    expressions.Add(Expression.Assign(L, C));
                     break;
                 case PrimaryOpCode.LD_A_D:
-                    yield return Expression.Assign(A, D);
+                    expressions.Add(Expression.Assign(A, D));
                     break;
                 case PrimaryOpCode.LD_B_D:
-                    yield return Expression.Assign(B, D);
+                    expressions.Add(Expression.Assign(B, D));
                     break;
                 case PrimaryOpCode.LD_C_D:
-                    yield return Expression.Assign(C, D);
+                    expressions.Add(Expression.Assign(C, D));
                     break;
                 case PrimaryOpCode.LD_D_D:
                     break;
                 case PrimaryOpCode.LD_E_D:
-                    yield return Expression.Assign(E, D);
+                    expressions.Add(Expression.Assign(E, D));
                     break;
                 case PrimaryOpCode.LD_H_D:
-                    yield return Expression.Assign(H, D);
+                    expressions.Add(Expression.Assign(H, D));
                     break;
                 case PrimaryOpCode.LD_L_D:
-                    yield return Expression.Assign(L, D);
+                    expressions.Add(Expression.Assign(L, D));
                     break;
                 case PrimaryOpCode.LD_A_E:
-                    yield return Expression.Assign(A, E);
+                    expressions.Add(Expression.Assign(A, E));
                     break;
                 case PrimaryOpCode.LD_B_E:
-                    yield return Expression.Assign(B, E);
+                    expressions.Add(Expression.Assign(B, E));
                     break;
                 case PrimaryOpCode.LD_C_E:
-                    yield return Expression.Assign(C, E);
+                    expressions.Add(Expression.Assign(C, E));
                     break;
                 case PrimaryOpCode.LD_D_E:
-                    yield return Expression.Assign(D, E);
+                    expressions.Add(Expression.Assign(D, E));
                     break;
                 case PrimaryOpCode.LD_E_E:
                     break;
                 case PrimaryOpCode.LD_H_E:
-                    yield return Expression.Assign(H, E);
+                    expressions.Add(Expression.Assign(H, E));
                     break;
                 case PrimaryOpCode.LD_L_E:
-                    yield return Expression.Assign(L, E);
+                    expressions.Add(Expression.Assign(L, E));
                     break;
                 case PrimaryOpCode.LD_A_H:
-                    yield return Expression.Assign(A, H);
+                    expressions.Add(Expression.Assign(A, H));
                     break;
                 case PrimaryOpCode.LD_B_H:
-                    yield return Expression.Assign(B, H);
+                    expressions.Add(Expression.Assign(B, H));
                     break;
                 case PrimaryOpCode.LD_C_H:
-                    yield return Expression.Assign(C, H);
+                    expressions.Add(Expression.Assign(C, H));
                     break;
                 case PrimaryOpCode.LD_D_H:
-                    yield return Expression.Assign(D, H);
+                    expressions.Add(Expression.Assign(D, H));
                     break;
                 case PrimaryOpCode.LD_E_H:
-                    yield return Expression.Assign(E, H);
+                    expressions.Add(Expression.Assign(E, H));
                     break;
                 case PrimaryOpCode.LD_H_H:
                     break;
                 case PrimaryOpCode.LD_L_H:
-                    yield return Expression.Assign(L, H);
+                    expressions.Add(Expression.Assign(L, H));
                     break;
                 case PrimaryOpCode.LD_A_L:
-                    yield return Expression.Assign(A, L);
+                    expressions.Add(Expression.Assign(A, L));
                     break;
                 case PrimaryOpCode.LD_B_L:
-                    yield return Expression.Assign(B, L);
+                    expressions.Add(Expression.Assign(B, L));
                     break;
                 case PrimaryOpCode.LD_C_L:
-                    yield return Expression.Assign(C, L);
+                    expressions.Add(Expression.Assign(C, L));
                     break;
                 case PrimaryOpCode.LD_D_L:
-                    yield return Expression.Assign(D, L);
+                    expressions.Add(Expression.Assign(D, L));
                     break;
                 case PrimaryOpCode.LD_E_L:
-                    yield return Expression.Assign(E, L);
+                    expressions.Add(Expression.Assign(E, L));
                     break;
                 case PrimaryOpCode.LD_H_L:
-                    yield return Expression.Assign(H, L);
+                    expressions.Add(Expression.Assign(H, L));
                     break;
                 case PrimaryOpCode.LD_L_L:
                     break;
+
+                // ********* Jump *********
+                case PrimaryOpCode.JP:
+                    var address = mmuCache.GetNextWord();
+                    expressions.Add(Expression.Assign(Pc, Expression.Constant(address, typeof(ushort))));
+                    return false;
                 default:
                     throw new NotImplementedException(opCode.ToString());
             }
+
+            return true;
         }
         
         private static PropertyInfo GetPropertyInfo<TSource, TProperty>(Expression<Func<TSource, TProperty>> propertyLambda)

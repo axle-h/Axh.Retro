@@ -36,6 +36,11 @@
             }
         }
 
+        public IMmuCache GetMmuCache(IMmu mmu, ushort address)
+        {
+            return new MmuCache(mmu, address);
+        }
+
         private static IReadableAddressSegment GetAddressSegment(IMemoryBankConfig config)
         {
             return new ArrayBackedMemoryBank(config);

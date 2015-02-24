@@ -1,4 +1,4 @@
-﻿namespace Axh.Emulation.CPU.X80.Z80
+﻿namespace Axh.Emulation.CPU.X80.Core
 {
     using System;
     using System.Threading.Tasks;

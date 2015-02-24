@@ -2,11 +2,12 @@
 {
     using System;
 
+    using Axh.Emulation.CPU.X80.Contracts.Factories;
     using Axh.Emulation.CPU.X80.Contracts.Memory;
     using Axh.Emulation.CPU.X80.Contracts.OpCodes;
     using Axh.Emulation.CPU.X80.Contracts.Registers;
-    using Axh.Emulation.CPU.X80.Contracts.Z80;
-    using Axh.Emulation.CPU.X80.Z80;
+    using Axh.Emulation.CPU.X80.Contracts.Core;
+    using Axh.Emulation.CPU.X80.Core;
 
     using Moq;
 
@@ -15,6 +16,8 @@
     [TestFixture]
     public class Z80InstructionDecoder8BitLoadTests
     {
+        private const ushort Address = 0x0000;
+
         private const byte A = 0xaa;
         private const byte B = 0xbb;
         private const byte C = 0xcc;
@@ -31,15 +34,13 @@
 
         private Mock<IGeneralPurposeRegisterSet> gpRegisters;
 
+        private Mock<IMmuCache> cache;
+
         [TestFixtureSetUp]
         public void TestFixtureSetUp()
         {
-            decoder = new Z80InstructionDecoder();
-
             registers = new Mock<IZ80Registers>();
             gpRegisters = new Mock<IGeneralPurposeRegisterSet>();
-            mmu = new Mock<IMmu>();
-
             registers.Setup(x => x.GeneralPurposeRegisters).Returns(gpRegisters.Object);
             gpRegisters.Setup(x => x.A).Returns(A);
             gpRegisters.Setup(x => x.B).Returns(B);
@@ -48,13 +49,24 @@
             gpRegisters.Setup(x => x.E).Returns(E);
             gpRegisters.Setup(x => x.H).Returns(H);
             gpRegisters.Setup(x => x.L).Returns(L);
+
+            mmu = new Mock<IMmu>();
+
+            cache = new Mock<IMmuCache>();
+
+            var mmuFactory = new Mock<IMmuFactory>();
+            mmuFactory.Setup(x => x.GetMmuCache(mmu.Object, Address)).Returns(cache.Object);
+
+            decoder = new Z80InstructionDecoder(mmuFactory.Object, mmu.Object);
+            
         }
 
         [Test]
-        public void NopIncrentsProgramCounterAndMemoryRefreshRegisters()
+        public void HaltIncrentsProgramCounterAndMemoryRefreshRegisters()
         {
-            var expression = decoder.DecodeSingleOperation(PrimaryOpCode.NOP);
-            Assert.IsNotNull(expression);
+            cache.Setup(x => x.GetNextByte()).Returns((byte)PrimaryOpCode.HALT);
+            var block = decoder.DecodeNextBlock(Address);
+            Assert.IsNotNull(block);
 
             registers.ResetCalls();
             mmu.ResetCalls();
@@ -62,8 +74,7 @@
             registers.Setup(x => x.R).Returns(0x5f);
             registers.Setup(x => x.ProgramCounter).Returns(0x1234);
 
-            var action = expression.Compile();
-            action(registers.Object, mmu.Object);
+            block.Action(registers.Object, mmu.Object);
             
             registers.VerifySet(x => x.R = It.Is<byte>(y => y == 0x60), Times.Once);
             registers.VerifySet(x => x.ProgramCounter = It.Is<ushort>(y => y == 0x1235), Times.Once);
@@ -72,8 +83,9 @@
         [Test]
         public void NopIncrentsProgramCounterAndMemoryRefreshRegistersWithCorrectOverflow()
         {
-            var expression = decoder.DecodeSingleOperation(PrimaryOpCode.NOP);
-            Assert.IsNotNull(expression);
+            cache.Setup(x => x.GetNextByte()).Returns((byte)PrimaryOpCode.HALT);
+            var block = decoder.DecodeNextBlock(Address);
+            Assert.IsNotNull(block);
 
             registers.ResetCalls();
             mmu.ResetCalls();
@@ -81,8 +93,7 @@
             registers.Setup(x => x.R).Returns(0x7f);
             registers.Setup(x => x.ProgramCounter).Returns(0xffff);
 
-            var action = expression.Compile();
-            action(registers.Object, mmu.Object);
+            block.Action(registers.Object, mmu.Object);
 
             registers.VerifySet(x => x.R = It.Is<byte>(y => y == 0x00), Times.Once);
             registers.VerifySet(x => x.ProgramCounter = It.Is<ushort>(y => y == 0x0000), Times.Once);
@@ -142,9 +153,12 @@
             registers.ResetCalls();
             gpRegisters.ResetCalls();
 
-            var expression = decoder.DecodeSingleOperation(opcode);
-            var action = expression.Compile();
-            action(registers.Object, mmu.Object);
+            cache.SetupSequence(x => x.GetNextByte()).Returns((byte)opcode).Returns((byte)PrimaryOpCode.HALT);
+
+            var block = decoder.DecodeNextBlock(Address);
+            Assert.IsNotNull(block);
+
+            block.Action(registers.Object, mmu.Object);
 
             switch (opcode)
             {

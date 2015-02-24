@@ -42,6 +42,7 @@
     <Compile Include="Config\IInitialStateConfig.cs" />
     <Compile Include="Config\IMemoryBankConfig.cs" />
     <Compile Include="Config\IPlatformConfig.cs" />
+    <Compile Include="Core\DynamicallyRecompiledBlock.cs" />
     <Compile Include="CpuMode.cs" />
     <Compile Include="Exceptions\MemoryConfigStateException.cs" />
     <Compile Include="Exceptions\MmuAddressSegmentGapException.cs" />
@@ -53,6 +54,7 @@
     <Compile Include="ICpuCore.cs" />
     <Compile Include="Memory\IMmu.cs" />
     <Compile Include="Memory\IAddressSegment.cs" />
+    <Compile Include="Memory\IMmuCache.cs" />
     <Compile Include="Memory\IReadableAddressSegment.cs" />
     <Compile Include="Memory\IWriteableAddressSegment.cs" />
     <Compile Include="OpCodes\PrefixDdFdOpCode.cs" />
@@ -67,7 +69,7 @@
     <Compile Include="Registers\IZ80Registers.cs" />
     <Compile Include="State\RegisterState.cs" />
     <Compile Include="State\Z80RegisterState.cs" />
-    <Compile Include="Z80\IZ80InstructionDecoder.cs" />
+    <Compile Include="Core\IZ80InstructionDecoder.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

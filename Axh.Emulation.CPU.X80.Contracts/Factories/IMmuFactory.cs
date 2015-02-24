@@ -5,5 +5,7 @@
     public interface IMmuFactory
     {
         IMmu GetMmu();
+
+        IMmuCache GetMmuCache(IMmu mmu, ushort address);
     }
 }
