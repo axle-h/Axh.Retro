@@ -42,13 +42,7 @@
             registers = new Mock<IZ80Registers>();
             gpRegisters = new Mock<IGeneralPurposeRegisterSet>();
             registers.Setup(x => x.GeneralPurposeRegisters).Returns(gpRegisters.Object);
-            gpRegisters.Setup(x => x.A).Returns(A);
-            gpRegisters.Setup(x => x.B).Returns(B);
-            gpRegisters.Setup(x => x.C).Returns(C);
-            gpRegisters.Setup(x => x.D).Returns(D);
-            gpRegisters.Setup(x => x.E).Returns(E);
-            gpRegisters.Setup(x => x.H).Returns(H);
-            gpRegisters.Setup(x => x.L).Returns(L);
+            SetupRegisters();
 
             mmu = new Mock<IMmu>();
 
@@ -58,45 +52,64 @@
             mmuFactory.Setup(x => x.GetMmuCache(mmu.Object, Address)).Returns(cache.Object);
 
             decoder = new Z80InstructionDecoder(mmuFactory.Object, mmu.Object);
-            
         }
+
+        private void SetupRegisters()
+        {
+            gpRegisters.SetupProperty(x => x.A, A);
+            gpRegisters.SetupProperty(x => x.B, B);
+            gpRegisters.SetupProperty(x => x.C, C);
+            gpRegisters.SetupProperty(x => x.D, D);
+            gpRegisters.SetupProperty(x => x.E, E);
+            gpRegisters.SetupProperty(x => x.H, H);
+            gpRegisters.SetupProperty(x => x.L, L);
+        }
+
+        private void ResetMocks()
+        {
+            registers.ResetCalls();
+            cache.ResetCalls();
+            mmu.ResetCalls();
+            gpRegisters.ResetCalls();
+        }
+
 
         [Test]
         public void HaltIncrentsProgramCounterAndMemoryRefreshRegisters()
         {
-            cache.Setup(x => x.GetNextByte()).Returns((byte)PrimaryOpCode.HALT);
+            ResetMocks();
+
+            cache.SetupSequence(x => x.GetNextByte()).Returns((byte)PrimaryOpCode.NOP).Returns((byte)PrimaryOpCode.NOP).Returns((byte)PrimaryOpCode.HALT);
             var block = decoder.DecodeNextBlock(Address);
             Assert.IsNotNull(block);
-
-            registers.ResetCalls();
-            mmu.ResetCalls();
-
-            registers.Setup(x => x.R).Returns(0x5f);
-            registers.Setup(x => x.ProgramCounter).Returns(0x1234);
+            
+            registers.SetupProperty(x => x.R, (byte)0x5f);
+            registers.SetupProperty(x => x.ProgramCounter, (ushort)0x1234);
 
             block.Action(registers.Object, mmu.Object);
             
-            registers.VerifySet(x => x.R = It.Is<byte>(y => y == 0x60), Times.Once);
-            registers.VerifySet(x => x.ProgramCounter = It.Is<ushort>(y => y == 0x1235), Times.Once);
+            cache.Verify(x => x.GetNextByte(), Times.Exactly(3));
+            Assert.AreEqual(0x62, registers.Object.R);
+            Assert.AreEqual(0x1237, registers.Object.ProgramCounter);
         }
 
         [Test]
         public void NopIncrentsProgramCounterAndMemoryRefreshRegistersWithCorrectOverflow()
         {
+            ResetMocks();
+
             cache.Setup(x => x.GetNextByte()).Returns((byte)PrimaryOpCode.HALT);
             var block = decoder.DecodeNextBlock(Address);
             Assert.IsNotNull(block);
 
-            registers.ResetCalls();
-            mmu.ResetCalls();
-
-            registers.Setup(x => x.R).Returns(0x7f);
-            registers.Setup(x => x.ProgramCounter).Returns(0xffff);
-
+            registers.SetupProperty(x => x.R, (byte)0x7f);
+            registers.SetupProperty(x => x.ProgramCounter, (ushort)0xffff);
+            
             block.Action(registers.Object, mmu.Object);
 
-            registers.VerifySet(x => x.R = It.Is<byte>(y => y == 0x00), Times.Once);
-            registers.VerifySet(x => x.ProgramCounter = It.Is<ushort>(y => y == 0x0000), Times.Once);
+            cache.Verify(x => x.GetNextByte(), Times.Once);
+            Assert.AreEqual(0x00, registers.Object.R);
+            Assert.AreEqual(0x0000, registers.Object.ProgramCounter);
         }
 
         [TestCase(PrimaryOpCode.LD_A_A)]
@@ -150,8 +163,8 @@
         [TestCase(PrimaryOpCode.LD_L_L)]
         public void Test8BitLoadOperations(PrimaryOpCode opcode)
         {
-            registers.ResetCalls();
-            gpRegisters.ResetCalls();
+            SetupRegisters();
+            ResetMocks();
 
             cache.SetupSequence(x => x.GetNextByte()).Returns((byte)opcode).Returns((byte)PrimaryOpCode.HALT);
 
@@ -159,6 +172,8 @@
             Assert.IsNotNull(block);
 
             block.Action(registers.Object, mmu.Object);
+
+            cache.Verify(x => x.GetNextByte(), Times.Exactly(2));
 
             switch (opcode)
             {
