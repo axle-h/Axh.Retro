@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq.Expressions;
     using System.Reflection;
+    using System.Xml.XPath;
 
     using Axh.Emulation.CPU.X80.Contracts.Factories;
     using Axh.Emulation.CPU.X80.Contracts.Memory;
@@ -14,14 +15,22 @@
 
     public class Z80InstructionDecoder : IZ80InstructionDecoder
     {
-        private static readonly ParameterExpression RegistersParameterExpression;
-        private static readonly ParameterExpression MmuParameterExpression;
-        private static readonly ParameterExpression TempByteParameterExpression;
-        private static readonly ParameterExpression TempWordParameterExpression;
+        private static readonly ParameterExpression RegistersExpression;
+        private static readonly ParameterExpression MmuExpression;
+
+        /// <summary>
+        /// Byte parameter b
+        /// </summary>
+        private static readonly ParameterExpression LocalBExpression;
+
+        /// <summary>
+        /// Word parameter w
+        /// </summary>
+        private static readonly ParameterExpression LocalWExpression;
 
         // Register expressions
         private static readonly MemberExpression R;
-        private static readonly MemberExpression Pc;
+        private static readonly MemberExpression PC;
         private static readonly MemberExpression A;
         private static readonly MemberExpression B;
         private static readonly MemberExpression C;
@@ -31,6 +40,8 @@
         private static readonly MemberExpression H;
         private static readonly MemberExpression L;
         private static readonly MemberExpression HL;
+        private static readonly MemberExpression IX;
+        private static readonly MemberExpression IY;
 
         private static readonly Expression IncrementMemoryRefreshRegisterExpression;
 
@@ -46,17 +57,24 @@
         /// </summary>
         private static readonly MethodCallExpression ReadByteByHlRegisterMethodExpression;
 
+        /// <summary>
+        /// Reads a byte from the mmu at the address at IX + b
+        /// </summary>
+        private static Expression ReadByteByIxIndexRegisterExpression;
+
         static Z80InstructionDecoder()
         {
-            RegistersParameterExpression = Expression.Parameter(typeof(IZ80Registers), "registers");
-            MmuParameterExpression = Expression.Parameter(typeof(IMmu), "mmu");
-            TempByteParameterExpression = Expression.Parameter(typeof(byte), "b");
-            TempWordParameterExpression = Expression.Parameter(typeof(ushort), "w");
+            RegistersExpression = Expression.Parameter(typeof(IZ80Registers), "registers");
+            MmuExpression = Expression.Parameter(typeof(IMmu), "mmu");
+            LocalBExpression = Expression.Parameter(typeof(byte), "b");
+            LocalWExpression = Expression.Parameter(typeof(ushort), "w");
 
-            R = RegistersParameterExpression.GetPropertyExpression<IZ80Registers, byte>(r => r.R);
-            Pc = RegistersParameterExpression.GetPropertyExpression<IZ80Registers, ushort>(r => r.ProgramCounter);
+            R = RegistersExpression.GetPropertyExpression<IZ80Registers, byte>(r => r.R);
+            PC = RegistersExpression.GetPropertyExpression<IZ80Registers, ushort>(r => r.ProgramCounter);
+            IX = RegistersExpression.GetPropertyExpression<IZ80Registers, ushort>(r => r.IX);
+            IY = RegistersExpression.GetPropertyExpression<IZ80Registers, ushort>(r => r.IY);
 
-            var generalPurposeRegisters = RegistersParameterExpression.GetPropertyExpression<IZ80Registers, IGeneralPurposeRegisterSet>(r => r.GeneralPurposeRegisters);
+            var generalPurposeRegisters = RegistersExpression.GetPropertyExpression<IZ80Registers, IGeneralPurposeRegisterSet>(r => r.GeneralPurposeRegisters);
             A = generalPurposeRegisters.GetPropertyExpression<IGeneralPurposeRegisterSet, byte>(r => r.A);
 
             B = generalPurposeRegisters.GetPropertyExpression<IGeneralPurposeRegisterSet, byte>(r => r.B);
@@ -75,11 +93,15 @@
             IncrementMemoryRefreshRegisterExpression = Expression.Assign(R, Expression.Convert(increment7LsbR, typeof(byte)));
 
             // Increment program counter register
-            var incrementPc = Expression.Convert(Expression.Increment(Expression.Convert(Pc, typeof(int))), typeof(ushort));
-            IncrementProgramCounterRegisterExpression = Expression.Assign(Pc, incrementPc);
+            var incrementPc = Expression.Convert(Expression.Increment(Expression.Convert(PC, typeof(int))), typeof(ushort));
+            IncrementProgramCounterRegisterExpression = Expression.Assign(PC, incrementPc);
 
-            ReadByteByTempMethodExpression = MmuParameterExpression.GetMethodExpression<IMmu, ushort, byte>((mmu, address) => mmu.ReadByte(address), TempWordParameterExpression);
-            ReadByteByHlRegisterMethodExpression = MmuParameterExpression.GetMethodExpression<IMmu, ushort, byte>((mmu, address) => mmu.ReadByte(address), HL);
+            ReadByteByTempMethodExpression = MmuExpression.GetMethodExpression<IMmu, ushort, byte>((mmu, address) => mmu.ReadByte(address), LocalWExpression);
+            ReadByteByHlRegisterMethodExpression = MmuExpression.GetMethodExpression<IMmu, ushort, byte>((mmu, address) => mmu.ReadByte(address), HL);
+
+            var getIxIndexRegisterAddressExpression =
+                Expression.Convert(Expression.Add(Expression.Convert(IX, typeof(int)), Expression.Convert(Expression.Convert(LocalBExpression, typeof(sbyte)), typeof(int))), typeof(ushort));
+            ReadByteByIxIndexRegisterExpression = MmuExpression.GetMethodExpression<IMmu, ushort, byte>((mmu, address) => mmu.ReadByte(address), getIxIndexRegisterAddressExpression);
 
         }
 
@@ -110,8 +132,8 @@
                 }
             }
 
-            var expressionBlock = Expression.Block(new [] { TempByteParameterExpression, TempWordParameterExpression }, expressions);
-            var lambda = Expression.Lambda<Action<IZ80Registers, IMmu>>(expressionBlock, RegistersParameterExpression, MmuParameterExpression);
+            var expressionBlock = Expression.Block(new [] { LocalBExpression, LocalWExpression }, expressions);
+            var lambda = Expression.Lambda<Action<IZ80Registers, IMmu>>(expressionBlock, RegistersExpression, MmuExpression);
             return new Z80DynamicallyRecompiledBlock
                    {
                        Address = address,
@@ -433,14 +455,75 @@
                     // ********* Jump *********
                 case PrimaryOpCode.JP:
                     wordArg = mmuCache.NextWord();
-                    expressions.Add(Expression.Assign(Pc, Expression.Constant(wordArg, typeof(ushort))));
+                    expressions.Add(Expression.Assign(PC, Expression.Constant(wordArg, typeof(ushort))));
                     timer.Add(3, 10);
                     return false;
+
+
+                case PrimaryOpCode.Prefix_DD:
+                    return TryDecodeNextDdPrefixOperation(mmuCache, expressions, timer);
+
                 default:
                     throw new NotImplementedException(opCode.ToString());
             }
 
             return true;
         }
+
+
+        private static bool TryDecodeNextDdPrefixOperation(IMmuCache mmuCache, ICollection<Expression> expressions, InstructionTimer timer)
+        {
+            var opCode = (PrefixDdFdOpCode)mmuCache.NextByte();
+
+            expressions.Add(IncrementMemoryRefreshRegisterExpression);
+            expressions.Add(IncrementProgramCounterRegisterExpression);
+
+            switch (opCode)
+            {
+                    // LD r, (IX+d)
+                    // We have defined this using ReadByteByIxIndexRegisterExpression for when we set the local parameter b to d.
+                case PrefixDdFdOpCode.LD_A_mIXYd:
+                    expressions.Add(Expression.Assign(LocalBExpression, Expression.Constant(mmuCache.NextByte())));
+                    expressions.Add(Expression.Assign(A, ReadByteByIxIndexRegisterExpression));
+                    timer.Add(5, 19);
+                    break;
+                case PrefixDdFdOpCode.LD_B_mIXYd:
+                    expressions.Add(Expression.Assign(LocalBExpression, Expression.Constant(mmuCache.NextByte())));
+                    expressions.Add(Expression.Assign(B, ReadByteByIxIndexRegisterExpression));
+                    timer.Add(5, 19);
+                    break;
+                case PrefixDdFdOpCode.LD_C_mIXYd:
+                    expressions.Add(Expression.Assign(LocalBExpression, Expression.Constant(mmuCache.NextByte())));
+                    expressions.Add(Expression.Assign(C, ReadByteByIxIndexRegisterExpression));
+                    timer.Add(5, 19);
+                    break;
+                case PrefixDdFdOpCode.LD_D_mIXYd:
+                    expressions.Add(Expression.Assign(LocalBExpression, Expression.Constant(mmuCache.NextByte())));
+                    expressions.Add(Expression.Assign(D, ReadByteByIxIndexRegisterExpression));
+                    timer.Add(5, 19);
+                    break;
+                case PrefixDdFdOpCode.LD_E_mIXYd:
+                    expressions.Add(Expression.Assign(LocalBExpression, Expression.Constant(mmuCache.NextByte())));
+                    expressions.Add(Expression.Assign(E, ReadByteByIxIndexRegisterExpression));
+                    timer.Add(5, 19);
+                    break;
+                case PrefixDdFdOpCode.LD_H_mIXYd:
+                    expressions.Add(Expression.Assign(LocalBExpression, Expression.Constant(mmuCache.NextByte())));
+                    expressions.Add(Expression.Assign(H, ReadByteByIxIndexRegisterExpression));
+                    timer.Add(5, 19);
+                    break;
+                case PrefixDdFdOpCode.LD_L_mIXYd:
+                    expressions.Add(Expression.Assign(LocalBExpression, Expression.Constant(mmuCache.NextByte())));
+                    expressions.Add(Expression.Assign(L, ReadByteByIxIndexRegisterExpression));
+                    timer.Add(5, 19);
+                    break;
+                default:
+                    throw new NotImplementedException(opCode.ToString());
+            }
+
+            return true;
+        }
+
+
     }
 }

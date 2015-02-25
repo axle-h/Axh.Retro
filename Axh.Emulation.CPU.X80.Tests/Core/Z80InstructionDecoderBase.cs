@@ -24,6 +24,8 @@
 
         protected const ushort HL = 0x4477;
 
+        protected const ushort IX = 0x3366;
+
         protected IZ80InstructionDecoder decoder;
 
         protected Mock<IZ80Registers> registers;
@@ -62,6 +64,8 @@
             this.gpRegisters.SetupProperty(x => x.L, L);
 
             this.gpRegisters.SetupProperty(x => x.HL, HL);
+
+            this.registers.SetupProperty(x => x.IX, IX);
         }
 
         protected void ResetMocks()

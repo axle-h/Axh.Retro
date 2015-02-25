@@ -743,5 +743,68 @@
             }
 
         }
+
+        [TestCase(PrefixDdFdOpCode.LD_A_mIXYd)]
+        [TestCase(PrefixDdFdOpCode.LD_B_mIXYd)]
+        [TestCase(PrefixDdFdOpCode.LD_C_mIXYd)]
+        [TestCase(PrefixDdFdOpCode.LD_D_mIXYd)]
+        [TestCase(PrefixDdFdOpCode.LD_E_mIXYd)]
+        [TestCase(PrefixDdFdOpCode.LD_H_mIXYd)]
+        [TestCase(PrefixDdFdOpCode.LD_L_mIXYd)]
+        public void LD_r_mIXd(PrefixDdFdOpCode opcode)
+        {
+            this.SetupRegisters();
+            this.ResetMocks();
+
+            const sbyte d = -127;
+            const byte db = unchecked((byte)d);
+            const byte Value = 0x8f;
+
+            this.mmu.Setup(x => x.ReadByte(IX + d)).Returns(Value);
+            this.cache.SetupSequence(x => x.NextByte()).Returns((byte)PrimaryOpCode.Prefix_DD).Returns((byte)opcode).Returns(db).Returns((byte)PrimaryOpCode.HALT);
+
+            var block = this.decoder.DecodeNextBlock(Address);
+            Assert.IsNotNull(block);
+
+            Assert.AreEqual(5 + 1, block.MachineCycles);
+            Assert.AreEqual(19 + 4, block.ThrottlingStates);
+
+            block.Action(this.registers.Object, this.mmu.Object);
+
+            this.cache.Verify(x => x.NextByte(), Times.Exactly(4));
+
+            // 8-bit load doesn't set the flags.
+            this.gpRegisters.Verify(x => x.Flags, Times.Never);
+
+            this.mmu.Verify(x => x.ReadByte(IX + d), Times.Once);
+            this.registers.VerifyGet(x => x.IX, Times.Once);
+            
+            switch (opcode)
+            {
+                case PrefixDdFdOpCode.LD_A_mIXYd:
+                    Assert.AreEqual(Value, this.gpRegisters.Object.A);
+                    break;
+                case PrefixDdFdOpCode.LD_B_mIXYd:
+                    Assert.AreEqual(Value, this.gpRegisters.Object.B);
+                    break;
+                case PrefixDdFdOpCode.LD_C_mIXYd:
+                    Assert.AreEqual(Value, this.gpRegisters.Object.C);
+                    break;
+                case PrefixDdFdOpCode.LD_D_mIXYd:
+                    Assert.AreEqual(Value, this.gpRegisters.Object.D);
+                    break;
+                case PrefixDdFdOpCode.LD_E_mIXYd:
+                    Assert.AreEqual(Value, this.gpRegisters.Object.E);
+                    break;
+                case PrefixDdFdOpCode.LD_H_mIXYd:
+                    Assert.AreEqual(Value, this.gpRegisters.Object.H);
+                    break;
+                case PrefixDdFdOpCode.LD_L_mIXYd:
+                    Assert.AreEqual(Value, this.gpRegisters.Object.L);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException("opcode");
+            }
+        }
     }
 }
