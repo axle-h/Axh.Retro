@@ -10,6 +10,7 @@
     using Axh.Emulation.CPU.X80.Contracts.OpCodes;
     using Axh.Emulation.CPU.X80.Contracts.Registers;
     using Axh.Emulation.CPU.X80.Contracts.Core;
+    using Axh.Emulation.CPU.X80.Util;
 
     public class Z80InstructionDecoder : IZ80InstructionDecoder
     {
@@ -36,21 +37,21 @@
         {
             RegistersParameterExpression = Expression.Parameter(typeof(IZ80Registers), "registers");
             MmuParameterExpression = Expression.Parameter(typeof(IMmu), "mmu");
-            R = Expression.Property(RegistersParameterExpression, GetPropertyInfo<IZ80Registers, byte>(r => r.R));
-            Pc = Expression.Property(RegistersParameterExpression, GetPropertyInfo<IZ80Registers, ushort>(r => r.ProgramCounter));
+            R = RegistersParameterExpression.GetPropertyExpression<IZ80Registers, byte>(r => r.R);
+            Pc = RegistersParameterExpression.GetPropertyExpression<IZ80Registers, ushort>(r => r.ProgramCounter);
 
-            var generalPurposeRegisters = Expression.Property(RegistersParameterExpression, GetPropertyInfo<IZ80Registers, IGeneralPurposeRegisterSet>(r => r.GeneralPurposeRegisters));
-            A = Expression.Property(generalPurposeRegisters, GetPropertyInfo<IGeneralPurposeRegisterSet, byte>(r => r.A));
-            B = Expression.Property(generalPurposeRegisters, GetPropertyInfo<IGeneralPurposeRegisterSet, byte>(r => r.B));
-            C = Expression.Property(generalPurposeRegisters, GetPropertyInfo<IGeneralPurposeRegisterSet, byte>(r => r.C));
-            D = Expression.Property(generalPurposeRegisters, GetPropertyInfo<IGeneralPurposeRegisterSet, byte>(r => r.D));
-            E = Expression.Property(generalPurposeRegisters, GetPropertyInfo<IGeneralPurposeRegisterSet, byte>(r => r.E));
-            H = Expression.Property(generalPurposeRegisters, GetPropertyInfo<IGeneralPurposeRegisterSet, byte>(r => r.H));
-            L = Expression.Property(generalPurposeRegisters, GetPropertyInfo<IGeneralPurposeRegisterSet, byte>(r => r.L));
+            var generalPurposeRegisters = RegistersParameterExpression.GetPropertyExpression<IZ80Registers, IGeneralPurposeRegisterSet>(r => r.GeneralPurposeRegisters);
+            A = generalPurposeRegisters.GetPropertyExpression<IGeneralPurposeRegisterSet, byte>(r => r.A);
 
-            var flagsRegister = Expression.Property(generalPurposeRegisters, GetPropertyInfo<IGeneralPurposeRegisterSet, IFlagsRegister>(r => r.Flags));
-            F = Expression.Property(flagsRegister, GetPropertyInfo<IFlagsRegister, byte>(r => r.Register));
+            B = generalPurposeRegisters.GetPropertyExpression<IGeneralPurposeRegisterSet, byte>(r => r.B);
+            C = generalPurposeRegisters.GetPropertyExpression<IGeneralPurposeRegisterSet, byte>(r => r.C);
+            D = generalPurposeRegisters.GetPropertyExpression<IGeneralPurposeRegisterSet, byte>(r => r.D);
+            E = generalPurposeRegisters.GetPropertyExpression<IGeneralPurposeRegisterSet, byte>(r => r.E);
+            H = generalPurposeRegisters.GetPropertyExpression<IGeneralPurposeRegisterSet, byte>(r => r.H);
+            L = generalPurposeRegisters.GetPropertyExpression<IGeneralPurposeRegisterSet, byte>(r => r.L);
 
+            var flagsRegister = generalPurposeRegisters.GetPropertyExpression<IGeneralPurposeRegisterSet, IFlagsRegister>(r => r.Flags);
+            F = flagsRegister.GetPropertyExpression<IFlagsRegister, byte>(r => r.Register);
 
             // Increment 7 lsb of memory refresh register.
             var increment7LsbR = Expression.And(Expression.Increment(Expression.Convert(R, typeof(int))), Expression.Constant(0x7f));
@@ -302,30 +303,6 @@
             }
 
             return true;
-        }
-        
-        private static PropertyInfo GetPropertyInfo<TSource, TProperty>(Expression<Func<TSource, TProperty>> propertyLambda)
-        {
-            var type = typeof(TSource);
-
-            var member = propertyLambda.Body as MemberExpression;
-            if (member == null)
-            {
-                throw new ArgumentException(string.Format("Expression '{0}' refers to a method, not a property.", propertyLambda));
-            }
-
-            var propInfo = member.Member as PropertyInfo;
-            if (propInfo == null)
-            {
-                throw new ArgumentException(string.Format("Expression '{0}' refers to a field, not a property.", propertyLambda));
-            }
-
-            if (type != propInfo.ReflectedType && !type.IsSubclassOf(propInfo.ReflectedType))
-            {
-                throw new ArgumentException(string.Format("Expresion '{0}' refers to a property that is not from type {1}.", propertyLambda, type));
-            }
-
-            return propInfo;
         }
     }
 }

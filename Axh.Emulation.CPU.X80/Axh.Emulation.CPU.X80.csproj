@@ -53,6 +53,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Mmu\SegmentMmu.cs" />
     <Compile Include="Core\Z80InstructionDecoder.cs" />
+    <Compile Include="Util\ExpressionHelpers.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="GameBoy\" />
