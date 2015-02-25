@@ -6,7 +6,7 @@
 
     internal static class ExpressionHelpers
     {
-        public static MemberExpression GetPropertyExpression<TSource, TProperty>(this Expression expression, Expression<Func<TSource, TProperty>> propertyLambda)
+        public static MemberExpression GetPropertyExpression<TSource, TProperty>(this Expression instance, Expression<Func<TSource, TProperty>> propertyLambda)
         {
             var type = typeof(TSource);
 
@@ -26,8 +26,34 @@
             {
                 throw new ArgumentException(string.Format("Expresion '{0}' refers to a property that is not from type {1}.", propertyLambda, type));
             }
+            
+            return Expression.Property(instance, propInfo);
+        }
 
-            return Expression.Property(expression, propInfo);
+        public static MethodCallExpression GetMethodExpression<TSource, TArg0, TResult>(this Expression instance, Expression<Func<TSource, TArg0, TResult>> methodLambda, Expression arg0)
+        {
+            var outermostExpression = methodLambda.Body as MethodCallExpression;
+
+            if (outermostExpression == null)
+            {
+                throw new ArgumentException("Invalid Expression. Expression should consist of a Method call only.");
+            }
+
+            var methodInfo = outermostExpression.Method;
+
+            return Expression.Call(instance, methodInfo, new[] { arg0 });
+        }
+
+        public static MethodInfo GetMethodInfo<TSource, TArg, TResult>(Expression<Func<TSource, TArg, TResult>> methodLambda)
+        {
+            var outermostExpression = methodLambda.Body as MethodCallExpression;
+
+            if (outermostExpression == null)
+            {
+                throw new ArgumentException("Invalid Expression. Expression should consist of a Method call only.");
+            }
+
+            return outermostExpression.Method;
         }
     }
 }

@@ -16,6 +16,8 @@
     {
         private static readonly ParameterExpression RegistersParameterExpression;
         private static readonly ParameterExpression MmuParameterExpression;
+        private static readonly ParameterExpression TempByteParameterExpression;
+        private static readonly ParameterExpression TempWordParameterExpression;
 
         // Register expressions
         private static readonly MemberExpression R;
@@ -28,15 +30,29 @@
         private static readonly MemberExpression F;
         private static readonly MemberExpression H;
         private static readonly MemberExpression L;
+        private static readonly MemberExpression HL;
 
         private static readonly Expression IncrementMemoryRefreshRegisterExpression;
 
         private static readonly Expression IncrementProgramCounterRegisterExpression;
 
+        /// <summary>
+        /// Reads a byte from the mmu at the address at TempWordParameterExpression
+        /// </summary>
+        private static readonly MethodCallExpression ReadByteByTempMethodExpression;
+
+        /// <summary>
+        /// Reads a byte from the mmu at the address at HL
+        /// </summary>
+        private static readonly MethodCallExpression ReadByteByHlRegisterMethodExpression;
+
         static Z80InstructionDecoder()
         {
             RegistersParameterExpression = Expression.Parameter(typeof(IZ80Registers), "registers");
             MmuParameterExpression = Expression.Parameter(typeof(IMmu), "mmu");
+            TempByteParameterExpression = Expression.Parameter(typeof(byte), "b");
+            TempWordParameterExpression = Expression.Parameter(typeof(ushort), "w");
+
             R = RegistersParameterExpression.GetPropertyExpression<IZ80Registers, byte>(r => r.R);
             Pc = RegistersParameterExpression.GetPropertyExpression<IZ80Registers, ushort>(r => r.ProgramCounter);
 
@@ -49,6 +65,7 @@
             E = generalPurposeRegisters.GetPropertyExpression<IGeneralPurposeRegisterSet, byte>(r => r.E);
             H = generalPurposeRegisters.GetPropertyExpression<IGeneralPurposeRegisterSet, byte>(r => r.H);
             L = generalPurposeRegisters.GetPropertyExpression<IGeneralPurposeRegisterSet, byte>(r => r.L);
+            HL = generalPurposeRegisters.GetPropertyExpression<IGeneralPurposeRegisterSet, ushort>(r => r.HL);
 
             var flagsRegister = generalPurposeRegisters.GetPropertyExpression<IGeneralPurposeRegisterSet, IFlagsRegister>(r => r.Flags);
             F = flagsRegister.GetPropertyExpression<IFlagsRegister, byte>(r => r.Register);
@@ -60,6 +77,9 @@
             // Increment program counter register
             var incrementPc = Expression.Convert(Expression.Increment(Expression.Convert(Pc, typeof(int))), typeof(ushort));
             IncrementProgramCounterRegisterExpression = Expression.Assign(Pc, incrementPc);
+
+            ReadByteByTempMethodExpression = MmuParameterExpression.GetMethodExpression<IMmu, ushort, byte>((mmu, address) => mmu.ReadByte(address), TempWordParameterExpression);
+            ReadByteByHlRegisterMethodExpression = MmuParameterExpression.GetMethodExpression<IMmu, ushort, byte>((mmu, address) => mmu.ReadByte(address), HL);
 
         }
 
@@ -90,7 +110,7 @@
                 }
             }
 
-            var expressionBlock = Expression.Block(expressions);
+            var expressionBlock = Expression.Block(new [] { TempByteParameterExpression, TempWordParameterExpression }, expressions);
             var lambda = Expression.Lambda<Action<IZ80Registers, IMmu>>(expressionBlock, RegistersParameterExpression, MmuParameterExpression);
             return new Z80DynamicallyRecompiledBlock
                    {
@@ -137,6 +157,10 @@
             expressions.Add(IncrementMemoryRefreshRegisterExpression);
             expressions.Add(IncrementProgramCounterRegisterExpression);
 
+            // Predefine some fields to hold arguements. Gets around implementing cases as blocks.
+            ushort wordArg;
+            byte byteArg;
+
             switch (opCode)
             {
                 case PrimaryOpCode.NOP:
@@ -147,6 +171,7 @@
                     return false;
 
                     // ********* 8-bit load *********
+                    // LD r, r'
                 case PrimaryOpCode.LD_A_A:
                     timer.Add(1, 4);
                     break;
@@ -337,10 +362,78 @@
                     timer.Add(1, 4);
                     break;
 
+                    // LD r,n
+                case PrimaryOpCode.LD_A_n:
+                    byteArg = mmuCache.NextByte();
+                    expressions.Add(Expression.Assign(A, Expression.Constant(byteArg)));
+                    timer.Add(2, 7);
+                    break;
+                case PrimaryOpCode.LD_B_n:
+                    byteArg = mmuCache.NextByte();
+                    expressions.Add(Expression.Assign(B, Expression.Constant(byteArg)));
+                    timer.Add(2, 7);
+                    break;
+                case PrimaryOpCode.LD_C_n:
+                    byteArg = mmuCache.NextByte();
+                    expressions.Add(Expression.Assign(C, Expression.Constant(byteArg)));
+                    timer.Add(2, 7);
+                    break;
+                case PrimaryOpCode.LD_D_n:
+                    byteArg = mmuCache.NextByte();
+                    expressions.Add(Expression.Assign(D, Expression.Constant(byteArg)));
+                    timer.Add(2, 7);
+                    break;
+                case PrimaryOpCode.LD_E_n:
+                    byteArg = mmuCache.NextByte();
+                    expressions.Add(Expression.Assign(E, Expression.Constant(byteArg)));
+                    timer.Add(2, 7);
+                    break;
+                case PrimaryOpCode.LD_H_n:
+                    byteArg = mmuCache.NextByte();
+                    expressions.Add(Expression.Assign(H, Expression.Constant(byteArg)));
+                    timer.Add(2, 7);
+                    break;
+                case PrimaryOpCode.LD_L_n:
+                    byteArg = mmuCache.NextByte();
+                    expressions.Add(Expression.Assign(L, Expression.Constant(byteArg)));
+                    timer.Add(2, 7);
+                    break;
+
+                    // LD r, (HL)
+                case PrimaryOpCode.LD_A_mHL:
+                    expressions.Add(Expression.Assign(A, ReadByteByHlRegisterMethodExpression));
+                    timer.Add(2, 7);
+                    break;
+                case PrimaryOpCode.LD_B_mHL:
+                    expressions.Add(Expression.Assign(B, ReadByteByHlRegisterMethodExpression));
+                    timer.Add(2, 7);
+                    break;
+                case PrimaryOpCode.LD_C_mHL:
+                    expressions.Add(Expression.Assign(C, ReadByteByHlRegisterMethodExpression));
+                    timer.Add(2, 7);
+                    break;
+                case PrimaryOpCode.LD_D_mHL:
+                    expressions.Add(Expression.Assign(D, ReadByteByHlRegisterMethodExpression));
+                    timer.Add(2, 7);
+                    break;
+                case PrimaryOpCode.LD_E_mHL:
+                    expressions.Add(Expression.Assign(E, ReadByteByHlRegisterMethodExpression));
+                    timer.Add(2, 7);
+                    break;
+                case PrimaryOpCode.LD_H_mHL:
+                    expressions.Add(Expression.Assign(H, ReadByteByHlRegisterMethodExpression));
+                    timer.Add(2, 7);
+                    break;
+                case PrimaryOpCode.LD_L_mHL:
+                    expressions.Add(Expression.Assign(L, ReadByteByHlRegisterMethodExpression));
+                    timer.Add(2, 7);
+                    break;
+
+
                     // ********* Jump *********
                 case PrimaryOpCode.JP:
-                    var address = mmuCache.NextWord();
-                    expressions.Add(Expression.Assign(Pc, Expression.Constant(address, typeof(ushort))));
+                    wordArg = mmuCache.NextWord();
+                    expressions.Add(Expression.Assign(Pc, Expression.Constant(wordArg, typeof(ushort))));
                     timer.Add(3, 10);
                     return false;
                 default:
