@@ -3,8 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Linq.Expressions;
-    using System.Reflection;
-    using System.Xml.XPath;
 
     using Axh.Emulation.CPU.X80.Contracts.Factories;
     using Axh.Emulation.CPU.X80.Contracts.Memory;
@@ -43,24 +41,25 @@
         private static readonly MemberExpression IX;
         private static readonly MemberExpression IY;
 
-        private static readonly Expression IncrementMemoryRefreshRegisterExpression;
-
-        private static readonly Expression IncrementProgramCounterRegisterExpression;
-
         /// <summary>
         /// Reads a byte from the mmu at the address at TempWordParameterExpression
         /// </summary>
         private static readonly MethodCallExpression ReadByteByTempMethodExpression;
 
         /// <summary>
-        /// Reads a byte from the mmu at the address at HL
+        /// Reads a byte from the mmu at the address in HL
         /// </summary>
         private static readonly MethodCallExpression ReadByteByHlRegisterMethodExpression;
 
         /// <summary>
-        /// Reads a byte from the mmu at the address at IX + b
+        /// Reads a byte from the mmu at the address at IX + b (using 2's compliant addition)
         /// </summary>
-        private static Expression ReadByteByIxIndexRegisterExpression;
+        private static readonly MethodCallExpression ReadByteByIxIndexRegisterExpression;
+
+        /// <summary>
+        /// Reads a byte from the mmu at the address at IY + b (using 2's compliant addition)
+        /// </summary>
+        private static readonly MethodCallExpression ReadByteByIyIndexRegisterExpression;
 
         static Z80InstructionDecoder()
         {
@@ -87,15 +86,7 @@
 
             var flagsRegister = generalPurposeRegisters.GetPropertyExpression<IGeneralPurposeRegisterSet, IFlagsRegister>(r => r.Flags);
             F = flagsRegister.GetPropertyExpression<IFlagsRegister, byte>(r => r.Register);
-
-            // Increment 7 lsb of memory refresh register.
-            var increment7LsbR = Expression.And(Expression.Increment(Expression.Convert(R, typeof(int))), Expression.Constant(0x7f));
-            IncrementMemoryRefreshRegisterExpression = Expression.Assign(R, Expression.Convert(increment7LsbR, typeof(byte)));
-
-            // Increment program counter register
-            var incrementPc = Expression.Convert(Expression.Increment(Expression.Convert(PC, typeof(int))), typeof(ushort));
-            IncrementProgramCounterRegisterExpression = Expression.Assign(PC, incrementPc);
-
+            
             ReadByteByTempMethodExpression = MmuExpression.GetMethodExpression<IMmu, ushort, byte>((mmu, address) => mmu.ReadByte(address), LocalWExpression);
             ReadByteByHlRegisterMethodExpression = MmuExpression.GetMethodExpression<IMmu, ushort, byte>((mmu, address) => mmu.ReadByte(address), HL);
 
@@ -103,6 +94,15 @@
                 Expression.Convert(Expression.Add(Expression.Convert(IX, typeof(int)), Expression.Convert(Expression.Convert(LocalBExpression, typeof(sbyte)), typeof(int))), typeof(ushort));
             ReadByteByIxIndexRegisterExpression = MmuExpression.GetMethodExpression<IMmu, ushort, byte>((mmu, address) => mmu.ReadByte(address), getIxIndexRegisterAddressExpression);
 
+            var getIyIndexRegisterAddressExpression =
+                Expression.Convert(Expression.Add(Expression.Convert(IY, typeof(int)), Expression.Convert(Expression.Convert(LocalBExpression, typeof(sbyte)), typeof(int))), typeof(ushort));
+            ReadByteByIyIndexRegisterExpression = MmuExpression.GetMethodExpression<IMmu, ushort, byte>((mmu, address) => mmu.ReadByte(address), getIyIndexRegisterAddressExpression);
+
+        }
+
+        private static Expression GetAddToProgramCounterExpression(int value)
+        {
+            return Expression.Assign(PC, Expression.Convert(Expression.Add(Expression.Convert(PC, typeof(int)), Expression.Constant(value)), typeof(ushort)));
         }
 
         private readonly IMmuFactory mmuFactory;
@@ -114,7 +114,7 @@
             this.mmuFactory = mmuFactory;
             this.mmu = mmu;
         }
-
+        
         public Z80DynamicallyRecompiledBlock DecodeNextBlock(ushort address)
         {
             var mmuCache = mmuFactory.GetMmuCache(mmu, address);
@@ -124,14 +124,24 @@
 
             while (true)
             {
-                var canContinue = TryDecodeNextOperation(mmuCache, expressions, timer);
-
-                if (!canContinue || mmuCache.TotalBytesRead >= ushort.MaxValue)
+                if (!TryDecodeNextOperation(mmuCache, expressions, timer))
                 {
+                    break;
+                }
+
+                if (mmuCache.TotalBytesRead >= ushort.MaxValue)
+                {
+                    // Since we are not breaking the block inside the decode step we need to adjust the program counter here.
+                    expressions.Add(GetAddToProgramCounterExpression(mmuCache.TotalBytesRead));
                     break;
                 }
             }
 
+            // Add the block length to the 7 lsb of memory refresh register.
+            var blockLengthExpression = Expression.Constant(mmuCache.TotalBytesRead, typeof(int));
+            var increment7LsbR = Expression.And(Expression.Add(Expression.Convert(R, typeof(int)), blockLengthExpression), Expression.Constant(0x7f));
+            expressions.Add(Expression.Assign(R, Expression.Convert(increment7LsbR, typeof(byte))));
+            
             var expressionBlock = Expression.Block(new [] { LocalBExpression, LocalWExpression }, expressions);
             var lambda = Expression.Lambda<Action<IZ80Registers, IMmu>>(expressionBlock, RegistersExpression, MmuExpression);
             return new Z80DynamicallyRecompiledBlock
@@ -143,28 +153,7 @@
                        ThrottlingStates = timer.ThrottlingStates
                    };
         }
-
-        /// <summary>
-        /// This is just to clean up incrementing the cycle counters per instruction. Calls to Add 'should' be inlined by the JIT compiler.
-        /// </summary>
-        private class InstructionTimer
-        {
-            public InstructionTimer()
-            {
-                MachineCycles = 0;
-                ThrottlingStates = 0;
-            }
-
-            public int MachineCycles { get; private set; }
-            public int ThrottlingStates { get; private set; }
-
-            public void Add(int mCycles, int tStates)
-            {
-                MachineCycles += mCycles;
-                ThrottlingStates += tStates;
-            }
-        }
-
+        
         /// <summary>
         /// 
         /// </summary>
@@ -175,20 +164,14 @@
         private static bool TryDecodeNextOperation(IMmuCache mmuCache, ICollection<Expression> expressions, InstructionTimer timer)
         {
             var opCode = (PrimaryOpCode)mmuCache.NextByte();
-
-            expressions.Add(IncrementMemoryRefreshRegisterExpression);
-            expressions.Add(IncrementProgramCounterRegisterExpression);
-
-            // Predefine some fields to hold arguements. Gets around implementing cases as blocks.
-            ushort wordArg;
-            byte byteArg;
-
+            
             switch (opCode)
             {
                 case PrimaryOpCode.NOP:
                     timer.Add(1, 4);
                     break;
                 case PrimaryOpCode.HALT:
+                    expressions.Add(GetAddToProgramCounterExpression(mmuCache.TotalBytesRead));
                     timer.Add(1, 4);
                     return false;
 
@@ -386,38 +369,31 @@
 
                     // LD r,n
                 case PrimaryOpCode.LD_A_n:
-                    byteArg = mmuCache.NextByte();
-                    expressions.Add(Expression.Assign(A, Expression.Constant(byteArg)));
+                    expressions.Add(Expression.Assign(A, Expression.Constant(mmuCache.NextByte())));
                     timer.Add(2, 7);
                     break;
                 case PrimaryOpCode.LD_B_n:
-                    byteArg = mmuCache.NextByte();
-                    expressions.Add(Expression.Assign(B, Expression.Constant(byteArg)));
+                    expressions.Add(Expression.Assign(B, Expression.Constant(mmuCache.NextByte())));
                     timer.Add(2, 7);
                     break;
                 case PrimaryOpCode.LD_C_n:
-                    byteArg = mmuCache.NextByte();
-                    expressions.Add(Expression.Assign(C, Expression.Constant(byteArg)));
+                    expressions.Add(Expression.Assign(C, Expression.Constant(mmuCache.NextByte())));
                     timer.Add(2, 7);
                     break;
                 case PrimaryOpCode.LD_D_n:
-                    byteArg = mmuCache.NextByte();
-                    expressions.Add(Expression.Assign(D, Expression.Constant(byteArg)));
+                    expressions.Add(Expression.Assign(D, Expression.Constant(mmuCache.NextByte())));
                     timer.Add(2, 7);
                     break;
                 case PrimaryOpCode.LD_E_n:
-                    byteArg = mmuCache.NextByte();
-                    expressions.Add(Expression.Assign(E, Expression.Constant(byteArg)));
+                    expressions.Add(Expression.Assign(E, Expression.Constant(mmuCache.NextByte())));
                     timer.Add(2, 7);
                     break;
                 case PrimaryOpCode.LD_H_n:
-                    byteArg = mmuCache.NextByte();
-                    expressions.Add(Expression.Assign(H, Expression.Constant(byteArg)));
+                    expressions.Add(Expression.Assign(H, Expression.Constant(mmuCache.NextByte())));
                     timer.Add(2, 7);
                     break;
                 case PrimaryOpCode.LD_L_n:
-                    byteArg = mmuCache.NextByte();
-                    expressions.Add(Expression.Assign(L, Expression.Constant(byteArg)));
+                    expressions.Add(Expression.Assign(L, Expression.Constant(mmuCache.NextByte())));
                     timer.Add(2, 7);
                     break;
 
@@ -451,17 +427,23 @@
                     timer.Add(2, 7);
                     break;
 
+                    //LD (HL), r
+                case PrimaryOpCode.LD_mHL_A:
+                    timer.Add(2, 7);
+                    break;
 
                     // ********* Jump *********
                 case PrimaryOpCode.JP:
-                    wordArg = mmuCache.NextWord();
-                    expressions.Add(Expression.Assign(PC, Expression.Constant(wordArg, typeof(ushort))));
+                    expressions.Add(Expression.Assign(PC, Expression.Constant(mmuCache.NextWord(), typeof(ushort))));
                     timer.Add(3, 10);
                     return false;
 
-
+                    // ********* Prefixes *********
                 case PrimaryOpCode.Prefix_DD:
                     return TryDecodeNextDdPrefixOperation(mmuCache, expressions, timer);
+
+                case PrimaryOpCode.Prefix_FD:
+                    return TryDecodeNextFdPrefixOperation(mmuCache, expressions, timer);
 
                 default:
                     throw new NotImplementedException(opCode.ToString());
@@ -474,10 +456,7 @@
         private static bool TryDecodeNextDdPrefixOperation(IMmuCache mmuCache, ICollection<Expression> expressions, InstructionTimer timer)
         {
             var opCode = (PrefixDdFdOpCode)mmuCache.NextByte();
-
-            expressions.Add(IncrementMemoryRefreshRegisterExpression);
-            expressions.Add(IncrementProgramCounterRegisterExpression);
-
+            
             switch (opCode)
             {
                     // LD r, (IX+d)
@@ -524,6 +503,55 @@
             return true;
         }
 
+        private static bool TryDecodeNextFdPrefixOperation(IMmuCache mmuCache, ICollection<Expression> expressions, InstructionTimer timer)
+        {
+            var opCode = (PrefixDdFdOpCode)mmuCache.NextByte();
 
+            switch (opCode)
+            {
+                // LD r, (IY+d)
+                // We have defined this using ReadByteByIxIndexRegisterExpression for when we set the local parameter b to d.
+                case PrefixDdFdOpCode.LD_A_mIXYd:
+                    expressions.Add(Expression.Assign(LocalBExpression, Expression.Constant(mmuCache.NextByte())));
+                    expressions.Add(Expression.Assign(A, ReadByteByIyIndexRegisterExpression));
+                    timer.Add(5, 19);
+                    break;
+                case PrefixDdFdOpCode.LD_B_mIXYd:
+                    expressions.Add(Expression.Assign(LocalBExpression, Expression.Constant(mmuCache.NextByte())));
+                    expressions.Add(Expression.Assign(B, ReadByteByIyIndexRegisterExpression));
+                    timer.Add(5, 19);
+                    break;
+                case PrefixDdFdOpCode.LD_C_mIXYd:
+                    expressions.Add(Expression.Assign(LocalBExpression, Expression.Constant(mmuCache.NextByte())));
+                    expressions.Add(Expression.Assign(C, ReadByteByIyIndexRegisterExpression));
+                    timer.Add(5, 19);
+                    break;
+                case PrefixDdFdOpCode.LD_D_mIXYd:
+                    expressions.Add(Expression.Assign(LocalBExpression, Expression.Constant(mmuCache.NextByte())));
+                    expressions.Add(Expression.Assign(D, ReadByteByIyIndexRegisterExpression));
+                    timer.Add(5, 19);
+                    break;
+                case PrefixDdFdOpCode.LD_E_mIXYd:
+                    expressions.Add(Expression.Assign(LocalBExpression, Expression.Constant(mmuCache.NextByte())));
+                    expressions.Add(Expression.Assign(E, ReadByteByIyIndexRegisterExpression));
+                    timer.Add(5, 19);
+                    break;
+                case PrefixDdFdOpCode.LD_H_mIXYd:
+                    expressions.Add(Expression.Assign(LocalBExpression, Expression.Constant(mmuCache.NextByte())));
+                    expressions.Add(Expression.Assign(H, ReadByteByIyIndexRegisterExpression));
+                    timer.Add(5, 19);
+                    break;
+                case PrefixDdFdOpCode.LD_L_mIXYd:
+                    expressions.Add(Expression.Assign(LocalBExpression, Expression.Constant(mmuCache.NextByte())));
+                    expressions.Add(Expression.Assign(L, ReadByteByIyIndexRegisterExpression));
+                    timer.Add(5, 19);
+                    break;
+                default:
+                    throw new NotImplementedException(opCode.ToString());
+            }
+
+            return true;
+        }
+        
     }
 }

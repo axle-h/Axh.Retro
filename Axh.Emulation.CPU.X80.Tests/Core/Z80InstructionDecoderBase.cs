@@ -1,5 +1,7 @@
 ﻿namespace Axh.Emulation.CPU.X80.Tests.Core
 {
+    using System.Collections;
+
     using Axh.Emulation.CPU.X80.Contracts.Core;
     using Axh.Emulation.CPU.X80.Contracts.Factories;
     using Axh.Emulation.CPU.X80.Contracts.Memory;
@@ -25,55 +27,71 @@
         protected const ushort HL = 0x4477;
 
         protected const ushort IX = 0x3366;
+        protected const ushort IY = 0x2255;
 
-        protected IZ80InstructionDecoder decoder;
+        protected IZ80InstructionDecoder Decoder;
 
-        protected Mock<IZ80Registers> registers;
+        protected Mock<IZ80Registers> Registers;
 
-        protected Mock<IMmu> mmu;
+        protected Mock<IMmu> Mmu;
 
-        protected Mock<IGeneralPurposeRegisterSet> gpRegisters;
+        protected Mock<IGeneralPurposeRegisterSet> GpRegisters;
 
-        protected Mock<IMmuCache> cache;
+        protected Mock<IMmuCache> Cache;
 
         [TestFixtureSetUp]
         public void TestFixtureSetUp()
         {
-            this.registers = new Mock<IZ80Registers>();
-            this.gpRegisters = new Mock<IGeneralPurposeRegisterSet>();
-            this.registers.Setup(x => x.GeneralPurposeRegisters).Returns(this.gpRegisters.Object);
+            this.Registers = new Mock<IZ80Registers>();
+            this.GpRegisters = new Mock<IGeneralPurposeRegisterSet>();
+            this.Registers.Setup(x => x.GeneralPurposeRegisters).Returns(this.GpRegisters.Object);
 
-            this.mmu = new Mock<IMmu>();
+            this.Mmu = new Mock<IMmu>();
 
-            this.cache = new Mock<IMmuCache>();
+            this.Cache = new Mock<IMmuCache>();
 
             var mmuFactory = new Mock<IMmuFactory>();
-            mmuFactory.Setup(x => x.GetMmuCache(this.mmu.Object, Address)).Returns(this.cache.Object);
+            mmuFactory.Setup(x => x.GetMmuCache(this.Mmu.Object, Address)).Returns(this.Cache.Object);
 
-            this.decoder = new Z80InstructionDecoder(mmuFactory.Object, this.mmu.Object);
+            this.Decoder = new Z80InstructionDecoder(mmuFactory.Object, this.Mmu.Object);
         }
 
         protected void SetupRegisters()
         {
-            this.gpRegisters.SetupProperty(x => x.A, A);
-            this.gpRegisters.SetupProperty(x => x.B, B);
-            this.gpRegisters.SetupProperty(x => x.C, C);
-            this.gpRegisters.SetupProperty(x => x.D, D);
-            this.gpRegisters.SetupProperty(x => x.E, E);
-            this.gpRegisters.SetupProperty(x => x.H, H);
-            this.gpRegisters.SetupProperty(x => x.L, L);
+            this.GpRegisters.SetupProperty(x => x.A, A);
+            this.GpRegisters.SetupProperty(x => x.B, B);
+            this.GpRegisters.SetupProperty(x => x.C, C);
+            this.GpRegisters.SetupProperty(x => x.D, D);
+            this.GpRegisters.SetupProperty(x => x.E, E);
+            this.GpRegisters.SetupProperty(x => x.H, H);
+            this.GpRegisters.SetupProperty(x => x.L, L);
 
-            this.gpRegisters.SetupProperty(x => x.HL, HL);
+            this.GpRegisters.SetupProperty(x => x.HL, HL);
 
-            this.registers.SetupProperty(x => x.IX, IX);
+            this.Registers.SetupProperty(x => x.IX, IX);
+            this.Registers.SetupProperty(x => x.IY, IY);
         }
 
         protected void ResetMocks()
         {
-            this.registers.ResetCalls();
-            this.cache.ResetCalls();
-            this.mmu.ResetCalls();
-            this.gpRegisters.ResetCalls();
+            this.Registers.ResetCalls();
+            this.Cache.ResetCalls();
+            this.Mmu.ResetCalls();
+            this.GpRegisters.ResetCalls();
+        }
+
+        protected void SetCacheForSingleBytes(params object[] bytes)
+        {
+            var length = 0;
+            var queue = new Queue(bytes);
+            this.Cache.Setup(x => x.NextByte()).Returns(
+                () =>
+                {
+                    length++;
+                    return (byte)queue.Dequeue();
+                });
+
+            this.Cache.Setup(x => x.TotalBytesRead).Returns(() => length);
         }
     }
 }

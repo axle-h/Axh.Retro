@@ -14,41 +14,42 @@
         {
             this.ResetMocks();
 
-            this.cache.SetupSequence(x => x.NextByte()).Returns((byte)PrimaryOpCode.NOP).Returns((byte)PrimaryOpCode.NOP).Returns((byte)PrimaryOpCode.HALT);
-            var block = this.decoder.DecodeNextBlock(Address);
+            this.SetCacheForSingleBytes(PrimaryOpCode.NOP, PrimaryOpCode.NOP, PrimaryOpCode.HALT);
+
+            var block = this.Decoder.DecodeNextBlock(Address);
             Assert.IsNotNull(block);
             Assert.AreEqual(3, block.MachineCycles);
             Assert.AreEqual(12, block.ThrottlingStates);
 
-            this.registers.SetupProperty(x => x.R, (byte)0x5f);
-            this.registers.SetupProperty(x => x.ProgramCounter, (ushort)0x1234);
+            this.Registers.SetupProperty(x => x.R, (byte)0x5f);
+            this.Registers.SetupProperty(x => x.ProgramCounter, (ushort)0x1234);
 
-            block.Action(this.registers.Object, this.mmu.Object);
+            block.Action(this.Registers.Object, this.Mmu.Object);
 
-            this.cache.Verify(x => x.NextByte(), Times.Exactly(3));
-            Assert.AreEqual(0x62, this.registers.Object.R);
-            Assert.AreEqual(0x1237, this.registers.Object.ProgramCounter);
+            this.Cache.Verify(x => x.NextByte(), Times.Exactly(3));
+            Assert.AreEqual(0x62, this.Registers.Object.R);
+            Assert.AreEqual(0x1237, this.Registers.Object.ProgramCounter);
         }
 
         [Test]
         public void NopIncrentsProgramCounterAndMemoryRefreshRegistersWithCorrectOverflow()
         {
             this.ResetMocks();
+            this.SetCacheForSingleBytes(PrimaryOpCode.HALT);
 
-            this.cache.Setup(x => x.NextByte()).Returns((byte)PrimaryOpCode.HALT);
-            var block = this.decoder.DecodeNextBlock(Address);
+            var block = this.Decoder.DecodeNextBlock(Address);
             Assert.IsNotNull(block);
             Assert.AreEqual(1, block.MachineCycles);
             Assert.AreEqual(4, block.ThrottlingStates);
 
-            this.registers.SetupProperty(x => x.R, (byte)0x7f);
-            this.registers.SetupProperty(x => x.ProgramCounter, (ushort)0xffff);
+            this.Registers.SetupProperty(x => x.R, (byte)0x7f);
+            this.Registers.SetupProperty(x => x.ProgramCounter, (ushort)0xffff);
 
-            block.Action(this.registers.Object, this.mmu.Object);
+            block.Action(this.Registers.Object, this.Mmu.Object);
 
-            this.cache.Verify(x => x.NextByte(), Times.Once);
-            Assert.AreEqual(0x00, this.registers.Object.R);
-            Assert.AreEqual(0x0000, this.registers.Object.ProgramCounter);
+            this.Cache.Verify(x => x.NextByte(), Times.Once);
+            Assert.AreEqual(0x00, this.Registers.Object.R);
+            Assert.AreEqual(0x0000, this.Registers.Object.ProgramCounter);
         }
     }
 }
