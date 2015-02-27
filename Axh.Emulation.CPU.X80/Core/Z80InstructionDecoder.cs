@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq.Expressions;
+    using System.Reflection;
 
     using Axh.Emulation.CPU.X80.Contracts.Factories;
     using Axh.Emulation.CPU.X80.Contracts.Memory;
@@ -61,6 +62,8 @@
         /// </summary>
         private static readonly MethodCallExpression ReadByteByIyIndexRegisterExpression;
 
+        private static readonly MethodInfo MmuWriteByteMethodInfo;
+
         static Z80InstructionDecoder()
         {
             RegistersExpression = Expression.Parameter(typeof(IZ80Registers), "registers");
@@ -98,6 +101,7 @@
                 Expression.Convert(Expression.Add(Expression.Convert(IY, typeof(int)), Expression.Convert(Expression.Convert(LocalBExpression, typeof(sbyte)), typeof(int))), typeof(ushort));
             ReadByteByIyIndexRegisterExpression = MmuExpression.GetMethodExpression<IMmu, ushort, byte>((mmu, address) => mmu.ReadByte(address), getIyIndexRegisterAddressExpression);
 
+            MmuWriteByteMethodInfo = ExpressionHelpers.GetMethodInfo<IMmu, ushort, byte>((mmu, address, value) => mmu.WriteByte(address, value));
         }
 
         private static Expression GetAddToProgramCounterExpression(int value)
@@ -429,6 +433,31 @@
 
                     //LD (HL), r
                 case PrimaryOpCode.LD_mHL_A:
+                    expressions.Add(Expression.Call(MmuExpression, MmuWriteByteMethodInfo, HL, A));
+                    timer.Add(2, 7);
+                    break;
+                case PrimaryOpCode.LD_mHL_B:
+                    expressions.Add(Expression.Call(MmuExpression, MmuWriteByteMethodInfo, HL, B));
+                    timer.Add(2, 7);
+                    break;
+                case PrimaryOpCode.LD_mHL_C:
+                    expressions.Add(Expression.Call(MmuExpression, MmuWriteByteMethodInfo, HL, C));
+                    timer.Add(2, 7);
+                    break;
+                case PrimaryOpCode.LD_mHL_D:
+                    expressions.Add(Expression.Call(MmuExpression, MmuWriteByteMethodInfo, HL, D));
+                    timer.Add(2, 7);
+                    break;
+                case PrimaryOpCode.LD_mHL_E:
+                    expressions.Add(Expression.Call(MmuExpression, MmuWriteByteMethodInfo, HL, E));
+                    timer.Add(2, 7);
+                    break;
+                case PrimaryOpCode.LD_mHL_H:
+                    expressions.Add(Expression.Call(MmuExpression, MmuWriteByteMethodInfo, HL, H));
+                    timer.Add(2, 7);
+                    break;
+                case PrimaryOpCode.LD_mHL_L:
+                    expressions.Add(Expression.Call(MmuExpression, MmuWriteByteMethodInfo, HL, L));
                     timer.Add(2, 7);
                     break;
 

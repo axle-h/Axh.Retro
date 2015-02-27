@@ -39,6 +39,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Core\InstructionTimer.cs" />
     <Compile Include="Factories\MmuFactory.cs" />
     <Compile Include="Factories\RegisterFactory.cs" />
     <Compile Include="Memory\ArrayBackedMemoryBank.cs" />

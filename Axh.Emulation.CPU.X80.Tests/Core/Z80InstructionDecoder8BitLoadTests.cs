@@ -66,21 +66,9 @@
             this.SetupRegisters();
             this.ResetMocks();
 
-            this.Cache.SetupSequence(x => x.NextByte()).Returns((byte)opcode).Returns((byte)PrimaryOpCode.HALT);
-
-            var block = this.Decoder.DecodeNextBlock(Address);
-            Assert.IsNotNull(block);
-
-            Assert.AreEqual(2, block.MachineCycles);
-            Assert.AreEqual(8, block.ThrottlingStates);
-
-            block.Action(this.Registers.Object, this.Mmu.Object);
-
-            this.Cache.Verify(x => x.NextByte(), Times.Exactly(2));
-
-            // 8-bit load doesn't set the flags.
-            this.GpRegisters.Verify(x => x.Flags, Times.Never);
-
+            this.SetCacheForSingleBytes(opcode, PrimaryOpCode.HALT);
+            Run8BitLoadGroup(2, 8, opcode, PrimaryOpCode.HALT);
+            
             switch (opcode)
             {
                 case PrimaryOpCode.LD_A_A:
@@ -591,21 +579,8 @@
             this.SetupRegisters();
             this.ResetMocks();
 
-            this.Cache.SetupSequence(x => x.NextByte()).Returns((byte)opcode).Returns(value).Returns((byte)PrimaryOpCode.HALT);
-
-            var block = this.Decoder.DecodeNextBlock(Address);
-            Assert.IsNotNull(block);
-
-            Assert.AreEqual(3, block.MachineCycles);
-            Assert.AreEqual(11, block.ThrottlingStates);
-
-            block.Action(this.Registers.Object, this.Mmu.Object);
-
-            this.Cache.Verify(x => x.NextByte(), Times.Exactly(3));
-
-            // 8-bit load doesn't set the flags.
-            this.GpRegisters.Verify(x => x.Flags, Times.Never);
-
+            Run8BitLoadGroup(3, 11, opcode, value, PrimaryOpCode.HALT);
+            
             switch (opcode)
             {
                 case PrimaryOpCode.LD_A_n:
@@ -699,21 +674,9 @@
             const byte Value = 0x8f;
 
             this.Mmu.Setup(x => x.ReadByte(HL)).Returns(Value);
-            this.Cache.SetupSequence(x => x.NextByte()).Returns((byte)opcode).Returns((byte)PrimaryOpCode.HALT);
 
-            var block = this.Decoder.DecodeNextBlock(Address);
-            Assert.IsNotNull(block);
-
-            Assert.AreEqual(3, block.MachineCycles);
-            Assert.AreEqual(11, block.ThrottlingStates);
-
-            block.Action(this.Registers.Object, this.Mmu.Object);
-
-            this.Cache.Verify(x => x.NextByte(), Times.Exactly(2));
-
-            // 8-bit load doesn't set the flags.
-            this.GpRegisters.Verify(x => x.Flags, Times.Never);
-
+            Run8BitLoadGroup(3, 11, opcode, PrimaryOpCode.HALT);
+            
             this.Mmu.Verify(x => x.ReadByte(HL), Times.Once);
             this.GpRegisters.VerifyGet(x => x.HL, Times.Once);
 
@@ -761,21 +724,8 @@
             const byte ValueAtIXd = 0x8f;
             
             this.Mmu.Setup(x => x.ReadByte(IX + SignedXd)).Returns(ValueAtIXd);
-            this.SetCacheForSingleBytes(PrimaryOpCode.Prefix_DD, opcode, UnsignedXd, PrimaryOpCode.HALT);
-
-            var block = this.Decoder.DecodeNextBlock(Address);
-            Assert.IsNotNull(block);
-
-            Assert.AreEqual(5 + 1, block.MachineCycles);
-            Assert.AreEqual(19 + 4, block.ThrottlingStates);
-
-            block.Action(this.Registers.Object, this.Mmu.Object);
-
-            this.Cache.Verify(x => x.NextByte(), Times.Exactly(4));
-
-            // 8-bit load doesn't set the flags.
-            this.GpRegisters.Verify(x => x.Flags, Times.Never);
-
+            Run8BitLoadGroup(5 + 1, 19 + 4, PrimaryOpCode.Prefix_DD, opcode, UnsignedXd, PrimaryOpCode.HALT);
+            
             this.Mmu.Verify(x => x.ReadByte(IX + SignedXd), Times.Once);
             this.Registers.VerifyGet(x => x.IX, Times.Once);
             
@@ -824,20 +774,8 @@
             const byte ValueAtIYd = 0x42;
 
             this.Mmu.Setup(x => x.ReadByte(IY + SignedYd)).Returns(ValueAtIYd);
-            this.SetCacheForSingleBytes(PrimaryOpCode.Prefix_FD, opcode, UnsignedYd, PrimaryOpCode.HALT);
 
-            var block = this.Decoder.DecodeNextBlock(Address);
-            Assert.IsNotNull(block);
-
-            Assert.AreEqual(5 + 1, block.MachineCycles);
-            Assert.AreEqual(19 + 4, block.ThrottlingStates);
-
-            block.Action(this.Registers.Object, this.Mmu.Object);
-
-            this.Cache.Verify(x => x.NextByte(), Times.Exactly(4));
-
-            // 8-bit load doesn't set the flags.
-            this.GpRegisters.Verify(x => x.Flags, Times.Never);
+            Run8BitLoadGroup(5 + 1, 19 + 4, PrimaryOpCode.Prefix_FD, opcode, UnsignedYd, PrimaryOpCode.HALT);
 
             this.Mmu.Verify(x => x.ReadByte(IY + SignedYd), Times.Once);
             this.Registers.VerifyGet(x => x.IY, Times.Once);
@@ -868,6 +806,71 @@
                 default:
                     throw new ArgumentOutOfRangeException("opcode");
             }
+        }
+
+        [TestCase(PrimaryOpCode.LD_mHL_A)]
+        [TestCase(PrimaryOpCode.LD_mHL_B)]
+        [TestCase(PrimaryOpCode.LD_mHL_C)]
+        [TestCase(PrimaryOpCode.LD_mHL_D)]
+        [TestCase(PrimaryOpCode.LD_mHL_E)]
+        [TestCase(PrimaryOpCode.LD_mHL_H)]
+        [TestCase(PrimaryOpCode.LD_mHL_L)]
+        public void LD_mHL_r(PrimaryOpCode opcode)
+        {
+            this.SetupRegisters();
+            this.ResetMocks();
+            
+            Run8BitLoadGroup(2 + 1, 7 + 4, opcode, PrimaryOpCode.HALT);
+
+            switch (opcode)
+            {
+                case PrimaryOpCode.LD_mHL_A:
+                    this.Mmu.Verify(x => x.WriteByte(HL, A), Times.Once);
+                    this.GpRegisters.VerifyGet(x => x.A, Times.Once);
+                    break;
+                case PrimaryOpCode.LD_mHL_B:
+                    this.Mmu.Verify(x => x.WriteByte(HL, B), Times.Once);
+                    this.GpRegisters.VerifyGet(x => x.B, Times.Once);
+                    break;
+                case PrimaryOpCode.LD_mHL_C:
+                    this.Mmu.Verify(x => x.WriteByte(HL, C), Times.Once);
+                    this.GpRegisters.VerifyGet(x => x.C, Times.Once);
+                    break;
+                case PrimaryOpCode.LD_mHL_D:
+                    this.Mmu.Verify(x => x.WriteByte(HL, D), Times.Once);
+                    this.GpRegisters.VerifyGet(x => x.D, Times.Once);
+                    break;
+                case PrimaryOpCode.LD_mHL_E:
+                    this.Mmu.Verify(x => x.WriteByte(HL, E), Times.Once);
+                    this.GpRegisters.VerifyGet(x => x.E, Times.Once);
+                    break;
+                case PrimaryOpCode.LD_mHL_H:
+                    this.Mmu.Verify(x => x.WriteByte(HL, H), Times.Once);
+                    this.GpRegisters.VerifyGet(x => x.H, Times.Once);
+                    break;
+                case PrimaryOpCode.LD_mHL_L:
+                    this.Mmu.Verify(x => x.WriteByte(HL, L), Times.Once);
+                    this.GpRegisters.VerifyGet(x => x.L, Times.Once);
+                    break;
+            }
+        }
+
+        private void Run8BitLoadGroup(int expectedMachineCycles, int expectedThrottlingStates, params object[] bytes)
+        {
+            this.SetCacheForSingleBytes(bytes);
+
+            var block = this.Decoder.DecodeNextBlock(Address);
+            Assert.IsNotNull(block);
+
+            Assert.AreEqual(expectedMachineCycles, block.MachineCycles);
+            Assert.AreEqual(expectedThrottlingStates, block.ThrottlingStates);
+
+            block.Action(this.Registers.Object, this.Mmu.Object);
+
+            this.Cache.Verify(x => x.NextByte(), Times.Exactly(bytes.Length));
+
+            // 8-bit load doesn't set the flags.
+            this.GpRegisters.Verify(x => x.Flags, Times.Never);
         }
 
     }
