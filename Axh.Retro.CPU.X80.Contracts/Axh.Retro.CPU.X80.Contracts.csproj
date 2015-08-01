@@ -7,7 +7,7 @@
     <ProjectGuid>{15E8BFF0-AA13-420F-8527-9187A37F6360}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Axh.Emulation.CPU.X80.Contracts</RootNamespace>
+    <RootNamespace>Axh.Retro.CPU.X80.Contracts</RootNamespace>
     <AssemblyName>Axh.Retro.CPU.X80.Contracts</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

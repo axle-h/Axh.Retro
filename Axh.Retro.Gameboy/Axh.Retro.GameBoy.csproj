@@ -7,7 +7,7 @@
     <ProjectGuid>{84D4DAC3-9B2E-4A9A-9C85-16A7E58DEEB8}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Axh.Emulation.GameBoy</RootNamespace>
+    <RootNamespace>Axh.Retro.GameBoy</RootNamespace>
     <AssemblyName>Axh.Retro.GameBoy</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
