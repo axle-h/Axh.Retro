@@ -1,12 +1,9 @@
-﻿using Axh.Retro.CPU.X80.Contracts;
-using Axh.Retro.CPU.X80.Contracts.Config;
-
-namespace Axh.Retro.GameBoy.Config
+﻿namespace Axh.Retro.GameBoy.Config
 {
     using System.Collections.Generic;
 
-    using Retro.CPU.X80.Contracts;
-    using Retro.CPU.X80.Contracts.Config;
+    using Axh.Retro.CPU.X80.Contracts;
+    using Axh.Retro.CPU.X80.Contracts.Config;
 
     public class GameBoyPlatformConfig : IPlatformConfig
     {

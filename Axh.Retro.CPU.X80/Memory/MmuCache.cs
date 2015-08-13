@@ -1,10 +1,8 @@
-﻿using Axh.Retro.CPU.X80.Contracts.Memory;
-
-namespace Axh.Retro.CPU.X80.Memory
+﻿namespace Axh.Retro.CPU.X80.Memory
 {
     using System;
 
-    using Retro.CPU.X80.Contracts.Memory;
+    using Axh.Retro.CPU.X80.Contracts.Memory;
 
     /// <summary>
     /// Should speed up sequential access to the MMU e.g. reading op-codes
@@ -20,6 +18,8 @@ namespace Axh.Retro.CPU.X80.Memory
         private int cachePointer;
 
         private ushort address;
+
+        private int programCounterCache;
 
         public MmuCache(IMmu mmu, ushort address)
         {
@@ -38,6 +38,7 @@ namespace Axh.Retro.CPU.X80.Memory
             }
 
             this.TotalBytesRead++;
+            this.programCounterCache++;
             return value;
         }
 
@@ -88,6 +89,7 @@ namespace Axh.Retro.CPU.X80.Memory
 
         public void ReBuildCache(ushort newAddress)
         {
+            this.programCounterCache = 0;
             this.TotalBytesRead = 0;
             this.cachePointer = 0;
             this.address = newAddress;
@@ -95,6 +97,13 @@ namespace Axh.Retro.CPU.X80.Memory
         }
 
         public int TotalBytesRead { get; private set; }
+
+        public int EmptyProgramCounterCache()
+        {
+            var programCounter = this.programCounterCache;
+            this.programCounterCache = 0;
+            return programCounter;
+        }
 
         private void NudgeCache()
         {

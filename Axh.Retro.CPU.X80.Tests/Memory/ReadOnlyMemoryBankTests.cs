@@ -1,15 +1,11 @@
-﻿using Axh.Retro.CPU.X80.Contracts.Config;
-using Axh.Retro.CPU.X80.Contracts.Exceptions;
-using Axh.Retro.CPU.X80.Memory;
-
-namespace Axh.Retro.CPU.X80.Tests.Memory
+﻿namespace Axh.Retro.CPU.X80.Tests.Memory
 {
     using System;
     using System.Linq;
 
-    using Retro.CPU.X80.Contracts.Config;
-    using Retro.CPU.X80.Contracts.Exceptions;
-    using Retro.CPU.X80.Memory;
+    using Axh.Retro.CPU.X80.Contracts.Config;
+    using Axh.Retro.CPU.X80.Contracts.Exceptions;
+    using Axh.Retro.CPU.X80.Memory;
 
     using Moq;
 

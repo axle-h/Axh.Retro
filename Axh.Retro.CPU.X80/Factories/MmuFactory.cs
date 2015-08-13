@@ -1,21 +1,14 @@
-﻿using Axh.Retro.CPU.X80.Contracts;
-using Axh.Retro.CPU.X80.Contracts.Config;
-using Axh.Retro.CPU.X80.Contracts.Factories;
-using Axh.Retro.CPU.X80.Contracts.Memory;
-using Axh.Retro.CPU.X80.Memory;
-using Axh.Retro.CPU.X80.Mmu;
-
-namespace Axh.Retro.CPU.X80.Factories
+﻿namespace Axh.Retro.CPU.X80.Factories
 {
     using System;
     using System.Linq;
 
-    using Retro.CPU.X80.Contracts;
-    using Retro.CPU.X80.Contracts.Config;
-    using Retro.CPU.X80.Contracts.Factories;
-    using Retro.CPU.X80.Contracts.Memory;
-    using Retro.CPU.X80.Memory;
-    using Retro.CPU.X80.Mmu;
+    using Axh.Retro.CPU.X80.Contracts;
+    using Axh.Retro.CPU.X80.Contracts.Config;
+    using Axh.Retro.CPU.X80.Contracts.Factories;
+    using Axh.Retro.CPU.X80.Contracts.Memory;
+    using Axh.Retro.CPU.X80.Memory;
+    using Axh.Retro.CPU.X80.Mmu;
 
     public class MmuFactory : IMmuFactory
     {

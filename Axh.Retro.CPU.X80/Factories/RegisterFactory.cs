@@ -1,18 +1,12 @@
-﻿using Axh.Retro.CPU.X80.Contracts;
-using Axh.Retro.CPU.X80.Contracts.Config;
-using Axh.Retro.CPU.X80.Contracts.Factories;
-using Axh.Retro.CPU.X80.Contracts.Registers;
-using Axh.Retro.CPU.X80.Registers;
-
-namespace Axh.Retro.CPU.X80.Factories
+﻿namespace Axh.Retro.CPU.X80.Factories
 {
     using System;
 
-    using Retro.CPU.X80.Contracts;
-    using Retro.CPU.X80.Contracts.Config;
-    using Retro.CPU.X80.Contracts.Factories;
-    using Retro.CPU.X80.Contracts.Registers;
-    using Retro.CPU.X80.Registers;
+    using Axh.Retro.CPU.X80.Contracts;
+    using Axh.Retro.CPU.X80.Contracts.Config;
+    using Axh.Retro.CPU.X80.Contracts.Factories;
+    using Axh.Retro.CPU.X80.Contracts.Registers;
+    using Axh.Retro.CPU.X80.Registers;
 
     public class RegisterFactory : IRegisterFactory
     {

@@ -1,14 +1,10 @@
-﻿using Axh.Retro.CPU.X80.Contracts.Config;
-using Axh.Retro.CPU.X80.Contracts.Exceptions;
-using Axh.Retro.CPU.X80.Contracts.Memory;
-
-namespace Axh.Retro.CPU.X80.Memory
+﻿namespace Axh.Retro.CPU.X80.Memory
 {
     using System;
 
-    using Retro.CPU.X80.Contracts.Config;
-    using Retro.CPU.X80.Contracts.Exceptions;
-    using Retro.CPU.X80.Contracts.Memory;
+    using Axh.Retro.CPU.X80.Contracts.Config;
+    using Axh.Retro.CPU.X80.Contracts.Exceptions;
+    using Axh.Retro.CPU.X80.Contracts.Memory;
 
     public class ReadOnlyMemoryBank : IReadableAddressSegment
     {

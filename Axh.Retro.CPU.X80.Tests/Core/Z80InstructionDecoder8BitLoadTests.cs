@@ -1,10 +1,8 @@
-﻿using Axh.Retro.CPU.X80.Contracts.OpCodes;
-
-namespace Axh.Retro.CPU.X80.Tests.Core
+﻿namespace Axh.Retro.CPU.X80.Tests.Core
 {
     using System;
 
-    using Retro.CPU.X80.Contracts.OpCodes;
+    using Axh.Retro.CPU.X80.Contracts.OpCodes;
 
     using Moq;
 

@@ -1,10 +1,7 @@
-﻿using Axh.Retro.CPU.X80.Contracts.Registers;
-using Axh.Retro.CPU.X80.Registers;
-
-namespace Axh.Retro.CPU.X80.Tests.Registers
+﻿namespace Axh.Retro.CPU.X80.Tests.Registers
 {
-    using Retro.CPU.X80.Contracts.Registers;
-    using Retro.CPU.X80.Registers;
+    using Axh.Retro.CPU.X80.Contracts.Registers;
+    using Axh.Retro.CPU.X80.Registers;
 
     using NUnit.Framework;
 

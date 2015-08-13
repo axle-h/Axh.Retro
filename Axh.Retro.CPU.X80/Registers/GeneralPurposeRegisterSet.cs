@@ -1,12 +1,9 @@
-﻿using Axh.Retro.CPU.X80.Contracts.Registers;
-using Axh.Retro.CPU.X80.Contracts.State;
-
-namespace Axh.Retro.CPU.X80.Registers
+﻿namespace Axh.Retro.CPU.X80.Registers
 {
     using System;
 
-    using Retro.CPU.X80.Contracts.Registers;
-    using Retro.CPU.X80.Contracts.State;
+    using Axh.Retro.CPU.X80.Contracts.Registers;
+    using Axh.Retro.CPU.X80.Contracts.State;
 
     public class GeneralPurposeRegisterSet : IGeneralPurposeRegisterSet
     {

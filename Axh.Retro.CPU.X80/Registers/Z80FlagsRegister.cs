@@ -1,9 +1,7 @@
-﻿using Axh.Retro.CPU.X80.Contracts.Registers;
-
-namespace Axh.Retro.CPU.X80.Registers
+﻿namespace Axh.Retro.CPU.X80.Registers
 {
-    using Retro.CPU.X80.Contracts.Registers;
-    using Retro.CPU.X80.Util;
+    using Axh.Retro.CPU.X80.Contracts.Registers;
+    using Axh.Retro.CPU.X80.Util;
 
     public class Z80FlagsRegister : IFlagsRegister
     {

@@ -1,12 +1,9 @@
-﻿using Axh.Retro.CPU.X80.Contracts.Memory;
-using Axh.Retro.CPU.X80.Contracts.Registers;
-
-namespace Axh.Retro.CPU.X80.Contracts.Core
+﻿namespace Axh.Retro.CPU.X80.Contracts.Core
 {
     using System;
 
-    using Retro.CPU.X80.Contracts.Memory;
-    using Retro.CPU.X80.Contracts.Registers;
+    using Axh.Retro.CPU.X80.Contracts.Memory;
+    using Axh.Retro.CPU.X80.Contracts.Registers;
 
     public class Z80DynamicallyRecompiledBlock
     {

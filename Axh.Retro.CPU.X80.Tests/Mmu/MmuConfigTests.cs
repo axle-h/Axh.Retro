@@ -1,12 +1,8 @@
-﻿using Axh.Retro.CPU.X80.Contracts.Exceptions;
-using Axh.Retro.CPU.X80.Contracts.Memory;
-using Axh.Retro.CPU.X80.Mmu;
-
-namespace Axh.Retro.CPU.X80.Tests.Mmu
+﻿namespace Axh.Retro.CPU.X80.Tests.Mmu
 {
-    using Retro.CPU.X80.Contracts.Exceptions;
-    using Retro.CPU.X80.Contracts.Memory;
-    using Retro.CPU.X80.Mmu;
+    using Axh.Retro.CPU.X80.Contracts.Exceptions;
+    using Axh.Retro.CPU.X80.Contracts.Memory;
+    using Axh.Retro.CPU.X80.Mmu;
 
     using Moq;
 

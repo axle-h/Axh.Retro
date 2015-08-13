@@ -1,8 +1,6 @@
-﻿using Axh.Retro.CPU.X80.Contracts.State;
-
-namespace Axh.Retro.CPU.X80.Contracts.Registers
+﻿namespace Axh.Retro.CPU.X80.Contracts.Registers
 {
-    using Retro.CPU.X80.Contracts.State;
+    using Axh.Retro.CPU.X80.Contracts.State;
 
     public interface IRegisters
     {

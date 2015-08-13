@@ -1,18 +1,12 @@
-﻿using Axh.Retro.CPU.X80.Contracts.Core;
-using Axh.Retro.CPU.X80.Contracts.Factories;
-using Axh.Retro.CPU.X80.Contracts.Memory;
-using Axh.Retro.CPU.X80.Contracts.Registers;
-using Axh.Retro.CPU.X80.Core;
-
-namespace Axh.Retro.CPU.X80.Tests.Core
+﻿namespace Axh.Retro.CPU.X80.Tests.Core
 {
     using System.Collections;
 
-    using Retro.CPU.X80.Contracts.Core;
-    using Retro.CPU.X80.Contracts.Factories;
-    using Retro.CPU.X80.Contracts.Memory;
-    using Retro.CPU.X80.Contracts.Registers;
-    using Retro.CPU.X80.Core;
+    using Axh.Retro.CPU.X80.Contracts.Core;
+    using Axh.Retro.CPU.X80.Contracts.Factories;
+    using Axh.Retro.CPU.X80.Contracts.Memory;
+    using Axh.Retro.CPU.X80.Contracts.Registers;
+    using Axh.Retro.CPU.X80.Core;
 
     using Moq;
 
@@ -86,15 +80,29 @@ namespace Axh.Retro.CPU.X80.Tests.Core
             this.GpRegisters.ResetCalls();
         }
 
+        /// <summary>
+        /// This sets up the MMU Cache mock to act like the implementation.
+        /// </summary>
+        /// <param name="bytes"></param>
         protected void SetCacheForSingleBytes(params object[] bytes)
         {
             var length = 0;
+            var programCounterCache = 0;
             var queue = new Queue(bytes);
             this.Cache.Setup(x => x.NextByte()).Returns(
                 () =>
                 {
                     length++;
+                    programCounterCache++;
                     return (byte)queue.Dequeue();
+                });
+
+            this.Cache.Setup(x => x.EmptyProgramCounterCache()).Returns(
+                () =>
+                {
+                    var programCounter = programCounterCache;
+                    programCounterCache = 0;
+                    return programCounter;
                 });
 
             this.Cache.Setup(x => x.TotalBytesRead).Returns(() => length);

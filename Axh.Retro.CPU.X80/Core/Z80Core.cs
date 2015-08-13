@@ -1,20 +1,14 @@
-﻿using Axh.Retro.CPU.X80.Contracts;
-using Axh.Retro.CPU.X80.Contracts.Factories;
-using Axh.Retro.CPU.X80.Contracts.Memory;
-using Axh.Retro.CPU.X80.Contracts.OpCodes;
-using Axh.Retro.CPU.X80.Contracts.Registers;
-
-namespace Axh.Retro.CPU.X80.Core
+﻿namespace Axh.Retro.CPU.X80.Core
 {
     using System;
     using System.Threading.Tasks;
 
-    using Retro.CPU.X80.Contracts;
-    using Retro.CPU.X80.Contracts.Factories;
-    using Retro.CPU.X80.Contracts.Memory;
-    using Retro.CPU.X80.Contracts.OpCodes;
-    using Retro.CPU.X80.Contracts.Registers;
-    using Retro.CPU.X80.Util;
+    using Axh.Retro.CPU.X80.Contracts;
+    using Axh.Retro.CPU.X80.Contracts.Factories;
+    using Axh.Retro.CPU.X80.Contracts.Memory;
+    using Axh.Retro.CPU.X80.Contracts.OpCodes;
+    using Axh.Retro.CPU.X80.Contracts.Registers;
+    using Axh.Retro.CPU.X80.Util;
 
     public class Z80Core : ICpuCore
     {

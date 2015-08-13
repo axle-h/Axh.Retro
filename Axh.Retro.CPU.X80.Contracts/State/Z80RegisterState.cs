@@ -1,8 +1,6 @@
-﻿using Axh.Retro.CPU.X80.Contracts.Registers;
-
-namespace Axh.Retro.CPU.X80.Contracts.State
+﻿namespace Axh.Retro.CPU.X80.Contracts.State
 {
-    using Retro.CPU.X80.Contracts.Registers;
+    using Axh.Retro.CPU.X80.Contracts.Registers;
 
     public struct Z80RegisterState
     {

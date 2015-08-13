@@ -1,8 +1,6 @@
-﻿using Axh.Retro.CPU.X80.Contracts.Config;
-
-namespace Axh.Retro.GameBoy.Config
+﻿namespace Axh.Retro.GameBoy.Config
 {
-    using Retro.CPU.X80.Contracts.Config;
+    using Axh.Retro.CPU.X80.Contracts.Config;
 
     public class MemoryBankConfig : IMemoryBankConfig
     {
