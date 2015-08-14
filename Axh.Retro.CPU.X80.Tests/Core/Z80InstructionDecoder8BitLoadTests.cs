@@ -859,7 +859,7 @@
         {
             this.SetCacheForSingleBytes(bytes);
 
-            var block = this.Decoder.DecodeNextBlock(Address);
+            var block = this.BlockDecoder.DecodeNextBlock(Address);
             Assert.IsNotNull(block);
 
             Assert.AreEqual(expectedMachineCycles, block.MachineCycles);

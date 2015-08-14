@@ -43,7 +43,7 @@
     <Compile Include="Config\IInitialStateConfig.cs" />
     <Compile Include="Config\IMemoryBankConfig.cs" />
     <Compile Include="Config\IPlatformConfig.cs" />
-    <Compile Include="Core\DynamicallyRecompiledBlock.cs" />
+    <Compile Include="Core\InstructionBlock.cs" />
     <Compile Include="CpuMode.cs" />
     <Compile Include="Exceptions\MemoryConfigStateException.cs" />
     <Compile Include="Exceptions\MmuAddressSegmentGapException.cs" />
@@ -61,16 +61,18 @@
     <Compile Include="OpCodes\PrefixDdFdOpCode.cs" />
     <Compile Include="OpCodes\PrefixEdOpCode.cs" />
     <Compile Include="OpCodes\PrimaryOpCode.cs" />
+    <Compile Include="Registers\IIntel8080Registers.cs" />
     <Compile Include="Registers\InterruptMode.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Registers\IRegisters.cs" />
+    <Compile Include="Registers\IStateBackedRegisters.cs" />
     <Compile Include="State\GeneralPurposeRegisterState.cs" />
     <Compile Include="Registers\IFlagsRegister.cs" />
     <Compile Include="Registers\IGeneralPurposeRegisterSet.cs" />
     <Compile Include="Registers\IZ80Registers.cs" />
-    <Compile Include="State\RegisterState.cs" />
+    <Compile Include="State\Intel8080RegisterState.cs" />
     <Compile Include="State\Z80RegisterState.cs" />
-    <Compile Include="Core\IZ80InstructionDecoder.cs" />
+    <Compile Include="Core\IInstructionBlockDecoder.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

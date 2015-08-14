@@ -16,7 +16,7 @@
 
             this.SetCacheForSingleBytes(PrimaryOpCode.NOP, PrimaryOpCode.NOP, PrimaryOpCode.HALT);
 
-            var block = this.Decoder.DecodeNextBlock(Address);
+            var block = this.BlockDecoder.DecodeNextBlock(Address);
             Assert.IsNotNull(block);
             Assert.AreEqual(3, block.MachineCycles);
             Assert.AreEqual(12, block.ThrottlingStates);
@@ -37,7 +37,7 @@
             this.ResetMocks();
             this.SetCacheForSingleBytes(PrimaryOpCode.HALT);
 
-            var block = this.Decoder.DecodeNextBlock(Address);
+            var block = this.BlockDecoder.DecodeNextBlock(Address);
             Assert.IsNotNull(block);
             Assert.AreEqual(1, block.MachineCycles);
             Assert.AreEqual(4, block.ThrottlingStates);

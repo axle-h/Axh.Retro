@@ -29,7 +29,7 @@
         protected const ushort IX = 0x3366;
         protected const ushort IY = 0x2255;
 
-        protected IZ80InstructionDecoder Decoder;
+        protected IInstructionBlockDecoder<IZ80Registers> BlockDecoder;
 
         protected Mock<IZ80Registers> Registers;
 
@@ -53,7 +53,7 @@
             var mmuFactory = new Mock<IMmuFactory>();
             mmuFactory.Setup(x => x.GetMmuCache(this.Mmu.Object, Address)).Returns(this.Cache.Object);
 
-            this.Decoder = new Z80InstructionDecoder(mmuFactory.Object, this.Mmu.Object);
+            this.BlockDecoder = new DynaRecInstructionBlockDecoder(mmuFactory.Object, this.Mmu.Object);
         }
 
         protected void SetupRegisters()
@@ -87,22 +87,12 @@
         protected void SetCacheForSingleBytes(params object[] bytes)
         {
             var length = 0;
-            var programCounterCache = 0;
             var queue = new Queue(bytes);
             this.Cache.Setup(x => x.NextByte()).Returns(
                 () =>
                 {
                     length++;
-                    programCounterCache++;
                     return (byte)queue.Dequeue();
-                });
-
-            this.Cache.Setup(x => x.EmptyProgramCounterCache()).Returns(
-                () =>
-                {
-                    var programCounter = programCounterCache;
-                    programCounterCache = 0;
-                    return programCounter;
                 });
 
             this.Cache.Setup(x => x.TotalBytesRead).Returns(() => length);

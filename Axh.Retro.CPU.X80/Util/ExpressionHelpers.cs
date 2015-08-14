@@ -22,7 +22,7 @@
                 throw new ArgumentException($"Expression '{propertyLambda}' refers to a field, not a property.");
             }
 
-            if (type != propInfo.ReflectedType && !type.IsSubclassOf(propInfo.ReflectedType))
+            if (type != propInfo.ReflectedType && !type.IsSubclassOf(propInfo.ReflectedType) && !propInfo.ReflectedType.IsAssignableFrom(type))
             {
                 throw new ArgumentException($"Expresion '{propertyLambda}' refers to a property that is not from type {type}.");
             }

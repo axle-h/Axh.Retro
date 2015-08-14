@@ -40,14 +40,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Core\DecodeResult.cs" />
     <Compile Include="Core\InstructionTimer.cs" />
     <Compile Include="Core\Z80ExpressionBuilder.cs" />
     <Compile Include="Factories\MmuFactory.cs" />
-    <Compile Include="Factories\RegisterFactory.cs" />
+    <Compile Include="Factories\Z80RegisterFactory.cs" />
     <Compile Include="Memory\ArrayBackedMemoryBank.cs" />
     <Compile Include="Memory\MmuCache.cs" />
     <Compile Include="Memory\ReadOnlyMemoryBank.cs" />
-    <Compile Include="Registers\Registers.cs" />
     <Compile Include="Registers\Z80FlagsRegister.cs" />
     <Compile Include="Registers\GeneralPurposeRegisterSet.cs" />
     <Compile Include="Registers\Z80Registers.cs" />
@@ -55,7 +55,7 @@
     <Compile Include="Core\Z80Core.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Mmu\SegmentMmu.cs" />
-    <Compile Include="Core\Z80InstructionDecoder.cs" />
+    <Compile Include="Core\DynaRecInstructionBlockDecoder.cs" />
     <Compile Include="Util\ExpressionHelpers.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -19,8 +19,6 @@
 
         private ushort address;
 
-        private int programCounterCache;
-
         public MmuCache(IMmu mmu, ushort address)
         {
             this.mmu = mmu;
@@ -38,7 +36,6 @@
             }
 
             this.TotalBytesRead++;
-            this.programCounterCache++;
             return value;
         }
 
@@ -89,7 +86,6 @@
 
         public void ReBuildCache(ushort newAddress)
         {
-            this.programCounterCache = 0;
             this.TotalBytesRead = 0;
             this.cachePointer = 0;
             this.address = newAddress;
@@ -97,14 +93,7 @@
         }
 
         public int TotalBytesRead { get; private set; }
-
-        public int EmptyProgramCounterCache()
-        {
-            var programCounter = this.programCounterCache;
-            this.programCounterCache = 0;
-            return programCounter;
-        }
-
+        
         private void NudgeCache()
         {
             this.address = unchecked((ushort)(this.address + CacheSize));

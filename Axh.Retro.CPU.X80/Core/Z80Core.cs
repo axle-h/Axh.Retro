@@ -16,9 +16,9 @@
 
         private readonly IMmu mmu;
         
-        public Z80Core(IRegisterFactory registerFactory, IMmuFactory mmuFactory)
+        public Z80Core(IRegisterFactory<IZ80Registers> registerFactory, IMmuFactory mmuFactory)
         {
-            this.registers = registerFactory.GetInitialZ80Registers();
+            this.registers = registerFactory.GetInitialRegisters();
             this.mmu = mmuFactory.GetMmu();
         }
 

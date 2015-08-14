@@ -11,7 +11,5 @@
         void ReBuildCache(ushort newAddress);
 
         int TotalBytesRead { get; }
-
-        int EmptyProgramCounterCache();
     }
 }

@@ -10,7 +10,7 @@
     using Axh.Retro.CPU.X80.Contracts.Registers;
     using Axh.Retro.CPU.X80.Util;
 
-    internal static class Z80ExpressionBuilder
+    internal class Z80ExpressionBuilder
     {
         private static readonly ParameterExpression RegistersExpression;
         private static readonly ParameterExpression MmuExpression;
@@ -101,33 +101,38 @@
 
             MmuWriteByteMethodInfo = ExpressionHelpers.GetMethodInfo<IMmu, ushort, byte>((mmu, address, value) => mmu.WriteByte(address, value));
         }
-        
-        public static Expression<Action<IZ80Registers, IMmu>> FinalizeBlock(IMmuCache mmuCache, ICollection<Expression> expressions)
+
+        private readonly ICollection<Expression> expressions;
+
+        private readonly InstructionTimer timer;
+
+        private readonly IMmuCache mmuCache;
+
+        public Z80ExpressionBuilder(IMmuCache mmuCache, InstructionTimer timer)
         {
-            // Increment anything left in the program counter cache
-            AddUpdateProgramCounterExpression(mmuCache, expressions);
+            this.expressions = new List<Expression>();
+            this.timer = timer;
+            this.mmuCache = mmuCache;
+        }
+
+        public Expression<Action<IZ80Registers, IMmu>> FinalizeBlock(DecodeResult lastResult)
+        {
+            if (lastResult == DecodeResult.FinalizeAndSync)
+            {
+                // Increment the program counter by how many bytes were read.
+                var expression = Expression.Assign(PC, Expression.Convert(Expression.Add(Expression.Convert(PC, typeof(int)), Expression.Constant(this.mmuCache.TotalBytesRead)), typeof(ushort)));
+                this.expressions.Add(expression);
+            }
 
             // Add the block length to the 7 lsb of memory refresh register.
-            var blockLengthExpression = Expression.Constant(mmuCache.TotalBytesRead, typeof(int));
+            var blockLengthExpression = Expression.Constant(this.mmuCache.TotalBytesRead, typeof(int));
             var increment7LsbR = Expression.And(Expression.Add(Expression.Convert(R, typeof(int)), blockLengthExpression), Expression.Constant(0x7f));
-            expressions.Add(Expression.Assign(R, Expression.Convert(increment7LsbR, typeof(byte))));
+            this.expressions.Add(Expression.Assign(R, Expression.Convert(increment7LsbR, typeof(byte))));
 
-            var expressionBlock = Expression.Block(new[] { LocalBExpression, LocalWExpression }, expressions);
+            var expressionBlock = Expression.Block(new[] { LocalBExpression, LocalWExpression }, this.expressions);
             var lambda = Expression.Lambda<Action<IZ80Registers, IMmu>>(expressionBlock, RegistersExpression, MmuExpression);
 
             return lambda;
-        }
-
-        private static void AddUpdateProgramCounterExpression(IMmuCache mmuCache, ICollection<Expression> expressions)
-        {
-            var programCounterDelta = mmuCache.EmptyProgramCounterCache();
-            if (programCounterDelta == 0)
-            {
-                return;
-            }
-
-            var expression = Expression.Assign(PC, Expression.Convert(Expression.Add(Expression.Convert(PC, typeof(int)), Expression.Constant(programCounterDelta)), typeof(ushort)));
-            expressions.Add(expression);
         }
 
         /// <summary>
@@ -137,9 +142,9 @@
         /// <param name="expressions"></param>
         /// <param name="timer"></param>
         /// <returns>True if we can continue to decode operations sequentially, false if it can't e.g. a jumo</returns>
-        public static bool TryDecodeNextOperation(IMmuCache mmuCache, ICollection<Expression> expressions, InstructionTimer timer)
+        public DecodeResult TryDecodeNextOperation()
         {
-            var opCode = (PrimaryOpCode)mmuCache.NextByte();
+            var opCode = (PrimaryOpCode)this.mmuCache.NextByte();
 
             switch (opCode)
             {
@@ -148,7 +153,7 @@
                     break;
                 case PrimaryOpCode.HALT:
                     timer.Add(1, 4);
-                    return false;
+                    return DecodeResult.FinalizeAndSync;
 
                 // ********* 8-bit load *********
                 // LD r, r'
@@ -436,24 +441,24 @@
                 case PrimaryOpCode.JP:
                     expressions.Add(Expression.Assign(PC, Expression.Constant(mmuCache.NextWord(), typeof(ushort))));
                     timer.Add(3, 10);
-                    return false;
+                    return DecodeResult.Finalize;
 
                 // ********* Prefixes *********
                 case PrimaryOpCode.Prefix_DD:
-                    return TryDecodeNextDdPrefixOperation(mmuCache, expressions, timer);
+                    return TryDecodeNextDdPrefixOperation();
 
                 case PrimaryOpCode.Prefix_FD:
-                    return TryDecodeNextFdPrefixOperation(mmuCache, expressions, timer);
+                    return TryDecodeNextFdPrefixOperation();
 
                 default:
                     throw new NotImplementedException(opCode.ToString());
             }
 
-            return true;
+            return DecodeResult.Continue;
         }
 
 
-        public static bool TryDecodeNextDdPrefixOperation(IMmuCache mmuCache, ICollection<Expression> expressions, InstructionTimer timer)
+        public DecodeResult TryDecodeNextDdPrefixOperation()
         {
             var opCode = (PrefixDdFdOpCode)mmuCache.NextByte();
 
@@ -500,10 +505,10 @@
                     throw new NotImplementedException(opCode.ToString());
             }
 
-            return true;
+            return DecodeResult.Continue;
         }
 
-        public static bool TryDecodeNextFdPrefixOperation(IMmuCache mmuCache, ICollection<Expression> expressions, InstructionTimer timer)
+        public DecodeResult TryDecodeNextFdPrefixOperation()
         {
             var opCode = (PrefixDdFdOpCode)mmuCache.NextByte();
 
@@ -550,7 +555,7 @@
                     throw new NotImplementedException(opCode.ToString());
             }
 
-            return true;
+            return DecodeResult.Continue;
         }
 
     }

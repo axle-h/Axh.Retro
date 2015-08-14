@@ -2,9 +2,9 @@
 {
     using Axh.Retro.CPU.X80.Contracts.Registers;
 
-    public interface IRegisterFactory
+    public interface IRegisterFactory<out TRegisters> where TRegisters : IRegisters
     {
-        IZ80Registers GetInitialZ80Registers();
+        TRegisters GetInitialRegisters();
 
         IGeneralPurposeRegisterSet GetRegisterSet();
 

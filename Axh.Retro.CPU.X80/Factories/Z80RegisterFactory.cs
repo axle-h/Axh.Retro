@@ -6,21 +6,22 @@
     using Axh.Retro.CPU.X80.Contracts.Config;
     using Axh.Retro.CPU.X80.Contracts.Factories;
     using Axh.Retro.CPU.X80.Contracts.Registers;
+    using Axh.Retro.CPU.X80.Contracts.State;
     using Axh.Retro.CPU.X80.Registers;
 
-    public class RegisterFactory : IRegisterFactory
+    public class Z80RegisterFactory : IRegisterFactory<IZ80Registers> 
     {
-        private readonly IInitialStateConfig initialStateConfig;
+        private readonly IInitialStateConfig<Z80RegisterState> initialStateConfig;
 
         private readonly IPlatformConfig platformConfig;
 
-        public RegisterFactory(IInitialStateConfig initialStateConfig, IPlatformConfig platformConfig)
+        public Z80RegisterFactory(IInitialStateConfig<Z80RegisterState> initialStateConfig, IPlatformConfig platformConfig)
         {
             this.initialStateConfig = initialStateConfig;
             this.platformConfig = platformConfig;
         }
 
-        public IZ80Registers GetInitialZ80Registers()
+        public IZ80Registers GetInitialRegisters()
         {
             var primaryRegisterSet = this.GetRegisterSet();
             var alternativeRegisterSet = this.GetRegisterSet();
