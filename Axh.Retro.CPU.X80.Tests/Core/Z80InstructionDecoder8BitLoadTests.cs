@@ -11,7 +11,7 @@
     [TestFixture]
     public class Z80InstructionDecoder8BitLoadTests : Z80InstructionDecoderBase
     {
-        
+
         [TestCase(PrimaryOpCode.LD_A_A)]
         [TestCase(PrimaryOpCode.LD_B_A)]
         [TestCase(PrimaryOpCode.LD_C_A)]
@@ -68,7 +68,7 @@
 
             this.SetCacheForSingleBytes(opcode, PrimaryOpCode.HALT);
             Run8BitLoadGroup(2, 8, opcode, PrimaryOpCode.HALT);
-            
+
             switch (opcode)
             {
                 case PrimaryOpCode.LD_A_A:
@@ -580,7 +580,7 @@
             this.ResetMocks();
 
             Run8BitLoadGroup(3, 11, opcode, value, PrimaryOpCode.HALT);
-            
+
             switch (opcode)
             {
                 case PrimaryOpCode.LD_A_n:
@@ -676,7 +676,7 @@
             this.Mmu.Setup(x => x.ReadByte(HL)).Returns(Value);
 
             Run8BitLoadGroup(3, 11, opcode, PrimaryOpCode.HALT);
-            
+
             this.Mmu.Verify(x => x.ReadByte(HL), Times.Once);
             this.GpRegisters.VerifyGet(x => x.HL, Times.Once);
 
@@ -719,16 +719,16 @@
             this.SetupRegisters();
             this.ResetMocks();
 
-            const sbyte SignedXd = -127;
-            const byte UnsignedXd = unchecked((byte)SignedXd);
+            const sbyte SignedD = -127;
+            const byte UnsignedD = unchecked((byte)SignedD);
             const byte ValueAtIXd = 0x8f;
-            
-            this.Mmu.Setup(x => x.ReadByte(IX + SignedXd)).Returns(ValueAtIXd);
-            Run8BitLoadGroup(5 + 1, 19 + 4, PrimaryOpCode.Prefix_DD, opcode, UnsignedXd, PrimaryOpCode.HALT);
-            
-            this.Mmu.Verify(x => x.ReadByte(IX + SignedXd), Times.Once);
+
+            this.Mmu.Setup(x => x.ReadByte(IX + SignedD)).Returns(ValueAtIXd);
+            Run8BitLoadGroup(5 + 1, 19 + 4, PrimaryOpCode.Prefix_DD, opcode, UnsignedD, PrimaryOpCode.HALT);
+
+            this.Mmu.Verify(x => x.ReadByte(IX + SignedD), Times.Once);
             this.Registers.VerifyGet(x => x.IX, Times.Once);
-            
+
             switch (opcode)
             {
                 case PrefixDdFdOpCode.LD_A_mIXYd:
@@ -768,16 +768,16 @@
         {
             this.SetupRegisters();
             this.ResetMocks();
-            
-            const sbyte SignedYd = 55;
-            const byte UnsignedYd = unchecked((byte)SignedYd);
+
+            const sbyte SignedD = 55;
+            const byte UnsignedD = unchecked((byte)SignedD);
             const byte ValueAtIYd = 0x42;
 
-            this.Mmu.Setup(x => x.ReadByte(IY + SignedYd)).Returns(ValueAtIYd);
+            this.Mmu.Setup(x => x.ReadByte(IY + SignedD)).Returns(ValueAtIYd);
 
-            Run8BitLoadGroup(5 + 1, 19 + 4, PrimaryOpCode.Prefix_FD, opcode, UnsignedYd, PrimaryOpCode.HALT);
+            Run8BitLoadGroup(5 + 1, 19 + 4, PrimaryOpCode.Prefix_FD, opcode, UnsignedD, PrimaryOpCode.HALT);
 
-            this.Mmu.Verify(x => x.ReadByte(IY + SignedYd), Times.Once);
+            this.Mmu.Verify(x => x.ReadByte(IY + SignedD), Times.Once);
             this.Registers.VerifyGet(x => x.IY, Times.Once);
 
             switch (opcode)
@@ -819,7 +819,7 @@
         {
             this.SetupRegisters();
             this.ResetMocks();
-            
+
             Run8BitLoadGroup(2 + 1, 7 + 4, opcode, PrimaryOpCode.HALT);
 
             switch (opcode)
@@ -852,6 +852,112 @@
                     this.Mmu.Verify(x => x.WriteByte(HL, L), Times.Once);
                     this.GpRegisters.VerifyGet(x => x.L, Times.Once);
                     break;
+            }
+        }
+
+        [TestCase(0x12)]
+        [TestCase(0x34)]
+        public void LD_mHL_n(byte value)
+        {
+            this.SetupRegisters();
+            this.ResetMocks();
+
+            Run8BitLoadGroup(3 + 1, 10 + 4, PrimaryOpCode.LD_mHL_n, value, PrimaryOpCode.HALT);
+            
+            this.Mmu.Verify(x => x.WriteByte(HL, value), Times.Once);
+        }
+
+        [TestCase(PrefixDdFdOpCode.LD_mIXYd_A)]
+        [TestCase(PrefixDdFdOpCode.LD_mIXYd_B)]
+        [TestCase(PrefixDdFdOpCode.LD_mIXYd_C)]
+        [TestCase(PrefixDdFdOpCode.LD_mIXYd_D)]
+        [TestCase(PrefixDdFdOpCode.LD_mIXYd_E)]
+        [TestCase(PrefixDdFdOpCode.LD_mIXYd_H)]
+        [TestCase(PrefixDdFdOpCode.LD_mIXYd_L)]
+        public void LD_mIXd_r(PrefixDdFdOpCode opcode)
+        {
+            this.SetupRegisters();
+            this.ResetMocks();
+
+            const sbyte SignedD = -66;
+            const byte UnsignedD = unchecked((byte)SignedD);
+            
+            Run8BitLoadGroup(5 + 1, 19 + 4, PrimaryOpCode.Prefix_DD, opcode, UnsignedD, PrimaryOpCode.HALT);
+            
+            this.Registers.VerifyGet(x => x.IX, Times.Once);
+
+            switch (opcode)
+            {
+                case PrefixDdFdOpCode.LD_mIXYd_A:
+                    this.Mmu.Verify(x => x.WriteByte(IX + SignedD, A), Times.Once);
+                    break;
+                case PrefixDdFdOpCode.LD_mIXYd_B:
+                    this.Mmu.Verify(x => x.WriteByte(IX + SignedD, B), Times.Once);
+                    break;
+                case PrefixDdFdOpCode.LD_mIXYd_C:
+                    this.Mmu.Verify(x => x.WriteByte(IX + SignedD, C), Times.Once);
+                    break;
+                case PrefixDdFdOpCode.LD_mIXYd_D:
+                    this.Mmu.Verify(x => x.WriteByte(IX + SignedD, D), Times.Once);
+                    break;
+                case PrefixDdFdOpCode.LD_mIXYd_E:
+                    this.Mmu.Verify(x => x.WriteByte(IX + SignedD, E), Times.Once);
+                    break;
+                case PrefixDdFdOpCode.LD_mIXYd_H:
+                    this.Mmu.Verify(x => x.WriteByte(IX + SignedD, H), Times.Once);
+                    break;
+                case PrefixDdFdOpCode.LD_mIXYd_L:
+                    this.Mmu.Verify(x => x.WriteByte(IX + SignedD, L), Times.Once);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException("opcode");
+            }
+        }
+
+        [TestCase(PrefixDdFdOpCode.LD_mIXYd_A)]
+        [TestCase(PrefixDdFdOpCode.LD_mIXYd_B)]
+        [TestCase(PrefixDdFdOpCode.LD_mIXYd_C)]
+        [TestCase(PrefixDdFdOpCode.LD_mIXYd_D)]
+        [TestCase(PrefixDdFdOpCode.LD_mIXYd_E)]
+        [TestCase(PrefixDdFdOpCode.LD_mIXYd_H)]
+        [TestCase(PrefixDdFdOpCode.LD_mIXYd_L)]
+        public void LD_mIYd_r(PrefixDdFdOpCode opcode)
+        {
+            this.SetupRegisters();
+            this.ResetMocks();
+
+            const sbyte SignedD = 88;
+            const byte UnsignedD = unchecked((byte)SignedD);
+
+            Run8BitLoadGroup(5 + 1, 19 + 4, PrimaryOpCode.Prefix_FD, opcode, UnsignedD, PrimaryOpCode.HALT);
+
+            this.Registers.VerifyGet(x => x.IY, Times.Once);
+
+            switch (opcode)
+            {
+                case PrefixDdFdOpCode.LD_mIXYd_A:
+                    this.Mmu.Verify(x => x.WriteByte(IY + SignedD, A), Times.Once);
+                    break;
+                case PrefixDdFdOpCode.LD_mIXYd_B:
+                    this.Mmu.Verify(x => x.WriteByte(IY + SignedD, B), Times.Once);
+                    break;
+                case PrefixDdFdOpCode.LD_mIXYd_C:
+                    this.Mmu.Verify(x => x.WriteByte(IY + SignedD, C), Times.Once);
+                    break;
+                case PrefixDdFdOpCode.LD_mIXYd_D:
+                    this.Mmu.Verify(x => x.WriteByte(IY + SignedD, D), Times.Once);
+                    break;
+                case PrefixDdFdOpCode.LD_mIXYd_E:
+                    this.Mmu.Verify(x => x.WriteByte(IY + SignedD, E), Times.Once);
+                    break;
+                case PrefixDdFdOpCode.LD_mIXYd_H:
+                    this.Mmu.Verify(x => x.WriteByte(IY + SignedD, H), Times.Once);
+                    break;
+                case PrefixDdFdOpCode.LD_mIXYd_L:
+                    this.Mmu.Verify(x => x.WriteByte(IY + SignedD, L), Times.Once);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException("opcode");
             }
         }
 

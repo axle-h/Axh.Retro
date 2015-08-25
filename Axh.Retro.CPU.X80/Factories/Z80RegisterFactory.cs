@@ -33,8 +33,7 @@
 
             return registers;
         }
-
-
+        
         public IGeneralPurposeRegisterSet GetRegisterSet()
         {
             var flagsRegister = this.GetFlagsRegister();
