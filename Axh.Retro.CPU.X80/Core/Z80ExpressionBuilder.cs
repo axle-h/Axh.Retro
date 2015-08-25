@@ -118,6 +118,9 @@
 
         private readonly IMmuCache mmuCache;
 
+        private ConstantExpression NextByte => Expression.Constant(mmuCache.NextByte());
+        private ConstantExpression NextWord => Expression.Constant(mmuCache.NextWord(), typeof(ushort));
+
         public Z80ExpressionBuilder(IMmuCache mmuCache, InstructionTimer timer)
         {
             this.expressions = new List<Expression>();
@@ -359,31 +362,31 @@
 
                 // LD r,n
                 case PrimaryOpCode.LD_A_n:
-                    expressions.Add(Expression.Assign(A, Expression.Constant(mmuCache.NextByte())));
+                    expressions.Add(Expression.Assign(A, NextByte));
                     timer.Add(2, 7);
                     break;
                 case PrimaryOpCode.LD_B_n:
-                    expressions.Add(Expression.Assign(B, Expression.Constant(mmuCache.NextByte())));
+                    expressions.Add(Expression.Assign(B, NextByte));
                     timer.Add(2, 7);
                     break;
                 case PrimaryOpCode.LD_C_n:
-                    expressions.Add(Expression.Assign(C, Expression.Constant(mmuCache.NextByte())));
+                    expressions.Add(Expression.Assign(C, NextByte));
                     timer.Add(2, 7);
                     break;
                 case PrimaryOpCode.LD_D_n:
-                    expressions.Add(Expression.Assign(D, Expression.Constant(mmuCache.NextByte())));
+                    expressions.Add(Expression.Assign(D, NextByte));
                     timer.Add(2, 7);
                     break;
                 case PrimaryOpCode.LD_E_n:
-                    expressions.Add(Expression.Assign(E, Expression.Constant(mmuCache.NextByte())));
+                    expressions.Add(Expression.Assign(E, NextByte));
                     timer.Add(2, 7);
                     break;
                 case PrimaryOpCode.LD_H_n:
-                    expressions.Add(Expression.Assign(H, Expression.Constant(mmuCache.NextByte())));
+                    expressions.Add(Expression.Assign(H, NextByte));
                     timer.Add(2, 7);
                     break;
                 case PrimaryOpCode.LD_L_n:
-                    expressions.Add(Expression.Assign(L, Expression.Constant(mmuCache.NextByte())));
+                    expressions.Add(Expression.Assign(L, NextByte));
                     timer.Add(2, 7);
                     break;
 
@@ -449,13 +452,13 @@
 
                 //LD (HL), n
                 case PrimaryOpCode.LD_mHL_n:
-                    expressions.Add(Expression.Call(MmuExpression, MmuWriteByteMethodInfo, HL, Expression.Constant(mmuCache.NextByte())));
+                    expressions.Add(Expression.Call(MmuExpression, MmuWriteByteMethodInfo, HL, NextByte));
                     timer.Add(3, 10);
                     break;
                     
                 // ********* Jump *********
                 case PrimaryOpCode.JP:
-                    expressions.Add(Expression.Assign(PC, Expression.Constant(mmuCache.NextWord(), typeof(ushort))));
+                    expressions.Add(Expression.Assign(PC, NextWord));
                     timer.Add(3, 10);
                     return DecodeResult.Finalize;
 
@@ -483,78 +486,85 @@
                 // LD r, (IX+d)
                 // We have defined this using ReadByteAtIXd for when we set the local parameter b to d.
                 case PrefixDdFdOpCode.LD_A_mIXYd:
-                    expressions.Add(Expression.Assign(LocalByte, Expression.Constant(mmuCache.NextByte())));
+                    expressions.Add(Expression.Assign(LocalByte, NextByte));
                     expressions.Add(Expression.Assign(A, ReadByteAtIXd));
                     timer.Add(5, 19);
                     break;
                 case PrefixDdFdOpCode.LD_B_mIXYd:
-                    expressions.Add(Expression.Assign(LocalByte, Expression.Constant(mmuCache.NextByte())));
+                    expressions.Add(Expression.Assign(LocalByte, NextByte));
                     expressions.Add(Expression.Assign(B, ReadByteAtIXd));
                     timer.Add(5, 19);
                     break;
                 case PrefixDdFdOpCode.LD_C_mIXYd:
-                    expressions.Add(Expression.Assign(LocalByte, Expression.Constant(mmuCache.NextByte())));
+                    expressions.Add(Expression.Assign(LocalByte, NextByte));
                     expressions.Add(Expression.Assign(C, ReadByteAtIXd));
                     timer.Add(5, 19);
                     break;
                 case PrefixDdFdOpCode.LD_D_mIXYd:
-                    expressions.Add(Expression.Assign(LocalByte, Expression.Constant(mmuCache.NextByte())));
+                    expressions.Add(Expression.Assign(LocalByte, NextByte));
                     expressions.Add(Expression.Assign(D, ReadByteAtIXd));
                     timer.Add(5, 19);
                     break;
                 case PrefixDdFdOpCode.LD_E_mIXYd:
-                    expressions.Add(Expression.Assign(LocalByte, Expression.Constant(mmuCache.NextByte())));
+                    expressions.Add(Expression.Assign(LocalByte, NextByte));
                     expressions.Add(Expression.Assign(E, ReadByteAtIXd));
                     timer.Add(5, 19);
                     break;
                 case PrefixDdFdOpCode.LD_H_mIXYd:
-                    expressions.Add(Expression.Assign(LocalByte, Expression.Constant(mmuCache.NextByte())));
+                    expressions.Add(Expression.Assign(LocalByte, NextByte));
                     expressions.Add(Expression.Assign(H, ReadByteAtIXd));
                     timer.Add(5, 19);
                     break;
                 case PrefixDdFdOpCode.LD_L_mIXYd:
-                    expressions.Add(Expression.Assign(LocalByte, Expression.Constant(mmuCache.NextByte())));
+                    expressions.Add(Expression.Assign(LocalByte, NextByte));
                     expressions.Add(Expression.Assign(L, ReadByteAtIXd));
                     timer.Add(5, 19);
                     break;
 
                 // LD (IX+d), r
                 case PrefixDdFdOpCode.LD_mIXYd_A:
-                    expressions.Add(Expression.Assign(LocalByte, Expression.Constant(mmuCache.NextByte())));
+                    expressions.Add(Expression.Assign(LocalByte, NextByte));
                     expressions.Add(Expression.Call(MmuExpression, MmuWriteByteMethodInfo, IXd, A));
                     timer.Add(5, 19);
                     break;
                 case PrefixDdFdOpCode.LD_mIXYd_B:
-                    expressions.Add(Expression.Assign(LocalByte, Expression.Constant(mmuCache.NextByte())));
+                    expressions.Add(Expression.Assign(LocalByte, NextByte));
                     expressions.Add(Expression.Call(MmuExpression, MmuWriteByteMethodInfo, IXd, B));
                     timer.Add(5, 19);
                     break;
                 case PrefixDdFdOpCode.LD_mIXYd_C:
-                    expressions.Add(Expression.Assign(LocalByte, Expression.Constant(mmuCache.NextByte())));
+                    expressions.Add(Expression.Assign(LocalByte, NextByte));
                     expressions.Add(Expression.Call(MmuExpression, MmuWriteByteMethodInfo, IXd, C));
                     timer.Add(5, 19);
                     break;
                 case PrefixDdFdOpCode.LD_mIXYd_D:
-                    expressions.Add(Expression.Assign(LocalByte, Expression.Constant(mmuCache.NextByte())));
+                    expressions.Add(Expression.Assign(LocalByte, NextByte));
                     expressions.Add(Expression.Call(MmuExpression, MmuWriteByteMethodInfo, IXd, D));
                     timer.Add(5, 19);
                     break;
                 case PrefixDdFdOpCode.LD_mIXYd_E:
-                    expressions.Add(Expression.Assign(LocalByte, Expression.Constant(mmuCache.NextByte())));
+                    expressions.Add(Expression.Assign(LocalByte, NextByte));
                     expressions.Add(Expression.Call(MmuExpression, MmuWriteByteMethodInfo, IXd, E));
                     timer.Add(5, 19);
                     break;
                 case PrefixDdFdOpCode.LD_mIXYd_H:
-                    expressions.Add(Expression.Assign(LocalByte, Expression.Constant(mmuCache.NextByte())));
+                    expressions.Add(Expression.Assign(LocalByte, NextByte));
                     expressions.Add(Expression.Call(MmuExpression, MmuWriteByteMethodInfo, IXd, H));
                     timer.Add(5, 19);
                     break;
                 case PrefixDdFdOpCode.LD_mIXYd_L:
-                    expressions.Add(Expression.Assign(LocalByte, Expression.Constant(mmuCache.NextByte())));
+                    expressions.Add(Expression.Assign(LocalByte, NextByte));
                     expressions.Add(Expression.Call(MmuExpression, MmuWriteByteMethodInfo, IXd, L));
                     timer.Add(5, 19);
                     break;
-                    
+
+                // LD (IX+d), n
+                case PrefixDdFdOpCode.LD_mIXYd_n:
+                    expressions.Add(Expression.Assign(LocalByte, NextByte));
+                    expressions.Add(Expression.Call(MmuExpression, MmuWriteByteMethodInfo, IXd, NextByte));
+                    timer.Add(5, 19);
+                    break;
+
                 default:
                     throw new NotImplementedException(opCode.ToString());
             }
@@ -571,75 +581,82 @@
                 // LD r, (IY+d)
                 // We have defined this using ReadByteByIxIndexRegisterExpression for when we set the local parameter b to d.
                 case PrefixDdFdOpCode.LD_A_mIXYd:
-                    expressions.Add(Expression.Assign(LocalByte, Expression.Constant(mmuCache.NextByte())));
+                    expressions.Add(Expression.Assign(LocalByte, NextByte));
                     expressions.Add(Expression.Assign(A, ReadByteAtIYd));
                     timer.Add(5, 19);
                     break;
                 case PrefixDdFdOpCode.LD_B_mIXYd:
-                    expressions.Add(Expression.Assign(LocalByte, Expression.Constant(mmuCache.NextByte())));
+                    expressions.Add(Expression.Assign(LocalByte, NextByte));
                     expressions.Add(Expression.Assign(B, ReadByteAtIYd));
                     timer.Add(5, 19);
                     break;
                 case PrefixDdFdOpCode.LD_C_mIXYd:
-                    expressions.Add(Expression.Assign(LocalByte, Expression.Constant(mmuCache.NextByte())));
+                    expressions.Add(Expression.Assign(LocalByte, NextByte));
                     expressions.Add(Expression.Assign(C, ReadByteAtIYd));
                     timer.Add(5, 19);
                     break;
                 case PrefixDdFdOpCode.LD_D_mIXYd:
-                    expressions.Add(Expression.Assign(LocalByte, Expression.Constant(mmuCache.NextByte())));
+                    expressions.Add(Expression.Assign(LocalByte, NextByte));
                     expressions.Add(Expression.Assign(D, ReadByteAtIYd));
                     timer.Add(5, 19);
                     break;
                 case PrefixDdFdOpCode.LD_E_mIXYd:
-                    expressions.Add(Expression.Assign(LocalByte, Expression.Constant(mmuCache.NextByte())));
+                    expressions.Add(Expression.Assign(LocalByte, NextByte));
                     expressions.Add(Expression.Assign(E, ReadByteAtIYd));
                     timer.Add(5, 19);
                     break;
                 case PrefixDdFdOpCode.LD_H_mIXYd:
-                    expressions.Add(Expression.Assign(LocalByte, Expression.Constant(mmuCache.NextByte())));
+                    expressions.Add(Expression.Assign(LocalByte, NextByte));
                     expressions.Add(Expression.Assign(H, ReadByteAtIYd));
                     timer.Add(5, 19);
                     break;
                 case PrefixDdFdOpCode.LD_L_mIXYd:
-                    expressions.Add(Expression.Assign(LocalByte, Expression.Constant(mmuCache.NextByte())));
+                    expressions.Add(Expression.Assign(LocalByte, NextByte));
                     expressions.Add(Expression.Assign(L, ReadByteAtIYd));
                     timer.Add(5, 19);
                     break;
                     
                 // LD (IY+d), r
                 case PrefixDdFdOpCode.LD_mIXYd_A:
-                    expressions.Add(Expression.Assign(LocalByte, Expression.Constant(mmuCache.NextByte())));
+                    expressions.Add(Expression.Assign(LocalByte, NextByte));
                     expressions.Add(Expression.Call(MmuExpression, MmuWriteByteMethodInfo, IYd, A));
                     timer.Add(5, 19);
                     break;
                 case PrefixDdFdOpCode.LD_mIXYd_B:
-                    expressions.Add(Expression.Assign(LocalByte, Expression.Constant(mmuCache.NextByte())));
+                    expressions.Add(Expression.Assign(LocalByte, NextByte));
                     expressions.Add(Expression.Call(MmuExpression, MmuWriteByteMethodInfo, IYd, B));
                     timer.Add(5, 19);
                     break;
                 case PrefixDdFdOpCode.LD_mIXYd_C:
-                    expressions.Add(Expression.Assign(LocalByte, Expression.Constant(mmuCache.NextByte())));
+                    expressions.Add(Expression.Assign(LocalByte, NextByte));
                     expressions.Add(Expression.Call(MmuExpression, MmuWriteByteMethodInfo, IYd, C));
                     timer.Add(5, 19);
                     break;
                 case PrefixDdFdOpCode.LD_mIXYd_D:
-                    expressions.Add(Expression.Assign(LocalByte, Expression.Constant(mmuCache.NextByte())));
+                    expressions.Add(Expression.Assign(LocalByte, NextByte));
                     expressions.Add(Expression.Call(MmuExpression, MmuWriteByteMethodInfo, IYd, D));
                     timer.Add(5, 19);
                     break;
                 case PrefixDdFdOpCode.LD_mIXYd_E:
-                    expressions.Add(Expression.Assign(LocalByte, Expression.Constant(mmuCache.NextByte())));
+                    expressions.Add(Expression.Assign(LocalByte, NextByte));
                     expressions.Add(Expression.Call(MmuExpression, MmuWriteByteMethodInfo, IYd, E));
                     timer.Add(5, 19);
                     break;
                 case PrefixDdFdOpCode.LD_mIXYd_H:
-                    expressions.Add(Expression.Assign(LocalByte, Expression.Constant(mmuCache.NextByte())));
+                    expressions.Add(Expression.Assign(LocalByte, NextByte));
                     expressions.Add(Expression.Call(MmuExpression, MmuWriteByteMethodInfo, IYd, H));
                     timer.Add(5, 19);
                     break;
                 case PrefixDdFdOpCode.LD_mIXYd_L:
-                    expressions.Add(Expression.Assign(LocalByte, Expression.Constant(mmuCache.NextByte())));
+                    expressions.Add(Expression.Assign(LocalByte, NextByte));
                     expressions.Add(Expression.Call(MmuExpression, MmuWriteByteMethodInfo, IYd, L));
+                    timer.Add(5, 19);
+                    break;
+                    
+                // LD (IX+d), n
+                case PrefixDdFdOpCode.LD_mIXYd_n:
+                    expressions.Add(Expression.Assign(LocalByte, NextByte));
+                    expressions.Add(Expression.Call(MmuExpression, MmuWriteByteMethodInfo, IYd, NextByte));
                     timer.Add(5, 19);
                     break;
 
@@ -649,6 +666,5 @@
 
             return DecodeResult.Continue;
         }
-
     }
 }

@@ -961,6 +961,38 @@
             }
         }
 
+        [Test]
+        public void LD_mIXd_n()
+        {
+            this.SetupRegisters();
+            this.ResetMocks();
+
+            const sbyte SignedD = 77;
+            const byte UnsignedD = unchecked((byte)SignedD);
+            const byte N = 0x73;
+            
+            Run8BitLoadGroup(5 + 1, 19 + 4, PrimaryOpCode.Prefix_DD, PrefixDdFdOpCode.LD_mIXYd_n, UnsignedD, N, PrimaryOpCode.HALT);
+
+            this.Registers.VerifyGet(x => x.IX, Times.Once);
+            this.Mmu.Verify(x => x.WriteByte(IX + SignedD, N), Times.Once);
+        }
+
+        [Test]
+        public void LD_mIYd_n()
+        {
+            this.SetupRegisters();
+            this.ResetMocks();
+
+            const sbyte SignedD = -77;
+            const byte UnsignedD = unchecked((byte)SignedD);
+            const byte N = 0xF6;
+
+            Run8BitLoadGroup(5 + 1, 19 + 4, PrimaryOpCode.Prefix_FD, PrefixDdFdOpCode.LD_mIXYd_n, UnsignedD, N, PrimaryOpCode.HALT);
+
+            this.Registers.VerifyGet(x => x.IY, Times.Once);
+            this.Mmu.Verify(x => x.WriteByte(IY + SignedD, N), Times.Once);
+        }
+
         private void Run8BitLoadGroup(int expectedMachineCycles, int expectedThrottlingStates, params object[] bytes)
         {
             this.SetCacheForSingleBytes(bytes);
