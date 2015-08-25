@@ -1,6 +1,7 @@
 ﻿namespace Axh.Retro.CPU.X80.Tests.Core
 {
     using System;
+    using System.Linq;
 
     using Axh.Retro.CPU.X80.Contracts.OpCodes;
 
@@ -1025,6 +1026,24 @@
             Assert.AreEqual(ValueAtDE, this.GpRegisters.Object.A);
         }
 
+
+        [Test]
+        public void LD_A_mnn()
+        {
+            this.SetupRegisters();
+            this.ResetMocks();
+            
+            const ushort NN = 0x827d;
+            const byte ValueAtNN = 0xcf;
+
+            this.Mmu.Setup(x => x.ReadByte(NN)).Returns(ValueAtNN);
+
+            Run8BitLoadGroup(4 + 1, 13 + 4, PrimaryOpCode.LD_A_mnn, NN, PrimaryOpCode.HALT);
+
+            this.Mmu.Verify(x => x.ReadByte(NN), Times.Once);
+            Assert.AreEqual(ValueAtNN, this.GpRegisters.Object.A);
+        }
+
         private void Run8BitLoadGroup(int expectedMachineCycles, int expectedThrottlingStates, params object[] bytes)
         {
             this.SetCacheForSingleBytes(bytes);
@@ -1037,7 +1056,8 @@
 
             block.Action(this.Registers.Object, this.Mmu.Object);
 
-            this.Cache.Verify(x => x.NextByte(), Times.Exactly(bytes.Length));
+            this.Cache.Verify(x => x.NextByte(), Times.Exactly(bytes.Count(x => x is byte || x is PrimaryOpCode || x is PrefixDdFdOpCode || x is PrefixEdOpCode)));
+            this.Cache.Verify(x => x.NextWord(), Times.Exactly(bytes.Count(x => x is ushort)));
 
             // 8-bit load doesn't set the flags.
             this.GpRegisters.Verify(x => x.Flags, Times.Never);

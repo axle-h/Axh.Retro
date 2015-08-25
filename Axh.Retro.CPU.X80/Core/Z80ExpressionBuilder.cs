@@ -84,6 +84,7 @@
         /// </summary>
         private static readonly MethodCallExpression ReadByteAtIYd;
 
+        private static readonly MethodInfo MmuReadByteMethodInfo;
         private static readonly MethodInfo MmuWriteByteMethodInfo;
 
         static Z80ExpressionBuilder()
@@ -118,16 +119,15 @@
             IXd = Expression.Convert(Expression.Add(Expression.Convert(IX, typeof(int)), Expression.Convert(Expression.Convert(LocalByte, typeof(sbyte)), typeof(int))), typeof(ushort));
             IYd = Expression.Convert(Expression.Add(Expression.Convert(IY, typeof(int)), Expression.Convert(Expression.Convert(LocalByte, typeof(sbyte)), typeof(int))), typeof(ushort));
 
+            MmuReadByteMethodInfo = ExpressionHelpers.GetMethodInfo<IMmu, ushort, byte>((mmu, address) => mmu.ReadByte(address));
             MmuWriteByteMethodInfo = ExpressionHelpers.GetMethodInfo<IMmu, ushort, byte>((mmu, address, value) => mmu.WriteByte(address, value));
-
-            ReadByteAtLocalWord = MmuExpression.GetMethodExpression<IMmu, ushort, byte>((mmu, address) => mmu.ReadByte(address), LocalWord);
-            ReadByteAtHL = MmuExpression.GetMethodExpression<IMmu, ushort, byte>((mmu, address) => mmu.ReadByte(address), HL);
             
-            ReadByteAtBC = MmuExpression.GetMethodExpression<IMmu, ushort, byte>((mmu, address) => mmu.ReadByte(address), BC);
-            ReadByteAtDE = MmuExpression.GetMethodExpression<IMmu, ushort, byte>((mmu, address) => mmu.ReadByte(address), DE);
-            
-            ReadByteAtIXd = MmuExpression.GetMethodExpression<IMmu, ushort, byte>((mmu, address) => mmu.ReadByte(address), IXd);
-            ReadByteAtIYd = MmuExpression.GetMethodExpression<IMmu, ushort, byte>((mmu, address) => mmu.ReadByte(address), IYd);
+            ReadByteAtLocalWord = Expression.Call(MmuExpression, MmuReadByteMethodInfo, LocalWord);
+            ReadByteAtHL = Expression.Call(MmuExpression, MmuReadByteMethodInfo, HL);
+            ReadByteAtBC = Expression.Call(MmuExpression, MmuReadByteMethodInfo, BC);
+            ReadByteAtDE = Expression.Call(MmuExpression, MmuReadByteMethodInfo, DE);
+            ReadByteAtIXd = Expression.Call(MmuExpression, MmuReadByteMethodInfo, IXd);
+            ReadByteAtIYd = Expression.Call(MmuExpression, MmuReadByteMethodInfo, IYd);
         }
 
         private readonly ICollection<Expression> expressions;
@@ -484,6 +484,12 @@
                 case PrimaryOpCode.LD_A_mDE:
                     expressions.Add(Expression.Assign(A, ReadByteAtDE));
                     timer.Add(2, 7);
+                    break;
+
+                // LD A, (nn)
+                case PrimaryOpCode.LD_A_mnn:
+                    expressions.Add(Expression.Assign(A, Expression.Call(MmuExpression, MmuReadByteMethodInfo, NextWord)));
+                    timer.Add(4, 13);
                     break;
 
                 // ********* Jump *********

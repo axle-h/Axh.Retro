@@ -101,6 +101,13 @@
                     return (byte)queue.Dequeue();
                 });
 
+            this.Cache.Setup(x => x.NextWord()).Returns(
+                () =>
+                {
+                    length += 2;
+                    return (ushort)queue.Dequeue();
+                });
+
             this.Cache.Setup(x => x.TotalBytesRead).Returns(() => length);
         }
     }
