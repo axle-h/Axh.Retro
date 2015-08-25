@@ -36,6 +36,8 @@
         private static readonly MemberExpression F;
         private static readonly MemberExpression H;
         private static readonly MemberExpression L;
+        private static readonly MemberExpression BC;
+        private static readonly MemberExpression DE;
         private static readonly MemberExpression HL;
         private static readonly MemberExpression IX;
         private static readonly MemberExpression IY;
@@ -61,6 +63,16 @@
         /// Reads a byte from the mmu at the address in HL
         /// </summary>
         private static readonly MethodCallExpression ReadByteAtHL;
+
+        /// <summary>
+        /// Reads a byte from the mmu at the address in BC
+        /// </summary>
+        private static readonly MethodCallExpression ReadByteAtBC;
+
+        /// <summary>
+        /// Reads a byte from the mmu at the address in DE
+        /// </summary>
+        private static readonly MethodCallExpression ReadByteAtDE;
 
         /// <summary>
         /// Reads a byte from the mmu at the address at IX + b (using 2's compliant addition)
@@ -95,6 +107,9 @@
             E = generalPurposeRegisters.GetPropertyExpression<IGeneralPurposeRegisterSet, byte>(r => r.E);
             H = generalPurposeRegisters.GetPropertyExpression<IGeneralPurposeRegisterSet, byte>(r => r.H);
             L = generalPurposeRegisters.GetPropertyExpression<IGeneralPurposeRegisterSet, byte>(r => r.L);
+
+            BC = generalPurposeRegisters.GetPropertyExpression<IGeneralPurposeRegisterSet, ushort>(r => r.BC);
+            DE = generalPurposeRegisters.GetPropertyExpression<IGeneralPurposeRegisterSet, ushort>(r => r.DE);
             HL = generalPurposeRegisters.GetPropertyExpression<IGeneralPurposeRegisterSet, ushort>(r => r.HL);
 
             var flagsRegister = generalPurposeRegisters.GetPropertyExpression<IGeneralPurposeRegisterSet, IFlagsRegister>(r => r.Flags);
@@ -107,6 +122,9 @@
 
             ReadByteAtLocalWord = MmuExpression.GetMethodExpression<IMmu, ushort, byte>((mmu, address) => mmu.ReadByte(address), LocalWord);
             ReadByteAtHL = MmuExpression.GetMethodExpression<IMmu, ushort, byte>((mmu, address) => mmu.ReadByte(address), HL);
+            
+            ReadByteAtBC = MmuExpression.GetMethodExpression<IMmu, ushort, byte>((mmu, address) => mmu.ReadByte(address), BC);
+            ReadByteAtDE = MmuExpression.GetMethodExpression<IMmu, ushort, byte>((mmu, address) => mmu.ReadByte(address), DE);
             
             ReadByteAtIXd = MmuExpression.GetMethodExpression<IMmu, ushort, byte>((mmu, address) => mmu.ReadByte(address), IXd);
             ReadByteAtIYd = MmuExpression.GetMethodExpression<IMmu, ushort, byte>((mmu, address) => mmu.ReadByte(address), IYd);
@@ -420,7 +438,7 @@
                     timer.Add(2, 7);
                     break;
 
-                //LD (HL), r
+                // LD (HL), r
                 case PrimaryOpCode.LD_mHL_A:
                     expressions.Add(Expression.Call(MmuExpression, MmuWriteByteMethodInfo, HL, A));
                     timer.Add(2, 7);
@@ -450,12 +468,24 @@
                     timer.Add(2, 7);
                     break;
 
-                //LD (HL), n
+                // LD (HL), n
                 case PrimaryOpCode.LD_mHL_n:
                     expressions.Add(Expression.Call(MmuExpression, MmuWriteByteMethodInfo, HL, NextByte));
                     timer.Add(3, 10);
                     break;
-                    
+
+                // LD A, (BC)
+                case PrimaryOpCode.LD_A_mBC:
+                    expressions.Add(Expression.Assign(A, ReadByteAtBC));
+                    timer.Add(2, 7);
+                    break;
+
+                // LD A, (DE)
+                case PrimaryOpCode.LD_A_mDE:
+                    expressions.Add(Expression.Assign(A, ReadByteAtDE));
+                    timer.Add(2, 7);
+                    break;
+
                 // ********* Jump *********
                 case PrimaryOpCode.JP:
                     expressions.Add(Expression.Assign(PC, NextWord));

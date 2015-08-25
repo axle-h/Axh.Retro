@@ -26,6 +26,9 @@
 
         protected const ushort HL = 0x4477;
 
+        protected const ushort BC = 0xbbcc;
+        protected const ushort DE = 0xddee;
+
         protected const ushort IX = 0x3366;
         protected const ushort IY = 0x2255;
 
@@ -65,6 +68,9 @@
             this.GpRegisters.SetupProperty(x => x.E, E);
             this.GpRegisters.SetupProperty(x => x.H, H);
             this.GpRegisters.SetupProperty(x => x.L, L);
+
+            this.GpRegisters.SetupProperty(x => x.BC, BC);
+            this.GpRegisters.SetupProperty(x => x.DE, DE);
 
             this.GpRegisters.SetupProperty(x => x.HL, HL);
 

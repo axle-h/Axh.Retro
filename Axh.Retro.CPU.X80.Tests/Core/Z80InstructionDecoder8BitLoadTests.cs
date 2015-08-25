@@ -993,6 +993,38 @@
             this.Mmu.Verify(x => x.WriteByte(IY + SignedD, N), Times.Once);
         }
 
+        [Test]
+        public void LD_A_mBC()
+        {
+            this.SetupRegisters();
+            this.ResetMocks();
+
+            const byte ValueAtBC = 0x61;
+
+            this.Mmu.Setup(x => x.ReadByte(BC)).Returns(ValueAtBC);
+
+            Run8BitLoadGroup(2 + 1, 7 + 4, PrimaryOpCode.LD_A_mBC, PrimaryOpCode.HALT);
+
+            this.Mmu.Verify(x => x.ReadByte(BC), Times.Once);
+            Assert.AreEqual(ValueAtBC, this.GpRegisters.Object.A);
+        }
+
+        [Test]
+        public void LD_A_mDE()
+        {
+            this.SetupRegisters();
+            this.ResetMocks();
+
+            const byte ValueAtDE = 0x0c;
+
+            this.Mmu.Setup(x => x.ReadByte(DE)).Returns(ValueAtDE);
+
+            Run8BitLoadGroup(2 + 1, 7 + 4, PrimaryOpCode.LD_A_mDE, PrimaryOpCode.HALT);
+
+            this.Mmu.Verify(x => x.ReadByte(DE), Times.Once);
+            Assert.AreEqual(ValueAtDE, this.GpRegisters.Object.A);
+        }
+
         private void Run8BitLoadGroup(int expectedMachineCycles, int expectedThrottlingStates, params object[] bytes)
         {
             this.SetCacheForSingleBytes(bytes);
