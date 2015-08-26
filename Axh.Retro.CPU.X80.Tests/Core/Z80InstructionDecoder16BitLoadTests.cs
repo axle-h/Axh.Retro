@@ -305,5 +305,35 @@
             this.Registers.VerifySet(x => x.StackPointer = It.Is<ushort>(y => y == SP2), Times.Once);
             Assert.AreEqual(SP2, this.Registers.Object.StackPointer);
         }
+
+        [Test]
+        public void PUSH_IX()
+        {
+            this.SetupRegisters();
+            this.ResetMocks();
+
+            const ushort SP2 = unchecked((ushort)(SP - 2));
+
+            Run(4, 15, PrimaryOpCode.Prefix_DD, PrefixDdFdOpCode.PUSH_IXY);
+            
+            this.Mmu.Verify(x => x.WriteWord(SP2, IX), Times.Once);
+            this.Registers.VerifySet(x => x.StackPointer = It.Is<ushort>(y => y == SP2), Times.Once);
+            Assert.AreEqual(SP2, this.Registers.Object.StackPointer);
+        }
+
+        [Test]
+        public void PUSH_IY()
+        {
+            this.SetupRegisters();
+            this.ResetMocks();
+
+            const ushort SP2 = unchecked((ushort)(SP - 2));
+
+            Run(4, 15, PrimaryOpCode.Prefix_DD, PrefixDdFdOpCode.PUSH_IXY);
+
+            this.Mmu.Verify(x => x.WriteWord(SP2, IX), Times.Once);
+            this.Registers.VerifySet(x => x.StackPointer = It.Is<ushort>(y => y == SP2), Times.Once);
+            Assert.AreEqual(SP2, this.Registers.Object.StackPointer);
+        }
     }
 }

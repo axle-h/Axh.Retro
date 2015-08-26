@@ -42,7 +42,8 @@
         // Stack pointer stuff
         private static readonly Expression SP;
         private static readonly Expression PushSP;
-        
+        private static readonly Expression PushPushSP;
+
         // Z80 specific register expressions
         private static readonly Expression I;
         private static readonly Expression R;
@@ -137,6 +138,7 @@
             // Stack pointer stuff
             SP = RegistersExpression.GetPropertyExpression<IZ80Registers, ushort>(r => r.StackPointer);
             PushSP = Expression.Assign(SP, Expression.Decrement(SP));
+            PushPushSP = Expression.Assign(SP, Expression.Subtract(SP, Expression.Constant((ushort)2)));
 
             // Z80 specific register expressions
             I = RegistersExpression.GetPropertyExpression<IZ80Registers, byte>(r => r.I);
@@ -766,6 +768,13 @@
                     timer.Add(2, 10);
                     break;
 
+                // PUSH IX
+                case PrefixDdFdOpCode.PUSH_IXY:
+                    expressions.Add(PushPushSP);
+                    expressions.Add(Expression.Call(MmuExpression, MmuWriteWordMethodInfo, SP, IX));
+                    timer.Add(4, 15);
+                    break;
+                    
                 default:
                     throw new NotImplementedException(opCode.ToString());
             }
@@ -885,6 +894,13 @@
                 case PrefixDdFdOpCode.LD_SP_IXY:
                     expressions.Add(Expression.Assign(SP, IY));
                     timer.Add(2, 10);
+                    break;
+                    
+                // PUSH IY
+                case PrefixDdFdOpCode.PUSH_IXY:
+                    expressions.Add(PushPushSP);
+                    expressions.Add(Expression.Call(MmuExpression, MmuWriteWordMethodInfo, SP, IY));
+                    timer.Add(4, 15);
                     break;
 
                 default:
