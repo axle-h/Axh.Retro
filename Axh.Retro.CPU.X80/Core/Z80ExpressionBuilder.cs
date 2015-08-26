@@ -106,6 +106,7 @@
         private static readonly Expression ReadByteAtIYd;
 
         private static readonly MethodInfo MmuReadByteMethodInfo;
+        private static readonly MethodInfo MmuReadWordMethodInfo;
         private static readonly MethodInfo MmuWriteByteMethodInfo;
 
         static Z80ExpressionBuilder()
@@ -161,6 +162,7 @@
 
             // MMU expressions
             MmuReadByteMethodInfo = ExpressionHelpers.GetMethodInfo<IMmu, ushort, byte>((mmu, address) => mmu.ReadByte(address));
+            MmuReadWordMethodInfo = ExpressionHelpers.GetMethodInfo<IMmu, ushort, ushort>((mmu, address) => mmu.ReadWord(address));
             MmuWriteByteMethodInfo = ExpressionHelpers.GetMethodInfo<IMmu, ushort, byte>((mmu, address, value) => mmu.WriteByte(address, value));
             
             ReadByteAtLocalWord = Expression.Call(MmuExpression, MmuReadByteMethodInfo, LocalWord);
@@ -570,6 +572,12 @@
                     timer.Add(2, 10);
                     break;
 
+                // LD HL, (nn)
+                case PrimaryOpCode.LD_HL_mnn:
+                    expressions.Add(Expression.Assign(HL, Expression.Call(MmuExpression, MmuReadWordMethodInfo, NextWord)));
+                    timer.Add(5, 16);
+                    break;
+
                 // ********* Jump *********
                 case PrimaryOpCode.JP:
                     expressions.Add(Expression.Assign(PC, NextWord));
@@ -683,6 +691,7 @@
                     timer.Add(5, 19);
                     break;
 
+                // ********* 16-bit load *********
                 // LD IX, nn
                 case PrefixDdFdOpCode.LD_IXY_nn:
                     expressions.Add(Expression.Assign(IX, NextWord));
@@ -784,7 +793,8 @@
                     expressions.Add(Expression.Call(MmuExpression, MmuWriteByteMethodInfo, IYd, NextByte));
                     timer.Add(5, 19);
                     break;
-                    
+
+                // ********* 16-bit load *********
                 // LD IY, nn
                 case PrefixDdFdOpCode.LD_IXY_nn:
                     expressions.Add(Expression.Assign(IY, NextWord));

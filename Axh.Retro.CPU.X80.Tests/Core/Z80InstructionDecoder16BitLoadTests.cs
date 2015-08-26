@@ -70,5 +70,23 @@
             this.Registers.VerifySet(x => x.IY = It.Is<ushort>(y => y == Value), Times.Once);
             Assert.AreEqual(Value, this.Registers.Object.IY);
         }
+
+        [Test]
+        public void LD_HL_mnn()
+        {
+            this.SetupRegisters();
+            this.ResetMocks();
+
+            const ushort Address = 0x6b09;
+            const ushort Value = 0x1173;
+
+            this.Mmu.Setup(x => x.ReadWord(Address)).Returns(Value);
+
+            Run(5, 16, PrimaryOpCode.LD_HL_mnn, Address);
+
+            this.Mmu.Verify(x => x.ReadWord(Address), Times.Once);
+            this.GpRegisters.VerifySet(x => x.HL = It.Is<ushort>(y => y == Value), Times.Once);
+            Assert.AreEqual(Value, this.GpRegisters.Object.HL);
+        }
     }
 }
