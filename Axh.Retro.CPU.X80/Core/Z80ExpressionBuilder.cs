@@ -27,6 +27,7 @@
 
         // Register expressions
         private static readonly Expression PC;
+        private static readonly Expression SP;
         private static readonly Expression A;
         private static readonly Expression B;
         private static readonly Expression C;
@@ -126,11 +127,12 @@
             BC = generalPurposeRegisters.GetPropertyExpression<IGeneralPurposeRegisterSet, ushort>(r => r.BC);
             DE = generalPurposeRegisters.GetPropertyExpression<IGeneralPurposeRegisterSet, ushort>(r => r.DE);
             HL = generalPurposeRegisters.GetPropertyExpression<IGeneralPurposeRegisterSet, ushort>(r => r.HL);
-
+            PC = RegistersExpression.GetPropertyExpression<IZ80Registers, ushort>(r => r.ProgramCounter);
+            SP = RegistersExpression.GetPropertyExpression<IZ80Registers, ushort>(r => r.StackPointer);
+            
             // Z80 specific register expressions
             I = RegistersExpression.GetPropertyExpression<IZ80Registers, byte>(r => r.I);
             R = RegistersExpression.GetPropertyExpression<IZ80Registers, byte>(r => r.R);
-            PC = RegistersExpression.GetPropertyExpression<IZ80Registers, ushort>(r => r.ProgramCounter);
             IX = RegistersExpression.GetPropertyExpression<IZ80Registers, ushort>(r => r.IX);
             IY = RegistersExpression.GetPropertyExpression<IZ80Registers, ushort>(r => r.IY);
 
@@ -548,7 +550,26 @@
                     expressions.Add(Expression.Call(MmuExpression, MmuWriteByteMethodInfo, NextWord, A));
                     timer.Add(2, 7);
                     break;
-                    
+
+                // ********* 16-bit load *********
+                // LD dd, nn
+                case PrimaryOpCode.LD_BC_nn:
+                    expressions.Add(Expression.Assign(BC, NextWord));
+                    timer.Add(2, 10);
+                    break;
+                case PrimaryOpCode.LD_DE_nn:
+                    expressions.Add(Expression.Assign(DE, NextWord));
+                    timer.Add(2, 10);
+                    break;
+                case PrimaryOpCode.LD_HL_nn:
+                    expressions.Add(Expression.Assign(HL, NextWord));
+                    timer.Add(2, 10);
+                    break;
+                case PrimaryOpCode.LD_SP_nn:
+                    expressions.Add(Expression.Assign(SP, NextWord));
+                    timer.Add(2, 10);
+                    break;
+
                 // ********* Jump *********
                 case PrimaryOpCode.JP:
                     expressions.Add(Expression.Assign(PC, NextWord));
@@ -579,6 +600,7 @@
 
             switch (opCode)
             {
+                // ********* 8-bit load *********
                 // LD r, (IX+d)
                 // We have defined this using ReadByteAtIXd for when we set the local parameter b to d.
                 case PrefixDdFdOpCode.LD_A_mIXYd:
@@ -674,6 +696,7 @@
 
             switch (opCode)
             {
+                // ********* 8-bit load *********
                 // LD r, (IY+d)
                 // We have defined this using ReadByteByIxIndexRegisterExpression for when we set the local parameter b to d.
                 case PrefixDdFdOpCode.LD_A_mIXYd:
@@ -769,6 +792,7 @@
 
             switch (opCode)
             {
+                // ********* 8-bit load *********
                 // LD A, I
                 case PrefixEdOpCode.LD_A_I:
                     expressions.Add(Expression.Assign(A, I));

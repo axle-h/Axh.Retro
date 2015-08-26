@@ -53,6 +53,7 @@
     <Otherwise />
   </Choose>
   <ItemGroup>
+    <Compile Include="Core\Z80InstructionDecoder16BitLoadTests.cs" />
     <Compile Include="Memory\ArrayBackedMemoryTests.cs" />
     <Compile Include="Memory\ReadOnlyMemoryBankTests.cs" />
     <Compile Include="Mmu\IReadableWriteableAddressSegment.cs" />

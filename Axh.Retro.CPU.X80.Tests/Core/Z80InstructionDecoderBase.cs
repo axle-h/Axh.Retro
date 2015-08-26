@@ -1,5 +1,6 @@
 ﻿namespace Axh.Retro.CPU.X80.Tests.Core
 {
+    using System;
     using System.Collections;
     using System.Linq;
 
@@ -26,10 +27,10 @@
         protected const byte H = 0x44;
         protected const byte L = 0x77;
 
-        protected const ushort HL = 0x4477;
-
         protected const ushort BC = 0xbbcc;
         protected const ushort DE = 0xddee;
+        protected const ushort HL = 0x4477;
+        protected const ushort SP = 0xa61a;
 
         protected const byte I = 0xe7;
         protected const byte R = 0xed;
@@ -88,6 +89,7 @@
 
             this.Registers.SetupProperty(x => x.IX, IX);
             this.Registers.SetupProperty(x => x.IY, IY);
+            this.Registers.SetupProperty(x => x.StackPointer, SP);
 
             this.FlagsRegister.SetupProperty(x => x.Sign, false);
             this.FlagsRegister.SetupProperty(x => x.Zero, false);
@@ -110,8 +112,16 @@
         
         protected void Run(int expectedMachineCycles, int expectedThrottlingStates, params object[] bytes)
         {
+            // Add halt
+            var opcodes = new object[bytes.Length + 1];
+            Array.Copy(bytes, opcodes, bytes.Length);
+
+            opcodes[bytes.Length] = PrimaryOpCode.HALT;
+            expectedMachineCycles += 1;
+            expectedThrottlingStates += 4;
+
             var length = 0;
-            var queue = new Queue(bytes);
+            var queue = new Queue(opcodes);
             this.Cache.Setup(x => x.NextByte()).Returns(
                 () =>
                 {
@@ -137,8 +147,8 @@
             block.Action(this.Registers.Object, this.Mmu.Object);
 
             // Make sure all bytes were read
-            this.Cache.Verify(x => x.NextByte(), Times.Exactly(bytes.Count(x => x is byte || x is PrimaryOpCode || x is PrefixDdFdOpCode || x is PrefixEdOpCode)));
-            this.Cache.Verify(x => x.NextWord(), Times.Exactly(bytes.Count(x => x is ushort)));
+            this.Cache.Verify(x => x.NextByte(), Times.Exactly(opcodes.Count(x => x is byte || x is PrimaryOpCode || x is PrefixDdFdOpCode || x is PrefixEdOpCode)));
+            this.Cache.Verify(x => x.NextWord(), Times.Exactly(opcodes.Count(x => x is ushort)));
         }
     }
 }
