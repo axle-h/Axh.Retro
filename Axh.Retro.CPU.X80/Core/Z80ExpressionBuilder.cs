@@ -108,6 +108,7 @@
         private static readonly MethodInfo MmuReadByteMethodInfo;
         private static readonly MethodInfo MmuReadWordMethodInfo;
         private static readonly MethodInfo MmuWriteByteMethodInfo;
+        private static readonly MethodInfo MmuWriteWordMethodInfo;
 
         static Z80ExpressionBuilder()
         {
@@ -164,7 +165,8 @@
             MmuReadByteMethodInfo = ExpressionHelpers.GetMethodInfo<IMmu, ushort, byte>((mmu, address) => mmu.ReadByte(address));
             MmuReadWordMethodInfo = ExpressionHelpers.GetMethodInfo<IMmu, ushort, ushort>((mmu, address) => mmu.ReadWord(address));
             MmuWriteByteMethodInfo = ExpressionHelpers.GetMethodInfo<IMmu, ushort, byte>((mmu, address, value) => mmu.WriteByte(address, value));
-            
+            MmuWriteWordMethodInfo = ExpressionHelpers.GetMethodInfo<IMmu, ushort, ushort>((mmu, address, value) => mmu.WriteWord(address, value));
+
             ReadByteAtLocalWord = Expression.Call(MmuExpression, MmuReadByteMethodInfo, LocalWord);
             ReadByteAtHL = Expression.Call(MmuExpression, MmuReadByteMethodInfo, HL);
             ReadByteAtBC = Expression.Call(MmuExpression, MmuReadByteMethodInfo, BC);
@@ -577,7 +579,13 @@
                     expressions.Add(Expression.Assign(HL, Expression.Call(MmuExpression, MmuReadWordMethodInfo, NextWord)));
                     timer.Add(5, 16);
                     break;
-                    
+
+                // LD (nn), HL
+                case PrimaryOpCode.LD_mnn_HL:
+                    expressions.Add(Expression.Call(MmuExpression, MmuWriteWordMethodInfo, NextWord, HL));
+                    timer.Add(6, 20);
+                    break;
+
 
                 // ********* Jump *********
                 case PrimaryOpCode.JP:

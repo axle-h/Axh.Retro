@@ -165,5 +165,18 @@
             this.Registers.VerifySet(x => x.IY = It.Is<ushort>(y => y == Value), Times.Once);
             Assert.AreEqual(Value, this.Registers.Object.IY);
         }
+
+        [Test]
+        public void LD_mnn_HL()
+        {
+            this.SetupRegisters();
+            this.ResetMocks();
+
+            const ushort NN = 0x0f17;
+
+            Run(6, 20, PrimaryOpCode.LD_mnn_HL, NN);
+
+            this.Mmu.Verify(x => x.WriteWord(NN, HL), Times.Once);
+        }
     }
 }
