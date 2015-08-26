@@ -577,6 +577,7 @@
                     expressions.Add(Expression.Assign(HL, Expression.Call(MmuExpression, MmuReadWordMethodInfo, NextWord)));
                     timer.Add(5, 16);
                     break;
+                    
 
                 // ********* Jump *********
                 case PrimaryOpCode.JP:
@@ -851,6 +852,25 @@
                     timer.Add(2, 9);
                     break;
 
+                // ********* 16-bit load *********
+                // LD dd, (nn)
+                case PrefixEdOpCode.LD_BC_mnn:
+                    expressions.Add(Expression.Assign(BC, Expression.Call(MmuExpression, MmuReadWordMethodInfo, NextWord)));
+                    timer.Add(6, 20);
+                    break;
+                case PrefixEdOpCode.LD_DE_mnn:
+                    expressions.Add(Expression.Assign(DE, Expression.Call(MmuExpression, MmuReadWordMethodInfo, NextWord)));
+                    timer.Add(6, 20);
+                    break;
+                case PrefixEdOpCode.LD_HL_mnn:
+                    expressions.Add(Expression.Assign(HL, Expression.Call(MmuExpression, MmuReadWordMethodInfo, NextWord)));
+                    timer.Add(6, 20);
+                    break;
+                case PrefixEdOpCode.LD_SP_mnn:
+                    expressions.Add(Expression.Assign(SP, Expression.Call(MmuExpression, MmuReadWordMethodInfo, NextWord)));
+                    timer.Add(6, 20);
+                    break;
+                    
                 default:
                     throw new NotImplementedException(opCode.ToString());
             }

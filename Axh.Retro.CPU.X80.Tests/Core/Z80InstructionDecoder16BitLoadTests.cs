@@ -77,16 +77,55 @@
             this.SetupRegisters();
             this.ResetMocks();
 
-            const ushort Address = 0x6b09;
+            const ushort NN = 0x6b09;
             const ushort Value = 0x1173;
 
-            this.Mmu.Setup(x => x.ReadWord(Address)).Returns(Value);
+            this.Mmu.Setup(x => x.ReadWord(NN)).Returns(Value);
 
-            Run(5, 16, PrimaryOpCode.LD_HL_mnn, Address);
+            Run(5, 16, PrimaryOpCode.LD_HL_mnn, NN);
 
-            this.Mmu.Verify(x => x.ReadWord(Address), Times.Once);
+            this.Mmu.Verify(x => x.ReadWord(NN), Times.Once);
             this.GpRegisters.VerifySet(x => x.HL = It.Is<ushort>(y => y == Value), Times.Once);
             Assert.AreEqual(Value, this.GpRegisters.Object.HL);
+        }
+
+        [TestCase(PrefixEdOpCode.LD_BC_mnn)]
+        [TestCase(PrefixEdOpCode.LD_DE_mnn)]
+        [TestCase(PrefixEdOpCode.LD_HL_mnn)]
+        [TestCase(PrefixEdOpCode.LD_SP_mnn)]
+        public void LD_dd_mnn(PrefixEdOpCode opcode)
+        {
+            this.SetupRegisters();
+            this.ResetMocks();
+
+            const ushort NN = 0x2dad;
+            const ushort Value = 0x53e6;
+
+            this.Mmu.Setup(x => x.ReadWord(NN)).Returns(Value);
+
+            Run(6, 20, PrimaryOpCode.Prefix_ED, opcode, NN);
+
+            this.Mmu.Verify(x => x.ReadWord(NN), Times.Once);
+
+            switch (opcode)
+            {
+                case PrefixEdOpCode.LD_BC_mnn:
+                    this.GpRegisters.VerifySet(x => x.BC = It.Is<ushort>(y => y == Value), Times.Once);
+                    Assert.AreEqual(Value, this.GpRegisters.Object.BC);
+                    break;
+                case PrefixEdOpCode.LD_DE_mnn:
+                    this.GpRegisters.VerifySet(x => x.DE = It.Is<ushort>(y => y == Value), Times.Once);
+                    Assert.AreEqual(Value, this.GpRegisters.Object.DE);
+                    break;
+                case PrefixEdOpCode.LD_HL_mnn:
+                    this.GpRegisters.VerifySet(x => x.HL = It.Is<ushort>(y => y == Value), Times.Once);
+                    Assert.AreEqual(Value, this.GpRegisters.Object.HL);
+                    break;
+                case PrefixEdOpCode.LD_SP_mnn:
+                    this.Registers.VerifySet(x => x.StackPointer = It.Is<ushort>(y => y == Value), Times.Once);
+                    Assert.AreEqual(Value, this.Registers.Object.StackPointer);
+                    break;
+            }
         }
     }
 }
