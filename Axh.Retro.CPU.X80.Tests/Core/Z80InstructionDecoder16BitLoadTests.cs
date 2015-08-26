@@ -382,5 +382,44 @@
             this.Registers.VerifySet(x => x.StackPointer = It.Is<ushort>(y => y == SP2), Times.Once);
             Assert.AreEqual(SP2, this.Registers.Object.StackPointer);
         }
+
+        [Test]
+        public void POP_IX()
+        {
+            this.SetupRegisters();
+            this.ResetMocks();
+
+            const ushort SP2 = unchecked((ushort)(SP + 2));
+            const ushort Value = 0x1234;
+
+            this.Mmu.Setup(x => x.ReadWord(SP)).Returns(Value);
+
+            Run(4, 14, PrimaryOpCode.Prefix_DD, PrefixDdFdOpCode.POP_IXY);
+
+            this.Mmu.Verify(x => x.ReadWord(SP), Times.Once);
+            this.Registers.VerifySet(x => x.IX = It.Is<ushort>(y => y == Value), Times.Once);
+            this.Registers.VerifySet(x => x.StackPointer = It.Is<ushort>(y => y == SP2), Times.Once);
+            Assert.AreEqual(SP2, this.Registers.Object.StackPointer);
+        }
+
+
+        [Test]
+        public void POP_IY()
+        {
+            this.SetupRegisters();
+            this.ResetMocks();
+
+            const ushort SP2 = unchecked((ushort)(SP + 2));
+            const ushort Value = 0x1234;
+
+            this.Mmu.Setup(x => x.ReadWord(SP)).Returns(Value);
+
+            Run(4, 14, PrimaryOpCode.Prefix_FD, PrefixDdFdOpCode.POP_IXY);
+
+            this.Mmu.Verify(x => x.ReadWord(SP), Times.Once);
+            this.Registers.VerifySet(x => x.IY = It.Is<ushort>(y => y == Value), Times.Once);
+            this.Registers.VerifySet(x => x.StackPointer = It.Is<ushort>(y => y == SP2), Times.Once);
+            Assert.AreEqual(SP2, this.Registers.Object.StackPointer);
+        }
     }
 }

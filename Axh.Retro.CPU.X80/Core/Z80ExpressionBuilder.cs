@@ -808,7 +808,14 @@
                     expressions.Add(Expression.Call(MmuExpression, MmuWriteWordMethodInfo, SP, IX));
                     timer.Add(4, 15);
                     break;
-                    
+
+                // POP IX
+                case PrefixDdFdOpCode.POP_IXY:
+                    expressions.Add(Expression.Assign(IX, Expression.Call(MmuExpression, MmuReadWordMethodInfo, SP)));
+                    expressions.Add(PopPopSP);
+                    timer.Add(4, 14);
+                    break;
+
                 default:
                     throw new NotImplementedException(opCode.ToString());
             }
@@ -935,6 +942,13 @@
                     expressions.Add(PushPushSP);
                     expressions.Add(Expression.Call(MmuExpression, MmuWriteWordMethodInfo, SP, IY));
                     timer.Add(4, 15);
+                    break;
+                    
+                // POP IY
+                case PrefixDdFdOpCode.POP_IXY:
+                    expressions.Add(Expression.Assign(IY, Expression.Call(MmuExpression, MmuReadWordMethodInfo, SP)));
+                    expressions.Add(PopPopSP);
+                    timer.Add(4, 14);
                     break;
 
                 default:
