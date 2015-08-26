@@ -492,6 +492,24 @@
                     timer.Add(4, 13);
                     break;
 
+                // LD (BC), A
+                case PrimaryOpCode.LD_mBC_A:
+                    expressions.Add(Expression.Call(MmuExpression, MmuWriteByteMethodInfo, BC, A));
+                    timer.Add(2, 7);
+                    break;
+
+                // LD (DE), A
+                case PrimaryOpCode.LD_mDE_A:
+                    expressions.Add(Expression.Call(MmuExpression, MmuWriteByteMethodInfo, DE, A));
+                    timer.Add(2, 7);
+                    break;
+
+                // LD (nn), A
+                case PrimaryOpCode.LD_mnn_A:
+                    expressions.Add(Expression.Call(MmuExpression, MmuWriteByteMethodInfo, NextWord, A));
+                    timer.Add(2, 7);
+                    break;
+
                 // ********* Jump *********
                 case PrimaryOpCode.JP:
                     expressions.Add(Expression.Assign(PC, NextWord));
