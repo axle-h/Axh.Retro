@@ -42,5 +42,33 @@
                     break;
             }
         }
+
+        [Test]
+        public void LD_IX_nn()
+        {
+            this.SetupRegisters();
+            this.ResetMocks();
+
+            const ushort Value = 0x3829;
+
+            Run(4, 14, PrimaryOpCode.Prefix_DD, PrefixDdFdOpCode.LD_IXY_nn, Value);
+
+            this.Registers.VerifySet(x => x.IX = It.Is<ushort>(y => y == Value), Times.Once);
+            Assert.AreEqual(Value, this.Registers.Object.IX);
+        }
+
+        [Test]
+        public void LD_IY_nn()
+        {
+            this.SetupRegisters();
+            this.ResetMocks();
+
+            const ushort Value = 0x93b8;
+
+            Run(4, 14, PrimaryOpCode.Prefix_FD, PrefixDdFdOpCode.LD_IXY_nn, Value);
+
+            this.Registers.VerifySet(x => x.IY = It.Is<ushort>(y => y == Value), Times.Once);
+            Assert.AreEqual(Value, this.Registers.Object.IY);
+        }
     }
 }
