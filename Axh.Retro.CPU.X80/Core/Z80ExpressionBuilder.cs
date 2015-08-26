@@ -592,6 +592,35 @@
                     timer.Add(1, 6);
                     break;
 
+                // PUSH qq
+                case PrimaryOpCode.PUSH_BC:
+                    expressions.Add(Expression.Assign(SP, Expression.Decrement(SP)));
+                    expressions.Add(Expression.Call(MmuExpression, MmuWriteByteMethodInfo, SP, B));
+                    expressions.Add(Expression.Assign(SP, Expression.Decrement(SP)));
+                    expressions.Add(Expression.Call(MmuExpression, MmuWriteByteMethodInfo, SP, C));
+                    timer.Add(3, 11);
+                    break;
+                case PrimaryOpCode.PUSH_DE:
+                    expressions.Add(Expression.Assign(SP, Expression.Decrement(SP)));
+                    expressions.Add(Expression.Call(MmuExpression, MmuWriteByteMethodInfo, SP, D));
+                    expressions.Add(Expression.Assign(SP, Expression.Decrement(SP)));
+                    expressions.Add(Expression.Call(MmuExpression, MmuWriteByteMethodInfo, SP, E));
+                    timer.Add(3, 11);
+                    break;
+                case PrimaryOpCode.PUSH_HL:
+                    expressions.Add(Expression.Assign(SP, Expression.Decrement(SP)));
+                    expressions.Add(Expression.Call(MmuExpression, MmuWriteByteMethodInfo, SP, H));
+                    expressions.Add(Expression.Assign(SP, Expression.Decrement(SP)));
+                    expressions.Add(Expression.Call(MmuExpression, MmuWriteByteMethodInfo, SP, L));
+                    timer.Add(3, 11);
+                    break;
+                case PrimaryOpCode.PUSH_AF:
+                    expressions.Add(Expression.Assign(SP, Expression.Decrement(SP)));
+                    expressions.Add(Expression.Call(MmuExpression, MmuWriteByteMethodInfo, SP, A));
+                    expressions.Add(Expression.Assign(SP, Expression.Decrement(SP)));
+                    expressions.Add(Expression.Call(MmuExpression, MmuWriteByteMethodInfo, SP, F));
+                    timer.Add(3, 11);
+                    break;
 
                 // ********* Jump *********
                 case PrimaryOpCode.JP:

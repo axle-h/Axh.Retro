@@ -267,5 +267,45 @@
 
             this.Registers.VerifySet(x => x.StackPointer = It.Is<ushort>(y => y == IY), Times.Once);
         }
+
+        [TestCase(PrimaryOpCode.PUSH_BC)]
+        [TestCase(PrimaryOpCode.PUSH_DE)]
+        [TestCase(PrimaryOpCode.PUSH_HL)]
+        [TestCase(PrimaryOpCode.PUSH_AF)]
+        public void PUSH_qq(PrimaryOpCode opCode)
+        {
+            this.SetupRegisters();
+            this.ResetMocks();
+
+            Run(3, 11, opCode);
+
+            const ushort SP1 = unchecked((ushort)(SP - 1));
+            const ushort SP2 = unchecked((ushort)(SP1 - 1));
+
+
+            switch (opCode)
+            {
+                case PrimaryOpCode.PUSH_BC:
+                    this.Mmu.Verify(x => x.WriteByte(SP1, B), Times.Once);
+                    this.Mmu.Verify(x => x.WriteByte(SP2, C), Times.Once);
+                    break;
+                case PrimaryOpCode.PUSH_DE:
+                    this.Mmu.Verify(x => x.WriteByte(SP1, D), Times.Once);
+                    this.Mmu.Verify(x => x.WriteByte(SP2, E), Times.Once);
+                    break;
+                case PrimaryOpCode.PUSH_HL:
+                    this.Mmu.Verify(x => x.WriteByte(SP1, H), Times.Once);
+                    this.Mmu.Verify(x => x.WriteByte(SP2, L), Times.Once);
+                    break;
+                case PrimaryOpCode.PUSH_AF:
+                    this.Mmu.Verify(x => x.WriteByte(SP1, A), Times.Once);
+                    this.Mmu.Verify(x => x.WriteByte(SP2, F), Times.Once);
+                    break;
+            }
+            
+            this.Registers.VerifySet(x => x.StackPointer = It.Is<ushort>(y => y == SP1), Times.Once);
+            this.Registers.VerifySet(x => x.StackPointer = It.Is<ushort>(y => y == SP2), Times.Once);
+            Assert.AreEqual(SP2, this.Registers.Object.StackPointer);
+        }
     }
 }

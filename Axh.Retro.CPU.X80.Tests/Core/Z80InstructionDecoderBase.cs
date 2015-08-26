@@ -26,11 +26,12 @@
         protected const byte E = 0xee;
         protected const byte H = 0x44;
         protected const byte L = 0x77;
+        protected const byte F = 0x00;
 
         protected const ushort BC = 0xbbcc;
         protected const ushort DE = 0xddee;
         protected const ushort HL = 0x4477;
-        protected const ushort SP = 0xa61a;
+        protected const ushort SP = 0xf000;
 
         protected const byte I = 0xe7;
         protected const byte R = 0xed;
@@ -91,6 +92,7 @@
             this.Registers.SetupProperty(x => x.IY, IY);
             this.Registers.SetupProperty(x => x.StackPointer, SP);
 
+            this.FlagsRegister.SetupProperty(x => x.Register, F);
             this.FlagsRegister.SetupProperty(x => x.Sign, false);
             this.FlagsRegister.SetupProperty(x => x.Zero, false);
             this.FlagsRegister.SetupProperty(x => x.Flag5, false);
