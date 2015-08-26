@@ -127,5 +127,43 @@
                     break;
             }
         }
+
+        [Test]
+        public void LD_IX_mnn()
+        {
+            this.SetupRegisters();
+            this.ResetMocks();
+
+            const ushort NN = 0x2e7a;
+            const ushort Value = 0x1f52;
+
+            this.Mmu.Setup(x => x.ReadWord(NN)).Returns(Value);
+
+            Run(6, 20, PrimaryOpCode.Prefix_DD, PrefixDdFdOpCode.LD_IXY_mnn, NN);
+
+            this.Mmu.Verify(x => x.ReadWord(NN), Times.Once);
+
+            this.Registers.VerifySet(x => x.IX = It.Is<ushort>(y => y == Value), Times.Once);
+            Assert.AreEqual(Value, this.Registers.Object.IX);
+        }
+
+        [Test]
+        public void LD_IY_mnn()
+        {
+            this.SetupRegisters();
+            this.ResetMocks();
+
+            const ushort NN = 0x09b7;
+            const ushort Value = 0x5cd5;
+
+            this.Mmu.Setup(x => x.ReadWord(NN)).Returns(Value);
+
+            Run(6, 20, PrimaryOpCode.Prefix_FD, PrefixDdFdOpCode.LD_IXY_mnn, NN);
+
+            this.Mmu.Verify(x => x.ReadWord(NN), Times.Once);
+
+            this.Registers.VerifySet(x => x.IY = It.Is<ushort>(y => y == Value), Times.Once);
+            Assert.AreEqual(Value, this.Registers.Object.IY);
+        }
     }
 }

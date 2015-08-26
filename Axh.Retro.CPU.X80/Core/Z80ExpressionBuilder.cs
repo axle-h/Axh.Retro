@@ -699,6 +699,12 @@
                     timer.Add(4, 14);
                     break;
 
+                // LD IX, (nn)
+                case PrefixDdFdOpCode.LD_IXY_mnn:
+                    expressions.Add(Expression.Assign(IX, Expression.Call(MmuExpression, MmuReadWordMethodInfo, NextWord)));
+                    timer.Add(6, 20);
+                    break;
+
                 default:
                     throw new NotImplementedException(opCode.ToString());
             }
@@ -800,6 +806,12 @@
                 case PrefixDdFdOpCode.LD_IXY_nn:
                     expressions.Add(Expression.Assign(IY, NextWord));
                     timer.Add(4, 14);
+                    break;
+
+                // LD IY, (nn)
+                case PrefixDdFdOpCode.LD_IXY_mnn:
+                    expressions.Add(Expression.Assign(IY, Expression.Call(MmuExpression, MmuReadWordMethodInfo, NextWord)));
+                    timer.Add(6, 20);
                     break;
 
                 default:
