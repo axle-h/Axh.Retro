@@ -208,5 +208,31 @@
                     break;
             }
         }
+
+        [Test]
+        public void LD_mnn_IX()
+        {
+            this.SetupRegisters();
+            this.ResetMocks();
+
+            const ushort NN = 0x937a;
+
+            Run(6, 20, PrimaryOpCode.Prefix_DD, PrefixDdFdOpCode.LD_mnn_IXY, NN);
+
+            this.Mmu.Verify(x => x.WriteWord(NN, IX), Times.Once);
+        }
+
+        [Test]
+        public void LD_mnn_IY()
+        {
+            this.SetupRegisters();
+            this.ResetMocks();
+
+            const ushort NN = 0x9240;
+
+            Run(6, 20, PrimaryOpCode.Prefix_FD, PrefixDdFdOpCode.LD_mnn_IXY, NN);
+
+            this.Mmu.Verify(x => x.WriteWord(NN, IY), Times.Once);
+        }
     }
 }
