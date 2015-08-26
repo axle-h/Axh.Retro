@@ -67,7 +67,6 @@
             this.SetupRegisters();
             this.ResetMocks();
 
-            this.SetCacheForSingleBytes(opcode, PrimaryOpCode.HALT);
             Run8BitLoadGroup(2, 8, opcode, PrimaryOpCode.HALT);
 
             switch (opcode)
@@ -1081,6 +1080,76 @@
             this.GpRegisters.VerifyGet(x => x.A, Times.Once);
         }
 
+        [Test]
+        public void LD_A_I()
+        {
+            this.SetupRegisters();
+            this.ResetMocks();
+            
+            Run8BitLoadGroup(2 + 1, 9 + 4, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.LD_A_I, PrimaryOpCode.HALT);
+            
+            this.GpRegisters.VerifySet(x => x.A = It.Is<byte>(y => y == I), Times.Once);
+            Assert.AreEqual(I, this.GpRegisters.Object.A);
+
+            // Check flags
+            this.FlagsRegister.Verify(x => x.SetResultFlags(It.Is<byte>(y => y == I)), Times.Once);
+            this.FlagsRegister.VerifySet(x => x.HalfCarry = It.Is<bool>(y => !y), Times.Once);
+            this.FlagsRegister.VerifySet(x => x.ParityOverflow = It.Is<bool>(y => !y), Times.Once);
+            this.FlagsRegister.VerifySet(x => x.Subtract = It.Is<bool>(y => !y), Times.Once);
+        }
+
+
+        [Test]
+        public void LD_A_R()
+        {
+            this.SetupRegisters();
+            this.ResetMocks();
+
+            Run8BitLoadGroup(2 + 1, 9 + 4, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.LD_A_R, PrimaryOpCode.HALT);
+
+            this.GpRegisters.VerifySet(x => x.A = It.Is<byte>(y => y == R), Times.Once);
+            Assert.AreEqual(R, this.GpRegisters.Object.A);
+
+            // Check flags
+            this.FlagsRegister.Verify(x => x.SetResultFlags(It.Is<byte>(y => y == R)), Times.Once);
+            this.FlagsRegister.VerifySet(x => x.HalfCarry = It.Is<bool>(y => !y), Times.Once);
+            this.FlagsRegister.VerifySet(x => x.ParityOverflow = It.Is<bool>(y => !y), Times.Once);
+            this.FlagsRegister.VerifySet(x => x.Subtract = It.Is<bool>(y => !y), Times.Once);
+        }
+
+
+        [Test]
+        public void LD_I_A()
+        {
+            this.SetupRegisters();
+            this.ResetMocks();
+
+            Run8BitLoadGroup(2 + 1, 9 + 4, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.LD_I_A, PrimaryOpCode.HALT);
+
+            this.Registers.VerifySet(x => x.I = It.Is<byte>(y => y == A), Times.Once);
+            Assert.AreEqual(A, this.Registers.Object.I);
+        }
+
+
+        [Test]
+        public void LD_R_A()
+        {
+            this.SetupRegisters();
+            this.ResetMocks();
+
+            // This is not all it seems.
+            // 1. A is loaded to R
+            // 2. LS 7-bytes of R are incremented 3 times for the 3 opcodes executed.
+            // Note: this is not cycle accurate. R should only be incremented twice as Prefix_ED has already been run. However, it really doesn't matter. 
+            const int ExprectedR = ((A + 3) & 0x7f) | ((A & 0x80) >> 8);
+
+            Run8BitLoadGroup(2 + 1, 9 + 4, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.LD_R_A, PrimaryOpCode.HALT);
+
+            this.Registers.VerifySet(x => x.R = It.Is<byte>(y => y == A), Times.Once);
+            
+            Assert.AreEqual(ExprectedR, this.Registers.Object.R);
+        }
+
         private void Run8BitLoadGroup(int expectedMachineCycles, int expectedThrottlingStates, params object[] bytes)
         {
             this.SetCacheForSingleBytes(bytes);
@@ -1095,9 +1164,6 @@
 
             this.Cache.Verify(x => x.NextByte(), Times.Exactly(bytes.Count(x => x is byte || x is PrimaryOpCode || x is PrefixDdFdOpCode || x is PrefixEdOpCode)));
             this.Cache.Verify(x => x.NextWord(), Times.Exactly(bytes.Count(x => x is ushort)));
-
-            // 8-bit load doesn't set the flags.
-            this.GpRegisters.Verify(x => x.Flags, Times.Never);
         }
 
     }

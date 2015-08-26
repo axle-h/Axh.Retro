@@ -29,6 +29,9 @@
         protected const ushort BC = 0xbbcc;
         protected const ushort DE = 0xddee;
 
+        protected const byte I = 0xe7;
+        protected const byte R = 0xed;
+
         protected const ushort IX = 0x3366;
         protected const ushort IY = 0x2255;
 
@@ -40,6 +43,8 @@
 
         protected Mock<IGeneralPurposeRegisterSet> GpRegisters;
 
+        protected Mock<IFlagsRegister> FlagsRegister;
+
         protected Mock<IMmuCache> Cache;
 
         [TestFixtureSetUp]
@@ -47,7 +52,9 @@
         {
             this.Registers = new Mock<IZ80Registers>();
             this.GpRegisters = new Mock<IGeneralPurposeRegisterSet>();
+            this.FlagsRegister = new Mock<IFlagsRegister>();
             this.Registers.Setup(x => x.GeneralPurposeRegisters).Returns(this.GpRegisters.Object);
+            this.GpRegisters.Setup(x => x.Flags).Returns(this.FlagsRegister.Object);
 
             this.Mmu = new Mock<IMmu>();
 
@@ -74,16 +81,29 @@
 
             this.GpRegisters.SetupProperty(x => x.HL, HL);
 
+            this.Registers.SetupProperty(x => x.I, I);
+            this.Registers.SetupProperty(x => x.R, R);
+
             this.Registers.SetupProperty(x => x.IX, IX);
             this.Registers.SetupProperty(x => x.IY, IY);
+
+            this.FlagsRegister.SetupProperty(x => x.Sign, false);
+            this.FlagsRegister.SetupProperty(x => x.Zero, false);
+            this.FlagsRegister.SetupProperty(x => x.Flag5, false);
+            this.FlagsRegister.SetupProperty(x => x.HalfCarry, false);
+            this.FlagsRegister.SetupProperty(x => x.ParityOverflow, false);
+            this.FlagsRegister.SetupProperty(x => x.Flag3, false);
+            this.FlagsRegister.SetupProperty(x => x.Subtract, false);
+            this.FlagsRegister.SetupProperty(x => x.Carry, false);
         }
 
         protected void ResetMocks()
         {
             this.Registers.ResetCalls();
+            this.GpRegisters.ResetCalls();
+            this.FlagsRegister.ResetCalls();
             this.Cache.ResetCalls();
             this.Mmu.ResetCalls();
-            this.GpRegisters.ResetCalls();
         }
 
         /// <summary>

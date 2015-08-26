@@ -90,29 +90,29 @@
             ResetFlags();
         }
 
-        public void SetUndocumentedFlags(byte res)
+        public void SetUndocumentedFlags(byte result)
         {
             // Undocumented flags are set from corresponding result bits.
-            this.Flag5 = (res & Flag5Mask) > 0;
-            this.Flag3 = (res & Flag3Mask) > 0;
+            this.Flag5 = (result & Flag5Mask) > 0;
+            this.Flag3 = (result & Flag3Mask) > 0;
         }
 
-        public void SetResultFlags(byte res)
+        public void SetResultFlags(byte result)
         {
             // Sign flag is a copy of the sign bit.
-            this.Sign = (res & SignMask) > 0;
+            this.Sign = (result & SignMask) > 0;
             
             // Set Zero flag is result = 0
-            this.Zero = res == 0;
+            this.Zero = result == 0;
 
-            this.SetUndocumentedFlags(res);
+            this.SetUndocumentedFlags(result);
         }
         
-        public void SetParityFlags(byte res)
+        public void SetParityFlags(byte result)
         {
-            this.SetResultFlags(res);
+            this.SetResultFlags(result);
             this.HalfCarry = true;
-            this.ParityOverflow = res.IsEvenParity();
+            this.ParityOverflow = result.IsEvenParity();
             this.Subtract = false;
             this.Carry = false;
         }

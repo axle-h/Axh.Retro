@@ -26,21 +26,41 @@
         private static readonly ParameterExpression LocalWord;
 
         // Register expressions
-        private static readonly MemberExpression R;
-        private static readonly MemberExpression PC;
-        private static readonly MemberExpression A;
-        private static readonly MemberExpression B;
-        private static readonly MemberExpression C;
-        private static readonly MemberExpression D;
-        private static readonly MemberExpression E;
-        private static readonly MemberExpression F;
-        private static readonly MemberExpression H;
-        private static readonly MemberExpression L;
-        private static readonly MemberExpression BC;
-        private static readonly MemberExpression DE;
-        private static readonly MemberExpression HL;
-        private static readonly MemberExpression IX;
-        private static readonly MemberExpression IY;
+        private static readonly Expression PC;
+        private static readonly Expression A;
+        private static readonly Expression B;
+        private static readonly Expression C;
+        private static readonly Expression D;
+        private static readonly Expression E;
+        private static readonly Expression F;
+        private static readonly Expression H;
+        private static readonly Expression L;
+        private static readonly Expression BC;
+        private static readonly Expression DE;
+        private static readonly Expression HL;
+
+        // Z80 specific register expressions
+        private static readonly Expression I;
+        private static readonly Expression R;
+        private static readonly Expression IX;
+        private static readonly Expression IY;
+
+        // Interrupt stuff
+        private static readonly Expression IFF1;
+        private static readonly Expression IFF2;
+
+        // Flags
+        private static readonly Expression Flags;
+        private static readonly Expression Sign;
+        private static readonly Expression Zero;
+        private static readonly Expression Flag5;
+        private static readonly Expression HalfCarry;
+        private static readonly Expression Flag3;
+        private static readonly Expression ParityOverflow;
+        private static readonly Expression Subtract;
+        private static readonly Expression Carry;
+        private static readonly MethodInfo SetResultFlags;
+
 
         /// <summary>
         /// IX + d
@@ -57,32 +77,32 @@
         /// <summary>
         /// Reads a byte from the mmu at the address at LocalWord
         /// </summary>
-        private static readonly MethodCallExpression ReadByteAtLocalWord;
+        private static readonly Expression ReadByteAtLocalWord;
 
         /// <summary>
         /// Reads a byte from the mmu at the address in HL
         /// </summary>
-        private static readonly MethodCallExpression ReadByteAtHL;
+        private static readonly Expression ReadByteAtHL;
 
         /// <summary>
         /// Reads a byte from the mmu at the address in BC
         /// </summary>
-        private static readonly MethodCallExpression ReadByteAtBC;
+        private static readonly Expression ReadByteAtBC;
 
         /// <summary>
         /// Reads a byte from the mmu at the address in DE
         /// </summary>
-        private static readonly MethodCallExpression ReadByteAtDE;
+        private static readonly Expression ReadByteAtDE;
 
         /// <summary>
         /// Reads a byte from the mmu at the address at IX + b (using 2's compliant addition)
         /// </summary>
-        private static readonly MethodCallExpression ReadByteAtIXd;
+        private static readonly Expression ReadByteAtIXd;
         
         /// <summary>
         /// Reads a byte from the mmu at the address at IY + b (using 2's compliant addition)
         /// </summary>
-        private static readonly MethodCallExpression ReadByteAtIYd;
+        private static readonly Expression ReadByteAtIYd;
 
         private static readonly MethodInfo MmuReadByteMethodInfo;
         private static readonly MethodInfo MmuWriteByteMethodInfo;
@@ -94,31 +114,50 @@
             LocalByte = Expression.Parameter(typeof(byte), "b");
             LocalWord = Expression.Parameter(typeof(ushort), "w");
 
-            R = RegistersExpression.GetPropertyExpression<IZ80Registers, byte>(r => r.R);
-            PC = RegistersExpression.GetPropertyExpression<IZ80Registers, ushort>(r => r.ProgramCounter);
-            IX = RegistersExpression.GetPropertyExpression<IZ80Registers, ushort>(r => r.IX);
-            IY = RegistersExpression.GetPropertyExpression<IZ80Registers, ushort>(r => r.IY);
-
+            // General purpose register expressions
             var generalPurposeRegisters = RegistersExpression.GetPropertyExpression<IZ80Registers, IGeneralPurposeRegisterSet>(r => r.GeneralPurposeRegisters);
             A = generalPurposeRegisters.GetPropertyExpression<IGeneralPurposeRegisterSet, byte>(r => r.A);
-
             B = generalPurposeRegisters.GetPropertyExpression<IGeneralPurposeRegisterSet, byte>(r => r.B);
             C = generalPurposeRegisters.GetPropertyExpression<IGeneralPurposeRegisterSet, byte>(r => r.C);
             D = generalPurposeRegisters.GetPropertyExpression<IGeneralPurposeRegisterSet, byte>(r => r.D);
             E = generalPurposeRegisters.GetPropertyExpression<IGeneralPurposeRegisterSet, byte>(r => r.E);
             H = generalPurposeRegisters.GetPropertyExpression<IGeneralPurposeRegisterSet, byte>(r => r.H);
             L = generalPurposeRegisters.GetPropertyExpression<IGeneralPurposeRegisterSet, byte>(r => r.L);
-
             BC = generalPurposeRegisters.GetPropertyExpression<IGeneralPurposeRegisterSet, ushort>(r => r.BC);
             DE = generalPurposeRegisters.GetPropertyExpression<IGeneralPurposeRegisterSet, ushort>(r => r.DE);
             HL = generalPurposeRegisters.GetPropertyExpression<IGeneralPurposeRegisterSet, ushort>(r => r.HL);
 
-            var flagsRegister = generalPurposeRegisters.GetPropertyExpression<IGeneralPurposeRegisterSet, IFlagsRegister>(r => r.Flags);
-            F = flagsRegister.GetPropertyExpression<IFlagsRegister, byte>(r => r.Register);
+            // Z80 specific register expressions
+            I = RegistersExpression.GetPropertyExpression<IZ80Registers, byte>(r => r.I);
+            R = RegistersExpression.GetPropertyExpression<IZ80Registers, byte>(r => r.R);
+            PC = RegistersExpression.GetPropertyExpression<IZ80Registers, ushort>(r => r.ProgramCounter);
+            IX = RegistersExpression.GetPropertyExpression<IZ80Registers, ushort>(r => r.IX);
+            IY = RegistersExpression.GetPropertyExpression<IZ80Registers, ushort>(r => r.IY);
 
+            // Interrupt stuff
+            IFF1 = RegistersExpression.GetPropertyExpression<IZ80Registers, bool>(r => r.InterruptFlipFlop1);
+            IFF2 = RegistersExpression.GetPropertyExpression<IZ80Registers, bool>(r => r.InterruptFlipFlop2);
+
+            // Flags register expressions
+            Flags = generalPurposeRegisters.GetPropertyExpression<IGeneralPurposeRegisterSet, IFlagsRegister>(r => r.Flags);
+            F = Flags.GetPropertyExpression<IFlagsRegister, byte>(r => r.Register);
+            Sign = Flags.GetPropertyExpression<IFlagsRegister, bool>(r => r.Sign);
+            Zero = Flags.GetPropertyExpression<IFlagsRegister, bool>(r => r.Zero);
+            Flag5 = Flags.GetPropertyExpression<IFlagsRegister, bool>(r => r.Flag5);
+            HalfCarry = Flags.GetPropertyExpression<IFlagsRegister, bool>(r => r.HalfCarry);
+            Flag3 = Flags.GetPropertyExpression<IFlagsRegister, bool>(r => r.Flag3);
+            ParityOverflow = Flags.GetPropertyExpression<IFlagsRegister, bool>(r => r.ParityOverflow);
+            Subtract = Flags.GetPropertyExpression<IFlagsRegister, bool>(r => r.Subtract);
+            Carry = Flags.GetPropertyExpression<IFlagsRegister, bool>(r => r.Carry);
+            SetResultFlags = ExpressionHelpers.GetMethodInfo<IFlagsRegister, byte>((flags, result) => flags.SetResultFlags(result));
+            
+            
+
+            // Index register expressions i.e. IX+d and IY+d where d is LocalByte (expression local value, which must be initialised before running these)
             IXd = Expression.Convert(Expression.Add(Expression.Convert(IX, typeof(int)), Expression.Convert(Expression.Convert(LocalByte, typeof(sbyte)), typeof(int))), typeof(ushort));
             IYd = Expression.Convert(Expression.Add(Expression.Convert(IY, typeof(int)), Expression.Convert(Expression.Convert(LocalByte, typeof(sbyte)), typeof(int))), typeof(ushort));
 
+            // MMU expressions
             MmuReadByteMethodInfo = ExpressionHelpers.GetMethodInfo<IMmu, ushort, byte>((mmu, address) => mmu.ReadByte(address));
             MmuWriteByteMethodInfo = ExpressionHelpers.GetMethodInfo<IMmu, ushort, byte>((mmu, address, value) => mmu.WriteByte(address, value));
             
@@ -509,7 +548,7 @@
                     expressions.Add(Expression.Call(MmuExpression, MmuWriteByteMethodInfo, NextWord, A));
                     timer.Add(2, 7);
                     break;
-
+                    
                 // ********* Jump *********
                 case PrimaryOpCode.JP:
                     expressions.Add(Expression.Assign(PC, NextWord));
@@ -522,6 +561,9 @@
 
                 case PrimaryOpCode.Prefix_FD:
                     return TryDecodeNextFdPrefixOperation();
+
+                case PrimaryOpCode.Prefix_ED:
+                    return TryDecodeNextEdPrefixOperation();
 
                 default:
                     throw new NotImplementedException(opCode.ToString());
@@ -712,6 +754,55 @@
                     expressions.Add(Expression.Assign(LocalByte, NextByte));
                     expressions.Add(Expression.Call(MmuExpression, MmuWriteByteMethodInfo, IYd, NextByte));
                     timer.Add(5, 19);
+                    break;
+
+                default:
+                    throw new NotImplementedException(opCode.ToString());
+            }
+
+            return DecodeResult.Continue;
+        }
+
+        public DecodeResult TryDecodeNextEdPrefixOperation()
+        {
+            var opCode = (PrefixEdOpCode)mmuCache.NextByte();
+
+            switch (opCode)
+            {
+                // LD A, I
+                case PrefixEdOpCode.LD_A_I:
+                    expressions.Add(Expression.Assign(A, I));
+                    expressions.Add(Expression.Call(Flags, SetResultFlags, A));
+
+                    // Also reset H & N and copy IFF2 to P/V
+                    expressions.Add(Expression.Assign(HalfCarry, Expression.Constant(false)));
+                    expressions.Add(Expression.Assign(Subtract, Expression.Constant(false)));
+                    expressions.Add(Expression.Assign(ParityOverflow, IFF2));
+                    timer.Add(2, 9);
+                    break;
+
+                // LD A, R
+                case PrefixEdOpCode.LD_A_R:
+                    expressions.Add(Expression.Assign(A, R));
+                    expressions.Add(Expression.Call(Flags, SetResultFlags, A));
+
+                    // Also reset H & N and copy IFF2 to P/V
+                    expressions.Add(Expression.Assign(HalfCarry, Expression.Constant(false)));
+                    expressions.Add(Expression.Assign(Subtract, Expression.Constant(false)));
+                    expressions.Add(Expression.Assign(ParityOverflow, IFF2));
+                    timer.Add(2, 9);
+                    break;
+
+                // LD I, A
+                case PrefixEdOpCode.LD_I_A:
+                    expressions.Add(Expression.Assign(I, A));
+                    timer.Add(2, 9);
+                    break;
+
+                // LD R, A
+                case PrefixEdOpCode.LD_R_A:
+                    expressions.Add(Expression.Assign(R, A));
+                    timer.Add(2, 9);
                     break;
 
                 default:
