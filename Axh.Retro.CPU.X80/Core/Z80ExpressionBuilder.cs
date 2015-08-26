@@ -890,7 +890,25 @@
                     expressions.Add(Expression.Assign(SP, Expression.Call(MmuExpression, MmuReadWordMethodInfo, NextWord)));
                     timer.Add(6, 20);
                     break;
-                    
+
+                // LD (nn), dd
+                case PrefixEdOpCode.LD_mnn_BC:
+                    expressions.Add(Expression.Call(MmuExpression, MmuWriteWordMethodInfo, NextWord, BC));
+                    timer.Add(6, 20);
+                    break;
+                case PrefixEdOpCode.LD_mnn_DE:
+                    expressions.Add(Expression.Call(MmuExpression, MmuWriteWordMethodInfo, NextWord, DE));
+                    timer.Add(6, 20);
+                    break;
+                case PrefixEdOpCode.LD_mnn_HL:
+                    expressions.Add(Expression.Call(MmuExpression, MmuWriteWordMethodInfo, NextWord, HL));
+                    timer.Add(6, 20);
+                    break;
+                case PrefixEdOpCode.LD_mnn_SP:
+                    expressions.Add(Expression.Call(MmuExpression, MmuWriteWordMethodInfo, NextWord, SP));
+                    timer.Add(6, 20);
+                    break;
+
                 default:
                     throw new NotImplementedException(opCode.ToString());
             }

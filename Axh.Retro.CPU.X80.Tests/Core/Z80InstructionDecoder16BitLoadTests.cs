@@ -178,5 +178,35 @@
 
             this.Mmu.Verify(x => x.WriteWord(NN, HL), Times.Once);
         }
+
+        [TestCase(PrefixEdOpCode.LD_mnn_BC)]
+        [TestCase(PrefixEdOpCode.LD_mnn_DE)]
+        [TestCase(PrefixEdOpCode.LD_mnn_HL)]
+        [TestCase(PrefixEdOpCode.LD_mnn_SP)]
+        public void LD_mnn_dd(PrefixEdOpCode opcode)
+        {
+            this.SetupRegisters();
+            this.ResetMocks();
+
+            const ushort NN = 0x3836;
+
+            Run(6, 20, PrimaryOpCode.Prefix_ED, opcode, NN);
+
+            switch (opcode)
+            {
+                case PrefixEdOpCode.LD_mnn_BC:
+                    this.Mmu.Verify(x => x.WriteWord(NN, BC), Times.Once);
+                    break;
+                case PrefixEdOpCode.LD_mnn_DE:
+                    this.Mmu.Verify(x => x.WriteWord(NN, DE), Times.Once);
+                    break;
+                case PrefixEdOpCode.LD_mnn_HL:
+                    this.Mmu.Verify(x => x.WriteWord(NN, HL), Times.Once);
+                    break;
+                case PrefixEdOpCode.LD_mnn_SP:
+                    this.Mmu.Verify(x => x.WriteWord(NN, SP), Times.Once);
+                    break;
+            }
+        }
     }
 }
