@@ -335,5 +335,52 @@
             this.Registers.VerifySet(x => x.StackPointer = It.Is<ushort>(y => y == SP2), Times.Once);
             Assert.AreEqual(SP2, this.Registers.Object.StackPointer);
         }
+
+        [TestCase(PrimaryOpCode.POP_BC)]
+        [TestCase(PrimaryOpCode.POP_DE)]
+        [TestCase(PrimaryOpCode.POP_HL)]
+        [TestCase(PrimaryOpCode.POP_AF)]
+        public void POP_qq(PrimaryOpCode opCode)
+        {
+            this.SetupRegisters();
+            this.ResetMocks();
+
+            const ushort SP1 = unchecked((ushort)(SP + 1));
+            const ushort SP2 = unchecked((ushort)(SP1 + 1));
+
+            const byte Value1 = 0x12;
+            const byte Value2 = 0x34;
+
+            this.Mmu.Setup(x => x.ReadByte(SP)).Returns(Value1);
+            this.Mmu.Setup(x => x.ReadByte(SP1)).Returns(Value2);
+
+            Run(3, 10, opCode);
+
+            this.Mmu.Verify(x => x.ReadByte(SP), Times.Once);
+            this.Mmu.Verify(x => x.ReadByte(SP1), Times.Once);
+
+            switch (opCode)
+            {
+                case PrimaryOpCode.POP_BC:
+                    this.GpRegisters.VerifySet(x => x.B = It.Is<byte>(y => y == Value2), Times.Once);
+                    this.GpRegisters.VerifySet(x => x.C = It.Is<byte>(y => y == Value1), Times.Once);
+                    break;
+                case PrimaryOpCode.POP_DE:
+                    this.GpRegisters.VerifySet(x => x.D = It.Is<byte>(y => y == Value2), Times.Once);
+                    this.GpRegisters.VerifySet(x => x.E = It.Is<byte>(y => y == Value1), Times.Once);
+                    break;
+                case PrimaryOpCode.POP_HL:
+                    this.GpRegisters.VerifySet(x => x.H = It.Is<byte>(y => y == Value2), Times.Once);
+                    this.GpRegisters.VerifySet(x => x.L = It.Is<byte>(y => y == Value1), Times.Once);
+                    break;
+                case PrimaryOpCode.POP_AF:
+                    this.GpRegisters.VerifySet(x => x.A = It.Is<byte>(y => y == Value2), Times.Once);
+                    this.FlagsRegister.VerifySet(x => x.Register = It.Is<byte>(y => y == Value1), Times.Once);
+                    break;
+            }
+
+            this.Registers.VerifySet(x => x.StackPointer = It.Is<ushort>(y => y == SP2), Times.Once);
+            Assert.AreEqual(SP2, this.Registers.Object.StackPointer);
+        }
     }
 }

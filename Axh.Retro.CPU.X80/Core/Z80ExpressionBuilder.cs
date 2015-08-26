@@ -43,6 +43,8 @@
         private static readonly Expression SP;
         private static readonly Expression PushSP;
         private static readonly Expression PushPushSP;
+        private static readonly Expression PopSP;
+        private static readonly Expression PopPopSP;
 
         // Z80 specific register expressions
         private static readonly Expression I;
@@ -137,8 +139,10 @@
 
             // Stack pointer stuff
             SP = RegistersExpression.GetPropertyExpression<IZ80Registers, ushort>(r => r.StackPointer);
-            PushSP = Expression.Assign(SP, Expression.Decrement(SP));
-            PushPushSP = Expression.Assign(SP, Expression.Subtract(SP, Expression.Constant((ushort)2)));
+            PushSP = Expression.PreDecrementAssign(SP);
+            PushPushSP = Expression.SubtractAssign(SP, Expression.Constant((ushort)2));
+            PopSP = Expression.PreIncrementAssign(SP);
+            PopPopSP = Expression.AddAssign(SP, Expression.Constant((ushort)2));
 
             // Z80 specific register expressions
             I = RegistersExpression.GetPropertyExpression<IZ80Registers, byte>(r => r.I);
@@ -628,6 +632,36 @@
                     expressions.Add(PushSP);
                     expressions.Add(Expression.Call(MmuExpression, MmuWriteByteMethodInfo, SP, F));
                     timer.Add(3, 11);
+                    break;
+
+                // POP qq
+                case PrimaryOpCode.POP_BC:
+                    expressions.Add(Expression.Assign(C, Expression.Call(MmuExpression, MmuReadByteMethodInfo, SP)));
+                    expressions.Add(PopSP);
+                    expressions.Add(Expression.Assign(B, Expression.Call(MmuExpression, MmuReadByteMethodInfo, SP)));
+                    expressions.Add(PopSP);
+                    timer.Add(3, 10);
+                    break;
+                case PrimaryOpCode.POP_DE:
+                    expressions.Add(Expression.Assign(E, Expression.Call(MmuExpression, MmuReadByteMethodInfo, SP)));
+                    expressions.Add(PopSP);
+                    expressions.Add(Expression.Assign(D, Expression.Call(MmuExpression, MmuReadByteMethodInfo, SP)));
+                    expressions.Add(PopSP);
+                    timer.Add(3, 10);
+                    break;
+                case PrimaryOpCode.POP_HL:
+                    expressions.Add(Expression.Assign(L, Expression.Call(MmuExpression, MmuReadByteMethodInfo, SP)));
+                    expressions.Add(PopSP);
+                    expressions.Add(Expression.Assign(H, Expression.Call(MmuExpression, MmuReadByteMethodInfo, SP)));
+                    expressions.Add(PopSP);
+                    timer.Add(3, 10);
+                    break;
+                case PrimaryOpCode.POP_AF:
+                    expressions.Add(Expression.Assign(F, Expression.Call(MmuExpression, MmuReadByteMethodInfo, SP)));
+                    expressions.Add(PopSP);
+                    expressions.Add(Expression.Assign(A, Expression.Call(MmuExpression, MmuReadByteMethodInfo, SP)));
+                    expressions.Add(PopSP);
+                    timer.Add(3, 10);
                     break;
 
                 // ********* Jump *********
