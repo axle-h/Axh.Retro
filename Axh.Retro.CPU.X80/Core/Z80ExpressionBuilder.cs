@@ -670,7 +670,7 @@
                     timer.Add(3, 10);
                     break;
 
-                // ********* Exchange, Block Transfer, and Search Group *********
+                // ********* Exchange *********
                 // EX DE, HL
                 case PrimaryOpCode.EX_DE_HL:
                     expressions.Add(Expression.Assign(LocalWord, DE));
@@ -690,6 +690,28 @@
                     expressions.Add(SwitchToAlternativeGeneralPurposeRegisters);
                     timer.Add(1, 4);
                     break;
+
+                // EX (SP), HL
+                case PrimaryOpCode.EX_mSP_HL:
+                    // Exchange L
+                    expressions.Add(Expression.Assign(LocalByte, L));
+                    expressions.Add(Expression.Assign(L, Expression.Call(MmuExpression, MmuReadByteMethodInfo, SP)));
+                    expressions.Add(Expression.Call(MmuExpression, MmuWriteByteMethodInfo, SP, LocalByte));
+
+                    // Exchange H
+                    expressions.Add(Expression.Assign(LocalByte, H));
+                    expressions.Add(Expression.Assign(LocalWord, Expression.Increment(SP)));
+                    expressions.Add(Expression.Assign(H, Expression.Call(MmuExpression, MmuReadByteMethodInfo, LocalWord)));
+                    expressions.Add(Expression.Call(MmuExpression, MmuWriteByteMethodInfo, LocalWord, LocalByte));
+                    
+                    timer.Add(5, 19);
+                    break;
+
+
+                // ********* Block Transfer *********
+
+
+                // ********* Search *********
 
                 // ********* Jump *********
                 case PrimaryOpCode.JP:

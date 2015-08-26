@@ -54,7 +54,7 @@
   </Choose>
   <ItemGroup>
     <Compile Include="Core\Z80InstructionDecoder16BitLoadTests.cs" />
-    <Compile Include="Core\Z80InstructionDecoderExchangeBlockTransferSearchTests.cs" />
+    <Compile Include="Core\Z80InstructionDecoderExchangeTests.cs" />
     <Compile Include="Memory\ArrayBackedMemoryTests.cs" />
     <Compile Include="Memory\ReadOnlyMemoryBankTests.cs" />
     <Compile Include="Mmu\IReadableWriteableAddressSegment.cs" />
