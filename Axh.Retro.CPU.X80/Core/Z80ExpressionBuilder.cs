@@ -664,6 +664,15 @@
                     timer.Add(3, 10);
                     break;
 
+                // ********* Exchange, Block Transfer, and Search Group *********
+                // EX DE, HL
+                case PrimaryOpCode.EX_DE_HL:
+                    expressions.Add(Expression.Assign(LocalWord, DE));
+                    expressions.Add(Expression.Assign(DE, HL));
+                    expressions.Add(Expression.Assign(HL, LocalWord));
+                    timer.Add(1, 4);
+                    break;
+
                 // ********* Jump *********
                 case PrimaryOpCode.JP:
                     expressions.Add(Expression.Assign(PC, NextWord));
