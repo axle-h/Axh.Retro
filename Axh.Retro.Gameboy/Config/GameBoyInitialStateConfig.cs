@@ -13,9 +13,12 @@
         {
             var state = new Z80RegisterState
                         {
-                            PrimaryRegisterState = GetInitialZ80GeneralPurposeRegisterState(),
-                            AlternativeRegisterState = GetInitialZ80GeneralPurposeRegisterState(),
-                            IsAlternative = false,
+                            PrimaryGeneralPurposeRegisterState = GetInitialGeneralPurposeRegisterState(),
+                            AlternativeGeneralPurposeRegisterState = GetInitialGeneralPurposeRegisterState(),
+                            PrimaryAccumulatorAndFlagsRegisterState = GetInitialAccumulatorAndFlagsRegisterState(),
+                            AlternativeAccumulatorAndFlagsRegisterState =  GetInitialAccumulatorAndFlagsRegisterState(),
+                            IsAccumulatorAndFlagsAlternative = false,
+                            IsGeneralPurposeAlternative = false,
                             IX = 0,
                             IY = 0,
                             I = 0,
@@ -29,10 +32,17 @@
             return state;
         }
 
-        private static GeneralPurposeRegisterState GetInitialZ80GeneralPurposeRegisterState()
+        private static GeneralPurposeRegisterState GetInitialGeneralPurposeRegisterState()
         {
             var state = new GeneralPurposeRegisterState();
-            state.A = state.B = state.C = state.D = state.E = state.F = state.H = state.L = 0;
+            state.B = state.C = state.D = state.E = state.H = state.L = 0;
+            return state;
+        }
+        
+        private static AccumulatorAndFlagsRegisterState GetInitialAccumulatorAndFlagsRegisterState()
+        {
+            var state = new AccumulatorAndFlagsRegisterState();
+            state.A = state.F = 0;
             return state;
         }
     }

@@ -48,9 +48,11 @@
     <Compile Include="Memory\ArrayBackedMemoryBank.cs" />
     <Compile Include="Memory\MmuCache.cs" />
     <Compile Include="Memory\ReadOnlyMemoryBank.cs" />
+    <Compile Include="Registers\AccumulatorAndFlagsRegisterSet.cs" />
     <Compile Include="Registers\Z80FlagsRegister.cs" />
     <Compile Include="Registers\GeneralPurposeRegisterSet.cs" />
     <Compile Include="Registers\Z80Registers.cs" />
+    <Compile Include="Util\BitConverterHelpers.cs" />
     <Compile Include="Util\ByteExtensions.cs" />
     <Compile Include="Core\Z80Core.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -22,5 +22,27 @@
             Assert.AreEqual(DE, this.GpRegisters.Object.HL);
             Assert.AreEqual(HL, this.GpRegisters.Object.DE);
         }
+
+        [Test]
+        public void EX_AF()
+        {
+            this.SetupRegisters();
+            this.ResetMocks();
+
+            Run(1, 4, PrimaryOpCode.EX_AF);
+
+            this.Registers.Verify(x => x.SwitchToAlternativeAccumulatorAndFlagsRegisters(), Times.Once);
+        }
+        
+        [Test]
+        public void EXX()
+        {
+            this.SetupRegisters();
+            this.ResetMocks();
+
+            Run(1, 4, PrimaryOpCode.EXX);
+
+            this.Registers.Verify(x => x.SwitchToAlternativeGeneralPurposeRegisters(), Times.Once);
+        }
     }
 }

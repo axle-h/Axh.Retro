@@ -68,6 +68,9 @@
         private static readonly Expression Carry;
         private static readonly MethodInfo SetResultFlags;
 
+        // Register methods
+        private static readonly Expression SwitchToAlternativeGeneralPurposeRegisters;
+        private static readonly Expression SwitchToAlternativeAccumulatorAndFlagsRegisters;
 
         /// <summary>
         /// IX + d
@@ -125,7 +128,6 @@
 
             // General purpose register expressions
             var generalPurposeRegisters = RegistersExpression.GetPropertyExpression<IZ80Registers, IGeneralPurposeRegisterSet>(r => r.GeneralPurposeRegisters);
-            A = generalPurposeRegisters.GetPropertyExpression<IGeneralPurposeRegisterSet, byte>(r => r.A);
             B = generalPurposeRegisters.GetPropertyExpression<IGeneralPurposeRegisterSet, byte>(r => r.B);
             C = generalPurposeRegisters.GetPropertyExpression<IGeneralPurposeRegisterSet, byte>(r => r.C);
             D = generalPurposeRegisters.GetPropertyExpression<IGeneralPurposeRegisterSet, byte>(r => r.D);
@@ -154,8 +156,10 @@
             IFF1 = RegistersExpression.GetPropertyExpression<IZ80Registers, bool>(r => r.InterruptFlipFlop1);
             IFF2 = RegistersExpression.GetPropertyExpression<IZ80Registers, bool>(r => r.InterruptFlipFlop2);
 
-            // Flags register expressions
-            Flags = generalPurposeRegisters.GetPropertyExpression<IGeneralPurposeRegisterSet, IFlagsRegister>(r => r.Flags);
+            // Accumulator & Flags register expressions
+            var accumulatorAndFlagsRegisters = RegistersExpression.GetPropertyExpression<IZ80Registers, IAccumulatorAndFlagsRegisterSet>(r => r.AccumulatorAndFlagsRegisters);
+            A = accumulatorAndFlagsRegisters.GetPropertyExpression<IAccumulatorAndFlagsRegisterSet, byte>(r => r.A);
+            Flags = accumulatorAndFlagsRegisters.GetPropertyExpression<IAccumulatorAndFlagsRegisterSet, IFlagsRegister>(r => r.Flags);
             F = Flags.GetPropertyExpression<IFlagsRegister, byte>(r => r.Register);
             Sign = Flags.GetPropertyExpression<IFlagsRegister, bool>(r => r.Sign);
             Zero = Flags.GetPropertyExpression<IFlagsRegister, bool>(r => r.Zero);
@@ -167,12 +171,14 @@
             Carry = Flags.GetPropertyExpression<IFlagsRegister, bool>(r => r.Carry);
             SetResultFlags = ExpressionHelpers.GetMethodInfo<IFlagsRegister, byte>((flags, result) => flags.SetResultFlags(result));
             
-            
-
             // Index register expressions i.e. IX+d and IY+d where d is LocalByte (expression local value, which must be initialised before running these)
             IXd = Expression.Convert(Expression.Add(Expression.Convert(IX, typeof(int)), Expression.Convert(Expression.Convert(LocalByte, typeof(sbyte)), typeof(int))), typeof(ushort));
             IYd = Expression.Convert(Expression.Add(Expression.Convert(IY, typeof(int)), Expression.Convert(Expression.Convert(LocalByte, typeof(sbyte)), typeof(int))), typeof(ushort));
 
+            // Register methods
+            SwitchToAlternativeGeneralPurposeRegisters = Expression.Call(RegistersExpression, ExpressionHelpers.GetMethodInfo<IZ80Registers>((registers) => registers.SwitchToAlternativeGeneralPurposeRegisters()));
+            SwitchToAlternativeAccumulatorAndFlagsRegisters = Expression.Call(RegistersExpression, ExpressionHelpers.GetMethodInfo<IZ80Registers>((registers) => registers.SwitchToAlternativeAccumulatorAndFlagsRegisters()));
+            
             // MMU expressions
             MmuReadByteMethodInfo = ExpressionHelpers.GetMethodInfo<IMmu, ushort, byte>((mmu, address) => mmu.ReadByte(address));
             MmuReadWordMethodInfo = ExpressionHelpers.GetMethodInfo<IMmu, ushort, ushort>((mmu, address) => mmu.ReadWord(address));
@@ -670,6 +676,18 @@
                     expressions.Add(Expression.Assign(LocalWord, DE));
                     expressions.Add(Expression.Assign(DE, HL));
                     expressions.Add(Expression.Assign(HL, LocalWord));
+                    timer.Add(1, 4);
+                    break;
+
+                // EX AF, AF′
+                case PrimaryOpCode.EX_AF:
+                    expressions.Add(SwitchToAlternativeAccumulatorAndFlagsRegisters);
+                    timer.Add(1, 4);
+                    break;
+
+                // EXX
+                case PrimaryOpCode.EXX:
+                    expressions.Add(SwitchToAlternativeGeneralPurposeRegisters);
                     timer.Add(1, 4);
                     break;
 

@@ -374,7 +374,7 @@
                     this.GpRegisters.VerifySet(x => x.L = It.Is<byte>(y => y == Value1), Times.Once);
                     break;
                 case PrimaryOpCode.POP_AF:
-                    this.GpRegisters.VerifySet(x => x.A = It.Is<byte>(y => y == Value2), Times.Once);
+                    this.AfRegisters.VerifySet(x => x.A = It.Is<byte>(y => y == Value2), Times.Once);
                     this.FlagsRegister.VerifySet(x => x.Register = It.Is<byte>(y => y == Value1), Times.Once);
                     break;
             }

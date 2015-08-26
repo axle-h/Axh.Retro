@@ -61,6 +61,7 @@
     <Compile Include="Mmu\MmuCacheTests.cs" />
     <Compile Include="Mmu\SegmentMmuTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Registers\AccumulatorAndFlagsRegisterSetTests.cs" />
     <Compile Include="Registers\FlagsRegisterTests.cs" />
     <Compile Include="Registers\GeneralPurposeRegisterSetTests.cs" />
     <Compile Include="Registers\RegisterTestObjects.cs" />

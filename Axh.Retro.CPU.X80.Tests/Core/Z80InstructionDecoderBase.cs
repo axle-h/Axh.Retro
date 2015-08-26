@@ -47,6 +47,8 @@
 
         protected Mock<IGeneralPurposeRegisterSet> GpRegisters;
 
+        protected Mock<IAccumulatorAndFlagsRegisterSet> AfRegisters;
+
         protected Mock<IFlagsRegister> FlagsRegister;
 
         protected Mock<IMmuCache> Cache;
@@ -56,9 +58,12 @@
         {
             this.Registers = new Mock<IZ80Registers>();
             this.GpRegisters = new Mock<IGeneralPurposeRegisterSet>();
+            this.AfRegisters = new Mock<IAccumulatorAndFlagsRegisterSet>();
             this.FlagsRegister = new Mock<IFlagsRegister>();
+
+            this.AfRegisters.Setup(x => x.Flags).Returns(this.FlagsRegister.Object);
             this.Registers.Setup(x => x.GeneralPurposeRegisters).Returns(this.GpRegisters.Object);
-            this.GpRegisters.Setup(x => x.Flags).Returns(this.FlagsRegister.Object);
+            this.Registers.Setup(x => x.AccumulatorAndFlagsRegisters).Returns(this.AfRegisters.Object);
 
             this.Mmu = new Mock<IMmu>();
 
@@ -72,7 +77,6 @@
 
         protected void SetupRegisters()
         {
-            this.GpRegisters.SetupProperty(x => x.A, A);
             this.GpRegisters.SetupProperty(x => x.B, B);
             this.GpRegisters.SetupProperty(x => x.C, C);
             this.GpRegisters.SetupProperty(x => x.D, D);
@@ -92,6 +96,8 @@
             this.Registers.SetupProperty(x => x.IY, IY);
             this.Registers.SetupProperty(x => x.StackPointer, SP);
 
+            this.AfRegisters.SetupProperty(x => x.A, A);
+            
             this.FlagsRegister.SetupProperty(x => x.Register, F);
             this.FlagsRegister.SetupProperty(x => x.Sign, false);
             this.FlagsRegister.SetupProperty(x => x.Zero, false);
@@ -107,6 +113,7 @@
         {
             this.Registers.ResetCalls();
             this.GpRegisters.ResetCalls();
+            this.AfRegisters.ResetCalls();
             this.FlagsRegister.ResetCalls();
             this.Cache.ResetCalls();
             this.Mmu.ResetCalls();

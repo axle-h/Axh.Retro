@@ -4,6 +4,8 @@
     {
         IGeneralPurposeRegisterSet GeneralPurposeRegisters { get; }
 
+        IAccumulatorAndFlagsRegisterSet AccumulatorAndFlagsRegisters { get; }
+
         ushort StackPointer { get; set; }
 
         ushort ProgramCounter { get; set; }

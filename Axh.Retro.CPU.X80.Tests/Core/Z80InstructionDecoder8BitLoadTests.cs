@@ -71,17 +71,17 @@
             switch (opcode)
             {
                 case PrimaryOpCode.LD_A_A:
-                    this.GpRegisters.Verify(x => x.A, Times.Never);
+                    this.AfRegisters.Verify(x => x.A, Times.Never);
                     this.GpRegisters.Verify(x => x.B, Times.Never);
                     this.GpRegisters.Verify(x => x.C, Times.Never);
                     this.GpRegisters.Verify(x => x.D, Times.Never);
                     this.GpRegisters.Verify(x => x.E, Times.Never);
                     this.GpRegisters.Verify(x => x.H, Times.Never);
                     this.GpRegisters.Verify(x => x.L, Times.Never);
-                    Assert.AreEqual(A, this.GpRegisters.Object.A);
+                    Assert.AreEqual(A, this.AfRegisters.Object.A);
                     break;
                 case PrimaryOpCode.LD_B_A:
-                    this.GpRegisters.Verify(x => x.A, Times.Once);
+                    this.AfRegisters.Verify(x => x.A, Times.Once);
                     this.GpRegisters.VerifySet(x => x.B = It.Is<byte>(y => y == A), Times.Once);
                     this.GpRegisters.Verify(x => x.C, Times.Never);
                     this.GpRegisters.Verify(x => x.D, Times.Never);
@@ -91,7 +91,7 @@
                     Assert.AreEqual(A, this.GpRegisters.Object.B);
                     break;
                 case PrimaryOpCode.LD_C_A:
-                    this.GpRegisters.Verify(x => x.A, Times.Once);
+                    this.AfRegisters.Verify(x => x.A, Times.Once);
                     this.GpRegisters.Verify(x => x.B, Times.Never);
                     this.GpRegisters.VerifySet(x => x.C = It.Is<byte>(y => y == A), Times.Once);
                     this.GpRegisters.Verify(x => x.D, Times.Never);
@@ -101,7 +101,7 @@
                     Assert.AreEqual(A, this.GpRegisters.Object.C);
                     break;
                 case PrimaryOpCode.LD_D_A:
-                    this.GpRegisters.Verify(x => x.A, Times.Once);
+                    this.AfRegisters.Verify(x => x.A, Times.Once);
                     this.GpRegisters.Verify(x => x.B, Times.Never);
                     this.GpRegisters.Verify(x => x.C, Times.Never);
                     this.GpRegisters.VerifySet(x => x.D = It.Is<byte>(y => y == A), Times.Once);
@@ -111,7 +111,7 @@
                     Assert.AreEqual(A, this.GpRegisters.Object.D);
                     break;
                 case PrimaryOpCode.LD_E_A:
-                    this.GpRegisters.Verify(x => x.A, Times.Once);
+                    this.AfRegisters.Verify(x => x.A, Times.Once);
                     this.GpRegisters.Verify(x => x.B, Times.Never);
                     this.GpRegisters.Verify(x => x.C, Times.Never);
                     this.GpRegisters.Verify(x => x.D, Times.Never);
@@ -121,7 +121,7 @@
                     Assert.AreEqual(A, this.GpRegisters.Object.E);
                     break;
                 case PrimaryOpCode.LD_H_A:
-                    this.GpRegisters.Verify(x => x.A, Times.Once);
+                    this.AfRegisters.Verify(x => x.A, Times.Once);
                     this.GpRegisters.Verify(x => x.B, Times.Never);
                     this.GpRegisters.Verify(x => x.C, Times.Never);
                     this.GpRegisters.Verify(x => x.D, Times.Never);
@@ -131,7 +131,7 @@
                     Assert.AreEqual(A, this.GpRegisters.Object.H);
                     break;
                 case PrimaryOpCode.LD_L_A:
-                    this.GpRegisters.Verify(x => x.A, Times.Once);
+                    this.AfRegisters.Verify(x => x.A, Times.Once);
                     this.GpRegisters.Verify(x => x.B, Times.Never);
                     this.GpRegisters.Verify(x => x.C, Times.Never);
                     this.GpRegisters.Verify(x => x.D, Times.Never);
@@ -141,17 +141,17 @@
                     Assert.AreEqual(A, this.GpRegisters.Object.L);
                     break;
                 case PrimaryOpCode.LD_A_B:
-                    this.GpRegisters.VerifySet(x => x.A = It.Is<byte>(y => y == B), Times.Once);
+                    this.AfRegisters.VerifySet(x => x.A = It.Is<byte>(y => y == B), Times.Once);
                     this.GpRegisters.Verify(x => x.B, Times.Once);
                     this.GpRegisters.Verify(x => x.C, Times.Never);
                     this.GpRegisters.Verify(x => x.D, Times.Never);
                     this.GpRegisters.Verify(x => x.E, Times.Never);
                     this.GpRegisters.Verify(x => x.H, Times.Never);
                     this.GpRegisters.Verify(x => x.L, Times.Never);
-                    Assert.AreEqual(B, this.GpRegisters.Object.A);
+                    Assert.AreEqual(B, this.AfRegisters.Object.A);
                     break;
                 case PrimaryOpCode.LD_B_B:
-                    this.GpRegisters.Verify(x => x.A, Times.Never);
+                    this.AfRegisters.Verify(x => x.A, Times.Never);
                     this.GpRegisters.Verify(x => x.B, Times.Never);
                     this.GpRegisters.Verify(x => x.C, Times.Never);
                     this.GpRegisters.Verify(x => x.D, Times.Never);
@@ -161,7 +161,7 @@
                     Assert.AreEqual(B, this.GpRegisters.Object.B);
                     break;
                 case PrimaryOpCode.LD_C_B:
-                    this.GpRegisters.Verify(x => x.A, Times.Never);
+                    this.AfRegisters.Verify(x => x.A, Times.Never);
                     this.GpRegisters.Verify(x => x.B, Times.Once);
                     this.GpRegisters.VerifySet(x => x.C = It.Is<byte>(y => y == B), Times.Once);
                     this.GpRegisters.Verify(x => x.D, Times.Never);
@@ -171,7 +171,7 @@
                     Assert.AreEqual(B, this.GpRegisters.Object.C);
                     break;
                 case PrimaryOpCode.LD_D_B:
-                    this.GpRegisters.Verify(x => x.A, Times.Never);
+                    this.AfRegisters.Verify(x => x.A, Times.Never);
                     this.GpRegisters.Verify(x => x.B, Times.Once);
                     this.GpRegisters.Verify(x => x.C, Times.Never);
                     this.GpRegisters.VerifySet(x => x.D = It.Is<byte>(y => y == B), Times.Once);
@@ -181,7 +181,7 @@
                     Assert.AreEqual(B, this.GpRegisters.Object.D);
                     break;
                 case PrimaryOpCode.LD_E_B:
-                    this.GpRegisters.Verify(x => x.A, Times.Never);
+                    this.AfRegisters.Verify(x => x.A, Times.Never);
                     this.GpRegisters.Verify(x => x.B, Times.Once);
                     this.GpRegisters.Verify(x => x.C, Times.Never);
                     this.GpRegisters.Verify(x => x.D, Times.Never);
@@ -191,7 +191,7 @@
                     Assert.AreEqual(B, this.GpRegisters.Object.E);
                     break;
                 case PrimaryOpCode.LD_H_B:
-                    this.GpRegisters.Verify(x => x.A, Times.Never);
+                    this.AfRegisters.Verify(x => x.A, Times.Never);
                     this.GpRegisters.Verify(x => x.B, Times.Once);
                     this.GpRegisters.Verify(x => x.C, Times.Never);
                     this.GpRegisters.Verify(x => x.D, Times.Never);
@@ -201,7 +201,7 @@
                     Assert.AreEqual(B, this.GpRegisters.Object.H);
                     break;
                 case PrimaryOpCode.LD_L_B:
-                    this.GpRegisters.Verify(x => x.A, Times.Never);
+                    this.AfRegisters.Verify(x => x.A, Times.Never);
                     this.GpRegisters.Verify(x => x.B, Times.Once);
                     this.GpRegisters.Verify(x => x.C, Times.Never);
                     this.GpRegisters.Verify(x => x.D, Times.Never);
@@ -211,17 +211,17 @@
                     Assert.AreEqual(B, this.GpRegisters.Object.L);
                     break;
                 case PrimaryOpCode.LD_A_C:
-                    this.GpRegisters.VerifySet(x => x.A = It.Is<byte>(y => y == C), Times.Once);
+                    this.AfRegisters.VerifySet(x => x.A = It.Is<byte>(y => y == C), Times.Once);
                     this.GpRegisters.Verify(x => x.B, Times.Never);
                     this.GpRegisters.Verify(x => x.C, Times.Once);
                     this.GpRegisters.Verify(x => x.D, Times.Never);
                     this.GpRegisters.Verify(x => x.E, Times.Never);
                     this.GpRegisters.Verify(x => x.H, Times.Never);
                     this.GpRegisters.Verify(x => x.L, Times.Never);
-                    Assert.AreEqual(C, this.GpRegisters.Object.A);
+                    Assert.AreEqual(C, this.AfRegisters.Object.A);
                     break;
                 case PrimaryOpCode.LD_B_C:
-                    this.GpRegisters.Verify(x => x.A, Times.Never);
+                    this.AfRegisters.Verify(x => x.A, Times.Never);
                     this.GpRegisters.VerifySet(x => x.B = It.Is<byte>(y => y == C), Times.Once);
                     this.GpRegisters.Verify(x => x.C, Times.Once);
                     this.GpRegisters.Verify(x => x.D, Times.Never);
@@ -231,7 +231,7 @@
                     Assert.AreEqual(C, this.GpRegisters.Object.B);
                     break;
                 case PrimaryOpCode.LD_C_C:
-                    this.GpRegisters.Verify(x => x.A, Times.Never);
+                    this.AfRegisters.Verify(x => x.A, Times.Never);
                     this.GpRegisters.Verify(x => x.B, Times.Never);
                     this.GpRegisters.Verify(x => x.C, Times.Never);
                     this.GpRegisters.Verify(x => x.D, Times.Never);
@@ -241,7 +241,7 @@
                     Assert.AreEqual(C, this.GpRegisters.Object.C);
                     break;
                 case PrimaryOpCode.LD_D_C:
-                    this.GpRegisters.Verify(x => x.A, Times.Never);
+                    this.AfRegisters.Verify(x => x.A, Times.Never);
                     this.GpRegisters.Verify(x => x.B, Times.Never);
                     this.GpRegisters.Verify(x => x.C, Times.Once);
                     this.GpRegisters.VerifySet(x => x.D = It.Is<byte>(y => y == C), Times.Once);
@@ -251,7 +251,7 @@
                     Assert.AreEqual(C, this.GpRegisters.Object.D);
                     break;
                 case PrimaryOpCode.LD_E_C:
-                    this.GpRegisters.Verify(x => x.A, Times.Never);
+                    this.AfRegisters.Verify(x => x.A, Times.Never);
                     this.GpRegisters.Verify(x => x.B, Times.Never);
                     this.GpRegisters.Verify(x => x.C, Times.Once);
                     this.GpRegisters.Verify(x => x.D, Times.Never);
@@ -261,7 +261,7 @@
                     Assert.AreEqual(C, this.GpRegisters.Object.E);
                     break;
                 case PrimaryOpCode.LD_H_C:
-                    this.GpRegisters.Verify(x => x.A, Times.Never);
+                    this.AfRegisters.Verify(x => x.A, Times.Never);
                     this.GpRegisters.Verify(x => x.B, Times.Never);
                     this.GpRegisters.Verify(x => x.C, Times.Once);
                     this.GpRegisters.Verify(x => x.D, Times.Never);
@@ -271,7 +271,7 @@
                     Assert.AreEqual(C, this.GpRegisters.Object.H);
                     break;
                 case PrimaryOpCode.LD_L_C:
-                    this.GpRegisters.Verify(x => x.A, Times.Never);
+                    this.AfRegisters.Verify(x => x.A, Times.Never);
                     this.GpRegisters.Verify(x => x.B, Times.Never);
                     this.GpRegisters.Verify(x => x.C, Times.Once);
                     this.GpRegisters.Verify(x => x.D, Times.Never);
@@ -281,17 +281,17 @@
                     Assert.AreEqual(C, this.GpRegisters.Object.L);
                     break;
                 case PrimaryOpCode.LD_A_D:
-                    this.GpRegisters.VerifySet(x => x.A = It.Is<byte>(y => y == D), Times.Once);
+                    this.AfRegisters.VerifySet(x => x.A = It.Is<byte>(y => y == D), Times.Once);
                     this.GpRegisters.Verify(x => x.B, Times.Never);
                     this.GpRegisters.Verify(x => x.C, Times.Never);
                     this.GpRegisters.Verify(x => x.D, Times.Once);
                     this.GpRegisters.Verify(x => x.E, Times.Never);
                     this.GpRegisters.Verify(x => x.H, Times.Never);
                     this.GpRegisters.Verify(x => x.L, Times.Never);
-                    Assert.AreEqual(D, this.GpRegisters.Object.A);
+                    Assert.AreEqual(D, this.AfRegisters.Object.A);
                     break;
                 case PrimaryOpCode.LD_B_D:
-                    this.GpRegisters.Verify(x => x.A, Times.Never);
+                    this.AfRegisters.Verify(x => x.A, Times.Never);
                     this.GpRegisters.VerifySet(x => x.B = It.Is<byte>(y => y == D), Times.Once);
                     this.GpRegisters.Verify(x => x.C, Times.Never);
                     this.GpRegisters.Verify(x => x.D, Times.Once);
@@ -301,7 +301,7 @@
                     Assert.AreEqual(D, this.GpRegisters.Object.B);
                     break;
                 case PrimaryOpCode.LD_C_D:
-                    this.GpRegisters.Verify(x => x.A, Times.Never);
+                    this.AfRegisters.Verify(x => x.A, Times.Never);
                     this.GpRegisters.Verify(x => x.B, Times.Never);
                     this.GpRegisters.VerifySet(x => x.C = It.Is<byte>(y => y == D), Times.Once);
                     this.GpRegisters.Verify(x => x.D, Times.Once);
@@ -311,7 +311,7 @@
                     Assert.AreEqual(D, this.GpRegisters.Object.C);
                     break;
                 case PrimaryOpCode.LD_D_D:
-                    this.GpRegisters.Verify(x => x.A, Times.Never);
+                    this.AfRegisters.Verify(x => x.A, Times.Never);
                     this.GpRegisters.Verify(x => x.B, Times.Never);
                     this.GpRegisters.Verify(x => x.C, Times.Never);
                     this.GpRegisters.Verify(x => x.D, Times.Never);
@@ -321,7 +321,7 @@
                     Assert.AreEqual(D, this.GpRegisters.Object.D);
                     break;
                 case PrimaryOpCode.LD_E_D:
-                    this.GpRegisters.Verify(x => x.A, Times.Never);
+                    this.AfRegisters.Verify(x => x.A, Times.Never);
                     this.GpRegisters.Verify(x => x.B, Times.Never);
                     this.GpRegisters.Verify(x => x.C, Times.Never);
                     this.GpRegisters.Verify(x => x.D, Times.Once);
@@ -331,7 +331,7 @@
                     Assert.AreEqual(D, this.GpRegisters.Object.E);
                     break;
                 case PrimaryOpCode.LD_H_D:
-                    this.GpRegisters.Verify(x => x.A, Times.Never);
+                    this.AfRegisters.Verify(x => x.A, Times.Never);
                     this.GpRegisters.Verify(x => x.B, Times.Never);
                     this.GpRegisters.Verify(x => x.C, Times.Never);
                     this.GpRegisters.Verify(x => x.D, Times.Once);
@@ -341,7 +341,7 @@
                     Assert.AreEqual(D, this.GpRegisters.Object.H);
                     break;
                 case PrimaryOpCode.LD_L_D:
-                    this.GpRegisters.Verify(x => x.A, Times.Never);
+                    this.AfRegisters.Verify(x => x.A, Times.Never);
                     this.GpRegisters.Verify(x => x.B, Times.Never);
                     this.GpRegisters.Verify(x => x.C, Times.Never);
                     this.GpRegisters.Verify(x => x.D, Times.Once);
@@ -351,17 +351,17 @@
                     Assert.AreEqual(D, this.GpRegisters.Object.L);
                     break;
                 case PrimaryOpCode.LD_A_E:
-                    this.GpRegisters.VerifySet(x => x.A = It.Is<byte>(y => y == E), Times.Once);
+                    this.AfRegisters.VerifySet(x => x.A = It.Is<byte>(y => y == E), Times.Once);
                     this.GpRegisters.Verify(x => x.B, Times.Never);
                     this.GpRegisters.Verify(x => x.C, Times.Never);
                     this.GpRegisters.Verify(x => x.D, Times.Never);
                     this.GpRegisters.Verify(x => x.E, Times.Once);
                     this.GpRegisters.Verify(x => x.H, Times.Never);
                     this.GpRegisters.Verify(x => x.L, Times.Never);
-                    Assert.AreEqual(E, this.GpRegisters.Object.A);
+                    Assert.AreEqual(E, this.AfRegisters.Object.A);
                     break;
                 case PrimaryOpCode.LD_B_E:
-                    this.GpRegisters.Verify(x => x.A, Times.Never);
+                    this.AfRegisters.Verify(x => x.A, Times.Never);
                     this.GpRegisters.VerifySet(x => x.B = It.Is<byte>(y => y == E), Times.Once);
                     this.GpRegisters.Verify(x => x.C, Times.Never);
                     this.GpRegisters.Verify(x => x.D, Times.Never);
@@ -371,7 +371,7 @@
                     Assert.AreEqual(E, this.GpRegisters.Object.B);
                     break;
                 case PrimaryOpCode.LD_C_E:
-                    this.GpRegisters.Verify(x => x.A, Times.Never);
+                    this.AfRegisters.Verify(x => x.A, Times.Never);
                     this.GpRegisters.Verify(x => x.B, Times.Never);
                     this.GpRegisters.VerifySet(x => x.C = It.Is<byte>(y => y == E), Times.Once);
                     this.GpRegisters.Verify(x => x.D, Times.Never);
@@ -381,7 +381,7 @@
                     Assert.AreEqual(E, this.GpRegisters.Object.C);
                     break;
                 case PrimaryOpCode.LD_D_E:
-                    this.GpRegisters.Verify(x => x.A, Times.Never);
+                    this.AfRegisters.Verify(x => x.A, Times.Never);
                     this.GpRegisters.Verify(x => x.B, Times.Never);
                     this.GpRegisters.Verify(x => x.C, Times.Never);
                     this.GpRegisters.VerifySet(x => x.D = It.Is<byte>(y => y == E), Times.Once);
@@ -391,7 +391,7 @@
                     Assert.AreEqual(E, this.GpRegisters.Object.D);
                     break;
                 case PrimaryOpCode.LD_E_E:
-                    this.GpRegisters.Verify(x => x.A, Times.Never);
+                    this.AfRegisters.Verify(x => x.A, Times.Never);
                     this.GpRegisters.Verify(x => x.B, Times.Never);
                     this.GpRegisters.Verify(x => x.C, Times.Never);
                     this.GpRegisters.Verify(x => x.D, Times.Never);
@@ -401,7 +401,7 @@
                     Assert.AreEqual(E, this.GpRegisters.Object.E);
                     break;
                 case PrimaryOpCode.LD_H_E:
-                    this.GpRegisters.Verify(x => x.A, Times.Never);
+                    this.AfRegisters.Verify(x => x.A, Times.Never);
                     this.GpRegisters.Verify(x => x.B, Times.Never);
                     this.GpRegisters.Verify(x => x.C, Times.Never);
                     this.GpRegisters.Verify(x => x.D, Times.Never);
@@ -411,7 +411,7 @@
                     Assert.AreEqual(E, this.GpRegisters.Object.H);
                     break;
                 case PrimaryOpCode.LD_L_E:
-                    this.GpRegisters.Verify(x => x.A, Times.Never);
+                    this.AfRegisters.Verify(x => x.A, Times.Never);
                     this.GpRegisters.Verify(x => x.B, Times.Never);
                     this.GpRegisters.Verify(x => x.C, Times.Never);
                     this.GpRegisters.Verify(x => x.D, Times.Never);
@@ -421,17 +421,17 @@
                     Assert.AreEqual(E, this.GpRegisters.Object.L);
                     break;
                 case PrimaryOpCode.LD_A_H:
-                    this.GpRegisters.VerifySet(x => x.A = It.Is<byte>(y => y == H), Times.Once);
+                    this.AfRegisters.VerifySet(x => x.A = It.Is<byte>(y => y == H), Times.Once);
                     this.GpRegisters.Verify(x => x.B, Times.Never);
                     this.GpRegisters.Verify(x => x.C, Times.Never);
                     this.GpRegisters.Verify(x => x.D, Times.Never);
                     this.GpRegisters.Verify(x => x.E, Times.Never);
                     this.GpRegisters.Verify(x => x.H, Times.Once);
                     this.GpRegisters.Verify(x => x.L, Times.Never);
-                    Assert.AreEqual(H, this.GpRegisters.Object.A);
+                    Assert.AreEqual(H, this.AfRegisters.Object.A);
                     break;
                 case PrimaryOpCode.LD_B_H:
-                    this.GpRegisters.Verify(x => x.A, Times.Never);
+                    this.AfRegisters.Verify(x => x.A, Times.Never);
                     this.GpRegisters.VerifySet(x => x.B = It.Is<byte>(y => y == H), Times.Once);
                     this.GpRegisters.Verify(x => x.C, Times.Never);
                     this.GpRegisters.Verify(x => x.D, Times.Never);
@@ -441,7 +441,7 @@
                     Assert.AreEqual(H, this.GpRegisters.Object.B);
                     break;
                 case PrimaryOpCode.LD_C_H:
-                    this.GpRegisters.Verify(x => x.A, Times.Never);
+                    this.AfRegisters.Verify(x => x.A, Times.Never);
                     this.GpRegisters.Verify(x => x.B, Times.Never);
                     this.GpRegisters.VerifySet(x => x.C = It.Is<byte>(y => y == H), Times.Once);
                     this.GpRegisters.Verify(x => x.D, Times.Never);
@@ -451,7 +451,7 @@
                     Assert.AreEqual(H, this.GpRegisters.Object.C);
                     break;
                 case PrimaryOpCode.LD_D_H:
-                    this.GpRegisters.Verify(x => x.A, Times.Never);
+                    this.AfRegisters.Verify(x => x.A, Times.Never);
                     this.GpRegisters.Verify(x => x.B, Times.Never);
                     this.GpRegisters.Verify(x => x.C, Times.Never);
                     this.GpRegisters.VerifySet(x => x.D = It.Is<byte>(y => y == H), Times.Once);
@@ -461,7 +461,7 @@
                     Assert.AreEqual(H, this.GpRegisters.Object.D);
                     break;
                 case PrimaryOpCode.LD_E_H:
-                    this.GpRegisters.Verify(x => x.A, Times.Never);
+                    this.AfRegisters.Verify(x => x.A, Times.Never);
                     this.GpRegisters.Verify(x => x.B, Times.Never);
                     this.GpRegisters.Verify(x => x.C, Times.Never);
                     this.GpRegisters.Verify(x => x.D, Times.Never);
@@ -471,7 +471,7 @@
                     Assert.AreEqual(H, this.GpRegisters.Object.E);
                     break;
                 case PrimaryOpCode.LD_H_H:
-                    this.GpRegisters.Verify(x => x.A, Times.Never);
+                    this.AfRegisters.Verify(x => x.A, Times.Never);
                     this.GpRegisters.Verify(x => x.B, Times.Never);
                     this.GpRegisters.Verify(x => x.C, Times.Never);
                     this.GpRegisters.Verify(x => x.D, Times.Never);
@@ -481,7 +481,7 @@
                     Assert.AreEqual(H, this.GpRegisters.Object.H);
                     break;
                 case PrimaryOpCode.LD_L_H:
-                    this.GpRegisters.Verify(x => x.A, Times.Never);
+                    this.AfRegisters.Verify(x => x.A, Times.Never);
                     this.GpRegisters.Verify(x => x.B, Times.Never);
                     this.GpRegisters.Verify(x => x.C, Times.Never);
                     this.GpRegisters.Verify(x => x.D, Times.Never);
@@ -491,17 +491,17 @@
                     Assert.AreEqual(H, this.GpRegisters.Object.L);
                     break;
                 case PrimaryOpCode.LD_A_L:
-                    this.GpRegisters.VerifySet(x => x.A = It.Is<byte>(y => y == L), Times.Once);
+                    this.AfRegisters.VerifySet(x => x.A = It.Is<byte>(y => y == L), Times.Once);
                     this.GpRegisters.Verify(x => x.B, Times.Never);
                     this.GpRegisters.Verify(x => x.C, Times.Never);
                     this.GpRegisters.Verify(x => x.D, Times.Never);
                     this.GpRegisters.Verify(x => x.E, Times.Never);
                     this.GpRegisters.Verify(x => x.H, Times.Never);
                     this.GpRegisters.Verify(x => x.L, Times.Once);
-                    Assert.AreEqual(L, this.GpRegisters.Object.A);
+                    Assert.AreEqual(L, this.AfRegisters.Object.A);
                     break;
                 case PrimaryOpCode.LD_B_L:
-                    this.GpRegisters.Verify(x => x.A, Times.Never);
+                    this.AfRegisters.Verify(x => x.A, Times.Never);
                     this.GpRegisters.VerifySet(x => x.B = It.Is<byte>(y => y == L), Times.Once);
                     this.GpRegisters.Verify(x => x.C, Times.Never);
                     this.GpRegisters.Verify(x => x.D, Times.Never);
@@ -511,7 +511,7 @@
                     Assert.AreEqual(L, this.GpRegisters.Object.B);
                     break;
                 case PrimaryOpCode.LD_C_L:
-                    this.GpRegisters.Verify(x => x.A, Times.Never);
+                    this.AfRegisters.Verify(x => x.A, Times.Never);
                     this.GpRegisters.Verify(x => x.B, Times.Never);
                     this.GpRegisters.VerifySet(x => x.C = It.Is<byte>(y => y == L), Times.Once);
                     this.GpRegisters.Verify(x => x.D, Times.Never);
@@ -521,7 +521,7 @@
                     Assert.AreEqual(L, this.GpRegisters.Object.C);
                     break;
                 case PrimaryOpCode.LD_D_L:
-                    this.GpRegisters.Verify(x => x.A, Times.Never);
+                    this.AfRegisters.Verify(x => x.A, Times.Never);
                     this.GpRegisters.Verify(x => x.B, Times.Never);
                     this.GpRegisters.Verify(x => x.C, Times.Never);
                     this.GpRegisters.VerifySet(x => x.D = It.Is<byte>(y => y == L), Times.Once);
@@ -531,7 +531,7 @@
                     Assert.AreEqual(L, this.GpRegisters.Object.D);
                     break;
                 case PrimaryOpCode.LD_E_L:
-                    this.GpRegisters.Verify(x => x.A, Times.Never);
+                    this.AfRegisters.Verify(x => x.A, Times.Never);
                     this.GpRegisters.Verify(x => x.B, Times.Never);
                     this.GpRegisters.Verify(x => x.C, Times.Never);
                     this.GpRegisters.Verify(x => x.D, Times.Never);
@@ -541,7 +541,7 @@
                     Assert.AreEqual(L, this.GpRegisters.Object.E);
                     break;
                 case PrimaryOpCode.LD_H_L:
-                    this.GpRegisters.Verify(x => x.A, Times.Never);
+                    this.AfRegisters.Verify(x => x.A, Times.Never);
                     this.GpRegisters.Verify(x => x.B, Times.Never);
                     this.GpRegisters.Verify(x => x.C, Times.Never);
                     this.GpRegisters.Verify(x => x.D, Times.Never);
@@ -551,7 +551,7 @@
                     Assert.AreEqual(L, this.GpRegisters.Object.H);
                     break;
                 case PrimaryOpCode.LD_L_L:
-                    this.GpRegisters.Verify(x => x.A, Times.Never);
+                    this.AfRegisters.Verify(x => x.A, Times.Never);
                     this.GpRegisters.Verify(x => x.B, Times.Never);
                     this.GpRegisters.Verify(x => x.C, Times.Never);
                     this.GpRegisters.Verify(x => x.D, Times.Never);
@@ -583,8 +583,8 @@
             switch (opcode)
             {
                 case PrimaryOpCode.LD_A_n:
-                    Assert.AreEqual(value, this.GpRegisters.Object.A);
-                    this.GpRegisters.VerifySet(x => x.A = It.Is<byte>(y => y == value), Times.Once);
+                    Assert.AreEqual(value, this.AfRegisters.Object.A);
+                    this.AfRegisters.VerifySet(x => x.A = It.Is<byte>(y => y == value), Times.Once);
                     this.GpRegisters.Verify(x => x.B, Times.Never);
                     this.GpRegisters.Verify(x => x.C, Times.Never);
                     this.GpRegisters.Verify(x => x.D, Times.Never);
@@ -595,7 +595,7 @@
                 case PrimaryOpCode.LD_B_n:
                     Assert.AreEqual(value, this.GpRegisters.Object.B);
                     this.GpRegisters.VerifySet(x => x.B = It.Is<byte>(y => y == value), Times.Once);
-                    this.GpRegisters.Verify(x => x.A, Times.Never);
+                    this.AfRegisters.Verify(x => x.A, Times.Never);
                     this.GpRegisters.Verify(x => x.C, Times.Never);
                     this.GpRegisters.Verify(x => x.D, Times.Never);
                     this.GpRegisters.Verify(x => x.E, Times.Never);
@@ -605,7 +605,7 @@
                 case PrimaryOpCode.LD_C_n:
                     Assert.AreEqual(value, this.GpRegisters.Object.C);
                     this.GpRegisters.VerifySet(x => x.C = It.Is<byte>(y => y == value), Times.Once);
-                    this.GpRegisters.Verify(x => x.A, Times.Never);
+                    this.AfRegisters.Verify(x => x.A, Times.Never);
                     this.GpRegisters.Verify(x => x.B, Times.Never);
                     this.GpRegisters.Verify(x => x.D, Times.Never);
                     this.GpRegisters.Verify(x => x.E, Times.Never);
@@ -615,7 +615,7 @@
                 case PrimaryOpCode.LD_D_n:
                     Assert.AreEqual(value, this.GpRegisters.Object.D);
                     this.GpRegisters.VerifySet(x => x.D = It.Is<byte>(y => y == value), Times.Once);
-                    this.GpRegisters.Verify(x => x.A, Times.Never);
+                    this.AfRegisters.Verify(x => x.A, Times.Never);
                     this.GpRegisters.Verify(x => x.B, Times.Never);
                     this.GpRegisters.Verify(x => x.C, Times.Never);
                     this.GpRegisters.Verify(x => x.E, Times.Never);
@@ -625,7 +625,7 @@
                 case PrimaryOpCode.LD_E_n:
                     Assert.AreEqual(value, this.GpRegisters.Object.E);
                     this.GpRegisters.VerifySet(x => x.E = It.Is<byte>(y => y == value), Times.Once);
-                    this.GpRegisters.Verify(x => x.A, Times.Never);
+                    this.AfRegisters.Verify(x => x.A, Times.Never);
                     this.GpRegisters.Verify(x => x.B, Times.Never);
                     this.GpRegisters.Verify(x => x.C, Times.Never);
                     this.GpRegisters.Verify(x => x.D, Times.Never);
@@ -635,7 +635,7 @@
                 case PrimaryOpCode.LD_H_n:
                     Assert.AreEqual(value, this.GpRegisters.Object.H);
                     this.GpRegisters.VerifySet(x => x.H = It.Is<byte>(y => y == value), Times.Once);
-                    this.GpRegisters.Verify(x => x.A, Times.Never);
+                    this.AfRegisters.Verify(x => x.A, Times.Never);
                     this.GpRegisters.Verify(x => x.B, Times.Never);
                     this.GpRegisters.Verify(x => x.C, Times.Never);
                     this.GpRegisters.Verify(x => x.D, Times.Never);
@@ -645,7 +645,7 @@
                 case PrimaryOpCode.LD_L_n:
                     Assert.AreEqual(value, this.GpRegisters.Object.L);
                     this.GpRegisters.VerifySet(x => x.L = It.Is<byte>(y => y == value), Times.Once);
-                    this.GpRegisters.Verify(x => x.A, Times.Never);
+                    this.AfRegisters.Verify(x => x.A, Times.Never);
                     this.GpRegisters.Verify(x => x.B, Times.Never);
                     this.GpRegisters.Verify(x => x.C, Times.Never);
                     this.GpRegisters.Verify(x => x.D, Times.Never);
@@ -682,7 +682,7 @@
             switch (opcode)
             {
                 case PrimaryOpCode.LD_A_mHL:
-                    Assert.AreEqual(Value, this.GpRegisters.Object.A);
+                    Assert.AreEqual(Value, this.AfRegisters.Object.A);
                     break;
                 case PrimaryOpCode.LD_B_mHL:
                     Assert.AreEqual(Value, this.GpRegisters.Object.B);
@@ -731,7 +731,7 @@
             switch (opcode)
             {
                 case PrefixDdFdOpCode.LD_A_mIXYd:
-                    Assert.AreEqual(ValueAtIXd, this.GpRegisters.Object.A);
+                    Assert.AreEqual(ValueAtIXd, this.AfRegisters.Object.A);
                     break;
                 case PrefixDdFdOpCode.LD_B_mIXYd:
                     Assert.AreEqual(ValueAtIXd, this.GpRegisters.Object.B);
@@ -782,7 +782,7 @@
             switch (opcode)
             {
                 case PrefixDdFdOpCode.LD_A_mIXYd:
-                    Assert.AreEqual(ValueAtIYd, this.GpRegisters.Object.A);
+                    Assert.AreEqual(ValueAtIYd, this.AfRegisters.Object.A);
                     break;
                 case PrefixDdFdOpCode.LD_B_mIXYd:
                     Assert.AreEqual(ValueAtIYd, this.GpRegisters.Object.B);
@@ -825,7 +825,7 @@
             {
                 case PrimaryOpCode.LD_mHL_A:
                     this.Mmu.Verify(x => x.WriteByte(HL, A), Times.Once);
-                    this.GpRegisters.VerifyGet(x => x.A, Times.Once);
+                    this.AfRegisters.VerifyGet(x => x.A, Times.Once);
                     break;
                 case PrimaryOpCode.LD_mHL_B:
                     this.Mmu.Verify(x => x.WriteByte(HL, B), Times.Once);
@@ -1005,7 +1005,7 @@
             Run(2, 7, PrimaryOpCode.LD_A_mBC);
 
             this.Mmu.Verify(x => x.ReadByte(BC), Times.Once);
-            Assert.AreEqual(ValueAtBC, this.GpRegisters.Object.A);
+            Assert.AreEqual(ValueAtBC, this.AfRegisters.Object.A);
         }
 
         [Test]
@@ -1021,7 +1021,7 @@
             Run(2, 7, PrimaryOpCode.LD_A_mDE);
 
             this.Mmu.Verify(x => x.ReadByte(DE), Times.Once);
-            Assert.AreEqual(ValueAtDE, this.GpRegisters.Object.A);
+            Assert.AreEqual(ValueAtDE, this.AfRegisters.Object.A);
         }
 
 
@@ -1039,7 +1039,7 @@
             Run(4, 13, PrimaryOpCode.LD_A_mnn, NN);
 
             this.Mmu.Verify(x => x.ReadByte(NN), Times.Once);
-            Assert.AreEqual(ValueAtNN, this.GpRegisters.Object.A);
+            Assert.AreEqual(ValueAtNN, this.AfRegisters.Object.A);
         }
 
         [Test]
@@ -1051,7 +1051,7 @@
             Run(2, 7, PrimaryOpCode.LD_mBC_A);
 
             this.Mmu.Verify(x => x.WriteByte(BC, A), Times.Once);
-            this.GpRegisters.VerifyGet(x => x.A, Times.Once);
+            this.AfRegisters.VerifyGet(x => x.A, Times.Once);
         }
 
         [Test]
@@ -1063,7 +1063,7 @@
             Run(2, 7, PrimaryOpCode.LD_mDE_A);
 
             this.Mmu.Verify(x => x.WriteByte(DE, A), Times.Once);
-            this.GpRegisters.VerifyGet(x => x.A, Times.Once);
+            this.AfRegisters.VerifyGet(x => x.A, Times.Once);
         }
         
         [Test]
@@ -1076,7 +1076,7 @@
             Run(2, 7, PrimaryOpCode.LD_mnn_A, N);
 
             this.Mmu.Verify(x => x.WriteByte(N, A), Times.Once);
-            this.GpRegisters.VerifyGet(x => x.A, Times.Once);
+            this.AfRegisters.VerifyGet(x => x.A, Times.Once);
         }
 
         [Test]
@@ -1087,8 +1087,8 @@
             
             Run(2, 9, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.LD_A_I);
             
-            this.GpRegisters.VerifySet(x => x.A = It.Is<byte>(y => y == I), Times.Once);
-            Assert.AreEqual(I, this.GpRegisters.Object.A);
+            this.AfRegisters.VerifySet(x => x.A = It.Is<byte>(y => y == I), Times.Once);
+            Assert.AreEqual(I, this.AfRegisters.Object.A);
 
             // Check flags
             this.FlagsRegister.Verify(x => x.SetResultFlags(It.Is<byte>(y => y == I)), Times.Once);
@@ -1106,8 +1106,8 @@
 
             Run(2, 9, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.LD_A_R);
 
-            this.GpRegisters.VerifySet(x => x.A = It.Is<byte>(y => y == R), Times.Once);
-            Assert.AreEqual(R, this.GpRegisters.Object.A);
+            this.AfRegisters.VerifySet(x => x.A = It.Is<byte>(y => y == R), Times.Once);
+            Assert.AreEqual(R, this.AfRegisters.Object.A);
 
             // Check flags
             this.FlagsRegister.Verify(x => x.SetResultFlags(It.Is<byte>(y => y == R)), Times.Once);

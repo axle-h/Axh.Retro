@@ -4,11 +4,17 @@
 
     public struct Z80RegisterState
     {
-        public GeneralPurposeRegisterState PrimaryRegisterState { get; set; }
+        public GeneralPurposeRegisterState PrimaryGeneralPurposeRegisterState { get; set; }
 
-        public GeneralPurposeRegisterState AlternativeRegisterState { get; set; }
-        
-        public bool IsAlternative;
+        public GeneralPurposeRegisterState AlternativeGeneralPurposeRegisterState { get; set; }
+
+        public AccumulatorAndFlagsRegisterState PrimaryAccumulatorAndFlagsRegisterState { get; set; }
+
+        public AccumulatorAndFlagsRegisterState AlternativeAccumulatorAndFlagsRegisterState { get; set; }
+
+        public bool IsGeneralPurposeAlternative;
+
+        public bool IsAccumulatorAndFlagsAlternative;
 
         //Index Registers
         public ushort IX { get; set; }

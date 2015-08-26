@@ -23,10 +23,13 @@
 
         public IZ80Registers GetInitialRegisters()
         {
-            var primaryRegisterSet = this.GetRegisterSet();
-            var alternativeRegisterSet = this.GetRegisterSet();
-            
-            var registers = new Z80Registers(primaryRegisterSet, alternativeRegisterSet);
+            var primaryRegisterSet = this.GetGeneralPurposeRegisterSet();
+            var alternativeRegisterSet = this.GetGeneralPurposeRegisterSet();
+
+            var primaryAccumulatorAndFlagsRegisterSet = this.GetAccumulatorAndFlagsRegisterSet();
+            var alternativeAccumulatorAndFlagsRegisterSet = this.GetAccumulatorAndFlagsRegisterSet();
+
+            var registers = new Z80Registers(primaryRegisterSet, alternativeRegisterSet, primaryAccumulatorAndFlagsRegisterSet, alternativeAccumulatorAndFlagsRegisterSet);
 
             var initialRegisterState = this.initialStateConfig.GetInitialRegisterState();
             registers.ResetToState(initialRegisterState);
@@ -34,10 +37,15 @@
             return registers;
         }
         
-        public IGeneralPurposeRegisterSet GetRegisterSet()
+        public IGeneralPurposeRegisterSet GetGeneralPurposeRegisterSet()
+        {
+            return new GeneralPurposeRegisterSet();
+        }
+        
+        public IAccumulatorAndFlagsRegisterSet GetAccumulatorAndFlagsRegisterSet()
         {
             var flagsRegister = this.GetFlagsRegister();
-            return new GeneralPurposeRegisterSet(flagsRegister);
+            return new AccumulatorAndFlagsRegisterSet(flagsRegister);
         }
 
         public IFlagsRegister GetFlagsRegister()

@@ -14,16 +14,27 @@
     {
         private IZ80Registers z80Registers;
 
-        private Mock<IGeneralPurposeRegisterSet> primaryRegisters;
+        private Mock<IGeneralPurposeRegisterSet> primaryGeneralPurposeRegisters;
 
-        private Mock<IGeneralPurposeRegisterSet> alternativeRegisters;
+        private Mock<IGeneralPurposeRegisterSet> alternativeGeneralPurposeRegisters;
+
+        private Mock<IAccumulatorAndFlagsRegisterSet> primaryAccumulatorAndFlagsRegisters;
+
+        private Mock<IAccumulatorAndFlagsRegisterSet> alternativeAccumulatorAndFlagsRegisters;
 
         [TestFixtureSetUp]
         public void TestFixtureSetUp()
         {
-            primaryRegisters = new Mock<IGeneralPurposeRegisterSet>();
-            alternativeRegisters = new Mock<IGeneralPurposeRegisterSet>();
-            this.z80Registers = new Z80Registers(primaryRegisters.Object, alternativeRegisters.Object);
+            primaryGeneralPurposeRegisters = new Mock<IGeneralPurposeRegisterSet>();
+            alternativeGeneralPurposeRegisters = new Mock<IGeneralPurposeRegisterSet>();
+            primaryAccumulatorAndFlagsRegisters = new Mock<IAccumulatorAndFlagsRegisterSet>();
+            alternativeAccumulatorAndFlagsRegisters = new Mock<IAccumulatorAndFlagsRegisterSet>();
+
+            this.z80Registers = new Z80Registers(
+                primaryGeneralPurposeRegisters.Object,
+                alternativeGeneralPurposeRegisters.Object,
+                primaryAccumulatorAndFlagsRegisters.Object,
+                alternativeAccumulatorAndFlagsRegisters.Object);
         }
 
         [Test]
@@ -31,11 +42,23 @@
         {
             this.z80Registers.Reset();
 
-            Assert.AreSame(this.primaryRegisters.Object, z80Registers.GeneralPurposeRegisters);
+            Assert.AreSame(this.primaryGeneralPurposeRegisters.Object, z80Registers.GeneralPurposeRegisters);
 
             this.z80Registers.SwitchToAlternativeGeneralPurposeRegisters();
 
-            Assert.AreSame(this.alternativeRegisters.Object, z80Registers.GeneralPurposeRegisters);
+            Assert.AreSame(this.alternativeGeneralPurposeRegisters.Object, z80Registers.GeneralPurposeRegisters);
+        }
+
+        [Test]
+        public void SwitchToAlternativeAccumulatorAndFlagsRegistersTest()
+        {
+            this.z80Registers.Reset();
+
+            Assert.AreSame(this.primaryAccumulatorAndFlagsRegisters.Object, z80Registers.AccumulatorAndFlagsRegisters);
+
+            this.z80Registers.SwitchToAlternativeAccumulatorAndFlagsRegisters();
+
+            Assert.AreSame(this.alternativeAccumulatorAndFlagsRegisters.Object, z80Registers.AccumulatorAndFlagsRegisters);
         }
 
         [Test]
@@ -55,8 +78,11 @@
             Assert.AreEqual(state.ProgramCounter, z80Registers.ProgramCounter);
             Assert.AreEqual(state.StackPointer, z80Registers.StackPointer);
 
-            this.primaryRegisters.Verify(x => x.ResetToState(state.PrimaryRegisterState));
-            this.alternativeRegisters.Verify(x => x.ResetToState(state.AlternativeRegisterState));
+            this.primaryGeneralPurposeRegisters.Verify(x => x.ResetToState(state.PrimaryGeneralPurposeRegisterState));
+            this.alternativeGeneralPurposeRegisters.Verify(x => x.ResetToState(state.AlternativeGeneralPurposeRegisterState));
+
+            this.primaryAccumulatorAndFlagsRegisters.Verify(x => x.ResetToState(state.PrimaryAccumulatorAndFlagsRegisterState));
+            this.alternativeAccumulatorAndFlagsRegisters.Verify(x => x.ResetToState(state.AlternativeAccumulatorAndFlagsRegisterState));
         }
 
         [Test]
@@ -64,7 +90,7 @@
         {
             const byte I = 0x11, R = 0x22, IX = 0x33, IY = 0x44, ProgramCounter = 0x55, StackPointer = 0x66;
             const bool InterruptFlipFlop1 = true, InterruptFlipFlop2 = false;
-            const Contracts.Registers.InterruptMode InterruptMode = InterruptMode.InterruptMode1;
+            const InterruptMode InterruptMode = InterruptMode.InterruptMode1;
 
             this.z80Registers.I = I;
             this.z80Registers.R = R;
@@ -88,8 +114,11 @@
             Assert.AreEqual(ProgramCounter, z80Registers.ProgramCounter);
             Assert.AreEqual(StackPointer, z80Registers.StackPointer);
 
-            this.primaryRegisters.Verify(x => x.GetRegisterState(), Times.Once);
-            this.alternativeRegisters.Verify(x => x.GetRegisterState(), Times.Once);
+            this.primaryGeneralPurposeRegisters.Verify(x => x.GetRegisterState(), Times.Once);
+            this.alternativeGeneralPurposeRegisters.Verify(x => x.GetRegisterState(), Times.Once);
+
+            this.primaryAccumulatorAndFlagsRegisters.Verify(x => x.GetRegisterState(), Times.Once);
+            this.alternativeAccumulatorAndFlagsRegisters.Verify(x => x.GetRegisterState(), Times.Once);
 
         }
     }

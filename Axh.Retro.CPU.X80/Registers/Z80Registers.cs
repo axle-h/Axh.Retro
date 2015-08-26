@@ -7,11 +7,17 @@
     {
         private readonly IGeneralPurposeRegisterSet primaryGeneralPurposeRegisterSet;
         private readonly IGeneralPurposeRegisterSet alternativeGeneralPurposeRegisterSet;
-        private bool isAlternative;
+        private bool isGeneralPurposeAlternative;
+        private readonly object generalPurposeLockingContext = new object();
 
-        private readonly object switchToAlternativeLockingContext = new object();
+        private readonly IAccumulatorAndFlagsRegisterSet primaryAccumulatorAndFlagsRegisterSet;
+        private readonly IAccumulatorAndFlagsRegisterSet alternativeAccumulatorAndFlagsRegisterSet;
+        private bool isAccumulatorAndFlagsAlternative;
+        private readonly object accumulatorAndFlagsLockingContext = new object();
 
         public IGeneralPurposeRegisterSet GeneralPurposeRegisters { get; private set; }
+
+        public IAccumulatorAndFlagsRegisterSet AccumulatorAndFlagsRegisters { get; private set; }
 
         //Index Registers
         public ushort IX { get; set; }
@@ -30,20 +36,35 @@
         public bool InterruptFlipFlop2 { get; set; }
         public InterruptMode InterruptMode { get; set; }
 
-        public Z80Registers(IGeneralPurposeRegisterSet primaryGeneralPurposeRegisterSet, IGeneralPurposeRegisterSet alternativeGeneralPurposeRegisterSet)
+        public Z80Registers(
+            IGeneralPurposeRegisterSet primaryGeneralPurposeRegisterSet,
+            IGeneralPurposeRegisterSet alternativeGeneralPurposeRegisterSet,
+            IAccumulatorAndFlagsRegisterSet primaryAccumulatorAndFlagsRegisterSet,
+            IAccumulatorAndFlagsRegisterSet alternativeAccumulatorAndFlagsRegisterSet)
         {
             this.primaryGeneralPurposeRegisterSet = primaryGeneralPurposeRegisterSet;
             this.alternativeGeneralPurposeRegisterSet = alternativeGeneralPurposeRegisterSet;
-            
+            this.primaryAccumulatorAndFlagsRegisterSet = primaryAccumulatorAndFlagsRegisterSet;
+            this.alternativeAccumulatorAndFlagsRegisterSet = alternativeAccumulatorAndFlagsRegisterSet;
+
             Reset();
         }
 
         public void SwitchToAlternativeGeneralPurposeRegisters()
         {
-            lock (this.switchToAlternativeLockingContext)
+            lock (this.generalPurposeLockingContext)
             {
-                this.isAlternative = !isAlternative;
-                this.GeneralPurposeRegisters = isAlternative ? this.alternativeGeneralPurposeRegisterSet : this.primaryGeneralPurposeRegisterSet;
+                this.isGeneralPurposeAlternative = !isGeneralPurposeAlternative;
+                this.GeneralPurposeRegisters = isGeneralPurposeAlternative ? this.alternativeGeneralPurposeRegisterSet : this.primaryGeneralPurposeRegisterSet;
+            }
+        }
+
+        public void SwitchToAlternativeAccumulatorAndFlagsRegisters()
+        {
+            lock (this.accumulatorAndFlagsLockingContext)
+            {
+                this.isAccumulatorAndFlagsAlternative = !isAccumulatorAndFlagsAlternative;
+                this.AccumulatorAndFlagsRegisters = isAccumulatorAndFlagsAlternative ? this.alternativeAccumulatorAndFlagsRegisterSet : this.primaryAccumulatorAndFlagsRegisterSet;
             }
         }
 
@@ -52,7 +73,12 @@
             this.primaryGeneralPurposeRegisterSet.Reset();
             this.alternativeGeneralPurposeRegisterSet.Reset();
             this.GeneralPurposeRegisters = this.primaryGeneralPurposeRegisterSet;
-            this.isAlternative = false;
+            this.isGeneralPurposeAlternative = false;
+
+            this.primaryAccumulatorAndFlagsRegisterSet.Reset();
+            this.alternativeAccumulatorAndFlagsRegisterSet.Reset();
+            this.AccumulatorAndFlagsRegisters = this.primaryAccumulatorAndFlagsRegisterSet;
+            this.isAccumulatorAndFlagsAlternative = false;
 
             IX = IY = 0;
             I = R = 0;
@@ -60,16 +86,19 @@
             ProgramCounter = 0;
             InterruptFlipFlop1 = InterruptFlipFlop2 = false;
             InterruptMode = InterruptMode.InterruptMode0;
-
         }
 
         public void ResetToState(Z80RegisterState state)
         {
-            this.primaryGeneralPurposeRegisterSet.ResetToState(state.PrimaryRegisterState);
-            this.alternativeGeneralPurposeRegisterSet.ResetToState(state.AlternativeRegisterState);
-            
-            this.GeneralPurposeRegisters = state.IsAlternative ? this.alternativeGeneralPurposeRegisterSet : this.primaryGeneralPurposeRegisterSet;
-            this.isAlternative = state.IsAlternative;
+            this.primaryGeneralPurposeRegisterSet.ResetToState(state.PrimaryGeneralPurposeRegisterState);
+            this.alternativeGeneralPurposeRegisterSet.ResetToState(state.AlternativeGeneralPurposeRegisterState);
+            this.GeneralPurposeRegisters = state.IsGeneralPurposeAlternative ? this.alternativeGeneralPurposeRegisterSet : this.primaryGeneralPurposeRegisterSet;
+            this.isGeneralPurposeAlternative = state.IsGeneralPurposeAlternative;
+
+            this.primaryAccumulatorAndFlagsRegisterSet.ResetToState(state.PrimaryAccumulatorAndFlagsRegisterState);
+            this.alternativeAccumulatorAndFlagsRegisterSet.ResetToState(state.AlternativeAccumulatorAndFlagsRegisterState);
+            this.AccumulatorAndFlagsRegisters = state.IsAccumulatorAndFlagsAlternative ? this.alternativeAccumulatorAndFlagsRegisterSet : this.primaryAccumulatorAndFlagsRegisterSet;
+            this.isAccumulatorAndFlagsAlternative = state.IsAccumulatorAndFlagsAlternative;
 
             this.IX = state.IX;
             this.IY = state.IY;
@@ -87,15 +116,18 @@
         {
             return new Z80RegisterState
             {
-                AlternativeRegisterState = this.alternativeGeneralPurposeRegisterSet.GetRegisterState(),
+                AlternativeAccumulatorAndFlagsRegisterState = this.alternativeAccumulatorAndFlagsRegisterSet.GetRegisterState(),
+                AlternativeGeneralPurposeRegisterState = this.alternativeGeneralPurposeRegisterSet.GetRegisterState(),
                 I = this.I,
                 IX = this.IX,
                 IY = this.IY,
                 InterruptFlipFlop1 = this.InterruptFlipFlop1,
                 InterruptFlipFlop2 = this.InterruptFlipFlop2,
                 InterruptMode = this.InterruptMode,
-                IsAlternative = this.isAlternative,
-                PrimaryRegisterState = this.primaryGeneralPurposeRegisterSet.GetRegisterState(),
+                IsAccumulatorAndFlagsAlternative = this.isAccumulatorAndFlagsAlternative,
+                IsGeneralPurposeAlternative = this.isGeneralPurposeAlternative,
+                PrimaryAccumulatorAndFlagsRegisterState = this.primaryAccumulatorAndFlagsRegisterSet.GetRegisterState(),
+                PrimaryGeneralPurposeRegisterState = this.primaryGeneralPurposeRegisterSet.GetRegisterState(),
                 ProgramCounter = this.ProgramCounter,
                 R = this.R,
                 StackPointer = this.StackPointer

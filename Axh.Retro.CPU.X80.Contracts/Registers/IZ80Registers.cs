@@ -13,5 +13,6 @@
         byte R { get; set; }
         
         void SwitchToAlternativeGeneralPurposeRegisters();
+        void SwitchToAlternativeAccumulatorAndFlagsRegisters();
     }
 }

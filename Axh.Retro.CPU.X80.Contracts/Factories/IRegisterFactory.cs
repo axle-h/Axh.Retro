@@ -6,7 +6,9 @@
     {
         TRegisters GetInitialRegisters();
 
-        IGeneralPurposeRegisterSet GetRegisterSet();
+        IGeneralPurposeRegisterSet GetGeneralPurposeRegisterSet();
+
+        IAccumulatorAndFlagsRegisterSet GetAccumulatorAndFlagsRegisterSet();
 
         IFlagsRegister GetFlagsRegister();
     }
