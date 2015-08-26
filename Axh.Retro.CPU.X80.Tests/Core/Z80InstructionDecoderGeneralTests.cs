@@ -14,17 +14,10 @@
         {
             this.ResetMocks();
 
-            this.SetCacheForSingleBytes(PrimaryOpCode.NOP, PrimaryOpCode.NOP, PrimaryOpCode.HALT);
-
-            var block = this.BlockDecoder.DecodeNextBlock(Address);
-            Assert.IsNotNull(block);
-            Assert.AreEqual(3, block.MachineCycles);
-            Assert.AreEqual(12, block.ThrottlingStates);
-
             this.Registers.SetupProperty(x => x.R, (byte)0x5f);
             this.Registers.SetupProperty(x => x.ProgramCounter, (ushort)0x1234);
 
-            block.Action(this.Registers.Object, this.Mmu.Object);
+            this.Run(3, 12, PrimaryOpCode.NOP, PrimaryOpCode.NOP, PrimaryOpCode.HALT);
 
             this.Cache.Verify(x => x.NextByte(), Times.Exactly(3));
             Assert.AreEqual(0x62, this.Registers.Object.R);
@@ -35,18 +28,12 @@
         public void NopIncrentsProgramCounterAndMemoryRefreshRegistersWithCorrectOverflow()
         {
             this.ResetMocks();
-            this.SetCacheForSingleBytes(PrimaryOpCode.HALT);
-
-            var block = this.BlockDecoder.DecodeNextBlock(Address);
-            Assert.IsNotNull(block);
-            Assert.AreEqual(1, block.MachineCycles);
-            Assert.AreEqual(4, block.ThrottlingStates);
 
             this.Registers.SetupProperty(x => x.R, (byte)0x7f);
             this.Registers.SetupProperty(x => x.ProgramCounter, (ushort)0xffff);
 
-            block.Action(this.Registers.Object, this.Mmu.Object);
-
+            this.Run(1, 4 ,PrimaryOpCode.HALT);
+            
             this.Cache.Verify(x => x.NextByte(), Times.Once);
             Assert.AreEqual(0x00, this.Registers.Object.R);
             Assert.AreEqual(0x0000, this.Registers.Object.ProgramCounter);

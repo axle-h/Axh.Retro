@@ -1,10 +1,12 @@
 ﻿namespace Axh.Retro.CPU.X80.Tests.Core
 {
     using System.Collections;
+    using System.Linq;
 
     using Axh.Retro.CPU.X80.Contracts.Core;
     using Axh.Retro.CPU.X80.Contracts.Factories;
     using Axh.Retro.CPU.X80.Contracts.Memory;
+    using Axh.Retro.CPU.X80.Contracts.OpCodes;
     using Axh.Retro.CPU.X80.Contracts.Registers;
     using Axh.Retro.CPU.X80.Core;
 
@@ -105,12 +107,8 @@
             this.Cache.ResetCalls();
             this.Mmu.ResetCalls();
         }
-
-        /// <summary>
-        /// This sets up the MMU Cache mock to act like the implementation.
-        /// </summary>
-        /// <param name="bytes"></param>
-        protected void SetCacheForSingleBytes(params object[] bytes)
+        
+        protected void Run(int expectedMachineCycles, int expectedThrottlingStates, params object[] bytes)
         {
             var length = 0;
             var queue = new Queue(bytes);
@@ -129,6 +127,18 @@
                 });
 
             this.Cache.Setup(x => x.TotalBytesRead).Returns(() => length);
+
+            var block = this.BlockDecoder.DecodeNextBlock(Address);
+            Assert.IsNotNull(block);
+
+            Assert.AreEqual(expectedMachineCycles, block.MachineCycles);
+            Assert.AreEqual(expectedThrottlingStates, block.ThrottlingStates);
+
+            block.Action(this.Registers.Object, this.Mmu.Object);
+
+            // Make sure all bytes were read
+            this.Cache.Verify(x => x.NextByte(), Times.Exactly(bytes.Count(x => x is byte || x is PrimaryOpCode || x is PrefixDdFdOpCode || x is PrefixEdOpCode)));
+            this.Cache.Verify(x => x.NextWord(), Times.Exactly(bytes.Count(x => x is ushort)));
         }
     }
 }
