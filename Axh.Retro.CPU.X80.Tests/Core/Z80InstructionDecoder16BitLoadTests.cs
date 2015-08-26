@@ -234,5 +234,38 @@
 
             this.Mmu.Verify(x => x.WriteWord(NN, IY), Times.Once);
         }
+
+        [Test]
+        public void LD_SP_HL()
+        {
+            this.SetupRegisters();
+            this.ResetMocks();
+
+            Run(1, 6, PrimaryOpCode.LD_SP_HL);
+
+            this.Registers.VerifySet(x => x.StackPointer = It.Is<ushort>(y => y == HL), Times.Once);
+        }
+
+        [Test]
+        public void LD_SP_IX()
+        {
+            this.SetupRegisters();
+            this.ResetMocks();
+
+            Run(2, 10, PrimaryOpCode.Prefix_DD, PrefixDdFdOpCode.LD_SP_IXY);
+
+            this.Registers.VerifySet(x => x.StackPointer = It.Is<ushort>(y => y == IX), Times.Once);
+        }
+
+        [Test]
+        public void LD_SP_IY()
+        {
+            this.SetupRegisters();
+            this.ResetMocks();
+
+            Run(2, 10, PrimaryOpCode.Prefix_FD, PrefixDdFdOpCode.LD_SP_IXY);
+
+            this.Registers.VerifySet(x => x.StackPointer = It.Is<ushort>(y => y == IY), Times.Once);
+        }
     }
 }

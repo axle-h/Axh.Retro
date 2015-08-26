@@ -586,6 +586,12 @@
                     timer.Add(6, 20);
                     break;
 
+                // LD SP, HL
+                case PrimaryOpCode.LD_SP_HL:
+                    expressions.Add(Expression.Assign(SP, HL));
+                    timer.Add(1, 6);
+                    break;
+
 
                 // ********* Jump *********
                 case PrimaryOpCode.JP:
@@ -719,6 +725,12 @@
                     timer.Add(6, 20);
                     break;
 
+                // LD SP, IX
+                case PrefixDdFdOpCode.LD_SP_IXY:
+                    expressions.Add(Expression.Assign(SP, IX));
+                    timer.Add(2, 10);
+                    break;
+
                 default:
                     throw new NotImplementedException(opCode.ToString());
             }
@@ -832,6 +844,12 @@
                 case PrefixDdFdOpCode.LD_mnn_IXY:
                     expressions.Add(Expression.Call(MmuExpression, MmuWriteWordMethodInfo, NextWord, IY));
                     timer.Add(6, 20);
+                    break;
+
+                // LD SP, IY
+                case PrefixDdFdOpCode.LD_SP_IXY:
+                    expressions.Add(Expression.Assign(SP, IY));
+                    timer.Add(2, 10);
                     break;
 
                 default:
