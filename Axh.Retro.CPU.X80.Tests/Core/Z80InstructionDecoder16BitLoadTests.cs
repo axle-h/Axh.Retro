@@ -281,8 +281,7 @@
 
             const ushort SP1 = unchecked((ushort)(SP - 1));
             const ushort SP2 = unchecked((ushort)(SP1 - 1));
-
-
+            
             switch (opCode)
             {
                 case PrimaryOpCode.PUSH_BC:
@@ -303,7 +302,6 @@
                     break;
             }
             
-            this.Registers.VerifySet(x => x.StackPointer = It.Is<ushort>(y => y == SP1), Times.Once);
             this.Registers.VerifySet(x => x.StackPointer = It.Is<ushort>(y => y == SP2), Times.Once);
             Assert.AreEqual(SP2, this.Registers.Object.StackPointer);
         }

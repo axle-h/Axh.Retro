@@ -26,8 +26,6 @@
         private static readonly ParameterExpression LocalWord;
 
         // Register expressions
-        private static readonly Expression PC;
-        private static readonly Expression SP;
         private static readonly Expression A;
         private static readonly Expression B;
         private static readonly Expression C;
@@ -39,7 +37,12 @@
         private static readonly Expression BC;
         private static readonly Expression DE;
         private static readonly Expression HL;
+        private static readonly Expression PC;
 
+        // Stack pointer stuff
+        private static readonly Expression SP;
+        private static readonly Expression PushSP;
+        
         // Z80 specific register expressions
         private static readonly Expression I;
         private static readonly Expression R;
@@ -130,8 +133,11 @@
             DE = generalPurposeRegisters.GetPropertyExpression<IGeneralPurposeRegisterSet, ushort>(r => r.DE);
             HL = generalPurposeRegisters.GetPropertyExpression<IGeneralPurposeRegisterSet, ushort>(r => r.HL);
             PC = RegistersExpression.GetPropertyExpression<IZ80Registers, ushort>(r => r.ProgramCounter);
+
+            // Stack pointer stuff
             SP = RegistersExpression.GetPropertyExpression<IZ80Registers, ushort>(r => r.StackPointer);
-            
+            PushSP = Expression.Assign(SP, Expression.Decrement(SP));
+
             // Z80 specific register expressions
             I = RegistersExpression.GetPropertyExpression<IZ80Registers, byte>(r => r.I);
             R = RegistersExpression.GetPropertyExpression<IZ80Registers, byte>(r => r.R);
@@ -594,30 +600,30 @@
 
                 // PUSH qq
                 case PrimaryOpCode.PUSH_BC:
-                    expressions.Add(Expression.Assign(SP, Expression.Decrement(SP)));
+                    expressions.Add(PushSP);
                     expressions.Add(Expression.Call(MmuExpression, MmuWriteByteMethodInfo, SP, B));
-                    expressions.Add(Expression.Assign(SP, Expression.Decrement(SP)));
+                    expressions.Add(PushSP);
                     expressions.Add(Expression.Call(MmuExpression, MmuWriteByteMethodInfo, SP, C));
                     timer.Add(3, 11);
                     break;
                 case PrimaryOpCode.PUSH_DE:
-                    expressions.Add(Expression.Assign(SP, Expression.Decrement(SP)));
+                    expressions.Add(PushSP);
                     expressions.Add(Expression.Call(MmuExpression, MmuWriteByteMethodInfo, SP, D));
-                    expressions.Add(Expression.Assign(SP, Expression.Decrement(SP)));
+                    expressions.Add(PushSP);
                     expressions.Add(Expression.Call(MmuExpression, MmuWriteByteMethodInfo, SP, E));
                     timer.Add(3, 11);
                     break;
                 case PrimaryOpCode.PUSH_HL:
-                    expressions.Add(Expression.Assign(SP, Expression.Decrement(SP)));
+                    expressions.Add(PushSP);
                     expressions.Add(Expression.Call(MmuExpression, MmuWriteByteMethodInfo, SP, H));
-                    expressions.Add(Expression.Assign(SP, Expression.Decrement(SP)));
+                    expressions.Add(PushSP);
                     expressions.Add(Expression.Call(MmuExpression, MmuWriteByteMethodInfo, SP, L));
                     timer.Add(3, 11);
                     break;
                 case PrimaryOpCode.PUSH_AF:
-                    expressions.Add(Expression.Assign(SP, Expression.Decrement(SP)));
+                    expressions.Add(PushSP);
                     expressions.Add(Expression.Call(MmuExpression, MmuWriteByteMethodInfo, SP, A));
-                    expressions.Add(Expression.Assign(SP, Expression.Decrement(SP)));
+                    expressions.Add(PushSP);
                     expressions.Add(Expression.Call(MmuExpression, MmuWriteByteMethodInfo, SP, F));
                     timer.Add(3, 11);
                     break;
