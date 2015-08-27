@@ -31,5 +31,7 @@
         PUSH_IXY = 0xE5,
 
         POP_IXY = 0xE1,
+
+        EX_mSP_IXY = 0xE3,
     }
 }

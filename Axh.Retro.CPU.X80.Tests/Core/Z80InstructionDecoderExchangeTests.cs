@@ -76,5 +76,51 @@
             this.Mmu.Verify(x => x.WriteByte(SP, L), Times.Once);
             this.Mmu.Verify(x => x.WriteByte(SP1, H), Times.Once);
         }
+
+        [Test]
+        public void EX_mSP_IX()
+        {
+            this.SetupRegisters();
+            this.ResetMocks();
+            
+            const ushort Value = 0xe750;
+            
+            this.Mmu.Setup(x => x.ReadWord(SP)).Returns(Value);
+
+            Run(6, 23, PrimaryOpCode.Prefix_DD, PrefixDdFdOpCode.EX_mSP_IXY);
+
+            this.Registers.VerifySet(x => x.IX = It.Is<ushort>(y => y == Value), Times.Once);
+            Assert.AreEqual(Value, this.Registers.Object.IX);
+
+            // SP unchanged
+            this.Registers.VerifySet(x => x.StackPointer = It.IsAny<ushort>(), Times.Never);
+            Assert.AreEqual(SP, this.Registers.Object.StackPointer);
+            
+            this.Mmu.Verify(x => x.ReadWord(SP), Times.Once);
+            this.Mmu.Verify(x => x.WriteWord(SP, IX), Times.Once);
+        }
+
+        [Test]
+        public void EX_mSP_IY()
+        {
+            this.SetupRegisters();
+            this.ResetMocks();
+
+            const ushort Value = 0x944c;
+
+            this.Mmu.Setup(x => x.ReadWord(SP)).Returns(Value);
+
+            Run(6, 23, PrimaryOpCode.Prefix_FD, PrefixDdFdOpCode.EX_mSP_IXY);
+
+            this.Registers.VerifySet(x => x.IY = It.Is<ushort>(y => y == Value), Times.Once);
+            Assert.AreEqual(Value, this.Registers.Object.IY);
+
+            // SP unchanged
+            this.Registers.VerifySet(x => x.StackPointer = It.IsAny<ushort>(), Times.Never);
+            Assert.AreEqual(SP, this.Registers.Object.StackPointer);
+
+            this.Mmu.Verify(x => x.ReadWord(SP), Times.Once);
+            this.Mmu.Verify(x => x.WriteWord(SP, IY), Times.Once);
+        }
     }
 }

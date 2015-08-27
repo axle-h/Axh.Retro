@@ -865,6 +865,20 @@
                     timer.Add(4, 14);
                     break;
 
+                // ********* Exchange *********
+                // EX (SP), IX
+                case PrefixDdFdOpCode.EX_mSP_IXY:
+                    // Read temp word at SP
+                    expressions.Add(Expression.Assign(LocalWord, Expression.Call(MmuExpression, MmuReadWordMethodInfo, SP)));
+
+                    // Write IX at SP
+                    expressions.Add(Expression.Call(MmuExpression, MmuWriteWordMethodInfo, SP, IX));
+
+                    // Assign IX to temp word
+                    expressions.Add(Expression.Assign(IX, LocalWord));
+                    timer.Add(6, 23);
+                    break;
+
                 default:
                     throw new NotImplementedException(opCode.ToString());
             }
@@ -998,6 +1012,20 @@
                     expressions.Add(Expression.Assign(IY, Expression.Call(MmuExpression, MmuReadWordMethodInfo, SP)));
                     expressions.Add(PopPopSP);
                     timer.Add(4, 14);
+                    break;
+
+                // ********* Exchange *********
+                // EX (SP), IY
+                case PrefixDdFdOpCode.EX_mSP_IXY:
+                    // Read temp word at SP
+                    expressions.Add(Expression.Assign(LocalWord, Expression.Call(MmuExpression, MmuReadWordMethodInfo, SP)));
+
+                    // Write IY at SP
+                    expressions.Add(Expression.Call(MmuExpression, MmuWriteWordMethodInfo, SP, IY));
+
+                    // Assign IY to temp word
+                    expressions.Add(Expression.Assign(IY, LocalWord));
+                    timer.Add(6, 23);
                     break;
 
                 default:
