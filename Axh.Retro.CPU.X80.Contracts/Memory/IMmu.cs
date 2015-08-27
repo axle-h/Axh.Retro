@@ -8,5 +8,6 @@
         void WriteByte(ushort address, byte value);
         void WriteWord(ushort address, ushort word);
         void WriteBytes(ushort address, byte[] bytes);
+        void TransferByte(ushort addressFrom, ushort addressTo);
     }
 }

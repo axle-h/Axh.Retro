@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Runtime.CompilerServices;
 
     using Axh.Retro.CPU.X80.Contracts.Exceptions;
     using Axh.Retro.CPU.X80.Contracts.Memory;
@@ -143,6 +144,12 @@
                 lengthRemaining -= segmentLength;
                 nextIndex += segmentLength;
             }
+        }
+
+        public void TransferByte(ushort addressFrom, ushort addressTo)
+        {
+            var b = this.ReadByte(addressFrom);
+            this.WriteByte(addressTo, b);
         }
 
         private static TAddressSegment GetAddressSegmentForAddress<TAddressSegment>(ushort[] segmentAddresses, IList<TAddressSegment> segments, ushort address, out ushort segmentAddress)

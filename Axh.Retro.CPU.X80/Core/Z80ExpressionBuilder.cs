@@ -118,6 +118,7 @@
         private static readonly MethodInfo MmuReadWordMethodInfo;
         private static readonly MethodInfo MmuWriteByteMethodInfo;
         private static readonly MethodInfo MmuWriteWordMethodInfo;
+        private static readonly MethodInfo MmuTransferByteMethodInfo;
 
         static Z80ExpressionBuilder()
         {
@@ -184,6 +185,7 @@
             MmuReadWordMethodInfo = ExpressionHelpers.GetMethodInfo<IMmu, ushort, ushort>((mmu, address) => mmu.ReadWord(address));
             MmuWriteByteMethodInfo = ExpressionHelpers.GetMethodInfo<IMmu, ushort, byte>((mmu, address, value) => mmu.WriteByte(address, value));
             MmuWriteWordMethodInfo = ExpressionHelpers.GetMethodInfo<IMmu, ushort, ushort>((mmu, address, value) => mmu.WriteWord(address, value));
+            MmuTransferByteMethodInfo = ExpressionHelpers.GetMethodInfo<IMmu, ushort, ushort>((mmu, addressFrom, addressTo) => mmu.TransferByte(addressFrom, addressTo));
 
             ReadByteAtLocalWord = Expression.Call(MmuExpression, MmuReadByteMethodInfo, LocalWord);
             ReadByteAtHL = Expression.Call(MmuExpression, MmuReadByteMethodInfo, HL);
@@ -706,13 +708,7 @@
                     
                     timer.Add(5, 19);
                     break;
-
-
-                // ********* Block Transfer *********
-
-
-                // ********* Search *********
-
+                    
                 // ********* Jump *********
                 case PrimaryOpCode.JP:
                     expressions.Add(Expression.Assign(PC, NextWord));
@@ -1114,6 +1110,21 @@
                     expressions.Add(Expression.Call(MmuExpression, MmuWriteWordMethodInfo, NextWord, SP));
                     timer.Add(6, 20);
                     break;
+
+
+                // ********* Block Transfer *********
+                // LDI
+                case PrefixEdOpCode.LDI:
+                    expressions.Add(Expression.Call(MmuExpression, MmuTransferByteMethodInfo, HL, DE));
+                    expressions.Add(Expression.PreIncrementAssign(HL));
+                    expressions.Add(Expression.PreIncrementAssign(DE));
+                    expressions.Add(Expression.PreDecrementAssign(BC));
+                    expressions.Add(Expression.Assign(HalfCarry, Expression.Constant(false)));
+                    expressions.Add(Expression.Assign(ParityOverflow, Expression.NotEqual(BC, Expression.Constant((ushort)0))));
+                    expressions.Add(Expression.Assign(Subtract, Expression.Constant(false)));
+                    timer.Add(4, 16);
+                    break;
+
 
                 default:
                     throw new NotImplementedException(opCode.ToString());
