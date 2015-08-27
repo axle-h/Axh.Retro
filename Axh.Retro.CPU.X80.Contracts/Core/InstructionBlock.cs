@@ -7,14 +7,28 @@
 
     public class InstructionBlock<TRegisters> where TRegisters : IRegisters
     {
-        public ushort Address { get; set; }
+        private readonly Func<TRegisters, IMmu, InstructionTimings> action;
 
-        public ushort Length { get; set; }
+        /// <summary>
+        /// Static instruction timings, known at compile time
+        /// </summary>
+        private readonly InstructionTimings staticTimings;
 
-        public Action<TRegisters, IMmu> Action { get; set; }
+        public InstructionBlock(ushort address, ushort length, Func<TRegisters, IMmu, InstructionTimings> action, InstructionTimings staticTimings)
+        {
+            this.action = action;
+            this.staticTimings = staticTimings;
+            Address = address;
+            Length = length;
+        }
 
-        public int MachineCycles { get; set; }
+        public ushort Address { get; }
 
-        public int ThrottlingStates { get; set; }
+        public ushort Length { get; }
+
+        public InstructionTimings ExecuteInstructionBlock(TRegisters registers, IMmu mmu)
+        {
+            return action(registers, mmu) + staticTimings;
+        }
     }
 }

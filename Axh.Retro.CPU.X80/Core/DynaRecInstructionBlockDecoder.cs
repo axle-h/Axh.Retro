@@ -35,14 +35,7 @@
             }
             
             var lambda = expressionBuilder.FinalizeBlock(lastResult);
-            return new InstructionBlock<IZ80Registers>
-                   {
-                       Address = address,
-                       Action = lambda.Compile(),
-                       Length = (ushort)mmuCache.TotalBytesRead,
-                       MachineCycles = timer.MachineCycles,
-                       ThrottlingStates = timer.ThrottlingStates
-                   };
+            return new InstructionBlock<IZ80Registers>(address, (ushort)mmuCache.TotalBytesRead, lambda.Compile(), timer.GetInstructionTimings());
         }
         
     }

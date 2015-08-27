@@ -151,7 +151,7 @@
             var b = this.ReadByte(addressFrom);
             this.WriteByte(addressTo, b);
         }
-
+        
         private static TAddressSegment GetAddressSegmentForAddress<TAddressSegment>(ushort[] segmentAddresses, IList<TAddressSegment> segments, ushort address, out ushort segmentAddress)
             where TAddressSegment : IAddressSegment
         {

@@ -149,11 +149,11 @@
 
             var block = this.BlockDecoder.DecodeNextBlock(Address);
             Assert.IsNotNull(block);
+            
+            var timings = block.ExecuteInstructionBlock(this.Registers.Object, this.Mmu.Object);
 
-            Assert.AreEqual(expectedMachineCycles, block.MachineCycles);
-            Assert.AreEqual(expectedThrottlingStates, block.ThrottlingStates);
-
-            block.Action(this.Registers.Object, this.Mmu.Object);
+            Assert.AreEqual(expectedMachineCycles, timings.MachineCycles);
+            Assert.AreEqual(expectedThrottlingStates, timings.ThrottlingStates);
 
             // Make sure all bytes were read
             this.Cache.Verify(x => x.NextByte(), Times.Exactly(opcodes.Count(x => x is byte || x is PrimaryOpCode || x is PrefixDdFdOpCode || x is PrefixEdOpCode)));

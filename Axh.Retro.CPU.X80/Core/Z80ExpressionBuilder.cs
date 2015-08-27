@@ -4,7 +4,8 @@
     using System.Collections.Generic;
     using System.Linq.Expressions;
     using System.Reflection;
-    
+
+    using Axh.Retro.CPU.X80.Contracts.Core;
     using Axh.Retro.CPU.X80.Contracts.Memory;
     using Axh.Retro.CPU.X80.Contracts.OpCodes;
     using Axh.Retro.CPU.X80.Contracts.Registers;
@@ -14,7 +15,7 @@
     {
         private static readonly ParameterExpression RegistersExpression;
         private static readonly ParameterExpression MmuExpression;
-
+        
         /// <summary>
         /// Byte parameter b
         /// </summary>
@@ -24,6 +25,13 @@
         /// Word parameter w
         /// </summary>
         private static readonly ParameterExpression LocalWord;
+
+        /// <summary>
+        /// The dynamic instruction timer that is updated at runtime.
+        /// This is required for instructions that don't have compile time known timings e.g. LDIR.
+        /// </summary>
+        private static readonly ParameterExpression DynamicTimer;
+        private static readonly MethodInfo DynamicTimerAdd;
 
         // Register expressions
         private static readonly Expression A;
@@ -114,19 +122,22 @@
         /// </summary>
         private static readonly Expression ReadByteAtIYd;
 
+        // MMU methods
         private static readonly MethodInfo MmuReadByteMethodInfo;
         private static readonly MethodInfo MmuReadWordMethodInfo;
         private static readonly MethodInfo MmuWriteByteMethodInfo;
         private static readonly MethodInfo MmuWriteWordMethodInfo;
         private static readonly MethodInfo MmuTransferByteMethodInfo;
-
+        
         static Z80ExpressionBuilder()
         {
             RegistersExpression = Expression.Parameter(typeof(IZ80Registers), "registers");
             MmuExpression = Expression.Parameter(typeof(IMmu), "mmu");
             LocalByte = Expression.Parameter(typeof(byte), "b");
             LocalWord = Expression.Parameter(typeof(ushort), "w");
-
+            DynamicTimer = Expression.Parameter(typeof(IInstructionTimer), "timer");
+            DynamicTimerAdd = ExpressionHelpers.GetMethodInfo<IInstructionTimer, int, int>((dt, m, t) => dt.Add(m, t));
+            
             // General purpose register expressions
             var generalPurposeRegisters = RegistersExpression.GetPropertyExpression<IZ80Registers, IGeneralPurposeRegisterSet>(r => r.GeneralPurposeRegisters);
             B = generalPurposeRegisters.GetPropertyExpression<IGeneralPurposeRegisterSet, byte>(r => r.B);
@@ -197,21 +208,21 @@
 
         private readonly ICollection<Expression> expressions;
 
-        private readonly InstructionTimer timer;
+        private readonly IInstructionTimer timer;
 
         private readonly IMmuCache mmuCache;
 
         private ConstantExpression NextByte => Expression.Constant(mmuCache.NextByte());
         private ConstantExpression NextWord => Expression.Constant(mmuCache.NextWord(), typeof(ushort));
 
-        public Z80ExpressionBuilder(IMmuCache mmuCache, InstructionTimer timer)
+        public Z80ExpressionBuilder(IMmuCache mmuCache, IInstructionTimer timer)
         {
-            this.expressions = new List<Expression>();
+            this.expressions = new List<Expression> { Expression.Assign(DynamicTimer, Expression.New(typeof(InstructionTimer))) };
             this.timer = timer;
             this.mmuCache = mmuCache;
         }
 
-        public Expression<Action<IZ80Registers, IMmu>> FinalizeBlock(DecodeResult lastResult)
+        public Expression<Func<IZ80Registers, IMmu, InstructionTimings>> FinalizeBlock(DecodeResult lastResult)
         {
             if (lastResult == DecodeResult.FinalizeAndSync)
             {
@@ -224,9 +235,15 @@
             var blockLengthExpression = Expression.Constant(this.mmuCache.TotalBytesRead, typeof(int));
             var increment7LsbR = Expression.And(Expression.Add(Expression.Convert(R, typeof(int)), blockLengthExpression), Expression.Constant(0x7f));
             this.expressions.Add(Expression.Assign(R, Expression.Convert(increment7LsbR, typeof(byte))));
+            
+            var getInstructionTimings = ExpressionHelpers.GetMethodInfo<IInstructionTimer>(dt => dt.GetInstructionTimings());
+            var returnTarget = Expression.Label(typeof(InstructionTimings));
+            var returnLabel = Expression.Label(returnTarget, Expression.Constant(default(InstructionTimings)));
+            this.expressions.Add(Expression.Return(returnTarget, Expression.Call(DynamicTimer, getInstructionTimings), typeof(InstructionTimings)));
+            this.expressions.Add(returnLabel);
 
-            var expressionBlock = Expression.Block(new[] { LocalByte, LocalWord }, this.expressions);
-            var lambda = Expression.Lambda<Action<IZ80Registers, IMmu>>(expressionBlock, RegistersExpression, MmuExpression);
+            var expressionBlock = Expression.Block(new[] { LocalByte, LocalWord, DynamicTimer }, this.expressions);
+            var lambda = Expression.Lambda<Func<IZ80Registers, IMmu, InstructionTimings>>(expressionBlock, RegistersExpression, MmuExpression);
 
             return lambda;
         }
@@ -1122,6 +1139,27 @@
                     expressions.Add(Expression.Assign(HalfCarry, Expression.Constant(false)));
                     expressions.Add(Expression.Assign(ParityOverflow, Expression.NotEqual(BC, Expression.Constant((ushort)0))));
                     expressions.Add(Expression.Assign(Subtract, Expression.Constant(false)));
+                    timer.Add(4, 16);
+                    break;
+
+                // LDIR
+                case PrefixEdOpCode.LDIR:
+                    var breakLabel = Expression.Label("LDIR_Break");
+                    expressions.Add(
+                        Expression.Loop(
+                            Expression.Block(
+                                Expression.Call(MmuExpression, MmuTransferByteMethodInfo, HL, DE),
+                                Expression.PreIncrementAssign(HL),
+                                Expression.PreIncrementAssign(DE),
+                                Expression.PreDecrementAssign(BC),
+                                Expression.IfThen(Expression.Equal(BC, Expression.Constant((ushort)0)), Expression.Break(breakLabel)),
+                                Expression.Call(DynamicTimer, DynamicTimerAdd, Expression.Constant(5), Expression.Constant(21))),
+                            breakLabel));
+
+                    expressions.Add(Expression.Assign(HalfCarry, Expression.Constant(false)));
+                    expressions.Add(Expression.Assign(ParityOverflow, Expression.Constant(false)));
+                    expressions.Add(Expression.Assign(Subtract, Expression.Constant(false)));
+
                     timer.Add(4, 16);
                     break;
 
