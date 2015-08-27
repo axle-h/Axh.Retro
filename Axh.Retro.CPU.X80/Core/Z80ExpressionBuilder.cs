@@ -233,8 +233,7 @@
 
             // Add the block length to the 7 lsb of memory refresh register.
             var blockLengthExpression = Expression.Constant(this.mmuCache.TotalBytesRead, typeof(int));
-            var increment7LsbR = Expression.And(Expression.Add(Expression.Convert(R, typeof(int)), blockLengthExpression), Expression.Constant(0x7f));
-            this.expressions.Add(Expression.Assign(R, Expression.Convert(increment7LsbR, typeof(byte))));
+            this.expressions.Add(GetMemoryRefreshDeltaExpression(blockLengthExpression));
             
             var getInstructionTimings = ExpressionHelpers.GetMethodInfo<IInstructionTimer>(dt => dt.GetInstructionTimings());
             var returnTarget = Expression.Label(typeof(InstructionTimings), "InstructionTimings_Return");
@@ -246,6 +245,12 @@
             var lambda = Expression.Lambda<Func<IZ80Registers, IMmu, InstructionTimings>>(expressionBlock, RegistersExpression, MmuExpression);
 
             return lambda;
+        }
+
+        private static Expression GetMemoryRefreshDeltaExpression(Expression deltaExpression)
+        {
+            var increment7LsbR = Expression.And(Expression.Add(Expression.Convert(R, typeof(int)), deltaExpression), Expression.Constant(0x7f));
+            return Expression.Assign(R, Expression.Convert(increment7LsbR, typeof(byte)));
         }
 
         /// <summary>
@@ -1132,6 +1137,7 @@
                 // ********* Block Transfer *********
                 // LDI
                 case PrefixEdOpCode.LDI:
+                    expressions.Add(GetMemoryRefreshDeltaExpression(Expression.Constant(2)));
                     expressions.Add(Expression.Call(MmuExpression, MmuTransferByteMethodInfo, HL, DE));
                     expressions.Add(Expression.PreIncrementAssign(HL));
                     expressions.Add(Expression.PreIncrementAssign(DE));
@@ -1144,6 +1150,8 @@
 
                 // LDIR
                 case PrefixEdOpCode.LDIR:
+                    expressions.Add(GetMemoryRefreshDeltaExpression(Expression.Multiply(BC, Expression.Constant(2))));
+
                     {
                         var breakLabel = Expression.Label();
                         expressions.Add(
@@ -1167,6 +1175,7 @@
 
                 // LDD
                 case PrefixEdOpCode.LDD:
+                    expressions.Add(GetMemoryRefreshDeltaExpression(Expression.Constant(2)));
                     expressions.Add(Expression.Call(MmuExpression, MmuTransferByteMethodInfo, HL, DE));
                     expressions.Add(Expression.PreDecrementAssign(HL));
                     expressions.Add(Expression.PreDecrementAssign(DE));
@@ -1179,6 +1188,8 @@
 
                 // LDDR
                 case PrefixEdOpCode.LDDR:
+                    expressions.Add(GetMemoryRefreshDeltaExpression(Expression.Multiply(BC, Expression.Constant(2))));
+
                     {
                         var breakLabel = Expression.Label();
                         expressions.Add(
