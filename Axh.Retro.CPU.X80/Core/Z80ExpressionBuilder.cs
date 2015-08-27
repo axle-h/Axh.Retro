@@ -237,7 +237,7 @@
             this.expressions.Add(Expression.Assign(R, Expression.Convert(increment7LsbR, typeof(byte))));
             
             var getInstructionTimings = ExpressionHelpers.GetMethodInfo<IInstructionTimer>(dt => dt.GetInstructionTimings());
-            var returnTarget = Expression.Label(typeof(InstructionTimings));
+            var returnTarget = Expression.Label(typeof(InstructionTimings), "InstructionTimings_Return");
             var returnLabel = Expression.Label(returnTarget, Expression.Constant(default(InstructionTimings)));
             this.expressions.Add(Expression.Return(returnTarget, Expression.Call(DynamicTimer, getInstructionTimings), typeof(InstructionTimings)));
             this.expressions.Add(returnLabel);
@@ -1051,7 +1051,7 @@
         public DecodeResult TryDecodeNextEdPrefixOperation()
         {
             var opCode = (PrefixEdOpCode)mmuCache.NextByte();
-
+            
             switch (opCode)
             {
                 // ********* 8-bit load *********
@@ -1144,17 +1144,19 @@
 
                 // LDIR
                 case PrefixEdOpCode.LDIR:
-                    var breakLabel = Expression.Label("LDIR_Break");
-                    expressions.Add(
-                        Expression.Loop(
-                            Expression.Block(
-                                Expression.Call(MmuExpression, MmuTransferByteMethodInfo, HL, DE),
-                                Expression.PreIncrementAssign(HL),
-                                Expression.PreIncrementAssign(DE),
-                                Expression.PreDecrementAssign(BC),
-                                Expression.IfThen(Expression.Equal(BC, Expression.Constant((ushort)0)), Expression.Break(breakLabel)),
-                                Expression.Call(DynamicTimer, DynamicTimerAdd, Expression.Constant(5), Expression.Constant(21))),
-                            breakLabel));
+                    {
+                        var breakLabel = Expression.Label();
+                        expressions.Add(
+                            Expression.Loop(
+                                Expression.Block(
+                                    Expression.Call(MmuExpression, MmuTransferByteMethodInfo, HL, DE),
+                                    Expression.PreIncrementAssign(HL),
+                                    Expression.PreIncrementAssign(DE),
+                                    Expression.PreDecrementAssign(BC),
+                                    Expression.IfThen(Expression.Equal(BC, Expression.Constant((ushort)0)), Expression.Break(breakLabel)),
+                                    Expression.Call(DynamicTimer, DynamicTimerAdd, Expression.Constant(5), Expression.Constant(21))),
+                                breakLabel));
+                    }
 
                     expressions.Add(Expression.Assign(HalfCarry, Expression.Constant(false)));
                     expressions.Add(Expression.Assign(ParityOverflow, Expression.Constant(false)));
@@ -1163,6 +1165,40 @@
                     timer.Add(4, 16);
                     break;
 
+                // LDD
+                case PrefixEdOpCode.LDD:
+                    expressions.Add(Expression.Call(MmuExpression, MmuTransferByteMethodInfo, HL, DE));
+                    expressions.Add(Expression.PreDecrementAssign(HL));
+                    expressions.Add(Expression.PreDecrementAssign(DE));
+                    expressions.Add(Expression.PreDecrementAssign(BC));
+                    expressions.Add(Expression.Assign(HalfCarry, Expression.Constant(false)));
+                    expressions.Add(Expression.Assign(ParityOverflow, Expression.NotEqual(BC, Expression.Constant((ushort)0))));
+                    expressions.Add(Expression.Assign(Subtract, Expression.Constant(false)));
+                    timer.Add(4, 16);
+                    break;
+
+                // LDDR
+                case PrefixEdOpCode.LDDR:
+                    {
+                        var breakLabel = Expression.Label();
+                        expressions.Add(
+                            Expression.Loop(
+                                Expression.Block(
+                                    Expression.Call(MmuExpression, MmuTransferByteMethodInfo, HL, DE),
+                                    Expression.PreDecrementAssign(HL),
+                                    Expression.PreDecrementAssign(DE),
+                                    Expression.PreDecrementAssign(BC),
+                                    Expression.IfThen(Expression.Equal(BC, Expression.Constant((ushort)0)), Expression.Break(breakLabel)),
+                                    Expression.Call(DynamicTimer, DynamicTimerAdd, Expression.Constant(5), Expression.Constant(21))),
+                                breakLabel));
+                    }
+                    
+                    expressions.Add(Expression.Assign(HalfCarry, Expression.Constant(false)));
+                    expressions.Add(Expression.Assign(ParityOverflow, Expression.Constant(false)));
+                    expressions.Add(Expression.Assign(Subtract, Expression.Constant(false)));
+
+                    timer.Add(4, 16);
+                    break;
 
                 default:
                     throw new NotImplementedException(opCode.ToString());

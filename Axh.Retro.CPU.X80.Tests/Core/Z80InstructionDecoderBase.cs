@@ -75,7 +75,7 @@
             this.BlockDecoder = new DynaRecInstructionBlockDecoder(mmuFactory.Object, this.Mmu.Object);
         }
 
-        protected void SetupRegisters()
+        protected void SetupRegisters(ushort? bc = null)
         {
             this.GpRegisters.SetupProperty(x => x.B, B);
             this.GpRegisters.SetupProperty(x => x.C, C);
@@ -84,7 +84,7 @@
             this.GpRegisters.SetupProperty(x => x.H, H);
             this.GpRegisters.SetupProperty(x => x.L, L);
 
-            this.GpRegisters.SetupProperty(x => x.BC, BC);
+            this.GpRegisters.SetupProperty(x => x.BC, bc ?? BC);
             this.GpRegisters.SetupProperty(x => x.DE, DE);
 
             this.GpRegisters.SetupProperty(x => x.HL, HL);
