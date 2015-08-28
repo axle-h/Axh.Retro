@@ -2,6 +2,9 @@
 {
     public enum PrefixDdFdOpCode : byte
     {
+        Prefix_DD = 0xDD,
+        Prefix_FD = 0xFD,
+
         LD_A_mIXYd = 0x7E,
         LD_B_mIXYd = 0x46,
         LD_C_mIXYd = 0x4E,
