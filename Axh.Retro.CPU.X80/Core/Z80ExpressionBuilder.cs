@@ -1137,7 +1137,6 @@
                 // ********* Block Transfer *********
                 // LDI
                 case PrefixEdOpCode.LDI:
-                    expressions.Add(GetMemoryRefreshDeltaExpression(Expression.Constant(2)));
                     expressions.Add(Expression.Call(MmuExpression, MmuTransferByteMethodInfo, HL, DE));
                     expressions.Add(Expression.PreIncrementAssign(HL));
                     expressions.Add(Expression.PreIncrementAssign(DE));
@@ -1162,7 +1161,8 @@
                                     Expression.PreIncrementAssign(DE),
                                     Expression.PreDecrementAssign(BC),
                                     Expression.IfThen(Expression.Equal(BC, Expression.Constant((ushort)0)), Expression.Break(breakLabel)),
-                                    Expression.Call(DynamicTimer, DynamicTimerAdd, Expression.Constant(5), Expression.Constant(21))),
+                                    Expression.Call(DynamicTimer, DynamicTimerAdd, Expression.Constant(5), Expression.Constant(21)),
+                                    GetMemoryRefreshDeltaExpression(Expression.Constant(2))), // The LDDR function actually decreases the PC by two for each 'loop' hence need more refresh cycles.
                                 breakLabel));
                     }
 
@@ -1175,7 +1175,6 @@
 
                 // LDD
                 case PrefixEdOpCode.LDD:
-                    expressions.Add(GetMemoryRefreshDeltaExpression(Expression.Constant(2)));
                     expressions.Add(Expression.Call(MmuExpression, MmuTransferByteMethodInfo, HL, DE));
                     expressions.Add(Expression.PreDecrementAssign(HL));
                     expressions.Add(Expression.PreDecrementAssign(DE));
@@ -1188,8 +1187,6 @@
 
                 // LDDR
                 case PrefixEdOpCode.LDDR:
-                    expressions.Add(GetMemoryRefreshDeltaExpression(Expression.Multiply(BC, Expression.Constant(2))));
-
                     {
                         var breakLabel = Expression.Label();
                         expressions.Add(
@@ -1200,7 +1197,8 @@
                                     Expression.PreDecrementAssign(DE),
                                     Expression.PreDecrementAssign(BC),
                                     Expression.IfThen(Expression.Equal(BC, Expression.Constant((ushort)0)), Expression.Break(breakLabel)),
-                                    Expression.Call(DynamicTimer, DynamicTimerAdd, Expression.Constant(5), Expression.Constant(21))),
+                                    Expression.Call(DynamicTimer, DynamicTimerAdd, Expression.Constant(5), Expression.Constant(21)),
+                                    GetMemoryRefreshDeltaExpression(Expression.Constant(2))), // The LDDR function actually decreases the PC by two for each 'loop' hence need more refresh cycles.
                                 breakLabel));
                     }
                     
