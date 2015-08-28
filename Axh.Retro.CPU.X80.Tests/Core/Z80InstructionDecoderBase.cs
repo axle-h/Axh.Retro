@@ -45,6 +45,8 @@
 
         protected Mock<IMmu> Mmu;
 
+        protected Mock<IArithmeticLogicUnit> Alu;
+
         protected Mock<IGeneralPurposeRegisterSet> GpRegisters;
 
         protected Mock<IAccumulatorAndFlagsRegisterSet> AfRegisters;
@@ -68,9 +70,11 @@
             this.Mmu = new Mock<IMmu>();
 
             this.Cache = new Mock<IMmuCache>();
-
+            
             var mmuFactory = new Mock<IMmuFactory>();
             mmuFactory.Setup(x => x.GetMmuCache(this.Mmu.Object, Address)).Returns(this.Cache.Object);
+
+            this.Alu = new Mock<IArithmeticLogicUnit>();
 
             this.BlockDecoder = new DynaRecInstructionBlockDecoder(mmuFactory.Object, this.Mmu.Object);
         }
@@ -150,7 +154,7 @@
             var block = this.BlockDecoder.DecodeNextBlock(Address);
             Assert.IsNotNull(block);
             
-            var timings = block.ExecuteInstructionBlock(this.Registers.Object, this.Mmu.Object);
+            var timings = block.ExecuteInstructionBlock(this.Registers.Object, this.Mmu.Object, this.Alu.Object);
 
             Assert.AreEqual(expectedMachineCycles, timings.MachineCycles);
             Assert.AreEqual(expectedThrottlingStates, timings.ThrottlingStates);

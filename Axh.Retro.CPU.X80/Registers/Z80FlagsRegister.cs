@@ -107,7 +107,14 @@
 
             this.SetUndocumentedFlags(result);
         }
-        
+
+        public void SetCompareFlags(byte result, ushort byteCounter)
+        {
+            this.SetResultFlags(result);
+            this.ParityOverflow = byteCounter != 0;
+            this.Subtract = true;
+        }
+
         public void SetParityFlags(byte result)
         {
             this.SetResultFlags(result);
