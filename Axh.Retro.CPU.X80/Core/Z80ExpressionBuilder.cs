@@ -761,10 +761,18 @@
 
             switch (opCode)
             {
-                // Stray prefix
+                // ********* Stray Prefixes (same timings as NOP) *********
                 case PrefixDdFdOpCode.Prefix_DD:
                     timer.Add(1, 4);
                     return TryDecodeNextDdPrefixOperation();
+
+                case PrefixDdFdOpCode.Prefix_FD:
+                    timer.Add(1, 4);
+                    return TryDecodeNextFdPrefixOperation();
+                    
+                case PrefixDdFdOpCode.Prefix_ED:
+                    timer.Add(1, 4);
+                    return TryDecodeNextEdPrefixOperation();
 
                 // ********* 8-bit load *********
                 // LD r, (IX+d)
@@ -915,10 +923,18 @@
 
             switch (opCode)
             {
-                // Stray prefix
+                // ********* Stray Prefixes (same timings as NOP) *********
+                case PrefixDdFdOpCode.Prefix_DD:
+                    timer.Add(1, 4);
+                    return TryDecodeNextDdPrefixOperation();
+
                 case PrefixDdFdOpCode.Prefix_FD:
                     timer.Add(1, 4);
                     return TryDecodeNextFdPrefixOperation();
+
+                case PrefixDdFdOpCode.Prefix_ED:
+                    timer.Add(1, 4);
+                    return TryDecodeNextEdPrefixOperation();
 
                 // ********* 8-bit load *********
                 // LD r, (IY+d)
