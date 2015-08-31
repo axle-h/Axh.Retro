@@ -38,6 +38,8 @@
 
         EX_mSP_IXY = 0xE3,
 
-        ADD_A_mIXYd = 0x86
+        ADD_A_mIXYd = 0x86,
+
+        ADC_A_mIXYd = 0x8E
     }
 }

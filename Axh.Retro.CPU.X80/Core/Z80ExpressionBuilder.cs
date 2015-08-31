@@ -745,7 +745,7 @@
                     break;
 
                 // ********* 8-Bit Arithmetic *********
-                // ADD A, r
+                // ADC A, r
                 case PrimaryOpCode.ADD_A_A:
                     expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluAdd, A, A)));
                     timer.Add(1, 4);
@@ -775,7 +775,7 @@
                     timer.Add(1, 4);
                     break;
 
-                // ADD A, r
+                // ADD A, n
                 case PrimaryOpCode.ADD_A_n:
                     expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluAdd, A, NextByte)));
                     timer.Add(2, 7);
@@ -784,6 +784,48 @@
                 // ADD A, (HL)
                 case PrimaryOpCode.ADD_A_mHL:
                     expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluAdd, A, ReadByteAtHL)));
+                    timer.Add(2, 7);
+                    break;
+
+                // ADC A, r
+                case PrimaryOpCode.ADC_A_A:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluAddWithCarry, A, A)));
+                    timer.Add(1, 4);
+                    break;
+                case PrimaryOpCode.ADC_A_B:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluAddWithCarry, A, B)));
+                    timer.Add(1, 4);
+                    break;
+                case PrimaryOpCode.ADC_A_C:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluAddWithCarry, A, C)));
+                    timer.Add(1, 4);
+                    break;
+                case PrimaryOpCode.ADC_A_D:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluAddWithCarry, A, D)));
+                    timer.Add(1, 4);
+                    break;
+                case PrimaryOpCode.ADC_A_E:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluAddWithCarry, A, E)));
+                    timer.Add(1, 4);
+                    break;
+                case PrimaryOpCode.ADC_A_H:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluAddWithCarry, A, H)));
+                    timer.Add(1, 4);
+                    break;
+                case PrimaryOpCode.ADC_A_L:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluAddWithCarry, A, L)));
+                    timer.Add(1, 4);
+                    break;
+
+                // ADC A, n
+                case PrimaryOpCode.ADC_A_n:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluAddWithCarry, A, NextByte)));
+                    timer.Add(2, 7);
+                    break;
+
+                // ADC A, (HL)
+                case PrimaryOpCode.ADC_A_mHL:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluAddWithCarry, A, ReadByteAtHL)));
                     timer.Add(2, 7);
                     break;
 
@@ -974,6 +1016,13 @@
                     timer.Add(5, 19);
                     break;
 
+                // ADC A, (IX + d)
+                case PrefixDdFdOpCode.ADC_A_mIXYd:
+                    expressions.Add(Expression.Assign(LocalByte, NextByte));
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluAddWithCarry, A, ReadByteAtIXd)));
+                    timer.Add(5, 19);
+                    break;
+
                 default:
                     throw new NotImplementedException(opCode.ToString());
             }
@@ -1141,6 +1190,13 @@
                 case PrefixDdFdOpCode.ADD_A_mIXYd:
                     expressions.Add(Expression.Assign(LocalByte, NextByte));
                     expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluAdd, A, ReadByteAtIYd)));
+                    timer.Add(5, 19);
+                    break;
+                    
+                // ADC A, (IY + d)
+                case PrefixDdFdOpCode.ADC_A_mIXYd:
+                    expressions.Add(Expression.Assign(LocalByte, NextByte));
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluAddWithCarry, A, ReadByteAtIYd)));
                     timer.Add(5, 19);
                     break;
 
