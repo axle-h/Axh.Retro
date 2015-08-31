@@ -743,7 +743,38 @@
                     
                     timer.Add(5, 19);
                     break;
-                    
+
+                // ********* 8-Bit Arithmetic *********
+                // ADD A, r
+                case PrimaryOpCode.ADD_A_A:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluAdd, A, A)));
+                    timer.Add(1, 4);
+                    break;
+                case PrimaryOpCode.ADD_A_B:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluAdd, A, B)));
+                    timer.Add(1, 4);
+                    break;
+                case PrimaryOpCode.ADD_A_C:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluAdd, A, C)));
+                    timer.Add(1, 4);
+                    break;
+                case PrimaryOpCode.ADD_A_D:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluAdd, A, D)));
+                    timer.Add(1, 4);
+                    break;
+                case PrimaryOpCode.ADD_A_E:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluAdd, A, E)));
+                    timer.Add(1, 4);
+                    break;
+                case PrimaryOpCode.ADD_A_H:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluAdd, A, H)));
+                    timer.Add(1, 4);
+                    break;
+                case PrimaryOpCode.ADD_A_L:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluAdd, A, L)));
+                    timer.Add(1, 4);
+                    break;
+
                 // ********* Jump *********
                 case PrimaryOpCode.JP:
                     expressions.Add(Expression.Assign(PC, NextWord));

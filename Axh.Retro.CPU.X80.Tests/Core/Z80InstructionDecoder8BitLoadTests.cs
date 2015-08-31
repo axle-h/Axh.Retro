@@ -653,7 +653,7 @@
                     this.GpRegisters.Verify(x => x.H, Times.Never);
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException("opcode");
+                    throw new ArgumentOutOfRangeException(nameof(opcode));
             }
         }
 
@@ -702,6 +702,8 @@
                 case PrimaryOpCode.LD_L_mHL:
                     Assert.AreEqual(Value, this.GpRegisters.Object.L);
                     break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(opcode));
             }
 
         }
@@ -752,7 +754,7 @@
                     Assert.AreEqual(ValueAtIXd, this.GpRegisters.Object.L);
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException("opcode");
+                    throw new ArgumentOutOfRangeException(nameof(opcode));
             }
         }
 
@@ -803,7 +805,7 @@
                     Assert.AreEqual(ValueAtIYd, this.GpRegisters.Object.L);
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException("opcode");
+                    throw new ArgumentOutOfRangeException(nameof(opcode));
             }
         }
 
@@ -851,6 +853,8 @@
                     this.Mmu.Verify(x => x.WriteByte(HL, L), Times.Once);
                     this.GpRegisters.VerifyGet(x => x.L, Times.Once);
                     break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(opcode));
             }
         }
 
@@ -909,7 +913,7 @@
                     this.Mmu.Verify(x => x.WriteByte(IX + SignedD, L), Times.Once);
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException("opcode");
+                    throw new ArgumentOutOfRangeException(nameof(opcode));
             }
         }
 
@@ -956,7 +960,7 @@
                     this.Mmu.Verify(x => x.WriteByte(IY + SignedD, L), Times.Once);
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException("opcode");
+                    throw new ArgumentOutOfRangeException(nameof(opcode));
             }
         }
 

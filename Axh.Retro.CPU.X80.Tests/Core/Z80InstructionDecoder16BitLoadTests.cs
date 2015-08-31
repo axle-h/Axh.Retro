@@ -1,5 +1,7 @@
 ﻿namespace Axh.Retro.CPU.X80.Tests.Core
 {
+    using System;
+
     using Axh.Retro.CPU.X80.Contracts.OpCodes;
 
     using Moq;
@@ -40,6 +42,8 @@
                     this.Registers.VerifySet(x => x.StackPointer = It.Is<ushort>(y => y == Value), Times.Once);
                     Assert.AreEqual(Value, this.Registers.Object.StackPointer);
                     break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(opcode));
             }
         }
 
@@ -125,6 +129,8 @@
                     this.Registers.VerifySet(x => x.StackPointer = It.Is<ushort>(y => y == Value), Times.Once);
                     Assert.AreEqual(Value, this.Registers.Object.StackPointer);
                     break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(opcode));
             }
         }
 
@@ -206,6 +212,8 @@
                 case PrefixEdOpCode.LD_mnn_SP:
                     this.Mmu.Verify(x => x.WriteWord(NN, SP), Times.Once);
                     break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(opcode));
             }
         }
 
@@ -300,6 +308,8 @@
                     this.Mmu.Verify(x => x.WriteByte(SP1, A), Times.Once);
                     this.Mmu.Verify(x => x.WriteByte(SP2, F), Times.Once);
                     break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(opCode));
             }
             
             this.Registers.VerifySet(x => x.StackPointer = It.Is<ushort>(y => y == SP2), Times.Once);
@@ -377,6 +387,8 @@
                     this.AfRegisters.VerifySet(x => x.A = It.Is<byte>(y => y == Value2), Times.Once);
                     this.FlagsRegister.VerifySet(x => x.Register = It.Is<byte>(y => y == Value1), Times.Once);
                     break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(opCode));
             }
 
             this.Registers.VerifySet(x => x.StackPointer = It.Is<ushort>(y => y == SP2), Times.Once);
