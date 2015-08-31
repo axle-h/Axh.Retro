@@ -272,14 +272,7 @@
             var increment7LsbR = Expression.And(Expression.Add(Expression.Convert(R, typeof(int)), deltaExpression), Expression.Constant(0x7f));
             return Expression.Assign(R, Expression.Convert(increment7LsbR, typeof(byte)));
         }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="mmuCache"></param>
-        /// <param name="expressions"></param>
-        /// <param name="timer"></param>
-        /// <returns>True if we can continue to decode operations sequentially, false if it can't e.g. a jumo</returns>
+        
         public DecodeResult TryDecodeNextOperation()
         {
             var opCode = (PrimaryOpCode)this.mmuCache.NextByte();
@@ -773,8 +766,7 @@
 
             return DecodeResult.Continue;
         }
-
-
+        
         public DecodeResult TryDecodeNextDdPrefixOperation()
         {
             var opCode = (PrefixDdFdOpCode)mmuCache.NextByte();
@@ -1206,7 +1198,7 @@
                                     Expression.PreDecrementAssign(BC),
                                     Expression.IfThen(Expression.Equal(BC, Expression.Constant((ushort)0)), Expression.Break(breakLabel)),
                                     Expression.Call(DynamicTimer, DynamicTimerAdd, Expression.Constant(5), Expression.Constant(21)),
-                                    GetMemoryRefreshDeltaExpression(Expression.Constant(2))), // The LDIR function actually decreases the PC by two for each 'loop' hence need more refresh cycles.
+                                    GetMemoryRefreshDeltaExpression(Expression.Constant(2))), // This function actually decreases the PC by two for each 'loop' hence need more refresh cycles.
                                 breakLabel));
                     }
 
@@ -1242,7 +1234,7 @@
                                     Expression.PreDecrementAssign(BC),
                                     Expression.IfThen(Expression.Equal(BC, Expression.Constant((ushort)0)), Expression.Break(breakLabel)),
                                     Expression.Call(DynamicTimer, DynamicTimerAdd, Expression.Constant(5), Expression.Constant(21)),
-                                    GetMemoryRefreshDeltaExpression(Expression.Constant(2))), // The LDDR function actually decreases the PC by two for each 'loop' hence need more refresh cycles.
+                                    GetMemoryRefreshDeltaExpression(Expression.Constant(2))), // This function actually decreases the PC by two for each 'loop' hence need more refresh cycles.
                                 breakLabel));
                     }
                     
@@ -1256,6 +1248,26 @@
                 // ********* Search *********
                 case PrefixEdOpCode.CPI:
                     expressions.Add(Expression.Call(Alu, AluCompare, A, Expression.Call(Mmu, MmuReadByte, HL)));
+                    expressions.Add(Expression.PreIncrementAssign(HL));
+                    expressions.Add(Expression.PreDecrementAssign(BC));
+                    timer.Add(4, 16);
+                    break;
+
+                case PrefixEdOpCode.CPIR:
+                    {
+                        var breakLabel = Expression.Label();
+                        expressions.Add(
+                            Expression.Loop(
+                                Expression.Block(
+                                    Expression.Call(Alu, AluCompare, A, Expression.Call(Mmu, MmuReadByte, HL)),
+                                    Expression.PreIncrementAssign(HL),
+                                    Expression.PreDecrementAssign(BC),
+                                    Expression.IfThen(Expression.OrElse(Expression.Equal(BC, Expression.Constant((ushort)0)), Zero), Expression.Break(breakLabel)),
+                                    Expression.Call(DynamicTimer, DynamicTimerAdd, Expression.Constant(5), Expression.Constant(21)),
+                                    GetMemoryRefreshDeltaExpression(Expression.Constant(2))), // This function actually decreases the PC by two for each 'loop' hence need more refresh cycles.
+                                breakLabel));
+                    }
+
                     timer.Add(4, 16);
                     break;
 
