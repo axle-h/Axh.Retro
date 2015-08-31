@@ -780,7 +780,13 @@
                     expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluAdd, A, NextByte)));
                     timer.Add(2, 7);
                     break;
-               
+
+                // ADD A, (HL)
+                case PrimaryOpCode.ADD_A_mHL:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluAdd, A, ReadByteAtHL)));
+                    timer.Add(2, 7);
+                    break;
+
 
                 // ********* Jump *********
                 case PrimaryOpCode.JP:
@@ -960,6 +966,14 @@
                     timer.Add(6, 23);
                     break;
 
+                // ********* 8-Bit Arithmetic *********
+                // ADD A, (IX + d)
+                case PrefixDdFdOpCode.ADD_A_mIXYd:
+                    expressions.Add(Expression.Assign(LocalByte, NextByte));
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluAdd, A, ReadByteAtIXd)));
+                    timer.Add(5, 19);
+                    break;
+
                 default:
                     throw new NotImplementedException(opCode.ToString());
             }
@@ -1120,6 +1134,14 @@
                     // Assign IY to temp word
                     expressions.Add(Expression.Assign(IY, LocalWord));
                     timer.Add(6, 23);
+                    break;
+                    
+                // ********* 8-Bit Arithmetic *********
+                // ADD A, (IY + d)
+                case PrefixDdFdOpCode.ADD_A_mIXYd:
+                    expressions.Add(Expression.Assign(LocalByte, NextByte));
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluAdd, A, ReadByteAtIYd)));
+                    timer.Add(5, 19);
                     break;
 
                 default:

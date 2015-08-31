@@ -37,5 +37,7 @@
         POP_IXY = 0xE1,
 
         EX_mSP_IXY = 0xE3,
+
+        ADD_A_mIXYd = 0x86
     }
 }

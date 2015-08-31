@@ -65,13 +65,55 @@
             this.ResetMocks();
 
             const byte N = 0xb1;
-            const byte Value = unchecked((byte)(N + A));
-            this.Alu.Setup(x => x.Add(A, N)).Returns(Value);
+            const byte Expected = unchecked((byte)(N + A));
+            this.Alu.Setup(x => x.Add(A, N)).Returns(Expected);
 
             Run(2, 7, PrimaryOpCode.ADD_A_n, N);
             
             this.Alu.Verify(x => x.Add(A, N), Times.Once);
-            this.AfRegisters.VerifySet(x => x.A = Value, Times.Once);
+            this.AfRegisters.VerifySet(x => x.A = Expected, Times.Once);
+        }
+
+        [Test]
+        public void ADD_A_mHL()
+        {
+            this.SetupRegisters();
+            this.ResetMocks();
+
+            const byte ValueAtHL = 0xb6;
+            const byte Expected = unchecked((byte)(ValueAtHL + A));
+            this.Alu.Setup(x => x.Add(A, ValueAtHL)).Returns(Expected);
+            this.Mmu.Setup(x => x.ReadByte(HL)).Returns(ValueAtHL);
+
+            Run(2, 7, PrimaryOpCode.ADD_A_mHL);
+
+            this.Mmu.Verify(x => x.ReadByte(HL), Times.Once);
+            this.Alu.Verify(x => x.Add(A, ValueAtHL), Times.Once);
+            this.AfRegisters.VerifySet(x => x.A = Expected, Times.Once);
+        }
+
+        [TestCase(PrimaryOpCode.Prefix_DD)]
+        [TestCase(PrimaryOpCode.Prefix_FD)]
+        public void ADD_A_mIXYd(PrimaryOpCode opCode)
+        {
+            this.SetupRegisters();
+            this.ResetMocks();
+
+            const sbyte Displacement = -15;
+            var indexValue = opCode == PrimaryOpCode.Prefix_DD ? IX : IY;
+            var displacedIndex = unchecked((ushort)(indexValue + Displacement));
+
+            const byte ValueAtIndex = 0xb6;
+            const byte Expected = unchecked((byte)(ValueAtIndex + A));
+            this.Alu.Setup(x => x.Add(A, ValueAtIndex)).Returns(Expected);
+            
+            this.Mmu.Setup(x => x.ReadByte(displacedIndex)).Returns(ValueAtIndex);
+
+            Run(5, 19, opCode, PrefixDdFdOpCode.ADD_A_mIXYd, unchecked((byte)Displacement));
+
+            this.Mmu.Verify(x => x.ReadByte(displacedIndex), Times.Once);
+            this.Alu.Verify(x => x.Add(A, ValueAtIndex), Times.Once);
+            this.AfRegisters.VerifySet(x => x.A = Expected, Times.Once);
         }
     }
 }
