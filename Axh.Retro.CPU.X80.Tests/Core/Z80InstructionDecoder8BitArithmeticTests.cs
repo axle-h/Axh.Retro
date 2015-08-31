@@ -57,5 +57,21 @@
 
             this.AfRegisters.VerifySet(x => x.A = Value, Times.Once);
         }
+
+        [Test]
+        public void ADD_A_n()
+        {
+            this.SetupRegisters();
+            this.ResetMocks();
+
+            const byte N = 0xb1;
+            const byte Value = unchecked((byte)(N + A));
+            this.Alu.Setup(x => x.Add(A, N)).Returns(Value);
+
+            Run(2, 7, PrimaryOpCode.ADD_A_n, N);
+            
+            this.Alu.Verify(x => x.Add(A, N), Times.Once);
+            this.AfRegisters.VerifySet(x => x.A = Value, Times.Once);
+        }
     }
 }

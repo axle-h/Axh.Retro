@@ -775,6 +775,13 @@
                     timer.Add(1, 4);
                     break;
 
+                // ADD A, r
+                case PrimaryOpCode.ADD_A_n:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluAdd, A, NextByte)));
+                    timer.Add(2, 7);
+                    break;
+               
+
                 // ********* Jump *********
                 case PrimaryOpCode.JP:
                     expressions.Add(Expression.Assign(PC, NextWord));
