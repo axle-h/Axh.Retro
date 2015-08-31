@@ -40,6 +40,10 @@
 
         ADD_A_mIXYd = 0x86,
 
-        ADC_A_mIXYd = 0x8E
+        ADC_A_mIXYd = 0x8E,
+
+        SUB_A_mIXYd = 0x96,
+
+        SBC_A_mIXYd = 0x9E,
     }
 }

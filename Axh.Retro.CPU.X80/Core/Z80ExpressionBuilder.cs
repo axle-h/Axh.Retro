@@ -745,7 +745,7 @@
                     break;
 
                 // ********* 8-Bit Arithmetic *********
-                // ADC A, r
+                // ADD A, r
                 case PrimaryOpCode.ADD_A_A:
                     expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluAdd, A, A)));
                     timer.Add(1, 4);
@@ -826,6 +826,90 @@
                 // ADC A, (HL)
                 case PrimaryOpCode.ADC_A_mHL:
                     expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluAddWithCarry, A, ReadByteAtHL)));
+                    timer.Add(2, 7);
+                    break;
+
+                // SUB A, r
+                case PrimaryOpCode.SUB_A_A:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluSubtract, A, A)));
+                    timer.Add(1, 4);
+                    break;
+                case PrimaryOpCode.SUB_A_B:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluSubtract, A, B)));
+                    timer.Add(1, 4);
+                    break;
+                case PrimaryOpCode.SUB_A_C:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluSubtract, A, C)));
+                    timer.Add(1, 4);
+                    break;
+                case PrimaryOpCode.SUB_A_D:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluSubtract, A, D)));
+                    timer.Add(1, 4);
+                    break;
+                case PrimaryOpCode.SUB_A_E:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluSubtract, A, E)));
+                    timer.Add(1, 4);
+                    break;
+                case PrimaryOpCode.SUB_A_H:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluSubtract, A, H)));
+                    timer.Add(1, 4);
+                    break;
+                case PrimaryOpCode.SUB_A_L:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluSubtract, A, L)));
+                    timer.Add(1, 4);
+                    break;
+
+                // SUB A, n
+                case PrimaryOpCode.SUB_A_n:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluSubtract, A, NextByte)));
+                    timer.Add(2, 7);
+                    break;
+
+                // SUB A, (HL)
+                case PrimaryOpCode.SUB_A_mHL:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluSubtract, A, ReadByteAtHL)));
+                    timer.Add(2, 7);
+                    break;
+
+                // SBC A, r
+                case PrimaryOpCode.SBC_A_A:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluSubtractWithCarry, A, A)));
+                    timer.Add(1, 4);
+                    break;
+                case PrimaryOpCode.SBC_A_B:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluSubtractWithCarry, A, B)));
+                    timer.Add(1, 4);
+                    break;
+                case PrimaryOpCode.SBC_A_C:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluSubtractWithCarry, A, C)));
+                    timer.Add(1, 4);
+                    break;
+                case PrimaryOpCode.SBC_A_D:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluSubtractWithCarry, A, D)));
+                    timer.Add(1, 4);
+                    break;
+                case PrimaryOpCode.SBC_A_E:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluSubtractWithCarry, A, E)));
+                    timer.Add(1, 4);
+                    break;
+                case PrimaryOpCode.SBC_A_H:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluSubtractWithCarry, A, H)));
+                    timer.Add(1, 4);
+                    break;
+                case PrimaryOpCode.SBC_A_L:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluSubtractWithCarry, A, L)));
+                    timer.Add(1, 4);
+                    break;
+
+                // SBC A, n
+                case PrimaryOpCode.SBC_A_n:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluSubtractWithCarry, A, NextByte)));
+                    timer.Add(2, 7);
+                    break;
+
+                // SBC A, (HL)
+                case PrimaryOpCode.SBC_A_mHL:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluSubtractWithCarry, A, ReadByteAtHL)));
                     timer.Add(2, 7);
                     break;
 
@@ -1022,6 +1106,20 @@
                     expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluAddWithCarry, A, ReadByteAtIXd)));
                     timer.Add(5, 19);
                     break;
+                    
+                // SUB A, (IX + d)
+                case PrefixDdFdOpCode.SUB_A_mIXYd:
+                    expressions.Add(Expression.Assign(LocalByte, NextByte));
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluSubtract, A, ReadByteAtIXd)));
+                    timer.Add(5, 19);
+                    break;
+
+                // SBC A, (IX + d)
+                case PrefixDdFdOpCode.SBC_A_mIXYd:
+                    expressions.Add(Expression.Assign(LocalByte, NextByte));
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluSubtractWithCarry, A, ReadByteAtIXd)));
+                    timer.Add(5, 19);
+                    break;
 
                 default:
                     throw new NotImplementedException(opCode.ToString());
@@ -1197,6 +1295,20 @@
                 case PrefixDdFdOpCode.ADC_A_mIXYd:
                     expressions.Add(Expression.Assign(LocalByte, NextByte));
                     expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluAddWithCarry, A, ReadByteAtIYd)));
+                    timer.Add(5, 19);
+                    break;
+
+                // SUB A, (IY + d)
+                case PrefixDdFdOpCode.SUB_A_mIXYd:
+                    expressions.Add(Expression.Assign(LocalByte, NextByte));
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluSubtract, A, ReadByteAtIYd)));
+                    timer.Add(5, 19);
+                    break;
+
+                // SBC A, (IY + d)
+                case PrefixDdFdOpCode.SBC_A_mIXYd:
+                    expressions.Add(Expression.Assign(LocalByte, NextByte));
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluSubtractWithCarry, A, ReadByteAtIYd)));
                     timer.Add(5, 19);
                     break;
 
