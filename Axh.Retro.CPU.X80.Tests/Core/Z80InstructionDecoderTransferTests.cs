@@ -64,14 +64,16 @@
 
             for(var i = 1; i < Length; i++)
             {
-                this.GpRegisters.VerifySet(x => x.DE = It.Is<ushort>(y => y == DE + i), Times.Once);
-                this.GpRegisters.VerifySet(x => x.HL = It.Is<ushort>(y => y == HL + i), Times.Once);
-                this.GpRegisters.VerifySet(x => x.BC = It.Is<ushort>(y => y == Length - i), Times.Once);
+                var index = i;
+                this.GpRegisters.VerifySet(x => x.DE = It.Is<ushort>(y => y == DE + index), Times.Once);
+                this.GpRegisters.VerifySet(x => x.HL = It.Is<ushort>(y => y == HL + index), Times.Once);
+                this.GpRegisters.VerifySet(x => x.BC = It.Is<ushort>(y => y == Length - index), Times.Once);
             }
 
             for (var i = 0; i < Length; i++)
             {
-                this.Mmu.Verify(x => x.TransferByte((ushort)(HL + i), (ushort)(DE + i)), Times.Once);
+                var index = i;
+                this.Mmu.Verify(x => x.TransferByte((ushort)(HL + index), (ushort)(DE + index)), Times.Once);
             }
 
             this.FlagsRegister.VerifySet(x => x.HalfCarry = It.Is<bool>(y => !y), Times.Once);
@@ -132,14 +134,16 @@
 
             for (var i = 1; i < Length; i++)
             {
-                this.GpRegisters.VerifySet(x => x.DE = It.Is<ushort>(y => y == DE - i), Times.Once);
-                this.GpRegisters.VerifySet(x => x.HL = It.Is<ushort>(y => y == HL - i), Times.Once);
-                this.GpRegisters.VerifySet(x => x.BC = It.Is<ushort>(y => y == Length - i), Times.Once);
+                var index = i;
+                this.GpRegisters.VerifySet(x => x.DE = It.Is<ushort>(y => y == DE - index), Times.Once);
+                this.GpRegisters.VerifySet(x => x.HL = It.Is<ushort>(y => y == HL - index), Times.Once);
+                this.GpRegisters.VerifySet(x => x.BC = It.Is<ushort>(y => y == Length - index), Times.Once);
             }
 
             for (var i = 0; i < Length; i++)
             {
-                this.Mmu.Verify(x => x.TransferByte((ushort)(HL - i), (ushort)(DE - i)), Times.Once);
+                var index = i;
+                this.Mmu.Verify(x => x.TransferByte((ushort)(HL - index), (ushort)(DE - index)), Times.Once);
             }
 
             this.FlagsRegister.VerifySet(x => x.HalfCarry = It.Is<bool>(y => !y), Times.Once);

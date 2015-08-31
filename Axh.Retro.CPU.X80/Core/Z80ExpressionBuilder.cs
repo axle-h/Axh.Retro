@@ -226,7 +226,7 @@
             AluCompare = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, byte>((alu, a, b) => alu.Compare(a, b));
         }
 
-        private readonly ICollection<Expression> expressions;
+        private readonly List<Expression> expressions;
 
         private readonly IInstructionTimer timer;
 
@@ -1175,99 +1175,46 @@
                 // ********* Block Transfer *********
                 // LDI
                 case PrefixEdOpCode.LDI:
-                    expressions.Add(Expression.Call(Mmu, MmuTransferByte, HL, DE));
-                    expressions.Add(Expression.PreIncrementAssign(HL));
-                    expressions.Add(Expression.PreIncrementAssign(DE));
-                    expressions.Add(Expression.PreDecrementAssign(BC));
-                    expressions.Add(Expression.Assign(HalfCarry, Expression.Constant(false)));
-                    expressions.Add(Expression.Assign(ParityOverflow, Expression.NotEqual(BC, Expression.Constant((ushort)0))));
-                    expressions.Add(Expression.Assign(Subtract, Expression.Constant(false)));
+                    expressions.AddRange(GetLdExpressions());
                     timer.Add(4, 16);
                     break;
 
                 // LDIR
                 case PrefixEdOpCode.LDIR:
-                    {
-                        var breakLabel = Expression.Label();
-                        expressions.Add(
-                            Expression.Loop(
-                                Expression.Block(
-                                    Expression.Call(Mmu, MmuTransferByte, HL, DE),
-                                    Expression.PreIncrementAssign(HL),
-                                    Expression.PreIncrementAssign(DE),
-                                    Expression.PreDecrementAssign(BC),
-                                    Expression.IfThen(Expression.Equal(BC, Expression.Constant((ushort)0)), Expression.Break(breakLabel)),
-                                    Expression.Call(DynamicTimer, DynamicTimerAdd, Expression.Constant(5), Expression.Constant(21)),
-                                    GetMemoryRefreshDeltaExpression(Expression.Constant(2))), // This function actually decreases the PC by two for each 'loop' hence need more refresh cycles.
-                                breakLabel));
-                    }
-
-                    expressions.Add(Expression.Assign(HalfCarry, Expression.Constant(false)));
-                    expressions.Add(Expression.Assign(ParityOverflow, Expression.Constant(false)));
-                    expressions.Add(Expression.Assign(Subtract, Expression.Constant(false)));
-
+                    expressions.AddRange(GetLdrExpressions());
                     timer.Add(4, 16);
                     break;
 
                 // LDD
                 case PrefixEdOpCode.LDD:
-                    expressions.Add(Expression.Call(Mmu, MmuTransferByte, HL, DE));
-                    expressions.Add(Expression.PreDecrementAssign(HL));
-                    expressions.Add(Expression.PreDecrementAssign(DE));
-                    expressions.Add(Expression.PreDecrementAssign(BC));
-                    expressions.Add(Expression.Assign(HalfCarry, Expression.Constant(false)));
-                    expressions.Add(Expression.Assign(ParityOverflow, Expression.NotEqual(BC, Expression.Constant((ushort)0))));
-                    expressions.Add(Expression.Assign(Subtract, Expression.Constant(false)));
+                    expressions.AddRange(GetLdExpressions(true));
                     timer.Add(4, 16);
                     break;
 
                 // LDDR
                 case PrefixEdOpCode.LDDR:
-                    {
-                        var breakLabel = Expression.Label();
-                        expressions.Add(
-                            Expression.Loop(
-                                Expression.Block(
-                                    Expression.Call(Mmu, MmuTransferByte, HL, DE),
-                                    Expression.PreDecrementAssign(HL),
-                                    Expression.PreDecrementAssign(DE),
-                                    Expression.PreDecrementAssign(BC),
-                                    Expression.IfThen(Expression.Equal(BC, Expression.Constant((ushort)0)), Expression.Break(breakLabel)),
-                                    Expression.Call(DynamicTimer, DynamicTimerAdd, Expression.Constant(5), Expression.Constant(21)),
-                                    GetMemoryRefreshDeltaExpression(Expression.Constant(2))), // This function actually decreases the PC by two for each 'loop' hence need more refresh cycles.
-                                breakLabel));
-                    }
-                    
-                    expressions.Add(Expression.Assign(HalfCarry, Expression.Constant(false)));
-                    expressions.Add(Expression.Assign(ParityOverflow, Expression.Constant(false)));
-                    expressions.Add(Expression.Assign(Subtract, Expression.Constant(false)));
-
+                    expressions.AddRange(GetLdrExpressions(true));
                     timer.Add(4, 16);
                     break;
 
                 // ********* Search *********
                 case PrefixEdOpCode.CPI:
-                    expressions.Add(Expression.Call(Alu, AluCompare, A, Expression.Call(Mmu, MmuReadByte, HL)));
-                    expressions.Add(Expression.PreIncrementAssign(HL));
-                    expressions.Add(Expression.PreDecrementAssign(BC));
+                    expressions.AddRange(GetCpExpressions());
                     timer.Add(4, 16);
                     break;
 
                 case PrefixEdOpCode.CPIR:
-                    {
-                        var breakLabel = Expression.Label();
-                        expressions.Add(
-                            Expression.Loop(
-                                Expression.Block(
-                                    Expression.Call(Alu, AluCompare, A, Expression.Call(Mmu, MmuReadByte, HL)),
-                                    Expression.PreIncrementAssign(HL),
-                                    Expression.PreDecrementAssign(BC),
-                                    Expression.IfThen(Expression.OrElse(Expression.Equal(BC, Expression.Constant((ushort)0)), Zero), Expression.Break(breakLabel)),
-                                    Expression.Call(DynamicTimer, DynamicTimerAdd, Expression.Constant(5), Expression.Constant(21)),
-                                    GetMemoryRefreshDeltaExpression(Expression.Constant(2))), // This function actually decreases the PC by two for each 'loop' hence need more refresh cycles.
-                                breakLabel));
-                    }
+                    expressions.Add(GetCprExpression());
+                    timer.Add(4, 16);
+                    break;
 
+                case PrefixEdOpCode.CPD:
+                    expressions.AddRange(GetCpExpressions(true));
+                    timer.Add(4, 16);
+                    break;
+
+                case PrefixEdOpCode.CPDR:
+                    expressions.Add(GetCprExpression(true));
                     timer.Add(4, 16);
                     break;
 
@@ -1276,6 +1223,59 @@
             }
 
             return DecodeResult.Continue;
+        }
+
+        private static IEnumerable<Expression> GetLdExpressions(bool decrement = false)
+        {
+            yield return Expression.Call(Mmu, MmuTransferByte, HL, DE);
+            yield return decrement ? Expression.PreDecrementAssign(HL) : Expression.PreIncrementAssign(HL);
+            yield return decrement ? Expression.PreDecrementAssign(DE) : Expression.PreIncrementAssign(DE);
+            yield return Expression.PreDecrementAssign(BC);
+            yield return Expression.Assign(HalfCarry, Expression.Constant(false));
+            yield return Expression.Assign(ParityOverflow, Expression.NotEqual(BC, Expression.Constant((ushort)0)));
+            yield return Expression.Assign(Subtract, Expression.Constant(false));
+        }
+
+        private static IEnumerable<Expression> GetLdrExpressions(bool decrement = false)
+        {
+            var breakLabel = Expression.Label();
+            yield return
+                Expression.Loop(
+                    Expression.Block(
+                        Expression.Call(Mmu, MmuTransferByte, HL, DE),
+                        decrement ? Expression.PreDecrementAssign(HL) : Expression.PreIncrementAssign(HL),
+                        decrement ? Expression.PreDecrementAssign(DE) : Expression.PreIncrementAssign(DE),
+                        Expression.PreDecrementAssign(BC),
+                        Expression.IfThen(Expression.Equal(BC, Expression.Constant((ushort)0)), Expression.Break(breakLabel)),
+                        Expression.Call(DynamicTimer, DynamicTimerAdd, Expression.Constant(5), Expression.Constant(21)),
+                        GetMemoryRefreshDeltaExpression(Expression.Constant(2))), // This function actually decreases the PC by two for each 'loop' hence need more refresh cycles.
+                    breakLabel);
+
+            yield return Expression.Assign(HalfCarry, Expression.Constant(false));
+            yield return Expression.Assign(ParityOverflow, Expression.Constant(false));
+            yield return Expression.Assign(Subtract, Expression.Constant(false));
+        }
+
+        private static IEnumerable<Expression> GetCpExpressions(bool decrement = false)
+        {
+            yield return Expression.Call(Alu, AluCompare, A, Expression.Call(Mmu, MmuReadByte, HL));
+            yield return decrement ? Expression.PreDecrementAssign(HL) : Expression.PreIncrementAssign(HL);
+            yield return Expression.PreDecrementAssign(BC);
+        }
+
+        private static Expression GetCprExpression(bool decrement = false)
+        {
+            var breakLabel = Expression.Label();
+            return
+                Expression.Loop(
+                    Expression.Block(
+                        Expression.Call(Alu, AluCompare, A, Expression.Call(Mmu, MmuReadByte, HL)),
+                        decrement ? Expression.PreDecrementAssign(HL) : Expression.PreIncrementAssign(HL),
+                        Expression.PreDecrementAssign(BC),
+                        Expression.IfThen(Expression.OrElse(Expression.Equal(BC, Expression.Constant((ushort)0)), Zero), Expression.Break(breakLabel)),
+                        Expression.Call(DynamicTimer, DynamicTimerAdd, Expression.Constant(5), Expression.Constant(21)),
+                        GetMemoryRefreshDeltaExpression(Expression.Constant(2))), // This function actually decreases the PC by two for each 'loop' hence need more refresh cycles.
+                    breakLabel);
         }
     }
 }

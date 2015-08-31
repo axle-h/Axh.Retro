@@ -121,6 +121,7 @@
             this.FlagsRegister.ResetCalls();
             this.Cache.ResetCalls();
             this.Mmu.ResetCalls();
+            this.Alu.ResetCalls();
         }
         
         protected void Run(int expectedMachineCycles, int expectedThrottlingStates, params object[] bytes)
