@@ -708,14 +708,14 @@
 
         }
 
-        [TestCase(PrefixDdFdOpCode.LD_A_mIXYd)]
-        [TestCase(PrefixDdFdOpCode.LD_B_mIXYd)]
-        [TestCase(PrefixDdFdOpCode.LD_C_mIXYd)]
-        [TestCase(PrefixDdFdOpCode.LD_D_mIXYd)]
-        [TestCase(PrefixDdFdOpCode.LD_E_mIXYd)]
-        [TestCase(PrefixDdFdOpCode.LD_H_mIXYd)]
-        [TestCase(PrefixDdFdOpCode.LD_L_mIXYd)]
-        public void LD_r_mIXd(PrefixDdFdOpCode opcode)
+        [TestCase(PrimaryOpCode.LD_A_mHL)]
+        [TestCase(PrimaryOpCode.LD_B_mHL)]
+        [TestCase(PrimaryOpCode.LD_C_mHL)]
+        [TestCase(PrimaryOpCode.LD_D_mHL)]
+        [TestCase(PrimaryOpCode.LD_E_mHL)]
+        [TestCase(PrimaryOpCode.LD_H_mHL)]
+        [TestCase(PrimaryOpCode.LD_L_mHL)]
+        public void LD_r_mIXd(PrimaryOpCode opcode)
         {
             this.SetupRegisters();
             this.ResetMocks();
@@ -732,25 +732,25 @@
 
             switch (opcode)
             {
-                case PrefixDdFdOpCode.LD_A_mIXYd:
+                case PrimaryOpCode.LD_A_mHL:
                     Assert.AreEqual(ValueAtIXd, this.AfRegisters.Object.A);
                     break;
-                case PrefixDdFdOpCode.LD_B_mIXYd:
+                case PrimaryOpCode.LD_B_mHL:
                     Assert.AreEqual(ValueAtIXd, this.GpRegisters.Object.B);
                     break;
-                case PrefixDdFdOpCode.LD_C_mIXYd:
+                case PrimaryOpCode.LD_C_mHL:
                     Assert.AreEqual(ValueAtIXd, this.GpRegisters.Object.C);
                     break;
-                case PrefixDdFdOpCode.LD_D_mIXYd:
+                case PrimaryOpCode.LD_D_mHL:
                     Assert.AreEqual(ValueAtIXd, this.GpRegisters.Object.D);
                     break;
-                case PrefixDdFdOpCode.LD_E_mIXYd:
+                case PrimaryOpCode.LD_E_mHL:
                     Assert.AreEqual(ValueAtIXd, this.GpRegisters.Object.E);
                     break;
-                case PrefixDdFdOpCode.LD_H_mIXYd:
+                case PrimaryOpCode.LD_H_mHL:
                     Assert.AreEqual(ValueAtIXd, this.GpRegisters.Object.H);
                     break;
-                case PrefixDdFdOpCode.LD_L_mIXYd:
+                case PrimaryOpCode.LD_L_mHL:
                     Assert.AreEqual(ValueAtIXd, this.GpRegisters.Object.L);
                     break;
                 default:
@@ -758,14 +758,14 @@
             }
         }
 
-        [TestCase(PrefixDdFdOpCode.LD_A_mIXYd)]
-        [TestCase(PrefixDdFdOpCode.LD_B_mIXYd)]
-        [TestCase(PrefixDdFdOpCode.LD_C_mIXYd)]
-        [TestCase(PrefixDdFdOpCode.LD_D_mIXYd)]
-        [TestCase(PrefixDdFdOpCode.LD_E_mIXYd)]
-        [TestCase(PrefixDdFdOpCode.LD_H_mIXYd)]
-        [TestCase(PrefixDdFdOpCode.LD_L_mIXYd)]
-        public void LD_r_mIYd(PrefixDdFdOpCode opcode)
+        [TestCase(PrimaryOpCode.LD_A_mHL)]
+        [TestCase(PrimaryOpCode.LD_B_mHL)]
+        [TestCase(PrimaryOpCode.LD_C_mHL)]
+        [TestCase(PrimaryOpCode.LD_D_mHL)]
+        [TestCase(PrimaryOpCode.LD_E_mHL)]
+        [TestCase(PrimaryOpCode.LD_H_mHL)]
+        [TestCase(PrimaryOpCode.LD_L_mHL)]
+        public void LD_r_mIYd(PrimaryOpCode opcode)
         {
             this.SetupRegisters();
             this.ResetMocks();
@@ -783,25 +783,25 @@
 
             switch (opcode)
             {
-                case PrefixDdFdOpCode.LD_A_mIXYd:
+                case PrimaryOpCode.LD_A_mHL:
                     Assert.AreEqual(ValueAtIYd, this.AfRegisters.Object.A);
                     break;
-                case PrefixDdFdOpCode.LD_B_mIXYd:
+                case PrimaryOpCode.LD_B_mHL:
                     Assert.AreEqual(ValueAtIYd, this.GpRegisters.Object.B);
                     break;
-                case PrefixDdFdOpCode.LD_C_mIXYd:
+                case PrimaryOpCode.LD_C_mHL:
                     Assert.AreEqual(ValueAtIYd, this.GpRegisters.Object.C);
                     break;
-                case PrefixDdFdOpCode.LD_D_mIXYd:
+                case PrimaryOpCode.LD_D_mHL:
                     Assert.AreEqual(ValueAtIYd, this.GpRegisters.Object.D);
                     break;
-                case PrefixDdFdOpCode.LD_E_mIXYd:
+                case PrimaryOpCode.LD_E_mHL:
                     Assert.AreEqual(ValueAtIYd, this.GpRegisters.Object.E);
                     break;
-                case PrefixDdFdOpCode.LD_H_mIXYd:
+                case PrimaryOpCode.LD_H_mHL:
                     Assert.AreEqual(ValueAtIYd, this.GpRegisters.Object.H);
                     break;
-                case PrefixDdFdOpCode.LD_L_mIXYd:
+                case PrimaryOpCode.LD_L_mHL:
                     Assert.AreEqual(ValueAtIYd, this.GpRegisters.Object.L);
                     break;
                 default:
@@ -870,14 +870,14 @@
             this.Mmu.Verify(x => x.WriteByte(HL, value), Times.Once);
         }
 
-        [TestCase(PrefixDdFdOpCode.LD_mIXYd_A)]
-        [TestCase(PrefixDdFdOpCode.LD_mIXYd_B)]
-        [TestCase(PrefixDdFdOpCode.LD_mIXYd_C)]
-        [TestCase(PrefixDdFdOpCode.LD_mIXYd_D)]
-        [TestCase(PrefixDdFdOpCode.LD_mIXYd_E)]
-        [TestCase(PrefixDdFdOpCode.LD_mIXYd_H)]
-        [TestCase(PrefixDdFdOpCode.LD_mIXYd_L)]
-        public void LD_mIXd_r(PrefixDdFdOpCode opcode)
+        [TestCase(PrimaryOpCode.LD_mHL_A)]
+        [TestCase(PrimaryOpCode.LD_mHL_B)]
+        [TestCase(PrimaryOpCode.LD_mHL_C)]
+        [TestCase(PrimaryOpCode.LD_mHL_D)]
+        [TestCase(PrimaryOpCode.LD_mHL_E)]
+        [TestCase(PrimaryOpCode.LD_mHL_H)]
+        [TestCase(PrimaryOpCode.LD_mHL_L)]
+        public void LD_mIXd_r(PrimaryOpCode opcode)
         {
             this.SetupRegisters();
             this.ResetMocks();
@@ -891,25 +891,25 @@
 
             switch (opcode)
             {
-                case PrefixDdFdOpCode.LD_mIXYd_A:
+                case PrimaryOpCode.LD_mHL_A:
                     this.Mmu.Verify(x => x.WriteByte(IX + SignedD, A), Times.Once);
                     break;
-                case PrefixDdFdOpCode.LD_mIXYd_B:
+                case PrimaryOpCode.LD_mHL_B:
                     this.Mmu.Verify(x => x.WriteByte(IX + SignedD, B), Times.Once);
                     break;
-                case PrefixDdFdOpCode.LD_mIXYd_C:
+                case PrimaryOpCode.LD_mHL_C:
                     this.Mmu.Verify(x => x.WriteByte(IX + SignedD, C), Times.Once);
                     break;
-                case PrefixDdFdOpCode.LD_mIXYd_D:
+                case PrimaryOpCode.LD_mHL_D:
                     this.Mmu.Verify(x => x.WriteByte(IX + SignedD, D), Times.Once);
                     break;
-                case PrefixDdFdOpCode.LD_mIXYd_E:
+                case PrimaryOpCode.LD_mHL_E:
                     this.Mmu.Verify(x => x.WriteByte(IX + SignedD, E), Times.Once);
                     break;
-                case PrefixDdFdOpCode.LD_mIXYd_H:
+                case PrimaryOpCode.LD_mHL_H:
                     this.Mmu.Verify(x => x.WriteByte(IX + SignedD, H), Times.Once);
                     break;
-                case PrefixDdFdOpCode.LD_mIXYd_L:
+                case PrimaryOpCode.LD_mHL_L:
                     this.Mmu.Verify(x => x.WriteByte(IX + SignedD, L), Times.Once);
                     break;
                 default:
@@ -917,14 +917,14 @@
             }
         }
 
-        [TestCase(PrefixDdFdOpCode.LD_mIXYd_A)]
-        [TestCase(PrefixDdFdOpCode.LD_mIXYd_B)]
-        [TestCase(PrefixDdFdOpCode.LD_mIXYd_C)]
-        [TestCase(PrefixDdFdOpCode.LD_mIXYd_D)]
-        [TestCase(PrefixDdFdOpCode.LD_mIXYd_E)]
-        [TestCase(PrefixDdFdOpCode.LD_mIXYd_H)]
-        [TestCase(PrefixDdFdOpCode.LD_mIXYd_L)]
-        public void LD_mIYd_r(PrefixDdFdOpCode opcode)
+        [TestCase(PrimaryOpCode.LD_mHL_A)]
+        [TestCase(PrimaryOpCode.LD_mHL_B)]
+        [TestCase(PrimaryOpCode.LD_mHL_C)]
+        [TestCase(PrimaryOpCode.LD_mHL_D)]
+        [TestCase(PrimaryOpCode.LD_mHL_E)]
+        [TestCase(PrimaryOpCode.LD_mHL_H)]
+        [TestCase(PrimaryOpCode.LD_mHL_L)]
+        public void LD_mIYd_r(PrimaryOpCode opcode)
         {
             this.SetupRegisters();
             this.ResetMocks();
@@ -938,25 +938,25 @@
 
             switch (opcode)
             {
-                case PrefixDdFdOpCode.LD_mIXYd_A:
+                case PrimaryOpCode.LD_mHL_A:
                     this.Mmu.Verify(x => x.WriteByte(IY + SignedD, A), Times.Once);
                     break;
-                case PrefixDdFdOpCode.LD_mIXYd_B:
+                case PrimaryOpCode.LD_mHL_B:
                     this.Mmu.Verify(x => x.WriteByte(IY + SignedD, B), Times.Once);
                     break;
-                case PrefixDdFdOpCode.LD_mIXYd_C:
+                case PrimaryOpCode.LD_mHL_C:
                     this.Mmu.Verify(x => x.WriteByte(IY + SignedD, C), Times.Once);
                     break;
-                case PrefixDdFdOpCode.LD_mIXYd_D:
+                case PrimaryOpCode.LD_mHL_D:
                     this.Mmu.Verify(x => x.WriteByte(IY + SignedD, D), Times.Once);
                     break;
-                case PrefixDdFdOpCode.LD_mIXYd_E:
+                case PrimaryOpCode.LD_mHL_E:
                     this.Mmu.Verify(x => x.WriteByte(IY + SignedD, E), Times.Once);
                     break;
-                case PrefixDdFdOpCode.LD_mIXYd_H:
+                case PrimaryOpCode.LD_mHL_H:
                     this.Mmu.Verify(x => x.WriteByte(IY + SignedD, H), Times.Once);
                     break;
-                case PrefixDdFdOpCode.LD_mIXYd_L:
+                case PrimaryOpCode.LD_mHL_L:
                     this.Mmu.Verify(x => x.WriteByte(IY + SignedD, L), Times.Once);
                     break;
                 default:
@@ -974,7 +974,7 @@
             const byte UnsignedD = unchecked((byte)SignedD);
             const byte N = 0x73;
             
-            Run(5, 19, PrimaryOpCode.Prefix_DD, PrefixDdFdOpCode.LD_mIXYd_n, UnsignedD, N);
+            Run(5, 19, PrimaryOpCode.Prefix_DD, PrimaryOpCode.LD_mHL_n, UnsignedD, N);
 
             this.Registers.VerifyGet(x => x.IX, Times.Once);
             this.Mmu.Verify(x => x.WriteByte(IX + SignedD, N), Times.Once);
@@ -990,7 +990,7 @@
             const byte UnsignedD = unchecked((byte)SignedD);
             const byte N = 0xF6;
 
-            Run(5, 19, PrimaryOpCode.Prefix_FD, PrefixDdFdOpCode.LD_mIXYd_n, UnsignedD, N);
+            Run(5, 19, PrimaryOpCode.Prefix_FD, PrimaryOpCode.LD_mHL_n, UnsignedD, N);
 
             this.Registers.VerifyGet(x => x.IY, Times.Once);
             this.Mmu.Verify(x => x.WriteByte(IY + SignedD, N), Times.Once);

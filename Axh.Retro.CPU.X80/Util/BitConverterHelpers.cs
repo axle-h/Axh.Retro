@@ -13,5 +13,25 @@
         {
             return BitConverter.GetBytes(r0);
         }
+
+        public static byte GetLowOrderByte(ushort r0)
+        {
+            return (byte)(r0 & 0xff);
+        }
+
+        public static byte GetHighOrderByte(ushort r0)
+        {
+            return (byte)(r0 >> 8);
+        }
+
+        public static ushort SetLowOrderByte(ushort r0, byte b)
+        {
+            return (ushort)((r0 & 0xff00) | b);
+        }
+
+        public static ushort SetHighOrderByte(ushort r0, byte b)
+        {
+            return (ushort)((r0 & 0xff) | (b << 8));
+        }
     }
 }

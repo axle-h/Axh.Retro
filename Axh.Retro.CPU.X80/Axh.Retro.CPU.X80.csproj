@@ -42,6 +42,7 @@
   <ItemGroup>
     <Compile Include="Core\ArithmeticLogicUnit.cs" />
     <Compile Include="Core\DecodeResult.cs" />
+    <Compile Include="Core\IndexRegister.cs" />
     <Compile Include="Core\InstructionTimer.cs" />
     <Compile Include="Core\Z80ExpressionBuilder.cs" />
     <Compile Include="Factories\MmuFactory.cs" />

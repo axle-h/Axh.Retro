@@ -37,7 +37,12 @@
         protected const byte R = 0xed;
 
         protected const ushort IX = 0x3366;
+        protected const byte IXl = 0x66;
+        protected const byte IXh = 0x33;
+
         protected const ushort IY = 0x2255;
+        protected const byte IYl = 0x55;
+        protected const byte IYh = 0x22;
 
         protected IInstructionBlockDecoder<IZ80Registers> BlockDecoder;
 
@@ -98,6 +103,12 @@
 
             this.Registers.SetupProperty(x => x.IX, IX);
             this.Registers.SetupProperty(x => x.IY, IY);
+
+            this.Registers.SetupProperty(x => x.IXh, IXh);
+            this.Registers.SetupProperty(x => x.IXl, IXl);
+            this.Registers.SetupProperty(x => x.IYh, IYh);
+            this.Registers.SetupProperty(x => x.IYl, IYl);
+            
             this.Registers.SetupProperty(x => x.StackPointer, SP);
 
             this.AfRegisters.SetupProperty(x => x.A, A);
@@ -161,7 +172,7 @@
             Assert.AreEqual(expectedThrottlingStates, timings.ThrottlingStates);
 
             // Make sure all bytes were read
-            this.Cache.Verify(x => x.NextByte(), Times.Exactly(opcodes.Count(x => x is byte || x is PrimaryOpCode || x is PrefixDdFdOpCode || x is PrefixEdOpCode)));
+            this.Cache.Verify(x => x.NextByte(), Times.Exactly(opcodes.Count(x => x is byte || x is PrimaryOpCode || x is PrefixEdOpCode)));
             this.Cache.Verify(x => x.NextWord(), Times.Exactly(opcodes.Count(x => x is ushort)));
         }
     }

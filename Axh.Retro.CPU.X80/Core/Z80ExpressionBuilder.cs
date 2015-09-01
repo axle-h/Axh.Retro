@@ -61,6 +61,11 @@
         private static readonly Expression IX;
         private static readonly Expression IY;
 
+        private static readonly Expression IXl;
+        private static readonly Expression IXh;
+        private static readonly Expression IYl;
+        private static readonly Expression IYh;
+
         // Interrupt stuff
         private static readonly Expression IFF1;
         private static readonly Expression IFF2;
@@ -173,7 +178,11 @@
             I = Registers.GetPropertyExpression<IZ80Registers, byte>(r => r.I);
             R = Registers.GetPropertyExpression<IZ80Registers, byte>(r => r.R);
             IX = Registers.GetPropertyExpression<IZ80Registers, ushort>(r => r.IX);
+            IXl = Registers.GetPropertyExpression<IZ80Registers, byte>(r => r.IXl);
+            IXh = Registers.GetPropertyExpression<IZ80Registers, byte>(r => r.IXh);
             IY = Registers.GetPropertyExpression<IZ80Registers, ushort>(r => r.IY);
+            IYl = Registers.GetPropertyExpression<IZ80Registers, byte>(r => r.IYl);
+            IYh = Registers.GetPropertyExpression<IZ80Registers, byte>(r => r.IYh);
 
             // Interrupt stuff
             IFF1 = Registers.GetPropertyExpression<IZ80Registers, bool>(r => r.InterruptFlipFlop1);
@@ -272,11 +281,99 @@
             var increment7LsbR = Expression.And(Expression.Add(Expression.Convert(R, typeof(int)), deltaExpression), Expression.Constant(0x7f));
             return Expression.Assign(R, Expression.Convert(increment7LsbR, typeof(byte)));
         }
-        
-        public DecodeResult TryDecodeNextOperation()
+
+        /// <summary>
+        /// Checks that when a DD or FD index prefix is applied whether the opcode will need a displacement adding to the index register i.e. (IX + d) and (IY + d) opcodes.
+        /// </summary>
+        /// <param name="opCode"></param>
+        /// <returns></returns>
+        private static bool OpCodeUsesDisplacedIndex(PrimaryOpCode opCode)
+        {
+            switch (opCode)
+            {
+                case PrimaryOpCode.LD_A_mHL:
+                case PrimaryOpCode.LD_B_mHL:
+                case PrimaryOpCode.LD_C_mHL:
+                case PrimaryOpCode.LD_D_mHL:
+                case PrimaryOpCode.LD_E_mHL:
+                case PrimaryOpCode.LD_H_mHL:
+                case PrimaryOpCode.LD_L_mHL:
+                case PrimaryOpCode.LD_mHL_A:
+                case PrimaryOpCode.LD_mHL_B:
+                case PrimaryOpCode.LD_mHL_C:
+                case PrimaryOpCode.LD_mHL_D:
+                case PrimaryOpCode.LD_mHL_E:
+                case PrimaryOpCode.LD_mHL_H:
+                case PrimaryOpCode.LD_mHL_L:
+                case PrimaryOpCode.LD_mHL_n:
+                case PrimaryOpCode.ADD_A_mHL:
+                case PrimaryOpCode.ADC_A_mHL:
+                case PrimaryOpCode.SUB_A_mHL:
+                case PrimaryOpCode.SBC_A_mHL:
+                case PrimaryOpCode.AND_mHL:
+                case PrimaryOpCode.OR_mHL:
+                case PrimaryOpCode.XOR_mHL:
+                case PrimaryOpCode.CP_mHL:
+                case PrimaryOpCode.INC_mHL:
+                case PrimaryOpCode.DEC_mHL:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        /// <summary>
+        /// Decode an opcode.
+        /// </summary>
+        /// <param name="currentIndexRegister">The current index prefix set from the last opcode</param>
+        /// <returns></returns>
+        public DecodeResult TryDecodeNextOperation(IndexRegister currentIndexRegister = IndexRegister.HL)
         {
             var opCode = (PrimaryOpCode)this.mmuCache.NextByte();
+            
+            Expression indexRegister;
+            Expression indexRegisterLowOrder;
+            Expression indexRegisterHighOrder;
+            Expression indexedAddress;
+            Expression indexedValue;
+            bool usingDisplacedIndexTimings;
 
+            switch (currentIndexRegister)
+            {
+                case IndexRegister.HL:
+                    indexRegister = HL;
+                    indexRegisterLowOrder = L;
+                    indexRegisterHighOrder = H;
+                    indexedAddress = HL; // HL indexes don't have a displacement
+                    indexedValue = ReadByteAtHL;
+                    usingDisplacedIndexTimings = false;
+                    break;
+                case IndexRegister.IX:
+                    indexRegister = IX;
+                    indexRegisterLowOrder = IXl;
+                    indexRegisterHighOrder = IXh;
+                    indexedAddress = IXd;
+                    indexedValue = ReadByteAtIXd;
+                    usingDisplacedIndexTimings = true;
+                    break;
+                case IndexRegister.IY:
+                    indexRegister = IY;
+                    indexRegisterLowOrder = IYl;
+                    indexRegisterHighOrder = IYh;
+                    indexedAddress = IYd;
+                    indexedValue = ReadByteAtIYd;
+                    usingDisplacedIndexTimings = true;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(currentIndexRegister), currentIndexRegister, null);
+            }
+
+            if (usingDisplacedIndexTimings && OpCodeUsesDisplacedIndex(opCode))
+            {
+                // Read the displacement as the next byte
+                expressions.Add(Expression.Assign(LocalByte, NextByte));
+            }
+            
             switch (opCode)
             {
                 case PrimaryOpCode.NOP:
@@ -285,6 +382,22 @@
                 case PrimaryOpCode.HALT:
                     timer.Add(1, 4);
                     return DecodeResult.FinalizeAndSync;
+
+                // ********* Prefixes *********
+                case PrimaryOpCode.Prefix_DD:
+                    // TODO: potential stack overflow
+                    // Add a NOP timing for now and take a NOP off known indexed timings later.
+                    timer.Add(1, 4);
+                    return TryDecodeNextOperation(IndexRegister.IX);
+
+                case PrimaryOpCode.Prefix_FD:
+                    // TODO: potential stack overflow
+                    // Add a NOP timing for now and take a NOP off known indexed timings later.
+                    timer.Add(1, 4);
+                    return TryDecodeNextOperation(IndexRegister.IY);
+
+                case PrimaryOpCode.Prefix_ED:
+                    return TryDecodeNextEdPrefixOperation();
 
                 // ********* 8-bit load *********
                 // LD r, r'
@@ -308,11 +421,11 @@
                     timer.Add(1, 4);
                     break;
                 case PrimaryOpCode.LD_H_A:
-                    expressions.Add(Expression.Assign(H, A));
+                    expressions.Add(Expression.Assign(indexRegisterHighOrder, A));
                     timer.Add(1, 4);
                     break;
                 case PrimaryOpCode.LD_L_A:
-                    expressions.Add(Expression.Assign(L, A));
+                    expressions.Add(Expression.Assign(indexRegisterLowOrder, A));
                     timer.Add(1, 4);
                     break;
                 case PrimaryOpCode.LD_A_B:
@@ -335,11 +448,11 @@
                     timer.Add(1, 4);
                     break;
                 case PrimaryOpCode.LD_H_B:
-                    expressions.Add(Expression.Assign(H, B));
+                    expressions.Add(Expression.Assign(indexRegisterHighOrder, B));
                     timer.Add(1, 4);
                     break;
                 case PrimaryOpCode.LD_L_B:
-                    expressions.Add(Expression.Assign(L, B));
+                    expressions.Add(Expression.Assign(indexRegisterLowOrder, B));
                     timer.Add(1, 4);
                     break;
                 case PrimaryOpCode.LD_A_C:
@@ -362,11 +475,11 @@
                     timer.Add(1, 4);
                     break;
                 case PrimaryOpCode.LD_H_C:
-                    expressions.Add(Expression.Assign(H, C));
+                    expressions.Add(Expression.Assign(indexRegisterHighOrder, C));
                     timer.Add(1, 4);
                     break;
                 case PrimaryOpCode.LD_L_C:
-                    expressions.Add(Expression.Assign(L, C));
+                    expressions.Add(Expression.Assign(indexRegisterLowOrder, C));
                     timer.Add(1, 4);
                     break;
                 case PrimaryOpCode.LD_A_D:
@@ -389,11 +502,11 @@
                     timer.Add(1, 4);
                     break;
                 case PrimaryOpCode.LD_H_D:
-                    expressions.Add(Expression.Assign(H, D));
+                    expressions.Add(Expression.Assign(indexRegisterHighOrder, D));
                     timer.Add(1, 4);
                     break;
                 case PrimaryOpCode.LD_L_D:
-                    expressions.Add(Expression.Assign(L, D));
+                    expressions.Add(Expression.Assign(indexRegisterLowOrder, D));
                     timer.Add(1, 4);
                     break;
                 case PrimaryOpCode.LD_A_E:
@@ -416,62 +529,62 @@
                     timer.Add(1, 4);
                     break;
                 case PrimaryOpCode.LD_H_E:
-                    expressions.Add(Expression.Assign(H, E));
+                    expressions.Add(Expression.Assign(indexRegisterHighOrder, E));
                     timer.Add(1, 4);
                     break;
                 case PrimaryOpCode.LD_L_E:
-                    expressions.Add(Expression.Assign(L, E));
+                    expressions.Add(Expression.Assign(indexRegisterLowOrder, E));
                     timer.Add(1, 4);
                     break;
                 case PrimaryOpCode.LD_A_H:
-                    expressions.Add(Expression.Assign(A, H));
+                    expressions.Add(Expression.Assign(A, indexRegisterHighOrder));
                     timer.Add(1, 4);
                     break;
                 case PrimaryOpCode.LD_B_H:
-                    expressions.Add(Expression.Assign(B, H));
+                    expressions.Add(Expression.Assign(B, indexRegisterHighOrder));
                     timer.Add(1, 4);
                     break;
                 case PrimaryOpCode.LD_C_H:
-                    expressions.Add(Expression.Assign(C, H));
+                    expressions.Add(Expression.Assign(C, indexRegisterHighOrder));
                     timer.Add(1, 4);
                     break;
                 case PrimaryOpCode.LD_D_H:
-                    expressions.Add(Expression.Assign(D, H));
+                    expressions.Add(Expression.Assign(D, indexRegisterHighOrder));
                     timer.Add(1, 4);
                     break;
                 case PrimaryOpCode.LD_E_H:
-                    expressions.Add(Expression.Assign(E, H));
+                    expressions.Add(Expression.Assign(E, indexRegisterHighOrder));
                     timer.Add(1, 4);
                     break;
                 case PrimaryOpCode.LD_H_H:
                     timer.Add(1, 4);
                     break;
                 case PrimaryOpCode.LD_L_H:
-                    expressions.Add(Expression.Assign(L, H));
+                    expressions.Add(Expression.Assign(indexRegisterLowOrder, indexRegisterHighOrder));
                     timer.Add(1, 4);
                     break;
                 case PrimaryOpCode.LD_A_L:
-                    expressions.Add(Expression.Assign(A, L));
+                    expressions.Add(Expression.Assign(A, indexRegisterLowOrder));
                     timer.Add(1, 4);
                     break;
                 case PrimaryOpCode.LD_B_L:
-                    expressions.Add(Expression.Assign(B, L));
+                    expressions.Add(Expression.Assign(B, indexRegisterLowOrder));
                     timer.Add(1, 4);
                     break;
                 case PrimaryOpCode.LD_C_L:
-                    expressions.Add(Expression.Assign(C, L));
+                    expressions.Add(Expression.Assign(C, indexRegisterLowOrder));
                     timer.Add(1, 4);
                     break;
                 case PrimaryOpCode.LD_D_L:
-                    expressions.Add(Expression.Assign(D, L));
+                    expressions.Add(Expression.Assign(D, indexRegisterLowOrder));
                     timer.Add(1, 4);
                     break;
                 case PrimaryOpCode.LD_E_L:
-                    expressions.Add(Expression.Assign(E, L));
+                    expressions.Add(Expression.Assign(E, indexRegisterLowOrder));
                     timer.Add(1, 4);
                     break;
                 case PrimaryOpCode.LD_H_L:
-                    expressions.Add(Expression.Assign(H, L));
+                    expressions.Add(Expression.Assign(indexRegisterHighOrder, indexRegisterLowOrder));
                     timer.Add(1, 4);
                     break;
                 case PrimaryOpCode.LD_L_L:
@@ -500,77 +613,96 @@
                     timer.Add(2, 7);
                     break;
                 case PrimaryOpCode.LD_H_n:
-                    expressions.Add(Expression.Assign(H, NextByte));
+                    expressions.Add(Expression.Assign(indexRegisterHighOrder, NextByte));
                     timer.Add(2, 7);
                     break;
                 case PrimaryOpCode.LD_L_n:
-                    expressions.Add(Expression.Assign(L, NextByte));
+                    expressions.Add(Expression.Assign(indexRegisterLowOrder, NextByte));
                     timer.Add(2, 7);
                     break;
 
                 // LD r, (HL)
                 case PrimaryOpCode.LD_A_mHL:
-                    expressions.Add(Expression.Assign(A, ReadByteAtHL));
+                    expressions.Add(Expression.Assign(A, indexedValue));
+                    if (usingDisplacedIndexTimings) timer.Add(2, 8);
                     timer.Add(2, 7);
                     break;
                 case PrimaryOpCode.LD_B_mHL:
-                    expressions.Add(Expression.Assign(B, ReadByteAtHL));
+                    expressions.Add(Expression.Assign(B, indexedValue));
+                    if (usingDisplacedIndexTimings) timer.Add(2, 8);
                     timer.Add(2, 7);
                     break;
                 case PrimaryOpCode.LD_C_mHL:
-                    expressions.Add(Expression.Assign(C, ReadByteAtHL));
+                    expressions.Add(Expression.Assign(C, indexedValue));
+                    if (usingDisplacedIndexTimings) timer.Add(2, 8);
                     timer.Add(2, 7);
                     break;
                 case PrimaryOpCode.LD_D_mHL:
-                    expressions.Add(Expression.Assign(D, ReadByteAtHL));
+                    expressions.Add(Expression.Assign(D, indexedValue));
+                    if (usingDisplacedIndexTimings) timer.Add(2, 8);
                     timer.Add(2, 7);
                     break;
                 case PrimaryOpCode.LD_E_mHL:
-                    expressions.Add(Expression.Assign(E, ReadByteAtHL));
+                    expressions.Add(Expression.Assign(E, indexedValue));
+                    if (usingDisplacedIndexTimings) timer.Add(2, 8);
                     timer.Add(2, 7);
                     break;
                 case PrimaryOpCode.LD_H_mHL:
-                    expressions.Add(Expression.Assign(H, ReadByteAtHL));
+                    // H register is always assigned here
+                    expressions.Add(Expression.Assign(H, indexedValue));
+                    if (usingDisplacedIndexTimings) timer.Add(2, 8);
                     timer.Add(2, 7);
                     break;
                 case PrimaryOpCode.LD_L_mHL:
-                    expressions.Add(Expression.Assign(L, ReadByteAtHL));
+                    // L register is always assigned here
+                    expressions.Add(Expression.Assign(L, indexedValue));
+                    if (usingDisplacedIndexTimings) timer.Add(2, 8);
                     timer.Add(2, 7);
                     break;
 
                 // LD (HL), r
                 case PrimaryOpCode.LD_mHL_A:
-                    expressions.Add(Expression.Call(Mmu, MmuWriteByte, HL, A));
+                    expressions.Add(Expression.Call(Mmu, MmuWriteByte, indexedAddress, A));
+                    if (usingDisplacedIndexTimings) timer.Add(2, 8);
                     timer.Add(2, 7);
                     break;
                 case PrimaryOpCode.LD_mHL_B:
-                    expressions.Add(Expression.Call(Mmu, MmuWriteByte, HL, B));
+                    expressions.Add(Expression.Call(Mmu, MmuWriteByte, indexedAddress, B));
+                    if (usingDisplacedIndexTimings) timer.Add(2, 8);
                     timer.Add(2, 7);
                     break;
                 case PrimaryOpCode.LD_mHL_C:
-                    expressions.Add(Expression.Call(Mmu, MmuWriteByte, HL, C));
+                    expressions.Add(Expression.Call(Mmu, MmuWriteByte, indexedAddress, C));
+                    if (usingDisplacedIndexTimings) timer.Add(2, 8);
                     timer.Add(2, 7);
                     break;
                 case PrimaryOpCode.LD_mHL_D:
-                    expressions.Add(Expression.Call(Mmu, MmuWriteByte, HL, D));
+                    expressions.Add(Expression.Call(Mmu, MmuWriteByte, indexedAddress, D));
+                    if (usingDisplacedIndexTimings) timer.Add(2, 8);
                     timer.Add(2, 7);
                     break;
                 case PrimaryOpCode.LD_mHL_E:
-                    expressions.Add(Expression.Call(Mmu, MmuWriteByte, HL, E));
+                    expressions.Add(Expression.Call(Mmu, MmuWriteByte, indexedAddress, E));
+                    if (usingDisplacedIndexTimings) timer.Add(2, 8);
                     timer.Add(2, 7);
                     break;
                 case PrimaryOpCode.LD_mHL_H:
-                    expressions.Add(Expression.Call(Mmu, MmuWriteByte, HL, H));
+                    // Value of H register is always used here
+                    expressions.Add(Expression.Call(Mmu, MmuWriteByte, indexedAddress, H));
+                    if (usingDisplacedIndexTimings) timer.Add(2, 8);
                     timer.Add(2, 7);
                     break;
                 case PrimaryOpCode.LD_mHL_L:
-                    expressions.Add(Expression.Call(Mmu, MmuWriteByte, HL, L));
+                    // Value of L register is always used here
+                    expressions.Add(Expression.Call(Mmu, MmuWriteByte, indexedAddress, L));
+                    if (usingDisplacedIndexTimings) timer.Add(2, 8);
                     timer.Add(2, 7);
                     break;
 
                 // LD (HL), n
                 case PrimaryOpCode.LD_mHL_n:
-                    expressions.Add(Expression.Call(Mmu, MmuWriteByte, HL, NextByte));
+                    expressions.Add(Expression.Call(Mmu, MmuWriteByte, indexedAddress, NextByte));
+                    if (usingDisplacedIndexTimings) timer.Add(1, 5);
                     timer.Add(3, 10);
                     break;
 
@@ -621,8 +753,8 @@
                     timer.Add(2, 10);
                     break;
                 case PrimaryOpCode.LD_HL_nn:
-                    expressions.Add(Expression.Assign(HL, NextWord));
-                    timer.Add(2, 10);
+                    expressions.Add(Expression.Assign(indexRegister, NextWord));
+                    timer.Add(usingDisplacedIndexTimings ? 3 : 2, 10);
                     break;
                 case PrimaryOpCode.LD_SP_nn:
                     expressions.Add(Expression.Assign(SP, NextWord));
@@ -631,19 +763,19 @@
 
                 // LD HL, (nn)
                 case PrimaryOpCode.LD_HL_mnn:
-                    expressions.Add(Expression.Assign(HL, Expression.Call(Mmu, MmuReadWord, NextWord)));
+                    expressions.Add(Expression.Assign(indexRegister, Expression.Call(Mmu, MmuReadWord, NextWord)));
                     timer.Add(5, 16);
                     break;
 
                 // LD (nn), HL
                 case PrimaryOpCode.LD_mnn_HL:
-                    expressions.Add(Expression.Call(Mmu, MmuWriteWord, NextWord, HL));
-                    timer.Add(6, 20);
+                    expressions.Add(Expression.Call(Mmu, MmuWriteWord, NextWord, indexRegister));
+                    timer.Add(5, 16);
                     break;
 
                 // LD SP, HL
                 case PrimaryOpCode.LD_SP_HL:
-                    expressions.Add(Expression.Assign(SP, HL));
+                    expressions.Add(Expression.Assign(SP, indexRegister));
                     timer.Add(1, 6);
                     break;
 
@@ -664,9 +796,9 @@
                     break;
                 case PrimaryOpCode.PUSH_HL:
                     expressions.Add(PushSP);
-                    expressions.Add(Expression.Call(Mmu, MmuWriteByte, SP, H));
+                    expressions.Add(Expression.Call(Mmu, MmuWriteByte, SP, indexRegisterHighOrder));
                     expressions.Add(PushSP);
-                    expressions.Add(Expression.Call(Mmu, MmuWriteByte, SP, L));
+                    expressions.Add(Expression.Call(Mmu, MmuWriteByte, SP, indexRegisterLowOrder));
                     timer.Add(3, 11);
                     break;
                 case PrimaryOpCode.PUSH_AF:
@@ -693,9 +825,9 @@
                     timer.Add(3, 10);
                     break;
                 case PrimaryOpCode.POP_HL:
-                    expressions.Add(Expression.Assign(L, Expression.Call(Mmu, MmuReadByte, SP)));
+                    expressions.Add(Expression.Assign(indexRegisterLowOrder, Expression.Call(Mmu, MmuReadByte, SP)));
                     expressions.Add(PopSP);
-                    expressions.Add(Expression.Assign(H, Expression.Call(Mmu, MmuReadByte, SP)));
+                    expressions.Add(Expression.Assign(indexRegisterHighOrder, Expression.Call(Mmu, MmuReadByte, SP)));
                     expressions.Add(PopSP);
                     timer.Add(3, 10);
                     break;
@@ -710,6 +842,7 @@
                 // ********* Exchange *********
                 // EX DE, HL
                 case PrimaryOpCode.EX_DE_HL:
+                    // This affects HL register directly, always ignoring index register prefixes
                     expressions.Add(Expression.Assign(LocalWord, DE));
                     expressions.Add(Expression.Assign(DE, HL));
                     expressions.Add(Expression.Assign(HL, LocalWord));
@@ -731,14 +864,14 @@
                 // EX (SP), HL
                 case PrimaryOpCode.EX_mSP_HL:
                     // Exchange L
-                    expressions.Add(Expression.Assign(LocalByte, L));
-                    expressions.Add(Expression.Assign(L, Expression.Call(Mmu, MmuReadByte, SP)));
+                    expressions.Add(Expression.Assign(LocalByte, indexRegisterLowOrder));
+                    expressions.Add(Expression.Assign(indexRegisterLowOrder, Expression.Call(Mmu, MmuReadByte, SP)));
                     expressions.Add(Expression.Call(Mmu, MmuWriteByte, SP, LocalByte));
 
                     // Exchange H
-                    expressions.Add(Expression.Assign(LocalByte, H));
+                    expressions.Add(Expression.Assign(LocalByte, indexRegisterHighOrder));
                     expressions.Add(Expression.Assign(LocalWord, Expression.Increment(SP)));
-                    expressions.Add(Expression.Assign(H, Expression.Call(Mmu, MmuReadByte, LocalWord)));
+                    expressions.Add(Expression.Assign(indexRegisterHighOrder, Expression.Call(Mmu, MmuReadByte, LocalWord)));
                     expressions.Add(Expression.Call(Mmu, MmuWriteByte, LocalWord, LocalByte));
                     
                     timer.Add(5, 19);
@@ -767,11 +900,11 @@
                     timer.Add(1, 4);
                     break;
                 case PrimaryOpCode.ADD_A_H:
-                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluAdd, A, H)));
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluAdd, A, indexRegisterHighOrder)));
                     timer.Add(1, 4);
                     break;
                 case PrimaryOpCode.ADD_A_L:
-                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluAdd, A, L)));
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluAdd, A, indexRegisterLowOrder)));
                     timer.Add(1, 4);
                     break;
 
@@ -783,7 +916,8 @@
 
                 // ADD A, (HL)
                 case PrimaryOpCode.ADD_A_mHL:
-                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluAdd, A, ReadByteAtHL)));
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluAdd, A, indexedValue)));
+                    if (usingDisplacedIndexTimings) timer.Add(2, 8);
                     timer.Add(2, 7);
                     break;
 
@@ -809,11 +943,11 @@
                     timer.Add(1, 4);
                     break;
                 case PrimaryOpCode.ADC_A_H:
-                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluAddWithCarry, A, H)));
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluAddWithCarry, A, indexRegisterHighOrder)));
                     timer.Add(1, 4);
                     break;
                 case PrimaryOpCode.ADC_A_L:
-                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluAddWithCarry, A, L)));
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluAddWithCarry, A, indexRegisterLowOrder)));
                     timer.Add(1, 4);
                     break;
 
@@ -825,7 +959,8 @@
 
                 // ADC A, (HL)
                 case PrimaryOpCode.ADC_A_mHL:
-                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluAddWithCarry, A, ReadByteAtHL)));
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluAddWithCarry, A, indexedValue)));
+                    if (usingDisplacedIndexTimings) timer.Add(2, 8);
                     timer.Add(2, 7);
                     break;
 
@@ -851,11 +986,11 @@
                     timer.Add(1, 4);
                     break;
                 case PrimaryOpCode.SUB_A_H:
-                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluSubtract, A, H)));
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluSubtract, A, indexRegisterHighOrder)));
                     timer.Add(1, 4);
                     break;
                 case PrimaryOpCode.SUB_A_L:
-                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluSubtract, A, L)));
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluSubtract, A, indexRegisterLowOrder)));
                     timer.Add(1, 4);
                     break;
 
@@ -867,7 +1002,8 @@
 
                 // SUB A, (HL)
                 case PrimaryOpCode.SUB_A_mHL:
-                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluSubtract, A, ReadByteAtHL)));
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluSubtract, A, indexedValue)));
+                    if (usingDisplacedIndexTimings) timer.Add(2, 8);
                     timer.Add(2, 7);
                     break;
 
@@ -893,11 +1029,11 @@
                     timer.Add(1, 4);
                     break;
                 case PrimaryOpCode.SBC_A_H:
-                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluSubtractWithCarry, A, H)));
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluSubtractWithCarry, A, indexRegisterHighOrder)));
                     timer.Add(1, 4);
                     break;
                 case PrimaryOpCode.SBC_A_L:
-                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluSubtractWithCarry, A, L)));
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluSubtractWithCarry, A, indexRegisterLowOrder)));
                     timer.Add(1, 4);
                     break;
 
@@ -909,7 +1045,8 @@
 
                 // SBC A, (HL)
                 case PrimaryOpCode.SBC_A_mHL:
-                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluSubtractWithCarry, A, ReadByteAtHL)));
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluSubtractWithCarry, A, indexedValue)));
+                    if (usingDisplacedIndexTimings) timer.Add(2, 8);
                     timer.Add(2, 7);
                     break;
 
@@ -920,16 +1057,6 @@
                     timer.Add(3, 10);
                     return DecodeResult.Finalize;
 
-                // ********* Prefixes *********
-                case PrimaryOpCode.Prefix_DD:
-                    return TryDecodeNextDdPrefixOperation();
-
-                case PrimaryOpCode.Prefix_FD:
-                    return TryDecodeNextFdPrefixOperation();
-
-                case PrimaryOpCode.Prefix_ED:
-                    return TryDecodeNextEdPrefixOperation();
-
                 default:
                     throw new NotImplementedException(opCode.ToString());
             }
@@ -937,388 +1064,6 @@
             return DecodeResult.Continue;
         }
         
-        public DecodeResult TryDecodeNextDdPrefixOperation()
-        {
-            var opCode = (PrefixDdFdOpCode)mmuCache.NextByte();
-
-            switch (opCode)
-            {
-                // ********* Stray Prefixes (same timings as NOP) *********
-                case PrefixDdFdOpCode.Prefix_DD:
-                    timer.Add(1, 4);
-                    return TryDecodeNextDdPrefixOperation();
-
-                case PrefixDdFdOpCode.Prefix_FD:
-                    timer.Add(1, 4);
-                    return TryDecodeNextFdPrefixOperation();
-                    
-                case PrefixDdFdOpCode.Prefix_ED:
-                    timer.Add(1, 4);
-                    return TryDecodeNextEdPrefixOperation();
-
-                // ********* 8-bit load *********
-                // LD r, (IX+d)
-                // We have defined this using ReadByteAtIXd for when we set the local parameter b to d.
-                case PrefixDdFdOpCode.LD_A_mIXYd:
-                    expressions.Add(Expression.Assign(LocalByte, NextByte));
-                    expressions.Add(Expression.Assign(A, ReadByteAtIXd));
-                    timer.Add(5, 19);
-                    break;
-                case PrefixDdFdOpCode.LD_B_mIXYd:
-                    expressions.Add(Expression.Assign(LocalByte, NextByte));
-                    expressions.Add(Expression.Assign(B, ReadByteAtIXd));
-                    timer.Add(5, 19);
-                    break;
-                case PrefixDdFdOpCode.LD_C_mIXYd:
-                    expressions.Add(Expression.Assign(LocalByte, NextByte));
-                    expressions.Add(Expression.Assign(C, ReadByteAtIXd));
-                    timer.Add(5, 19);
-                    break;
-                case PrefixDdFdOpCode.LD_D_mIXYd:
-                    expressions.Add(Expression.Assign(LocalByte, NextByte));
-                    expressions.Add(Expression.Assign(D, ReadByteAtIXd));
-                    timer.Add(5, 19);
-                    break;
-                case PrefixDdFdOpCode.LD_E_mIXYd:
-                    expressions.Add(Expression.Assign(LocalByte, NextByte));
-                    expressions.Add(Expression.Assign(E, ReadByteAtIXd));
-                    timer.Add(5, 19);
-                    break;
-                case PrefixDdFdOpCode.LD_H_mIXYd:
-                    expressions.Add(Expression.Assign(LocalByte, NextByte));
-                    expressions.Add(Expression.Assign(H, ReadByteAtIXd));
-                    timer.Add(5, 19);
-                    break;
-                case PrefixDdFdOpCode.LD_L_mIXYd:
-                    expressions.Add(Expression.Assign(LocalByte, NextByte));
-                    expressions.Add(Expression.Assign(L, ReadByteAtIXd));
-                    timer.Add(5, 19);
-                    break;
-
-                // LD (IX+d), r
-                case PrefixDdFdOpCode.LD_mIXYd_A:
-                    expressions.Add(Expression.Assign(LocalByte, NextByte));
-                    expressions.Add(Expression.Call(Mmu, MmuWriteByte, IXd, A));
-                    timer.Add(5, 19);
-                    break;
-                case PrefixDdFdOpCode.LD_mIXYd_B:
-                    expressions.Add(Expression.Assign(LocalByte, NextByte));
-                    expressions.Add(Expression.Call(Mmu, MmuWriteByte, IXd, B));
-                    timer.Add(5, 19);
-                    break;
-                case PrefixDdFdOpCode.LD_mIXYd_C:
-                    expressions.Add(Expression.Assign(LocalByte, NextByte));
-                    expressions.Add(Expression.Call(Mmu, MmuWriteByte, IXd, C));
-                    timer.Add(5, 19);
-                    break;
-                case PrefixDdFdOpCode.LD_mIXYd_D:
-                    expressions.Add(Expression.Assign(LocalByte, NextByte));
-                    expressions.Add(Expression.Call(Mmu, MmuWriteByte, IXd, D));
-                    timer.Add(5, 19);
-                    break;
-                case PrefixDdFdOpCode.LD_mIXYd_E:
-                    expressions.Add(Expression.Assign(LocalByte, NextByte));
-                    expressions.Add(Expression.Call(Mmu, MmuWriteByte, IXd, E));
-                    timer.Add(5, 19);
-                    break;
-                case PrefixDdFdOpCode.LD_mIXYd_H:
-                    expressions.Add(Expression.Assign(LocalByte, NextByte));
-                    expressions.Add(Expression.Call(Mmu, MmuWriteByte, IXd, H));
-                    timer.Add(5, 19);
-                    break;
-                case PrefixDdFdOpCode.LD_mIXYd_L:
-                    expressions.Add(Expression.Assign(LocalByte, NextByte));
-                    expressions.Add(Expression.Call(Mmu, MmuWriteByte, IXd, L));
-                    timer.Add(5, 19);
-                    break;
-
-                // LD (IX+d), n
-                case PrefixDdFdOpCode.LD_mIXYd_n:
-                    expressions.Add(Expression.Assign(LocalByte, NextByte));
-                    expressions.Add(Expression.Call(Mmu, MmuWriteByte, IXd, NextByte));
-                    timer.Add(5, 19);
-                    break;
-
-                // ********* 16-bit load *********
-                // LD IX, nn
-                case PrefixDdFdOpCode.LD_IXY_nn:
-                    expressions.Add(Expression.Assign(IX, NextWord));
-                    timer.Add(4, 14);
-                    break;
-
-                // LD IX, (nn)
-                case PrefixDdFdOpCode.LD_IXY_mnn:
-                    expressions.Add(Expression.Assign(IX, Expression.Call(Mmu, MmuReadWord, NextWord)));
-                    timer.Add(6, 20);
-                    break;
-
-                // LD (nn), IX
-                case PrefixDdFdOpCode.LD_mnn_IXY:
-                    expressions.Add(Expression.Call(Mmu, MmuWriteWord, NextWord, IX));
-                    timer.Add(6, 20);
-                    break;
-
-                // LD SP, IX
-                case PrefixDdFdOpCode.LD_SP_IXY:
-                    expressions.Add(Expression.Assign(SP, IX));
-                    timer.Add(2, 10);
-                    break;
-
-                // PUSH IX
-                case PrefixDdFdOpCode.PUSH_IXY:
-                    expressions.Add(PushPushSP);
-                    expressions.Add(Expression.Call(Mmu, MmuWriteWord, SP, IX));
-                    timer.Add(4, 15);
-                    break;
-
-                // POP IX
-                case PrefixDdFdOpCode.POP_IXY:
-                    expressions.Add(Expression.Assign(IX, Expression.Call(Mmu, MmuReadWord, SP)));
-                    expressions.Add(PopPopSP);
-                    timer.Add(4, 14);
-                    break;
-
-                // ********* Exchange *********
-                // EX (SP), IX
-                case PrefixDdFdOpCode.EX_mSP_IXY:
-                    // Read temp word at SP
-                    expressions.Add(Expression.Assign(LocalWord, Expression.Call(Mmu, MmuReadWord, SP)));
-
-                    // Write IX at SP
-                    expressions.Add(Expression.Call(Mmu, MmuWriteWord, SP, IX));
-
-                    // Assign IX to temp word
-                    expressions.Add(Expression.Assign(IX, LocalWord));
-                    timer.Add(6, 23);
-                    break;
-
-                // ********* 8-Bit Arithmetic *********
-                // ADD A, (IX + d)
-                case PrefixDdFdOpCode.ADD_A_mIXYd:
-                    expressions.Add(Expression.Assign(LocalByte, NextByte));
-                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluAdd, A, ReadByteAtIXd)));
-                    timer.Add(5, 19);
-                    break;
-
-                // ADC A, (IX + d)
-                case PrefixDdFdOpCode.ADC_A_mIXYd:
-                    expressions.Add(Expression.Assign(LocalByte, NextByte));
-                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluAddWithCarry, A, ReadByteAtIXd)));
-                    timer.Add(5, 19);
-                    break;
-                    
-                // SUB A, (IX + d)
-                case PrefixDdFdOpCode.SUB_A_mIXYd:
-                    expressions.Add(Expression.Assign(LocalByte, NextByte));
-                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluSubtract, A, ReadByteAtIXd)));
-                    timer.Add(5, 19);
-                    break;
-
-                // SBC A, (IX + d)
-                case PrefixDdFdOpCode.SBC_A_mIXYd:
-                    expressions.Add(Expression.Assign(LocalByte, NextByte));
-                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluSubtractWithCarry, A, ReadByteAtIXd)));
-                    timer.Add(5, 19);
-                    break;
-
-                default:
-                    throw new NotImplementedException(opCode.ToString());
-            }
-
-            return DecodeResult.Continue;
-        }
-
-        public DecodeResult TryDecodeNextFdPrefixOperation()
-        {
-            var opCode = (PrefixDdFdOpCode)mmuCache.NextByte();
-
-            switch (opCode)
-            {
-                // ********* Stray Prefixes (same timings as NOP) *********
-                case PrefixDdFdOpCode.Prefix_DD:
-                    timer.Add(1, 4);
-                    return TryDecodeNextDdPrefixOperation();
-
-                case PrefixDdFdOpCode.Prefix_FD:
-                    timer.Add(1, 4);
-                    return TryDecodeNextFdPrefixOperation();
-
-                case PrefixDdFdOpCode.Prefix_ED:
-                    timer.Add(1, 4);
-                    return TryDecodeNextEdPrefixOperation();
-
-                // ********* 8-bit load *********
-                // LD r, (IY+d)
-                // We have defined this using ReadByteByIxIndexRegisterExpression for when we set the local parameter b to d.
-                case PrefixDdFdOpCode.LD_A_mIXYd:
-                    expressions.Add(Expression.Assign(LocalByte, NextByte));
-                    expressions.Add(Expression.Assign(A, ReadByteAtIYd));
-                    timer.Add(5, 19);
-                    break;
-                case PrefixDdFdOpCode.LD_B_mIXYd:
-                    expressions.Add(Expression.Assign(LocalByte, NextByte));
-                    expressions.Add(Expression.Assign(B, ReadByteAtIYd));
-                    timer.Add(5, 19);
-                    break;
-                case PrefixDdFdOpCode.LD_C_mIXYd:
-                    expressions.Add(Expression.Assign(LocalByte, NextByte));
-                    expressions.Add(Expression.Assign(C, ReadByteAtIYd));
-                    timer.Add(5, 19);
-                    break;
-                case PrefixDdFdOpCode.LD_D_mIXYd:
-                    expressions.Add(Expression.Assign(LocalByte, NextByte));
-                    expressions.Add(Expression.Assign(D, ReadByteAtIYd));
-                    timer.Add(5, 19);
-                    break;
-                case PrefixDdFdOpCode.LD_E_mIXYd:
-                    expressions.Add(Expression.Assign(LocalByte, NextByte));
-                    expressions.Add(Expression.Assign(E, ReadByteAtIYd));
-                    timer.Add(5, 19);
-                    break;
-                case PrefixDdFdOpCode.LD_H_mIXYd:
-                    expressions.Add(Expression.Assign(LocalByte, NextByte));
-                    expressions.Add(Expression.Assign(H, ReadByteAtIYd));
-                    timer.Add(5, 19);
-                    break;
-                case PrefixDdFdOpCode.LD_L_mIXYd:
-                    expressions.Add(Expression.Assign(LocalByte, NextByte));
-                    expressions.Add(Expression.Assign(L, ReadByteAtIYd));
-                    timer.Add(5, 19);
-                    break;
-                    
-                // LD (IY+d), r
-                case PrefixDdFdOpCode.LD_mIXYd_A:
-                    expressions.Add(Expression.Assign(LocalByte, NextByte));
-                    expressions.Add(Expression.Call(Mmu, MmuWriteByte, IYd, A));
-                    timer.Add(5, 19);
-                    break;
-                case PrefixDdFdOpCode.LD_mIXYd_B:
-                    expressions.Add(Expression.Assign(LocalByte, NextByte));
-                    expressions.Add(Expression.Call(Mmu, MmuWriteByte, IYd, B));
-                    timer.Add(5, 19);
-                    break;
-                case PrefixDdFdOpCode.LD_mIXYd_C:
-                    expressions.Add(Expression.Assign(LocalByte, NextByte));
-                    expressions.Add(Expression.Call(Mmu, MmuWriteByte, IYd, C));
-                    timer.Add(5, 19);
-                    break;
-                case PrefixDdFdOpCode.LD_mIXYd_D:
-                    expressions.Add(Expression.Assign(LocalByte, NextByte));
-                    expressions.Add(Expression.Call(Mmu, MmuWriteByte, IYd, D));
-                    timer.Add(5, 19);
-                    break;
-                case PrefixDdFdOpCode.LD_mIXYd_E:
-                    expressions.Add(Expression.Assign(LocalByte, NextByte));
-                    expressions.Add(Expression.Call(Mmu, MmuWriteByte, IYd, E));
-                    timer.Add(5, 19);
-                    break;
-                case PrefixDdFdOpCode.LD_mIXYd_H:
-                    expressions.Add(Expression.Assign(LocalByte, NextByte));
-                    expressions.Add(Expression.Call(Mmu, MmuWriteByte, IYd, H));
-                    timer.Add(5, 19);
-                    break;
-                case PrefixDdFdOpCode.LD_mIXYd_L:
-                    expressions.Add(Expression.Assign(LocalByte, NextByte));
-                    expressions.Add(Expression.Call(Mmu, MmuWriteByte, IYd, L));
-                    timer.Add(5, 19);
-                    break;
-                    
-                // LD (IX+d), n
-                case PrefixDdFdOpCode.LD_mIXYd_n:
-                    expressions.Add(Expression.Assign(LocalByte, NextByte));
-                    expressions.Add(Expression.Call(Mmu, MmuWriteByte, IYd, NextByte));
-                    timer.Add(5, 19);
-                    break;
-
-                // ********* 16-bit load *********
-                // LD IY, nn
-                case PrefixDdFdOpCode.LD_IXY_nn:
-                    expressions.Add(Expression.Assign(IY, NextWord));
-                    timer.Add(4, 14);
-                    break;
-
-                // LD IY, (nn)
-                case PrefixDdFdOpCode.LD_IXY_mnn:
-                    expressions.Add(Expression.Assign(IY, Expression.Call(Mmu, MmuReadWord, NextWord)));
-                    timer.Add(6, 20);
-                    break;
-
-                // LD (nn), IY
-                case PrefixDdFdOpCode.LD_mnn_IXY:
-                    expressions.Add(Expression.Call(Mmu, MmuWriteWord, NextWord, IY));
-                    timer.Add(6, 20);
-                    break;
-
-                // LD SP, IY
-                case PrefixDdFdOpCode.LD_SP_IXY:
-                    expressions.Add(Expression.Assign(SP, IY));
-                    timer.Add(2, 10);
-                    break;
-                    
-                // PUSH IY
-                case PrefixDdFdOpCode.PUSH_IXY:
-                    expressions.Add(PushPushSP);
-                    expressions.Add(Expression.Call(Mmu, MmuWriteWord, SP, IY));
-                    timer.Add(4, 15);
-                    break;
-                    
-                // POP IY
-                case PrefixDdFdOpCode.POP_IXY:
-                    expressions.Add(Expression.Assign(IY, Expression.Call(Mmu, MmuReadWord, SP)));
-                    expressions.Add(PopPopSP);
-                    timer.Add(4, 14);
-                    break;
-
-                // ********* Exchange *********
-                // EX (SP), IY
-                case PrefixDdFdOpCode.EX_mSP_IXY:
-                    // Read temp word at SP
-                    expressions.Add(Expression.Assign(LocalWord, Expression.Call(Mmu, MmuReadWord, SP)));
-
-                    // Write IY at SP
-                    expressions.Add(Expression.Call(Mmu, MmuWriteWord, SP, IY));
-
-                    // Assign IY to temp word
-                    expressions.Add(Expression.Assign(IY, LocalWord));
-                    timer.Add(6, 23);
-                    break;
-                    
-                // ********* 8-Bit Arithmetic *********
-                // ADD A, (IY + d)
-                case PrefixDdFdOpCode.ADD_A_mIXYd:
-                    expressions.Add(Expression.Assign(LocalByte, NextByte));
-                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluAdd, A, ReadByteAtIYd)));
-                    timer.Add(5, 19);
-                    break;
-                    
-                // ADC A, (IY + d)
-                case PrefixDdFdOpCode.ADC_A_mIXYd:
-                    expressions.Add(Expression.Assign(LocalByte, NextByte));
-                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluAddWithCarry, A, ReadByteAtIYd)));
-                    timer.Add(5, 19);
-                    break;
-
-                // SUB A, (IY + d)
-                case PrefixDdFdOpCode.SUB_A_mIXYd:
-                    expressions.Add(Expression.Assign(LocalByte, NextByte));
-                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluSubtract, A, ReadByteAtIYd)));
-                    timer.Add(5, 19);
-                    break;
-
-                // SBC A, (IY + d)
-                case PrefixDdFdOpCode.SBC_A_mIXYd:
-                    expressions.Add(Expression.Assign(LocalByte, NextByte));
-                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluSubtractWithCarry, A, ReadByteAtIYd)));
-                    timer.Add(5, 19);
-                    break;
-
-                default:
-                    throw new NotImplementedException(opCode.ToString());
-            }
-
-            return DecodeResult.Continue;
-        }
-
         public DecodeResult TryDecodeNextEdPrefixOperation()
         {
             var opCode = (PrefixEdOpCode)mmuCache.NextByte();

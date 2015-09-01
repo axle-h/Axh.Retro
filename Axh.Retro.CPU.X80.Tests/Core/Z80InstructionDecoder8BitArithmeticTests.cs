@@ -109,7 +109,7 @@
             
             this.Mmu.Setup(x => x.ReadByte(displacedIndex)).Returns(ValueAtIndex);
 
-            Run(5, 19, opCode, PrefixDdFdOpCode.ADD_A_mIXYd, unchecked((byte)Displacement));
+            Run(5, 19, opCode, PrimaryOpCode.ADD_A_mHL, unchecked((byte)Displacement));
 
             this.Mmu.Verify(x => x.ReadByte(displacedIndex), Times.Once);
             this.Alu.Verify(x => x.Add(A, ValueAtIndex), Times.Once);
@@ -214,7 +214,7 @@
 
             this.Mmu.Setup(x => x.ReadByte(displacedIndex)).Returns(ValueAtIndex);
 
-            Run(5, 19, opCode, PrefixDdFdOpCode.ADC_A_mIXYd, unchecked((byte)Displacement));
+            Run(5, 19, opCode, PrimaryOpCode.ADC_A_mHL, unchecked((byte)Displacement));
 
             this.Mmu.Verify(x => x.ReadByte(displacedIndex), Times.Once);
             this.Alu.Verify(x => x.AddWithCarry(A, ValueAtIndex), Times.Once);
@@ -319,7 +319,7 @@
 
             this.Mmu.Setup(x => x.ReadByte(displacedIndex)).Returns(ValueAtIndex);
 
-            Run(5, 19, opCode, PrefixDdFdOpCode.SUB_A_mIXYd, unchecked((byte)Displacement));
+            Run(5, 19, opCode, PrimaryOpCode.SUB_A_mHL, unchecked((byte)Displacement));
 
             this.Mmu.Verify(x => x.ReadByte(displacedIndex), Times.Once);
             this.Alu.Verify(x => x.Subtract(A, ValueAtIndex), Times.Once);
@@ -425,7 +425,7 @@
 
             this.Mmu.Setup(x => x.ReadByte(displacedIndex)).Returns(ValueAtIndex);
 
-            Run(5, 19, opCode, PrefixDdFdOpCode.SBC_A_mIXYd, unchecked((byte)Displacement));
+            Run(5, 19, opCode, PrimaryOpCode.SBC_A_mHL, unchecked((byte)Displacement));
 
             this.Mmu.Verify(x => x.ReadByte(displacedIndex), Times.Once);
             this.Alu.Verify(x => x.SubtractWithCarry(A, ValueAtIndex), Times.Once);

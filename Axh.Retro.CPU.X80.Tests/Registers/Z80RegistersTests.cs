@@ -121,5 +121,48 @@
             this.alternativeAccumulatorAndFlagsRegisters.Verify(x => x.GetRegisterState(), Times.Once);
 
         }
+        
+        [Test]
+        public void SetIxRegisterTest()
+        {
+            this.z80Registers.IX = 0x1234;
+
+            Assert.AreEqual(0x12, this.z80Registers.IXh);
+            Assert.AreEqual(0x34, this.z80Registers.IXl);
+            Assert.AreEqual(0x1234, this.z80Registers.IX);
+        }
+
+        [Test]
+        public void SetIyRegisterTest()
+        {
+            this.z80Registers.IY = 0x1234;
+
+            Assert.AreEqual(0x12, this.z80Registers.IYh);
+            Assert.AreEqual(0x34, this.z80Registers.IYl);
+            Assert.AreEqual(0x1234, this.z80Registers.IY);
+        }
+
+        [Test]
+        public void GetIxRegisterTest()
+        {
+            this.z80Registers.IXl = 0x34;
+            this.z80Registers.IXh = 0x12;
+
+            Assert.AreEqual(0x12, this.z80Registers.IXh);
+            Assert.AreEqual(0x34, this.z80Registers.IXl);
+            Assert.AreEqual(0x1234, this.z80Registers.IX);
+        }
+
+        [Test]
+        public void GetIyRegisterTest()
+        {
+            this.z80Registers.IYl = 0x34;
+            this.z80Registers.IYh = 0x12;
+
+            Assert.AreEqual(0x12, this.z80Registers.IYh);
+            Assert.AreEqual(0x34, this.z80Registers.IYl);
+            Assert.AreEqual(0x1234, this.z80Registers.IY);
+        }
+
     }
 }

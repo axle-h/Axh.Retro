@@ -2,6 +2,7 @@
 {
     using Axh.Retro.CPU.X80.Contracts.Registers;
     using Axh.Retro.CPU.X80.Contracts.State;
+    using Axh.Retro.CPU.X80.Util;
 
     public class Z80Registers : IZ80Registers
     {
@@ -22,6 +23,54 @@
         //Index Registers
         public ushort IX { get; set; }
         public ushort IY { get; set; }
+
+        public byte IXl
+        {
+            get
+            {
+                return BitConverterHelpers.GetLowOrderByte(IX);
+            }
+            set
+            {
+                IX = BitConverterHelpers.SetLowOrderByte(IX, value);
+            }
+        }
+
+        public byte IXh
+        {
+            get
+            {
+                return BitConverterHelpers.GetHighOrderByte(IX);
+            }
+            set
+            {
+                IX = BitConverterHelpers.SetHighOrderByte(IX, value);
+            }
+        }
+
+        public byte IYl
+        {
+            get
+            {
+                return BitConverterHelpers.GetLowOrderByte(IY);
+            }
+            set
+            {
+                IY = BitConverterHelpers.SetLowOrderByte(IY, value);
+            }
+        }
+
+        public byte IYh
+        {
+            get
+            {
+                return BitConverterHelpers.GetHighOrderByte(IY);
+            }
+            set
+            {
+                IY = BitConverterHelpers.SetHighOrderByte(IY, value);
+            }
+        }
 
         //IR Flags
         public byte I { get; set; }

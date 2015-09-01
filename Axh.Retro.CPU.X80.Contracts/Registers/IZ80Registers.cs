@@ -8,6 +8,14 @@
 
         ushort IY { get; set; }
 
+        byte IXl { get; set; }
+
+        byte IXh { get; set; }
+
+        byte IYl { get; set; }
+
+        byte IYh { get; set; }
+
         byte I { get; set; }
 
         byte R { get; set; }
