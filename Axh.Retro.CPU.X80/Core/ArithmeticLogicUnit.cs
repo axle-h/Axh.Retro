@@ -73,6 +73,27 @@
             flags.SetResultFlags(b);
         }
 
+        public byte And(byte a, byte b)
+        {
+            a &= b;
+            flags.SetParityFlags(a);
+            return a;
+        }
+
+        public byte Or(byte a, byte b)
+        {
+            a |= b;
+            flags.SetParityFlags(a);
+            return a;
+        }
+
+        public byte Xor(byte a, byte b)
+        {
+            a ^= b;
+            flags.SetParityFlags(a);
+            return a;
+        }
+
         private byte Add(byte a, byte b, int carry)
         {
             var result = a + b + carry;

@@ -432,5 +432,323 @@
             this.AfRegisters.VerifySet(x => x.A = Expected, Times.Once);
         }
 
+
+        [TestCase(PrimaryOpCode.AND_A)]
+        [TestCase(PrimaryOpCode.AND_B)]
+        [TestCase(PrimaryOpCode.AND_C)]
+        [TestCase(PrimaryOpCode.AND_D)]
+        [TestCase(PrimaryOpCode.AND_E)]
+        [TestCase(PrimaryOpCode.AND_H)]
+        [TestCase(PrimaryOpCode.AND_L)]
+        public void AND_r(PrimaryOpCode opCode)
+        {
+            this.SetupRegisters();
+            this.ResetMocks();
+
+            const byte Value = 0x9c;
+            this.Alu.Setup(x => x.And(A, It.IsAny<byte>())).Returns(Value);
+
+            Run(1, 4, opCode);
+
+            switch (opCode)
+            {
+                case PrimaryOpCode.AND_A:
+                    this.Alu.Verify(x => x.And(A, A), Times.Once);
+                    break;
+                case PrimaryOpCode.AND_B:
+                    this.Alu.Verify(x => x.And(A, B), Times.Once);
+                    break;
+                case PrimaryOpCode.AND_C:
+                    this.Alu.Verify(x => x.And(A, C), Times.Once);
+                    break;
+                case PrimaryOpCode.AND_D:
+                    this.Alu.Verify(x => x.And(A, D), Times.Once);
+                    break;
+                case PrimaryOpCode.AND_E:
+                    this.Alu.Verify(x => x.And(A, E), Times.Once);
+                    break;
+                case PrimaryOpCode.AND_H:
+                    this.Alu.Verify(x => x.And(A, H), Times.Once);
+                    break;
+                case PrimaryOpCode.AND_L:
+                    this.Alu.Verify(x => x.And(A, L), Times.Once);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(opCode));
+            }
+
+            this.AfRegisters.VerifySet(x => x.A = Value, Times.Once);
+        }
+
+        [Test]
+        public void AND_n()
+        {
+            this.SetupRegisters();
+            this.ResetMocks();
+
+            const byte N = 0xc1;
+            const byte Expected = unchecked((byte)(A - N));
+            this.Alu.Setup(x => x.And(A, N)).Returns(Expected);
+
+            Run(2, 7, PrimaryOpCode.AND_n, N);
+
+            this.Alu.Verify(x => x.And(A, N), Times.Once);
+            this.AfRegisters.VerifySet(x => x.A = Expected, Times.Once);
+        }
+
+        [Test]
+        public void AND_mHL()
+        {
+            this.SetupRegisters();
+            this.ResetMocks();
+
+            const byte ValueAtHL = 0x3a;
+            const byte Expected = unchecked((byte)(A - ValueAtHL));
+            this.Alu.Setup(x => x.And(A, ValueAtHL)).Returns(Expected);
+            this.Mmu.Setup(x => x.ReadByte(HL)).Returns(ValueAtHL);
+
+            Run(2, 7, PrimaryOpCode.AND_mHL);
+
+            this.Mmu.Verify(x => x.ReadByte(HL), Times.Once);
+            this.Alu.Verify(x => x.And(A, ValueAtHL), Times.Once);
+            this.AfRegisters.VerifySet(x => x.A = Expected, Times.Once);
+        }
+
+        [TestCase(PrimaryOpCode.Prefix_DD)]
+        [TestCase(PrimaryOpCode.Prefix_FD)]
+        public void AND_mIXYd(PrimaryOpCode opCode)
+        {
+            this.SetupRegisters();
+            this.ResetMocks();
+
+            const sbyte Displacement = -15;
+            var indexValue = opCode == PrimaryOpCode.Prefix_DD ? IX : IY;
+            var displacedIndex = unchecked((ushort)(indexValue + Displacement));
+
+            const byte ValueAtIndex = 0xb6;
+            const byte Expected = unchecked((byte)(A - ValueAtIndex));
+            this.Alu.Setup(x => x.And(A, ValueAtIndex)).Returns(Expected);
+
+            this.Mmu.Setup(x => x.ReadByte(displacedIndex)).Returns(ValueAtIndex);
+
+            Run(5, 19, opCode, PrimaryOpCode.AND_mHL, unchecked((byte)Displacement));
+
+            this.Mmu.Verify(x => x.ReadByte(displacedIndex), Times.Once);
+            this.Alu.Verify(x => x.And(A, ValueAtIndex), Times.Once);
+            this.AfRegisters.VerifySet(x => x.A = Expected, Times.Once);
+        }
+
+
+        [TestCase(PrimaryOpCode.OR_A)]
+        [TestCase(PrimaryOpCode.OR_B)]
+        [TestCase(PrimaryOpCode.OR_C)]
+        [TestCase(PrimaryOpCode.OR_D)]
+        [TestCase(PrimaryOpCode.OR_E)]
+        [TestCase(PrimaryOpCode.OR_H)]
+        [TestCase(PrimaryOpCode.OR_L)]
+        public void OR_r(PrimaryOpCode opCode)
+        {
+            this.SetupRegisters();
+            this.ResetMocks();
+
+            const byte Value = 0x9c;
+            this.Alu.Setup(x => x.Or(A, It.IsAny<byte>())).Returns(Value);
+
+            Run(1, 4, opCode);
+
+            switch (opCode)
+            {
+                case PrimaryOpCode.OR_A:
+                    this.Alu.Verify(x => x.Or(A, A), Times.Once);
+                    break;
+                case PrimaryOpCode.OR_B:
+                    this.Alu.Verify(x => x.Or(A, B), Times.Once);
+                    break;
+                case PrimaryOpCode.OR_C:
+                    this.Alu.Verify(x => x.Or(A, C), Times.Once);
+                    break;
+                case PrimaryOpCode.OR_D:
+                    this.Alu.Verify(x => x.Or(A, D), Times.Once);
+                    break;
+                case PrimaryOpCode.OR_E:
+                    this.Alu.Verify(x => x.Or(A, E), Times.Once);
+                    break;
+                case PrimaryOpCode.OR_H:
+                    this.Alu.Verify(x => x.Or(A, H), Times.Once);
+                    break;
+                case PrimaryOpCode.OR_L:
+                    this.Alu.Verify(x => x.Or(A, L), Times.Once);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(opCode));
+            }
+
+            this.AfRegisters.VerifySet(x => x.A = Value, Times.Once);
+        }
+
+        [Test]
+        public void OR_n()
+        {
+            this.SetupRegisters();
+            this.ResetMocks();
+
+            const byte N = 0xc1;
+            const byte Expected = unchecked((byte)(A - N));
+            this.Alu.Setup(x => x.Or(A, N)).Returns(Expected);
+
+            Run(2, 7, PrimaryOpCode.OR_n, N);
+
+            this.Alu.Verify(x => x.Or(A, N), Times.Once);
+            this.AfRegisters.VerifySet(x => x.A = Expected, Times.Once);
+        }
+
+        [Test]
+        public void OR_mHL()
+        {
+            this.SetupRegisters();
+            this.ResetMocks();
+
+            const byte ValueAtHL = 0x3a;
+            const byte Expected = unchecked((byte)(A - ValueAtHL));
+            this.Alu.Setup(x => x.Or(A, ValueAtHL)).Returns(Expected);
+            this.Mmu.Setup(x => x.ReadByte(HL)).Returns(ValueAtHL);
+
+            Run(2, 7, PrimaryOpCode.OR_mHL);
+
+            this.Mmu.Verify(x => x.ReadByte(HL), Times.Once);
+            this.Alu.Verify(x => x.Or(A, ValueAtHL), Times.Once);
+            this.AfRegisters.VerifySet(x => x.A = Expected, Times.Once);
+        }
+
+        [TestCase(PrimaryOpCode.Prefix_DD)]
+        [TestCase(PrimaryOpCode.Prefix_FD)]
+        public void OR_mIXYd(PrimaryOpCode opCode)
+        {
+            this.SetupRegisters();
+            this.ResetMocks();
+
+            const sbyte Displacement = -15;
+            var indexValue = opCode == PrimaryOpCode.Prefix_DD ? IX : IY;
+            var displacedIndex = unchecked((ushort)(indexValue + Displacement));
+
+            const byte ValueAtIndex = 0xb6;
+            const byte Expected = unchecked((byte)(A - ValueAtIndex));
+            this.Alu.Setup(x => x.Or(A, ValueAtIndex)).Returns(Expected);
+
+            this.Mmu.Setup(x => x.ReadByte(displacedIndex)).Returns(ValueAtIndex);
+
+            Run(5, 19, opCode, PrimaryOpCode.OR_mHL, unchecked((byte)Displacement));
+
+            this.Mmu.Verify(x => x.ReadByte(displacedIndex), Times.Once);
+            this.Alu.Verify(x => x.Or(A, ValueAtIndex), Times.Once);
+            this.AfRegisters.VerifySet(x => x.A = Expected, Times.Once);
+        }
+
+
+        [TestCase(PrimaryOpCode.XOR_A)]
+        [TestCase(PrimaryOpCode.XOR_B)]
+        [TestCase(PrimaryOpCode.XOR_C)]
+        [TestCase(PrimaryOpCode.XOR_D)]
+        [TestCase(PrimaryOpCode.XOR_E)]
+        [TestCase(PrimaryOpCode.XOR_H)]
+        [TestCase(PrimaryOpCode.XOR_L)]
+        public void XOR_r(PrimaryOpCode opCode)
+        {
+            this.SetupRegisters();
+            this.ResetMocks();
+
+            const byte Value = 0x9c;
+            this.Alu.Setup(x => x.Xor(A, It.IsAny<byte>())).Returns(Value);
+
+            Run(1, 4, opCode);
+
+            switch (opCode)
+            {
+                case PrimaryOpCode.XOR_A:
+                    this.Alu.Verify(x => x.Xor(A, A), Times.Once);
+                    break;
+                case PrimaryOpCode.XOR_B:
+                    this.Alu.Verify(x => x.Xor(A, B), Times.Once);
+                    break;
+                case PrimaryOpCode.XOR_C:
+                    this.Alu.Verify(x => x.Xor(A, C), Times.Once);
+                    break;
+                case PrimaryOpCode.XOR_D:
+                    this.Alu.Verify(x => x.Xor(A, D), Times.Once);
+                    break;
+                case PrimaryOpCode.XOR_E:
+                    this.Alu.Verify(x => x.Xor(A, E), Times.Once);
+                    break;
+                case PrimaryOpCode.XOR_H:
+                    this.Alu.Verify(x => x.Xor(A, H), Times.Once);
+                    break;
+                case PrimaryOpCode.XOR_L:
+                    this.Alu.Verify(x => x.Xor(A, L), Times.Once);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(opCode));
+            }
+
+            this.AfRegisters.VerifySet(x => x.A = Value, Times.Once);
+        }
+
+        [Test]
+        public void XOR_n()
+        {
+            this.SetupRegisters();
+            this.ResetMocks();
+
+            const byte N = 0xc1;
+            const byte Expected = unchecked((byte)(A - N));
+            this.Alu.Setup(x => x.Xor(A, N)).Returns(Expected);
+
+            Run(2, 7, PrimaryOpCode.XOR_n, N);
+
+            this.Alu.Verify(x => x.Xor(A, N), Times.Once);
+            this.AfRegisters.VerifySet(x => x.A = Expected, Times.Once);
+        }
+
+        [Test]
+        public void XOR_mHL()
+        {
+            this.SetupRegisters();
+            this.ResetMocks();
+
+            const byte ValueAtHL = 0x3a;
+            const byte Expected = unchecked((byte)(A - ValueAtHL));
+            this.Alu.Setup(x => x.Xor(A, ValueAtHL)).Returns(Expected);
+            this.Mmu.Setup(x => x.ReadByte(HL)).Returns(ValueAtHL);
+
+            Run(2, 7, PrimaryOpCode.XOR_mHL);
+
+            this.Mmu.Verify(x => x.ReadByte(HL), Times.Once);
+            this.Alu.Verify(x => x.Xor(A, ValueAtHL), Times.Once);
+            this.AfRegisters.VerifySet(x => x.A = Expected, Times.Once);
+        }
+
+        [TestCase(PrimaryOpCode.Prefix_DD)]
+        [TestCase(PrimaryOpCode.Prefix_FD)]
+        public void XOR_mIXYd(PrimaryOpCode opCode)
+        {
+            this.SetupRegisters();
+            this.ResetMocks();
+
+            const sbyte Displacement = -15;
+            var indexValue = opCode == PrimaryOpCode.Prefix_DD ? IX : IY;
+            var displacedIndex = unchecked((ushort)(indexValue + Displacement));
+
+            const byte ValueAtIndex = 0xb6;
+            const byte Expected = unchecked((byte)(A - ValueAtIndex));
+            this.Alu.Setup(x => x.Xor(A, ValueAtIndex)).Returns(Expected);
+
+            this.Mmu.Setup(x => x.ReadByte(displacedIndex)).Returns(ValueAtIndex);
+
+            Run(5, 19, opCode, PrimaryOpCode.XOR_mHL, unchecked((byte)Displacement));
+
+            this.Mmu.Verify(x => x.ReadByte(displacedIndex), Times.Once);
+            this.Alu.Verify(x => x.Xor(A, ValueAtIndex), Times.Once);
+            this.AfRegisters.VerifySet(x => x.A = Expected, Times.Once);
+        }
+
     }
 }

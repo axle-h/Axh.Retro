@@ -15,5 +15,11 @@
         byte SubtractWithCarry(byte a, byte b);
 
         void Compare(byte a, byte b);
+
+        byte And(byte a, byte b);
+
+        byte Or(byte a, byte b);
+
+        byte Xor(byte a, byte b);
     }
 }

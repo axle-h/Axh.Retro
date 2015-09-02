@@ -143,6 +143,9 @@
         private static readonly MethodInfo AluSubtract;
         private static readonly MethodInfo AluSubtractWithCarry;
         private static readonly MethodInfo AluCompare;
+        private static readonly MethodInfo AluAnd;
+        private static readonly MethodInfo AluOr;
+        private static readonly MethodInfo AluXor;
 
         private static readonly IDictionary<IndexRegister, IndexRegisterExpressions> IndexRegisterExpressions;
 
@@ -235,6 +238,10 @@
             AluSubtract = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, byte, byte>((alu, a, b) => alu.Subtract(a, b));
             AluSubtractWithCarry = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, byte, byte>((alu, a, b) => alu.SubtractWithCarry(a, b));
             AluCompare = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, byte>((alu, a, b) => alu.Compare(a, b));
+            AluAnd = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, byte>((alu, a, b) => alu.And(a, b));
+            AluOr = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, byte>((alu, a, b) => alu.Or(a, b));
+            AluXor = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, byte>((alu, a, b) => alu.Xor(a, b));
+
 
             IndexRegisterExpressions = new Dictionary<IndexRegister, IndexRegisterExpressions>
                                        {
@@ -1053,6 +1060,135 @@
                 // SBC A, (HL)
                 case PrimaryOpCode.SBC_A_mHL:
                     expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluSubtractWithCarry, A, index.IndexedValue)));
+                    if (index.UsesDisplacedIndexTimings) timer.Add(2, 8);
+                    timer.Add(2, 7);
+                    break;
+
+                // AND r
+                case PrimaryOpCode.AND_A:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluAnd, A, A)));
+                    timer.Add(1, 4);
+                    break;
+                case PrimaryOpCode.AND_B:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluAnd, A, B)));
+                    timer.Add(1, 4);
+                    break;
+                case PrimaryOpCode.AND_C:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluAnd, A, C)));
+                    timer.Add(1, 4);
+                    break;
+                case PrimaryOpCode.AND_D:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluAnd, A, D)));
+                    timer.Add(1, 4);
+                    break;
+                case PrimaryOpCode.AND_E:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluAnd, A, E)));
+                    timer.Add(1, 4);
+                    break;
+                case PrimaryOpCode.AND_H:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluAnd, A, index.RegisterHighOrder)));
+                    timer.Add(1, 4);
+                    break;
+                case PrimaryOpCode.AND_L:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluAnd, A, index.RegisterLowOrder)));
+                    timer.Add(1, 4);
+                    break;
+
+                // AND n
+                case PrimaryOpCode.AND_n:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluAnd, A, NextByte)));
+                    timer.Add(2, 7);
+                    break;
+
+                // AND (HL)
+                case PrimaryOpCode.AND_mHL:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluAnd, A, index.IndexedValue)));
+                    if (index.UsesDisplacedIndexTimings) timer.Add(2, 8);
+                    timer.Add(2, 7);
+                    break;
+
+                // OR r
+                case PrimaryOpCode.OR_A:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluOr, A, A)));
+                    timer.Add(1, 4);
+                    break;
+                case PrimaryOpCode.OR_B:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluOr, A, B)));
+                    timer.Add(1, 4);
+                    break;
+                case PrimaryOpCode.OR_C:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluOr, A, C)));
+                    timer.Add(1, 4);
+                    break;
+                case PrimaryOpCode.OR_D:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluOr, A, D)));
+                    timer.Add(1, 4);
+                    break;
+                case PrimaryOpCode.OR_E:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluOr, A, E)));
+                    timer.Add(1, 4);
+                    break;
+                case PrimaryOpCode.OR_H:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluOr, A, index.RegisterHighOrder)));
+                    timer.Add(1, 4);
+                    break;
+                case PrimaryOpCode.OR_L:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluOr, A, index.RegisterLowOrder)));
+                    timer.Add(1, 4);
+                    break;
+
+                // OR n
+                case PrimaryOpCode.OR_n:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluOr, A, NextByte)));
+                    timer.Add(2, 7);
+                    break;
+
+                // OR (HL)
+                case PrimaryOpCode.OR_mHL:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluOr, A, index.IndexedValue)));
+                    if (index.UsesDisplacedIndexTimings) timer.Add(2, 8);
+                    timer.Add(2, 7);
+                    break;
+
+                // XOR r
+                case PrimaryOpCode.XOR_A:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluXor, A, A)));
+                    timer.Add(1, 4);
+                    break;
+                case PrimaryOpCode.XOR_B:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluXor, A, B)));
+                    timer.Add(1, 4);
+                    break;
+                case PrimaryOpCode.XOR_C:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluXor, A, C)));
+                    timer.Add(1, 4);
+                    break;
+                case PrimaryOpCode.XOR_D:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluXor, A, D)));
+                    timer.Add(1, 4);
+                    break;
+                case PrimaryOpCode.XOR_E:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluXor, A, E)));
+                    timer.Add(1, 4);
+                    break;
+                case PrimaryOpCode.XOR_H:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluXor, A, index.RegisterHighOrder)));
+                    timer.Add(1, 4);
+                    break;
+                case PrimaryOpCode.XOR_L:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluXor, A, index.RegisterLowOrder)));
+                    timer.Add(1, 4);
+                    break;
+
+                // XOR n
+                case PrimaryOpCode.XOR_n:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluXor, A, NextByte)));
+                    timer.Add(2, 7);
+                    break;
+
+                // XOR (HL)
+                case PrimaryOpCode.XOR_mHL:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluXor, A, index.IndexedValue)));
                     if (index.UsesDisplacedIndexTimings) timer.Add(2, 8);
                     timer.Add(2, 7);
                     break;

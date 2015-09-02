@@ -302,6 +302,39 @@
             AssertFlags(expected, halfCarry, overflow, true, null);
         }
 
+        [TestCase(0x7b, 0xc3, 0x43)]
+        public void And(byte a, byte b, byte expected)
+        {
+            Reset();
+
+            var result = alu.And(a, b);
+
+            Assert.AreEqual(expected, result);
+            flags.Verify(x => x.SetParityFlags(expected), Times.Once);
+        }
+        
+        [TestCase(0x48, 0x12, 0x5a)]
+        public void Or(byte a, byte b, byte expected)
+        {
+            Reset();
+
+            var result = alu.Or(a, b);
+
+            Assert.AreEqual(expected, result);
+            flags.Verify(x => x.SetParityFlags(expected), Times.Once);
+        }
+        
+        [TestCase(0x96, 0x5d, 0xcb)]
+        public void Xor(byte a, byte b, byte expected)
+        {
+            Reset();
+
+            var result = alu.Xor(a, b);
+
+            Assert.AreEqual(expected, result);
+            flags.Verify(x => x.SetParityFlags(expected), Times.Once);
+        }
+
         private void AssertFlags(byte result, bool? halfCarry, bool? parityOverflow, bool? subtract, bool? carry)
         {
             flags.Verify(x => x.SetResultFlags(result), Times.Once);
