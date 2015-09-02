@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
     using System.Linq.Expressions;
     using System.Reflection;
 
@@ -1191,6 +1192,123 @@
                     expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluXor, A, index.IndexedValue)));
                     if (index.UsesDisplacedIndexTimings) timer.Add(2, 8);
                     timer.Add(2, 7);
+                    break;
+
+                // CP r
+                case PrimaryOpCode.CP_A:
+                    expressions.Add(Expression.Call(Alu, AluCompare, A, A));
+                    timer.Add(1, 4);
+                    break;
+                case PrimaryOpCode.CP_B:
+                    expressions.Add(Expression.Call(Alu, AluCompare, A, B));
+                    timer.Add(1, 4);
+                    break;
+                case PrimaryOpCode.CP_C:
+                    expressions.Add(Expression.Call(Alu, AluCompare, A, C));
+                    timer.Add(1, 4);
+                    break;
+                case PrimaryOpCode.CP_D:
+                    expressions.Add(Expression.Call(Alu, AluCompare, A, D));
+                    timer.Add(1, 4);
+                    break;
+                case PrimaryOpCode.CP_E:
+                    expressions.Add(Expression.Call(Alu, AluCompare, A, E));
+                    timer.Add(1, 4);
+                    break;
+                case PrimaryOpCode.CP_H:
+                    expressions.Add(Expression.Call(Alu, AluCompare, A, index.RegisterHighOrder));
+                    timer.Add(1, 4);
+                    break;
+                case PrimaryOpCode.CP_L:
+                    expressions.Add(Expression.Call(Alu, AluCompare, A, index.RegisterLowOrder));
+                    timer.Add(1, 4);
+                    break;
+
+                // CP n
+                case PrimaryOpCode.CP_n:
+                    expressions.Add(Expression.Call(Alu, AluCompare, A, NextByte));
+                    timer.Add(2, 7);
+                    break;
+
+                // CP (HL)
+                case PrimaryOpCode.CP_mHL:
+                    expressions.Add(Expression.Call(Alu, AluCompare, A, index.IndexedValue));
+                    if (index.UsesDisplacedIndexTimings) timer.Add(2, 8);
+                    timer.Add(2, 7);
+                    break;
+
+                // INC r
+                case PrimaryOpCode.INC_A:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluIncrement, A)));
+                    timer.Add(1, 4);
+                    break;
+                case PrimaryOpCode.INC_B:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluIncrement, B)));
+                    timer.Add(1, 4);
+                    break;
+                case PrimaryOpCode.INC_C:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluIncrement, C)));
+                    timer.Add(1, 4);
+                    break;
+                case PrimaryOpCode.INC_D:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluIncrement, D)));
+                    timer.Add(1, 4);
+                    break;
+                case PrimaryOpCode.INC_E:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluIncrement, E)));
+                    timer.Add(1, 4);
+                    break;
+                case PrimaryOpCode.INC_H:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluIncrement, index.RegisterHighOrder)));
+                    timer.Add(1, 4);
+                    break;
+                case PrimaryOpCode.INC_L:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluIncrement, index.RegisterLowOrder)));
+                    timer.Add(1, 4);
+                    break;
+                    
+                // INC (HL)
+                case PrimaryOpCode.INC_mHL:
+                    expressions.Add(Expression.Call(Mmu, MmuWriteByte, index.IndexedAddress, Expression.Call(Alu, AluIncrement, index.IndexedValue)));
+                    if (index.UsesDisplacedIndexTimings) timer.Add(2, 8);
+                    timer.Add(3, 11);
+                    break;
+
+                // DEC r
+                case PrimaryOpCode.DEC_A:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluDecrement, A)));
+                    timer.Add(1, 4);
+                    break;
+                case PrimaryOpCode.DEC_B:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluDecrement, B)));
+                    timer.Add(1, 4);
+                    break;
+                case PrimaryOpCode.DEC_C:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluDecrement, C)));
+                    timer.Add(1, 4);
+                    break;
+                case PrimaryOpCode.DEC_D:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluDecrement, D)));
+                    timer.Add(1, 4);
+                    break;
+                case PrimaryOpCode.DEC_E:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluDecrement, E)));
+                    timer.Add(1, 4);
+                    break;
+                case PrimaryOpCode.DEC_H:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluDecrement, index.RegisterHighOrder)));
+                    timer.Add(1, 4);
+                    break;
+                case PrimaryOpCode.DEC_L:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluDecrement, index.RegisterLowOrder)));
+                    timer.Add(1, 4);
+                    break;
+
+                // DEC (HL)
+                case PrimaryOpCode.DEC_mHL:
+                    expressions.Add(Expression.Call(Mmu, MmuWriteByte, index.IndexedAddress, Expression.Call(Alu, AluDecrement, index.IndexedValue)));
+                    if (index.UsesDisplacedIndexTimings) timer.Add(2, 8);
+                    timer.Add(3, 11);
                     break;
 
 
