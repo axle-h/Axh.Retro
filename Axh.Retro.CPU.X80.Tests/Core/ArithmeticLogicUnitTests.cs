@@ -335,6 +335,18 @@
             flags.Verify(x => x.SetParityFlags(expected), Times.Once);
         }
 
+        [TestCase(0x15 + 0x27, 0x42)]
+        [TestCase(0x50 + 0x18, 0x68)]
+        public void DecimalAdjust(byte a, byte expected)
+        {
+            Reset();
+
+            var result = alu.DecimalAdjust(a);
+
+            Assert.AreEqual(expected, result);
+            flags.Verify(x => x.SetResultFlags(expected), Times.Once);
+        }
+
         private void AssertFlags(byte result, bool? halfCarry, bool? parityOverflow, bool? subtract, bool? carry)
         {
             flags.Verify(x => x.SetResultFlags(result), Times.Once);

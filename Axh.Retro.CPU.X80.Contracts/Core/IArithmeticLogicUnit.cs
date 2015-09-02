@@ -21,5 +21,7 @@
         byte Or(byte a, byte b);
 
         byte Xor(byte a, byte b);
+
+        byte DecimalAdjust(byte a);
     }
 }

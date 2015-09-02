@@ -2,6 +2,7 @@
 {
     using Axh.Retro.CPU.X80.Contracts.Core;
     using Axh.Retro.CPU.X80.Contracts.Registers;
+    using Axh.Retro.CPU.X80.Util;
 
     public class ArithmeticLogicUnit : IArithmeticLogicUnit
     {
@@ -91,6 +92,44 @@
         {
             a ^= b;
             flags.SetParityFlags(a);
+            return a;
+        }
+
+        public byte DecimalAdjust(byte a)
+        {
+            var a0 = a;
+
+            if ((a & 0x0f) > 9 || flags.HalfCarry)
+            {
+                if (flags.Subtract)
+                {
+                    if (a - 0x06 < 0) flags.Carry = true;
+                    a = unchecked((byte)(a - 0x06));
+                }
+                else
+                {
+                    if (a + 0x06 > 0x99) flags.Carry = true;
+                    a = unchecked((byte)(a + 0x06));
+                }
+            }
+
+            if (((a & 0xf0) >> 4) > 9 || flags.Carry)
+            {
+                if (flags.Subtract)
+                {
+                    if (a - 0x60 < 0) flags.Carry = true;
+                    a = unchecked((byte)(a - 0x60));
+                }
+                else
+                {
+                    if (a + 0x60 > 0x99) flags.Carry = true;
+                    a = unchecked((byte)(a + 0x60));
+                }
+            }
+
+            flags.HalfCarry = ((a ^ a0) & 0x10) > 0;
+            flags.ParityOverflow = a.IsEvenParity();
+            flags.SetResultFlags(a);
             return a;
         }
 

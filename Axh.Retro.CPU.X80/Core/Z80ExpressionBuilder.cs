@@ -147,6 +147,7 @@
         private static readonly MethodInfo AluAnd;
         private static readonly MethodInfo AluOr;
         private static readonly MethodInfo AluXor;
+        private static readonly MethodInfo AluDecimalAdjust;
 
         private static readonly IDictionary<IndexRegister, IndexRegisterExpressions> IndexRegisterExpressions;
 
@@ -242,7 +243,7 @@
             AluAnd = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, byte>((alu, a, b) => alu.And(a, b));
             AluOr = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, byte>((alu, a, b) => alu.Or(a, b));
             AluXor = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, byte>((alu, a, b) => alu.Xor(a, b));
-
+            AluDecimalAdjust = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte>((alu, a) => alu.DecimalAdjust(a));
 
             IndexRegisterExpressions = new Dictionary<IndexRegister, IndexRegisterExpressions>
                                        {
@@ -1309,6 +1310,13 @@
                     expressions.Add(Expression.Call(Mmu, MmuWriteByte, index.IndexedAddress, Expression.Call(Alu, AluDecrement, index.IndexedValue)));
                     if (index.UsesDisplacedIndexTimings) timer.Add(2, 8);
                     timer.Add(3, 11);
+                    break;
+
+                // ********* General-Purpose Arithmetic *********
+                // DAA
+                case PrimaryOpCode.DAA:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluDecimalAdjust, A)));
+                    timer.Add(1, 4);
                     break;
 
 
