@@ -70,6 +70,7 @@
         // Interrupt stuff
         private static readonly Expression IFF1;
         private static readonly Expression IFF2;
+        private static readonly Expression IM;
 
         // Flags
         private static readonly Expression Flags;
@@ -82,6 +83,7 @@
         private static readonly Expression Subtract;
         private static readonly Expression Carry;
         private static readonly MethodInfo SetResultFlags;
+        private static readonly MethodInfo SetUndocumentedFlags;
 
         // Register methods
         private static readonly Expression SwitchToAlternativeGeneralPurposeRegisters;
@@ -194,6 +196,7 @@
             // Interrupt stuff
             IFF1 = Registers.GetPropertyExpression<IZ80Registers, bool>(r => r.InterruptFlipFlop1);
             IFF2 = Registers.GetPropertyExpression<IZ80Registers, bool>(r => r.InterruptFlipFlop2);
+            IM = Registers.GetPropertyExpression<IZ80Registers, InterruptMode>(r => r.InterruptMode);
 
             // Accumulator & Flags register expressions
             var accumulatorAndFlagsRegisters = Registers.GetPropertyExpression<IZ80Registers, IAccumulatorAndFlagsRegisterSet>(r => r.AccumulatorAndFlagsRegisters);
@@ -209,7 +212,8 @@
             Subtract = Flags.GetPropertyExpression<IFlagsRegister, bool>(r => r.Subtract);
             Carry = Flags.GetPropertyExpression<IFlagsRegister, bool>(r => r.Carry);
             SetResultFlags = ExpressionHelpers.GetMethodInfo<IFlagsRegister, byte>((flags, result) => flags.SetResultFlags(result));
-            
+            SetUndocumentedFlags = ExpressionHelpers.GetMethodInfo<IFlagsRegister, byte>((flags, result) => flags.SetUndocumentedFlags(result));
+
             // Index register expressions i.e. IX+d and IY+d where d is LocalByte (expression local value, which must be initialised before running these)
             IXd = Expression.Convert(Expression.Add(Expression.Convert(IX, typeof(int)), Expression.Convert(Expression.Convert(LocalByte, typeof(sbyte)), typeof(int))), typeof(ushort));
             IYd = Expression.Convert(Expression.Add(Expression.Convert(IY, typeof(int)), Expression.Convert(Expression.Convert(LocalByte, typeof(sbyte)), typeof(int))), typeof(ushort));
@@ -1319,7 +1323,45 @@
                     timer.Add(1, 4);
                     break;
 
+                // CPL
+                case PrimaryOpCode.CPL:
+                    expressions.Add(Expression.Assign(A, Expression.Not(A)));
+                    expressions.Add(Expression.Call(Flags, SetUndocumentedFlags, A));
+                    expressions.Add(Expression.Assign(HalfCarry, Expression.Constant(true)));
+                    expressions.Add(Expression.Assign(Subtract, Expression.Constant(true)));
+                    timer.Add(1, 4);
+                    break;
 
+                // CCF
+                case PrimaryOpCode.CCF:
+                    expressions.Add(Expression.Assign(HalfCarry, Carry));
+                    expressions.Add(Expression.Assign(Subtract, Expression.Constant(false)));
+                    expressions.Add(Expression.Assign(Carry, Expression.Not(Carry)));
+                    timer.Add(1, 4);
+                    break;
+
+                // SCF
+                case PrimaryOpCode.SCF:
+                    expressions.Add(Expression.Assign(HalfCarry, Expression.Constant(false)));
+                    expressions.Add(Expression.Assign(Subtract, Expression.Constant(false)));
+                    expressions.Add(Expression.Assign(Carry, Expression.Constant(true)));
+                    timer.Add(1, 4);
+                    break;
+
+                // DI
+                case PrimaryOpCode.DI:
+                    expressions.Add(Expression.Assign(IFF1, Expression.Constant(false)));
+                    expressions.Add(Expression.Assign(IFF2, Expression.Constant(false)));
+                    timer.Add(1, 4);
+                    break;
+
+                // EI
+                case PrimaryOpCode.EI:
+                    expressions.Add(Expression.Assign(IFF1, Expression.Constant(true)));
+                    expressions.Add(Expression.Assign(IFF2, Expression.Constant(true)));
+                    timer.Add(1, 4);
+                    break;
+                    
                 // ********* Jump *********
                 case PrimaryOpCode.JP:
                     expressions.Add(Expression.Assign(PC, NextWord));
@@ -1458,6 +1500,31 @@
                 case PrefixEdOpCode.CPDR:
                     expressions.Add(GetCprExpression(true));
                     timer.Add(4, 16);
+                    break;
+
+                // ********* General-Purpose Arithmetic *********
+                // NEG
+                case PrefixEdOpCode.NEG:
+                    expressions.Add(Expression.Assign(A, Expression.Call(Alu, AluSubtract, Expression.Constant((byte)0), A)));
+                    timer.Add(2, 8);
+                    break;
+
+                // IM 0
+                case PrefixEdOpCode.IM0:
+                    expressions.Add(Expression.Assign(IM, Expression.Constant(InterruptMode.InterruptMode0)));
+                    timer.Add(2, 8);
+                    break;
+
+                // IM 1
+                case PrefixEdOpCode.IM1:
+                    expressions.Add(Expression.Assign(IM, Expression.Constant(InterruptMode.InterruptMode1)));
+                    timer.Add(2, 8);
+                    break;
+
+                // IM 2
+                case PrefixEdOpCode.IM2:
+                    expressions.Add(Expression.Assign(IM, Expression.Constant(InterruptMode.InterruptMode2)));
+                    timer.Add(2, 8);
                     break;
 
                 default:
