@@ -22,19 +22,8 @@
             var mmuCache = this.mmuFactory.GetMmuCache(this.mmu, address);
             var timer = new InstructionTimer();
             var expressionBuilder = new Z80ExpressionBuilder(mmuCache, timer);
-            var lastResult = DecodeResult.Continue;
+            var lambda = expressionBuilder.DecodeNextBlock();
 
-            while (lastResult == DecodeResult.Continue)
-            {
-                lastResult = expressionBuilder.TryDecodeNextOperation();
-                
-                if (mmuCache.TotalBytesRead == ushort.MaxValue && lastResult == DecodeResult.Continue)
-                {
-                    lastResult = DecodeResult.FinalizeAndSync;
-                }
-            }
-            
-            var lambda = expressionBuilder.FinalizeBlock(lastResult);
             return new InstructionBlock<IZ80Registers>(address, (ushort)mmuCache.TotalBytesRead, lambda.Compile(), timer.GetInstructionTimings());
         }
         

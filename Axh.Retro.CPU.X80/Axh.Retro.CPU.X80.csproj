@@ -46,6 +46,7 @@
     <Compile Include="Core\IndexRegisterExpressions.cs" />
     <Compile Include="Core\InstructionTimer.cs" />
     <Compile Include="Core\Z80ExpressionBuilder.cs" />
+    <Compile Include="Core\Z80Expressions.cs" />
     <Compile Include="Factories\MmuFactory.cs" />
     <Compile Include="Factories\Z80RegisterFactory.cs" />
     <Compile Include="Memory\ArrayBackedMemoryBank.cs" />
