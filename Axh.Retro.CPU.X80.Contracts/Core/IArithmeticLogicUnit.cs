@@ -10,6 +10,10 @@
 
         byte AddWithCarry(byte a, byte b);
 
+        ushort Add(ushort a, ushort b);
+
+        ushort AddWithCarry(ushort a, ushort b);
+
         byte Subtract(byte a, byte b);
 
         byte SubtractWithCarry(byte a, byte b);
@@ -23,5 +27,7 @@
         byte Xor(byte a, byte b);
 
         byte DecimalAdjust(byte a);
+
+        
     }
 }

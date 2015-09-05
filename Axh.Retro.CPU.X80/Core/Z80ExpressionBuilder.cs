@@ -18,7 +18,7 @@
         private readonly IInstructionTimer timer;
         private readonly IMmuCache mmuCache;
 
-        private ConstantExpression NextByte => Expression.Constant(mmuCache.NextByte());
+        private ConstantExpression NextByte => Expression.Constant(mmuCache.NextByte(), typeof(byte));
         private ConstantExpression NextWord => Expression.Constant(mmuCache.NextWord(), typeof(ushort));
         
         public Z80ExpressionBuilder(IMmuCache mmuCache, IInstructionTimer timer)
@@ -989,6 +989,25 @@
                         timer.Add(3, 11);
                         break;
 
+                    // ********* 16-Bit Arithmetic *********
+                    // ADD HL, ss
+                    case PrimaryOpCode.ADD_HL_BC:
+                        yield return Expression.Assign(index.Register, Expression.Call(Xpr.Alu, Xpr.AluAdd16, index.Register, Xpr.BC));
+                        timer.Add(3, 11);
+                        break;
+                    case PrimaryOpCode.ADD_HL_DE:
+                        yield return Expression.Assign(index.Register, Expression.Call(Xpr.Alu, Xpr.AluAdd16, index.Register, Xpr.DE));
+                        timer.Add(3, 11);
+                        break;
+                    case PrimaryOpCode.ADD_HL_HL:
+                        yield return Expression.Assign(index.Register, Expression.Call(Xpr.Alu, Xpr.AluAdd16, index.Register, index.Register));
+                        timer.Add(3, 11);
+                        break;
+                    case PrimaryOpCode.ADD_HL_SP:
+                        yield return Expression.Assign(index.Register, Expression.Call(Xpr.Alu, Xpr.AluAdd16, index.Register, Xpr.SP));
+                        timer.Add(3, 11);
+                        break;
+
                     // ********* General-Purpose Arithmetic *********
                     // DAA
                     case PrimaryOpCode.DAA:
@@ -1034,7 +1053,7 @@
                         yield return Expression.Assign(Xpr.IFF2, Expression.Constant(true));
                         timer.Add(1, 4);
                         break;
-
+                        
                     // ********* Jump *********
                     case PrimaryOpCode.JP:
                         yield return Expression.Assign(Xpr.PC, NextWord);
@@ -1208,6 +1227,25 @@
                 case PrefixEdOpCode.CPDR:
                     yield return Xpr.GetCprExpression(true);
                     timer.Add(4, 16);
+                    break;
+
+                // ********* 16-Bit Arithmetic *********
+                // ADC HL, ss
+                case PrefixEdOpCode.ADC_HL_BC:
+                    yield return Expression.Assign(Xpr.HL, Expression.Call(Xpr.Alu, Xpr.AluAdd16WithCarry, Xpr.HL, Xpr.BC));
+                    timer.Add(4, 15);
+                    break;
+                case PrefixEdOpCode.ADC_HL_DE:
+                    yield return Expression.Assign(Xpr.HL, Expression.Call(Xpr.Alu, Xpr.AluAdd16WithCarry, Xpr.HL, Xpr.DE));
+                    timer.Add(4, 15);
+                    break;
+                case PrefixEdOpCode.ADC_HL_HL:
+                    yield return Expression.Assign(Xpr.HL, Expression.Call(Xpr.Alu, Xpr.AluAdd16WithCarry, Xpr.HL, Xpr.HL));
+                    timer.Add(4, 15);
+                    break;
+                case PrefixEdOpCode.ADC_HL_SP:
+                    yield return Expression.Assign(Xpr.HL, Expression.Call(Xpr.Alu, Xpr.AluAdd16WithCarry, Xpr.HL, Xpr.SP));
+                    timer.Add(4, 15);
                     break;
 
                 // ********* General-Purpose Arithmetic *********

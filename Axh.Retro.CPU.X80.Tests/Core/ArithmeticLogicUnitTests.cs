@@ -347,9 +347,45 @@
             flags.Verify(x => x.SetResultFlags(expected), Times.Once);
         }
 
-        private void AssertFlags(byte result, bool? halfCarry, bool? parityOverflow, bool? subtract, bool? carry)
+        [TestCase((ushort)0x4242, (ushort)0x1111, (ushort)0x5353, false, false)]
+        [TestCase((ushort)0x0100, (ushort)0x7f00, (ushort)0x8000, true, false)]
+        [TestCase((ushort)0xffff, (ushort)0x0001, (ushort)0x0000, false, true)]
+        [TestCase((ushort)0xaaaa, (ushort)0xbbbb, (ushort)0x6665, true, true)]
+        public void Add16(ushort a, ushort b, ushort expected, bool halfCarry, bool carry)
         {
-            flags.Verify(x => x.SetResultFlags(result), Times.Once);
+            Reset();
+
+            var result = alu.Add(a, b);
+
+            Assert.AreEqual(expected, result);
+
+            AssertFlags(null, halfCarry, null, false, carry);
+        }
+
+        [TestCase((ushort)0x4242, (ushort)0x1111, (ushort)0x5354, false, false)]
+        [TestCase((ushort)0x0100, (ushort)0x7f00, (ushort)0x8001, true, false)]
+        [TestCase((ushort)0xffff, (ushort)0x0001, (ushort)0x0001, false, true)]
+        [TestCase((ushort)0xaaaa, (ushort)0xbbbb, (ushort)0x6666, true, true)]
+        public void Add16WithCarry(ushort a, ushort b, ushort expected, bool halfCarry, bool carry)
+        {
+            Reset();
+
+            this.flags.SetupProperty(x => x.Carry, true);
+
+            var result = alu.AddWithCarry(a, b);
+
+            Assert.AreEqual(expected, result);
+
+            AssertFlags(null, halfCarry, null, false, carry);
+        }
+
+        private void AssertFlags(byte? result, bool? halfCarry, bool? parityOverflow, bool? subtract, bool? carry)
+        {
+            if (result.HasValue)
+            {
+                flags.Verify(x => x.SetResultFlags(result.Value), Times.Once);
+            }
+            
             VerifyFlag(x => x.HalfCarry, halfCarry);
             VerifyFlag(x => x.ParityOverflow, parityOverflow);
             VerifyFlag(x => x.Subtract, subtract);

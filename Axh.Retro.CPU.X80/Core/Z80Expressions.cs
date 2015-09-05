@@ -145,6 +145,8 @@
         public static readonly MethodInfo AluDecrement;
         public static readonly MethodInfo AluAdd;
         public static readonly MethodInfo AluAddWithCarry;
+        public static readonly MethodInfo AluAdd16;
+        public static readonly MethodInfo AluAdd16WithCarry;
         public static readonly MethodInfo AluSubtract;
         public static readonly MethodInfo AluSubtractWithCarry;
         public static readonly MethodInfo AluCompare;
@@ -181,9 +183,7 @@
             // Stack pointer stuff
             SP = Registers.GetPropertyExpression<IZ80Registers, ushort>(r => r.StackPointer);
             PushSP = Expression.PreDecrementAssign(SP);
-            PushPushSP = Expression.SubtractAssign(SP, Expression.Constant((ushort)2));
             PopSP = Expression.PreIncrementAssign(SP);
-            PopPopSP = Expression.AddAssign(SP, Expression.Constant((ushort)2));
 
             // Z80 specific register expressions
             I = Registers.GetPropertyExpression<IZ80Registers, byte>(r => r.I);
@@ -243,6 +243,8 @@
             AluDecrement = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, byte>((alu, b) => alu.Decrement(b));
             AluAdd = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, byte, byte>((alu, a, b) => alu.Add(a, b));
             AluAddWithCarry = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, byte, byte>((alu, a, b) => alu.AddWithCarry(a, b));
+            AluAdd16 = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, ushort, ushort, ushort>((alu, a, b) => alu.Add(a, b));
+            AluAdd16WithCarry = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, ushort, ushort, ushort>((alu, a, b) => alu.AddWithCarry(a, b));
             AluSubtract = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, byte, byte>((alu, a, b) => alu.Subtract(a, b));
             AluSubtractWithCarry = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, byte, byte>((alu, a, b) => alu.SubtractWithCarry(a, b));
             AluCompare = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, byte>((alu, a, b) => alu.Compare(a, b));
