@@ -25,7 +25,7 @@
             flags.SetResultFlags(b);
             return b;
         }
-
+        
         public byte Decrement(byte b)
         {
             var result = b - 1;

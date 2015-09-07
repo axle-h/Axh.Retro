@@ -1008,6 +1008,42 @@
                         timer.Add(3, 11);
                         break;
 
+                    // INC ss (no flags changes so implemented directly)
+                    case PrimaryOpCode.INC_BC:
+                        yield return Expression.PreIncrementAssign(Xpr.BC);
+                        timer.Add(1, 6);
+                        break;
+                    case PrimaryOpCode.INC_DE:
+                        yield return Expression.PreIncrementAssign(Xpr.DE);
+                        timer.Add(1, 6);
+                        break;
+                    case PrimaryOpCode.INC_HL:
+                        yield return Expression.PreIncrementAssign(index.Register);
+                        timer.Add(1, 6);
+                        break;
+                    case PrimaryOpCode.INC_SP:
+                        yield return Expression.PreIncrementAssign(Xpr.SP);
+                        timer.Add(1, 6);
+                        break;
+
+                    // DEC ss (no flags changes so implemented directly)
+                    case PrimaryOpCode.DEC_BC:
+                        yield return Expression.PreDecrementAssign(Xpr.BC);
+                        timer.Add(1, 6);
+                        break;
+                    case PrimaryOpCode.DEC_DE:
+                        yield return Expression.PreDecrementAssign(Xpr.DE);
+                        timer.Add(1, 6);
+                        break;
+                    case PrimaryOpCode.DEC_HL:
+                        yield return Expression.PreDecrementAssign(index.Register);
+                        timer.Add(1, 6);
+                        break;
+                    case PrimaryOpCode.DEC_SP:
+                        yield return Expression.PreDecrementAssign(Xpr.SP);
+                        timer.Add(1, 6);
+                        break;
+
                     // ********* General-Purpose Arithmetic *********
                     // DAA
                     case PrimaryOpCode.DAA:
