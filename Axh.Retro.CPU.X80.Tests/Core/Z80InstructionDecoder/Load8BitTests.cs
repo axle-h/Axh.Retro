@@ -1,4 +1,4 @@
-﻿namespace Axh.Retro.CPU.X80.Tests.Core
+﻿namespace Axh.Retro.CPU.X80.Tests.Core.Z80InstructionDecoder
 {
     using System;
 
@@ -9,7 +9,7 @@
     using NUnit.Framework;
 
     [TestFixture]
-    public class Z80InstructionDecoder8BitLoadTests : Z80InstructionDecoderBase
+    public class Load8BitTests : Z80InstructionDecoderTestsBase
     {
 
         [TestCase(PrimaryOpCode.LD_A_A)]

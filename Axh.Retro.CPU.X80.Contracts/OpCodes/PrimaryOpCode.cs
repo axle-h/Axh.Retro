@@ -5,12 +5,12 @@
         NOP = 0x00,
         HALT = 0x76,
 
-        //Prefixes
+        // Prefixes
         Prefix_DD = 0xDD,
         Prefix_ED = 0xED,
         Prefix_FD = 0xFD,
 
-        //8 Bit Load
+        // 8 Bit Load
         LD_A_A = 0x7F,
         LD_B_A = 0x47,
         LD_C_A = 0x4F,
@@ -99,7 +99,7 @@
 
         LD_mnn_A = 0x32,
 
-        //16 Bit Load
+        // 16 Bit Load
         LD_BC_nn = 0x01,
         LD_DE_nn = 0x11,
         LD_HL_nn = 0x21,
@@ -121,7 +121,7 @@
         POP_HL = 0xE1,
         POP_AF = 0xF1,
 
-        //8 Bit Arithmetic
+        // 8 Bit Arithmetic
         ADD_A_A = 0x87,
         ADD_A_B = 0x80,
         ADD_A_C = 0x81,
@@ -211,7 +211,7 @@
         DEC_L = 0x2D,
         DEC_mHL = 0x35,
 
-        //16 Bit Arithmetic
+        // 16 Bit Arithmetic
         ADD_HL_BC = 0x09,
         ADD_HL_DE = 0x19,
         ADD_HL_HL = 0x29,
@@ -227,13 +227,13 @@
         DEC_HL = 0x2B,
         DEC_SP = 0x3B,
 
-        //Exchange, block transfer and search
+        // Exchange, block transfer and search
         EX_DE_HL = 0xEB,
         EX_AF = 0x08,
         EXX = 0xD9,
         EX_mSP_HL = 0xE3,
 
-        //General purpose arithmetic and CPU control
+        // General purpose arithmetic and CPU control
         DAA = 0x27,
         CPL = 0x2F,
         CCF = 0x3F,
@@ -241,8 +241,14 @@
         DI = 0xF3,
         EI = 0xFB,
 
-
+        // Rotate and Shift
+        RLCA = 0x07,
+        RLA = 0x17,
+        RRCA = 0x0f,
+        RRA = 0x1f,
 
         JP = 0xC3,
+
+        
     }
 }

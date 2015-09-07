@@ -162,6 +162,79 @@
             return a;
         }
 
+        /// <summary>
+        /// The value a is rotated left 1 bit position.
+        /// The sign bit (bit 7) is copied to the Carry flag and also to bit 0. Bit 0 is the least-significant bit.
+        /// </summary>
+        /// <param name="a"></param>
+        /// <returns></returns>
+        public byte RotateLeftWithCarry(byte a)
+        {
+            var carry = (a & 0x80) > 0;
+            var result = unchecked((byte)((a << 1) | (carry ? 1 : 0)));
+
+            flags.Carry = carry;
+            flags.HalfCarry = false;
+            flags.Subtract = false;
+            flags.SetUndocumentedFlags(result);
+
+            return result;
+        }
+
+        /// <summary>
+        /// The value a is rotated left 1 bit position through the Carry flag.
+        /// The previous contents of the Carry flag are copied to bit 0. Bit 0 is the least-significant bit.
+        /// </summary>
+        /// <param name="a"></param>
+        public byte RotateLeft(byte a)
+        {
+            var result = unchecked((byte)((a << 1) | (flags.Carry ? 1 : 0)));
+            
+            flags.Carry = (a & 0x80) > 0;
+            flags.HalfCarry = false;
+            flags.Subtract = false;
+            flags.SetUndocumentedFlags(result);
+
+            return result;
+        }
+
+        /// <summary>
+        /// The value a is rotated right 1 bit position.
+        /// Bit 0 is copied to the Carry flag and also to bit 7. Bit 0 is the least-significant bit.
+        /// </summary>
+        /// <param name="a"></param>
+        /// <returns></returns>
+        public byte RotateRightWithCarry(byte a)
+        {
+            var carry = (a & 1) > 0;
+            var result = unchecked((byte)((a >> 1) | (carry ? 0x80 : 0)));
+
+            flags.Carry = carry;
+            flags.HalfCarry = false;
+            flags.Subtract = false;
+            flags.SetUndocumentedFlags(result);
+
+            return result;
+        }
+
+        /// <summary>
+        /// The value a is rotated right 1 bit position through the Carry flag.
+        /// The previous contents of the Carry flag are copied to bit 7. Bit 0 is the leastsignificant bit.
+        /// </summary>
+        /// <param name="a"></param>
+        /// <returns></returns>
+        public byte RotateRight(byte a)
+        {
+            var result = unchecked((byte)((a >> 1) | (flags.Carry ? 0x80 : 0)));
+
+            flags.Carry = (a & 1) > 0;
+            flags.HalfCarry = false;
+            flags.Subtract = false;
+            flags.SetUndocumentedFlags(result);
+
+            return result;
+        }
+
         private byte Add(byte a, byte b, bool addCarry)
         {
             var carry = addCarry ? 1 : 0;

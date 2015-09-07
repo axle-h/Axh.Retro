@@ -1089,7 +1089,32 @@
                         yield return Expression.Assign(Xpr.IFF2, Expression.Constant(true));
                         timer.Add(1, 4);
                         break;
-                        
+
+                    // ********* Rotate *********
+                    // RLCA
+                    case PrimaryOpCode.RLCA:
+                        yield return Expression.Assign(Xpr.A, Expression.Call(Xpr.Alu, Xpr.AluRotateLeftWithCarry, Xpr.A));
+                        timer.Add(1, 4);
+                        break;
+
+                    //RLA
+                    case PrimaryOpCode.RLA:
+                        yield return Expression.Assign(Xpr.A, Expression.Call(Xpr.Alu, Xpr.AluRotateLeft, Xpr.A));
+                        timer.Add(1, 4);
+                        break;
+
+                    // RRCA
+                    case PrimaryOpCode.RRCA:
+                        yield return Expression.Assign(Xpr.A, Expression.Call(Xpr.Alu, Xpr.AluRotateRightWithCarry, Xpr.A));
+                        timer.Add(1, 4);
+                        break;
+
+                    //RRA
+                    case PrimaryOpCode.RRA:
+                        yield return Expression.Assign(Xpr.A, Expression.Call(Xpr.Alu, Xpr.AluRotateRight, Xpr.A));
+                        timer.Add(1, 4);
+                        break;
+
                     // ********* Jump *********
                     case PrimaryOpCode.JP:
                         yield return Expression.Assign(Xpr.PC, NextWord);

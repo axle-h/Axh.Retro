@@ -156,6 +156,11 @@
         public static readonly MethodInfo AluXor;
         public static readonly MethodInfo AluDecimalAdjust;
 
+        public static readonly MethodInfo AluRotateLeftWithCarry;
+        public static readonly MethodInfo AluRotateLeft;
+        public static readonly MethodInfo AluRotateRightWithCarry;
+        public static readonly MethodInfo AluRotateRight;
+
         public static readonly IDictionary<IndexRegister, IndexRegisterExpressions> IndexRegisterExpressions;
 
         static Z80Expressions()
@@ -254,6 +259,10 @@
             AluOr = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, byte>((alu, a, b) => alu.Or(a, b));
             AluXor = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, byte>((alu, a, b) => alu.Xor(a, b));
             AluDecimalAdjust = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte>((alu, a) => alu.DecimalAdjust(a));
+            AluRotateLeftWithCarry = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte>((alu, a) => alu.RotateLeftWithCarry(a));
+            AluRotateLeft = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte>((alu, a) => alu.RotateLeft(a));
+            AluRotateRightWithCarry = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte>((alu, a) => alu.RotateRightWithCarry(a));
+            AluRotateRight = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte>((alu, a) => alu.RotateRight(a));
 
             IndexRegisterExpressions = new Dictionary<IndexRegister, IndexRegisterExpressions>
                                        {

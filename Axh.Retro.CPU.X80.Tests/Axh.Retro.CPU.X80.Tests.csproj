@@ -54,13 +54,14 @@
   </Choose>
   <ItemGroup>
     <Compile Include="Core\ArithmeticLogicUnitTests.cs" />
-    <Compile Include="Core\Z80InstructionDecoder16BitArithmeticTests.cs" />
-    <Compile Include="Core\Z80InstructionDecoder16BitLoadTests.cs" />
-    <Compile Include="Core\Z80InstructionDecoder8BitArithmeticTests.cs" />
-    <Compile Include="Core\Z80InstructionDecoderCompareTests.cs" />
-    <Compile Include="Core\Z80InstructionDecoderExchangeTests.cs" />
-    <Compile Include="Core\Z80InstructionDecoderGpArithmeticTests.cs" />
-    <Compile Include="Core\Z80InstructionDecoderTransferTests.cs" />
+    <Compile Include="Core\Z80InstructionDecoder\Arithmetic16BitTests.cs" />
+    <Compile Include="Core\Z80InstructionDecoder\Load16BitTests.cs" />
+    <Compile Include="Core\Z80InstructionDecoder\Arithmetic8BitTests.cs" />
+    <Compile Include="Core\Z80InstructionDecoder\CompareTests.cs" />
+    <Compile Include="Core\Z80InstructionDecoder\ExchangeTests.cs" />
+    <Compile Include="Core\Z80InstructionDecoder\ArithmeticGeneralPurposeTests.cs" />
+    <Compile Include="Core\Z80InstructionDecoder\RotateTests.cs" />
+    <Compile Include="Core\Z80InstructionDecoder\TransferTests.cs" />
     <Compile Include="Memory\ArrayBackedMemoryTests.cs" />
     <Compile Include="Memory\ReadOnlyMemoryBankTests.cs" />
     <Compile Include="Mmu\IReadableWriteableAddressSegment.cs" />
@@ -73,9 +74,9 @@
     <Compile Include="Registers\RegisterTestObjects.cs" />
     <Compile Include="Registers\Z80RegistersTests.cs" />
     <Compile Include="Mmu\MmuConfigTests.cs" />
-    <Compile Include="Core\Z80InstructionDecoder8BitLoadTests.cs" />
-    <Compile Include="Core\Z80InstructionDecoderBase.cs" />
-    <Compile Include="Core\Z80InstructionDecoderGeneralTests.cs" />
+    <Compile Include="Core\Z80InstructionDecoder\Load8BitTests.cs" />
+    <Compile Include="Core\Z80InstructionDecoder\Z80InstructionDecoderTestsBase.cs" />
+    <Compile Include="Core\Z80InstructionDecoder\GeneralTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

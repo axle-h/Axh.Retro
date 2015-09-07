@@ -1,7 +1,5 @@
-﻿namespace Axh.Retro.CPU.X80.Tests.Core
+﻿namespace Axh.Retro.CPU.X80.Tests.Core.Z80InstructionDecoder
 {
-    using System.ComponentModel;
-
     using Axh.Retro.CPU.X80.Contracts.OpCodes;
 
     using Moq;
@@ -9,7 +7,7 @@
     using NUnit.Framework;
 
     [TestFixture]
-    public class Z80InstructionDecoderTransferTests : Z80InstructionDecoderBase
+    public class TransferTests : Z80InstructionDecoderTestsBase
     {
 
         [Test]

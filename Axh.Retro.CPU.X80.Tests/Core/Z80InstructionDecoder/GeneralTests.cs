@@ -1,4 +1,4 @@
-﻿namespace Axh.Retro.CPU.X80.Tests.Core
+﻿namespace Axh.Retro.CPU.X80.Tests.Core.Z80InstructionDecoder
 {
     using Axh.Retro.CPU.X80.Contracts.OpCodes;
 
@@ -7,7 +7,7 @@
     using NUnit.Framework;
 
     [TestFixture]
-    public class Z80InstructionDecoderGeneralTests : Z80InstructionDecoderBase
+    public class GeneralTests : Z80InstructionDecoderTestsBase
     {
         [Test]
         public void NopIncrentsProgramCounterAndMemoryRefreshRegisters()

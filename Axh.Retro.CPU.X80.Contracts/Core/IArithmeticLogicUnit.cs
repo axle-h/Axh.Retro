@@ -29,5 +29,36 @@
         byte Xor(byte a, byte b);
 
         byte DecimalAdjust(byte a);
+
+        /// <summary>
+        /// The value a is rotated left 1 bit position.
+        /// The sign bit (bit 7) is copied to the Carry flag and also to bit 0. Bit 0 is the least-significant bit.
+        /// </summary>
+        /// <param name="a"></param>
+        /// <returns></returns>
+        byte RotateLeftWithCarry(byte a);
+
+        /// <summary>
+        /// The value a is rotated left 1 bit position through the Carry flag.
+        /// The previous contents of the Carry flag are copied to bit 0. Bit 0 is the least-significant bit.
+        /// </summary>
+        /// <param name="a"></param>
+        byte RotateLeft(byte a);
+
+        /// <summary>
+        /// The value a is rotated right 1 bit position.
+        /// Bit 0 is copied to the Carry flag and also to bit 7. Bit 0 is the least-significant bit.
+        /// </summary>
+        /// <param name="a"></param>
+        /// <returns></returns>
+        byte RotateRightWithCarry(byte a);
+
+        /// <summary>
+        /// The value a is rotated right 1 bit position through the Carry flag.
+        /// The previous contents of the Carry flag are copied to bit 7. Bit 0 is the leastsignificant bit.
+        /// </summary>
+        /// <param name="a"></param>
+        /// <returns></returns>
+        byte RotateRight(byte a);
     }
 }

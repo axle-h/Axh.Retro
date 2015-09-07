@@ -1,4 +1,4 @@
-﻿namespace Axh.Retro.CPU.X80.Tests.Core
+﻿namespace Axh.Retro.CPU.X80.Tests.Core.Z80InstructionDecoder
 {
     using System;
     using System.Collections;
@@ -15,7 +15,7 @@
 
     using NUnit.Framework;
 
-    public abstract class Z80InstructionDecoderBase
+    public abstract class Z80InstructionDecoderTestsBase
     {
         protected const ushort Address = 0x0000;
 
