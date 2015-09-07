@@ -18,6 +18,8 @@
 
         byte SubtractWithCarry(byte a, byte b);
 
+        ushort SubtractWithCarry(ushort a, ushort b);
+
         void Compare(byte a, byte b);
 
         byte And(byte a, byte b);
@@ -27,7 +29,5 @@
         byte Xor(byte a, byte b);
 
         byte DecimalAdjust(byte a);
-
-        
     }
 }

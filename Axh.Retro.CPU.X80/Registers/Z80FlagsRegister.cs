@@ -108,6 +108,18 @@
             this.SetUndocumentedFlags(result);
         }
 
+        public void SetResultFlags(ushort result)
+        {
+            // Sign flag is a copy of the sign bit.
+            this.Sign = (result & (SignMask << 8)) > 0;
+
+            // Set Zero flag is result = 0
+            this.Zero = result == 0;
+
+            // Flag is affected by the high - byte addition.
+            this.SetUndocumentedFlags((byte)(result >> 8));
+        }
+
         public void SetCompareFlags(byte result, ushort byteCounter)
         {
             this.SetResultFlags(result);

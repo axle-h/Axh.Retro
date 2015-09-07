@@ -61,12 +61,31 @@
 
         public byte Subtract(byte a, byte b)
         {
-            return Subtract(a, b, 0);
+            return Subtract(a, b, false);
         }
 
         public byte SubtractWithCarry(byte a, byte b)
         {
-            return Subtract(a, b, flags.Carry ? 1 : 0);
+            return Subtract(a, b, flags.Carry);
+        }
+        
+        public ushort SubtractWithCarry(ushort a, ushort b)
+        {
+            var carry = flags.Carry ? 1 : 0;
+            var result = a - b - carry;
+
+            flags.HalfCarry = (a & 0x0f00) < (b & 0x0f00) + carry;
+
+            // Carry = result > ushort.MinValue;
+            flags.Carry = result < 0;
+            flags.Subtract = true;
+
+            // Overflow = (added signs are same) && (result sign differs from the sign of either of operands)
+            flags.ParityOverflow = (((a ^ ~b) & 0x8000) == 0) && (((result ^ a) & 0x8000) != 0);
+            b = unchecked((ushort)result);
+            flags.SetResultFlags(b);
+
+            return b;
         }
 
         public void Compare(byte a, byte b)
@@ -176,16 +195,27 @@
 
             flags.Subtract = false;
 
-            b = unchecked((ushort)result);
-
-            // S & Z are unaffected so we're only setting the undocumented flags from the last 8-bit addition
-            var b0 = unchecked((byte)((result & 0xff00) >> 8));
-            flags.SetUndocumentedFlags(b0);
+            if (addCarry)
+            {
+                // Overflow = (added signs are same) && (result sign differs from the sign of either of operands)
+                flags.ParityOverflow = (((a ^ b) & 0x8000) == 0) && (((result ^ a) & 0x8000) != 0);
+                b = unchecked((ushort)result);
+                flags.SetResultFlags(b);
+            }
+            else
+            {
+                // S & Z are unaffected so we're only setting the undocumented flags from the last 8-bit addition
+                var b0 = unchecked((byte)((result & 0xff00) >> 8));
+                flags.SetUndocumentedFlags(b0);
+                b = unchecked((ushort)result);
+            }
+            
             return b;
         }
 
-        private byte Subtract(byte a, byte b, int carry)
+        private byte Subtract(byte a, byte b, bool addCarry)
         {
+            var carry = addCarry ? 1 : 0;
             var result = a - b - carry;
 
             flags.HalfCarry = (a & 0x0f) < (b & 0x0f) + carry;

@@ -1248,6 +1248,24 @@
                     timer.Add(4, 15);
                     break;
 
+                // SBC HL, ss
+                case PrefixEdOpCode.SBC_HL_BC:
+                    yield return Expression.Assign(Xpr.HL, Expression.Call(Xpr.Alu, Xpr.AluSubtract16WithCarry, Xpr.HL, Xpr.BC));
+                    timer.Add(4, 15);
+                    break;
+                case PrefixEdOpCode.SBC_HL_DE:
+                    yield return Expression.Assign(Xpr.HL, Expression.Call(Xpr.Alu, Xpr.AluSubtract16WithCarry, Xpr.HL, Xpr.DE));
+                    timer.Add(4, 15);
+                    break;
+                case PrefixEdOpCode.SBC_HL_HL:
+                    yield return Expression.Assign(Xpr.HL, Expression.Call(Xpr.Alu, Xpr.AluSubtract16WithCarry, Xpr.HL, Xpr.HL));
+                    timer.Add(4, 15);
+                    break;
+                case PrefixEdOpCode.SBC_HL_SP:
+                    yield return Expression.Assign(Xpr.HL, Expression.Call(Xpr.Alu, Xpr.AluSubtract16WithCarry, Xpr.HL, Xpr.SP));
+                    timer.Add(4, 15);
+                    break;
+
                 // ********* General-Purpose Arithmetic *********
                 // NEG
                 case PrefixEdOpCode.NEG:

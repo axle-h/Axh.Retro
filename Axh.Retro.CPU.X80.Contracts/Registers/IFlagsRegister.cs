@@ -63,10 +63,16 @@ namespace Axh.Retro.CPU.X80.Contracts.Registers
         void SetUndocumentedFlags(byte result);
 
         /// <summary>
-        /// Set Sign, Zero, Flag3 & Flag5 according to the result
+        /// Set Sign, Zero, Flag3 & Flag5 according to the 8-bit result
         /// </summary>
         /// <param name="result">The result to use when setting the flags</param>
         void SetResultFlags(byte result);
+
+        /// <summary>
+        /// Set Sign, Zero, Flag3 & Flag5 according to the 16-bit result
+        /// </summary>
+        /// <param name="result">The result to use when setting the flags</param>
+        void SetResultFlags(ushort result);
 
         /// <summary>
         /// Set all flags for a parity result

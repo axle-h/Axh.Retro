@@ -121,5 +121,38 @@
 
             this.GpRegisters.VerifySet(x => x.HL = Value, Times.Once);
         }
+
+        [TestCase(PrefixEdOpCode.SBC_HL_BC)]
+        [TestCase(PrefixEdOpCode.SBC_HL_DE)]
+        [TestCase(PrefixEdOpCode.SBC_HL_HL)]
+        [TestCase(PrefixEdOpCode.SBC_HL_SP)]
+        public void SBC_HL_s(PrefixEdOpCode opCode)
+        {
+            this.SetupRegisters();
+            this.ResetMocks();
+
+            const ushort Value = 0x5353;
+            this.Alu.Setup(x => x.SubtractWithCarry(HL, It.IsAny<ushort>())).Returns(Value);
+
+            Run(4, 15, PrimaryOpCode.Prefix_ED, opCode);
+
+            switch (opCode)
+            {
+                case PrefixEdOpCode.SBC_HL_BC:
+                    this.Alu.Verify(x => x.SubtractWithCarry(HL, BC), Times.Once);
+                    break;
+                case PrefixEdOpCode.SBC_HL_DE:
+                    this.Alu.Verify(x => x.SubtractWithCarry(HL, DE), Times.Once);
+                    break;
+                case PrefixEdOpCode.SBC_HL_HL:
+                    this.Alu.Verify(x => x.SubtractWithCarry(HL, HL), Times.Once);
+                    break;
+                case PrefixEdOpCode.SBC_HL_SP:
+                    this.Alu.Verify(x => x.SubtractWithCarry(HL, SP), Times.Once);
+                    break;
+            }
+
+            this.GpRegisters.VerifySet(x => x.HL = Value, Times.Once);
+        }
     }
 }

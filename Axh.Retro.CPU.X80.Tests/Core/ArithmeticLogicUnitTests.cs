@@ -10,6 +10,7 @@
     using Moq;
 
     using NUnit.Framework;
+    using NUnit.Framework.Constraints;
 
     [TestFixture]
     public class ArithmeticLogicUnitTests
@@ -362,11 +363,11 @@
             AssertFlags(null, halfCarry, null, false, carry);
         }
 
-        [TestCase((ushort)0x4242, (ushort)0x1111, (ushort)0x5354, false, false)]
-        [TestCase((ushort)0x0100, (ushort)0x7f00, (ushort)0x8001, true, false)]
-        [TestCase((ushort)0xffff, (ushort)0x0001, (ushort)0x0001, false, true)]
-        [TestCase((ushort)0xaaaa, (ushort)0xbbbb, (ushort)0x6666, true, true)]
-        public void Add16WithCarry(ushort a, ushort b, ushort expected, bool halfCarry, bool carry)
+        [TestCase((ushort)0x4242, (ushort)0x1111, (ushort)0x5354, false, false, false)]
+        [TestCase((ushort)0x0100, (ushort)0x7f00, (ushort)0x8001, true, true, false)]
+        [TestCase((ushort)0xffff, (ushort)0x0001, (ushort)0x0001, false, false, true)]
+        [TestCase((ushort)0xaaaa, (ushort)0xbbbb, (ushort)0x6666, true, true, true)]
+        public void Add16WithCarry(ushort a, ushort b, ushort expected, bool halfCarry, bool overflow, bool carry)
         {
             Reset();
 
@@ -376,7 +377,26 @@
 
             Assert.AreEqual(expected, result);
 
-            AssertFlags(null, halfCarry, null, false, carry);
+            AssertFlags(null, halfCarry, overflow, false, carry);
+            flags.Verify(x => x.SetResultFlags(result), Times.Once);
+        }
+
+        [TestCase((ushort)0x9999, (ushort)0x1111, (ushort)0x8887, false, false, false)]
+        [TestCase((ushort)0x4242, (ushort)0x1111, (ushort)0x3130, false, false, false)]
+        [TestCase((ushort)0x0100, (ushort)0x7f00, (ushort)0x81ff, true, false, true)]
+        [TestCase((ushort)0xaaaa, (ushort)0x4444, (ushort)0x6665, false, true, false)]
+        public void Subtract16WithCarry(ushort a, ushort b, ushort expected, bool halfCarry, bool overflow, bool carry)
+        {
+            Reset();
+
+            this.flags.SetupProperty(x => x.Carry, true);
+
+            var result = alu.SubtractWithCarry(a, b);
+
+            Assert.AreEqual(expected, result);
+
+            AssertFlags(null, halfCarry, overflow, true, carry);
+            flags.Verify(x => x.SetResultFlags(result), Times.Once);
         }
 
         private void AssertFlags(byte? result, bool? halfCarry, bool? parityOverflow, bool? subtract, bool? carry)

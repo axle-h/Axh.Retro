@@ -149,6 +149,7 @@
         public static readonly MethodInfo AluAdd16WithCarry;
         public static readonly MethodInfo AluSubtract;
         public static readonly MethodInfo AluSubtractWithCarry;
+        public static readonly MethodInfo AluSubtract16WithCarry;
         public static readonly MethodInfo AluCompare;
         public static readonly MethodInfo AluAnd;
         public static readonly MethodInfo AluOr;
@@ -247,6 +248,7 @@
             AluAdd16WithCarry = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, ushort, ushort, ushort>((alu, a, b) => alu.AddWithCarry(a, b));
             AluSubtract = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, byte, byte>((alu, a, b) => alu.Subtract(a, b));
             AluSubtractWithCarry = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, byte, byte>((alu, a, b) => alu.SubtractWithCarry(a, b));
+            AluSubtract16WithCarry = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, ushort, ushort, ushort>((alu, a, b) => alu.SubtractWithCarry(a, b));
             AluCompare = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, byte>((alu, a, b) => alu.Compare(a, b));
             AluAnd = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, byte>((alu, a, b) => alu.And(a, b));
             AluOr = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, byte>((alu, a, b) => alu.Or(a, b));
