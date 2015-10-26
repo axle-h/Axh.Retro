@@ -4,6 +4,8 @@
     using System.Collections;
     using System.Linq;
 
+    using Axh.Retro.CPU.X80.Contracts;
+    using Axh.Retro.CPU.X80.Contracts.Config;
     using Axh.Retro.CPU.X80.Contracts.Core;
     using Axh.Retro.CPU.X80.Contracts.Factories;
     using Axh.Retro.CPU.X80.Contracts.Memory;
@@ -82,7 +84,10 @@
 
             this.Alu = new Mock<IArithmeticLogicUnit>();
 
-            this.BlockDecoder = new DynaRecInstructionBlockDecoder(mmuFactory.Object, this.Mmu.Object);
+            var platformConfig = new Mock<IPlatformConfig>();
+            platformConfig.Setup(x => x.CpuMode).Returns(CpuMode.Z80);
+
+            this.BlockDecoder = new DynaRecInstructionBlockDecoder(platformConfig.Object, mmuFactory.Object, this.Mmu.Object);
         }
 
         protected void SetupRegisters(ushort? bc = null)

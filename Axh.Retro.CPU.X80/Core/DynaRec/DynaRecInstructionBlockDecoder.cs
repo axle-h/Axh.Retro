@@ -1,5 +1,7 @@
 ﻿namespace Axh.Retro.CPU.X80.Core.DynaRec
 {
+    using Axh.Retro.CPU.X80.Contracts;
+    using Axh.Retro.CPU.X80.Contracts.Config;
     using Axh.Retro.CPU.X80.Contracts.Core;
     using Axh.Retro.CPU.X80.Contracts.Factories;
     using Axh.Retro.CPU.X80.Contracts.Memory;
@@ -11,8 +13,11 @@
 
         private readonly IMmu mmu;
 
-        public DynaRecInstructionBlockDecoder(IMmuFactory mmuFactory, IMmu mmu)
+        private readonly CpuMode cpuMode;
+
+        public DynaRecInstructionBlockDecoder(IPlatformConfig platformConfig, IMmuFactory mmuFactory, IMmu mmu)
         {
+            this.cpuMode = platformConfig.CpuMode;
             this.mmuFactory = mmuFactory;
             this.mmu = mmu;
         }
@@ -21,7 +26,7 @@
         {
             var mmuCache = this.mmuFactory.GetMmuCache(this.mmu, address);
             var timer = new InstructionTimer();
-            var expressionBuilder = new Z80BlockBuilder(mmuCache, timer);
+            var expressionBuilder = new Z80BlockBuilder(cpuMode, mmuCache, timer);
             var lambda = expressionBuilder.DecodeNextBlock();
 
             return new InstructionBlock<IZ80Registers>(address, (ushort)mmuCache.TotalBytesRead, lambda.Compile(), timer.GetInstructionTimings());

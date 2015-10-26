@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq.Expressions;
 
+    using Axh.Retro.CPU.X80.Contracts;
     using Axh.Retro.CPU.X80.Contracts.Core;
     using Axh.Retro.CPU.X80.Contracts.OpCodes;
     using Axh.Retro.CPU.X80.Util;
@@ -51,26 +52,52 @@
                     case PrimaryOpCode.Prefix_DD:
                         // Add a NOP timing for now and take a NOP off known indexed timings later.
                         timer.Add(1, 4);
-                        currentIndexRegister = IndexRegister.IX;
+                        if (cpuMode == CpuMode.Z80)
+                        {
+                            // Only Z80 has prefix DD
+                            currentIndexRegister = IndexRegister.IX;
+                        }
                         continue;
 
                     case PrimaryOpCode.Prefix_FD:
                         // Add a NOP timing for now and take a NOP off known indexed timings later.
                         timer.Add(1, 4);
-                        currentIndexRegister = IndexRegister.IY;
+                        if (cpuMode == CpuMode.Z80)
+                        {
+                            // Only Z80 has prefix FD
+                            currentIndexRegister = IndexRegister.IY;
+                        }
                         continue;
 
                     case PrimaryOpCode.Prefix_ED:
-                        foreach (var expression in TryDecodeNextEdPrefixOperation())
+                        if (cpuMode == CpuMode.Z80)
                         {
-                            yield return expression;
+                            // Only Z80 has prefix ED
+                            foreach (var expression in TryDecodeNextEdPrefixOperation())
+                            {
+                                yield return expression;
+                            }
+                        }
+                        else
+                        {
+                            // CPU's without ED prefix treat this as a NOP.
+                            timer.Add(1, 4);
                         }
                         break;
 
                     case PrimaryOpCode.Prefix_CB:
-                        foreach (var expression in index.UsesDisplacedIndexTimings ? TryDecodeNextCbPrefixOperationWithDisplacedIndexTimings(index) : TryDecodeNextCbPrefixOperation())
+                        if (cpuMode == CpuMode.Z80 || cpuMode == CpuMode.GameBoy)
                         {
-                            yield return expression;
+                            // Only Gameboy & Z80 have prefix CB opcodes.
+                            foreach (var expression in index.UsesDisplacedIndexTimings ? TryDecodeNextCbPrefixOperationWithDisplacedIndexTimings(index) : TryDecodeNextCbPrefixOperation())
+                            {
+                                yield return expression;
+                            }
+                        }
+                        else
+                        {
+                            // CPU's without CB prefix treat this as a NOP.
+                            timer.Add(1, 4);
                         }
                         break;
 

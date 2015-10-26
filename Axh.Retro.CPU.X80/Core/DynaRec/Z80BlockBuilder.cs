@@ -4,6 +4,7 @@
     using System.Linq;
     using System.Linq.Expressions;
 
+    using Axh.Retro.CPU.X80.Contracts;
     using Axh.Retro.CPU.X80.Contracts.Core;
     using Axh.Retro.CPU.X80.Contracts.Memory;
     using Axh.Retro.CPU.X80.Contracts.Registers;
@@ -12,14 +13,16 @@
 
     internal partial class Z80BlockBuilder
     {
+        private readonly CpuMode cpuMode;
         private readonly IInstructionTimer timer;
         private readonly IMmuCache mmuCache;
 
         private ConstantExpression NextByte => Expression.Constant(mmuCache.NextByte(), typeof(byte));
         private ConstantExpression NextWord => Expression.Constant(mmuCache.NextWord(), typeof(ushort));
         
-        public Z80BlockBuilder(IMmuCache mmuCache, IInstructionTimer timer)
+        public Z80BlockBuilder(CpuMode cpuMode, IMmuCache mmuCache, IInstructionTimer timer)
         {
+            this.cpuMode = cpuMode;
             this.timer = timer;
             this.mmuCache = mmuCache;
         }
