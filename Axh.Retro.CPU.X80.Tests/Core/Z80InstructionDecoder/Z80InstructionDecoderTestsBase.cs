@@ -10,6 +10,7 @@
     using Axh.Retro.CPU.X80.Contracts.OpCodes;
     using Axh.Retro.CPU.X80.Contracts.Registers;
     using Axh.Retro.CPU.X80.Core;
+    using Axh.Retro.CPU.X80.Core.DynaRec;
 
     using Moq;
 
@@ -172,7 +173,7 @@
             Assert.AreEqual(expectedThrottlingStates, timings.ThrottlingStates);
 
             // Make sure all bytes were read
-            this.Cache.Verify(x => x.NextByte(), Times.Exactly(opcodes.Count(x => x is byte || x is PrimaryOpCode || x is PrefixEdOpCode)));
+            this.Cache.Verify(x => x.NextByte(), Times.Exactly(opcodes.Count(x => x is byte || x is PrimaryOpCode || x is PrefixEdOpCode || x is PrefixCbOpCode)));
             this.Cache.Verify(x => x.NextWord(), Times.Exactly(opcodes.Count(x => x is ushort)));
         }
     }

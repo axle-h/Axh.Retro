@@ -6,6 +6,7 @@
         HALT = 0x76,
 
         // Prefixes
+        Prefix_CB = 0xCB,
         Prefix_DD = 0xDD,
         Prefix_ED = 0xED,
         Prefix_FD = 0xFD,

@@ -1,42 +1,17 @@
-﻿namespace Axh.Retro.CPU.X80.Core
+﻿namespace Axh.Retro.CPU.X80.Core.DynaRec
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Linq.Expressions;
 
     using Axh.Retro.CPU.X80.Contracts.Core;
-    using Axh.Retro.CPU.X80.Contracts.Memory;
     using Axh.Retro.CPU.X80.Contracts.OpCodes;
-    using Axh.Retro.CPU.X80.Contracts.Registers;
     using Axh.Retro.CPU.X80.Util;
 
     using Xpr = Z80Expressions;
 
-    internal class Z80ExpressionBuilder
+    internal partial class Z80BlockBuilder
     {
-        private readonly IInstructionTimer timer;
-        private readonly IMmuCache mmuCache;
-
-        private ConstantExpression NextByte => Expression.Constant(mmuCache.NextByte(), typeof(byte));
-        private ConstantExpression NextWord => Expression.Constant(mmuCache.NextWord(), typeof(ushort));
-        
-        public Z80ExpressionBuilder(IMmuCache mmuCache, IInstructionTimer timer)
-        {
-            this.timer = timer;
-            this.mmuCache = mmuCache;
-        }
-
-        public Expression<Func<IZ80Registers, IMmu, IArithmeticLogicUnit, InstructionTimings>> DecodeNextBlock()
-        {
-            var expressions = GetBlockExpressions().ToArray();
-
-            var expressionBlock = Expression.Block(new[] { Xpr.LocalByte, Xpr.LocalWord, Xpr.DynamicTimer }, expressions);
-            var lambda = Expression.Lambda<Func<IZ80Registers, IMmu, IArithmeticLogicUnit, InstructionTimings>>(expressionBlock, Xpr.Registers, Xpr.Mmu, Xpr.Alu);
-
-            return lambda;
-        }
-        
         private IEnumerable<Expression> GetBlockExpressions()
         {
             // Create a new dynamic timer to record any timings calculated at runtime.
@@ -87,6 +62,13 @@
 
                     case PrimaryOpCode.Prefix_ED:
                         foreach (var expression in TryDecodeNextEdPrefixOperation())
+                        {
+                            yield return expression;
+                        }
+                        break;
+
+                    case PrimaryOpCode.Prefix_CB:
+                        foreach (var expression in index.UsesDisplacedIndexTimings ? TryDecodeNextCbPrefixOperationWithDisplacedIndexTimings(index) : TryDecodeNextCbPrefixOperation())
                         {
                             yield return expression;
                         }
@@ -316,39 +298,39 @@
 
                     // LD r, (HL)
                     case PrimaryOpCode.LD_A_mHL:
-                        yield return Expression.Assign(Xpr.A, index.IndexedValue);
+                        yield return Expression.Assign(Xpr.A, index.ReadIndexedValue);
                         if (index.UsesDisplacedIndexTimings) timer.Add(2, 8);
                         timer.Add(2, 7);
                         break;
                     case PrimaryOpCode.LD_B_mHL:
-                        yield return Expression.Assign(Xpr.B, index.IndexedValue);
+                        yield return Expression.Assign(Xpr.B, index.ReadIndexedValue);
                         if (index.UsesDisplacedIndexTimings) timer.Add(2, 8);
                         timer.Add(2, 7);
                         break;
                     case PrimaryOpCode.LD_C_mHL:
-                        yield return Expression.Assign(Xpr.C, index.IndexedValue);
+                        yield return Expression.Assign(Xpr.C, index.ReadIndexedValue);
                         if (index.UsesDisplacedIndexTimings) timer.Add(2, 8);
                         timer.Add(2, 7);
                         break;
                     case PrimaryOpCode.LD_D_mHL:
-                        yield return Expression.Assign(Xpr.D, index.IndexedValue);
+                        yield return Expression.Assign(Xpr.D, index.ReadIndexedValue);
                         if (index.UsesDisplacedIndexTimings) timer.Add(2, 8);
                         timer.Add(2, 7);
                         break;
                     case PrimaryOpCode.LD_E_mHL:
-                        yield return Expression.Assign(Xpr.E, index.IndexedValue);
+                        yield return Expression.Assign(Xpr.E, index.ReadIndexedValue);
                         if (index.UsesDisplacedIndexTimings) timer.Add(2, 8);
                         timer.Add(2, 7);
                         break;
                     case PrimaryOpCode.LD_H_mHL:
                         // H register is always assigned here
-                        yield return Expression.Assign(Xpr.H, index.IndexedValue);
+                        yield return Expression.Assign(Xpr.H, index.ReadIndexedValue);
                         if (index.UsesDisplacedIndexTimings) timer.Add(2, 8);
                         timer.Add(2, 7);
                         break;
                     case PrimaryOpCode.LD_L_mHL:
                         // L register is always assigned here
-                        yield return Expression.Assign(Xpr.L, index.IndexedValue);
+                        yield return Expression.Assign(Xpr.L, index.ReadIndexedValue);
                         if (index.UsesDisplacedIndexTimings) timer.Add(2, 8);
                         timer.Add(2, 7);
                         break;
@@ -609,7 +591,7 @@
 
                     // ADD A, (HL)
                     case PrimaryOpCode.ADD_A_mHL:
-                        yield return Expression.Assign(Xpr.A, Expression.Call(Xpr.Alu, Xpr.AluAdd, Xpr.A, index.IndexedValue));
+                        yield return Expression.Assign(Xpr.A, Expression.Call(Xpr.Alu, Xpr.AluAdd, Xpr.A, index.ReadIndexedValue));
                         if (index.UsesDisplacedIndexTimings) timer.Add(2, 8);
                         timer.Add(2, 7);
                         break;
@@ -652,7 +634,7 @@
 
                     // ADC A, (HL)
                     case PrimaryOpCode.ADC_A_mHL:
-                        yield return Expression.Assign(Xpr.A, Expression.Call(Xpr.Alu, Xpr.AluAddWithCarry, Xpr.A, index.IndexedValue));
+                        yield return Expression.Assign(Xpr.A, Expression.Call(Xpr.Alu, Xpr.AluAddWithCarry, Xpr.A, index.ReadIndexedValue));
                         if (index.UsesDisplacedIndexTimings) timer.Add(2, 8);
                         timer.Add(2, 7);
                         break;
@@ -695,7 +677,7 @@
 
                     // SUB A, (HL)
                     case PrimaryOpCode.SUB_A_mHL:
-                        yield return Expression.Assign(Xpr.A, Expression.Call(Xpr.Alu, Xpr.AluSubtract, Xpr.A, index.IndexedValue));
+                        yield return Expression.Assign(Xpr.A, Expression.Call(Xpr.Alu, Xpr.AluSubtract, Xpr.A, index.ReadIndexedValue));
                         if (index.UsesDisplacedIndexTimings) timer.Add(2, 8);
                         timer.Add(2, 7);
                         break;
@@ -738,7 +720,7 @@
 
                     // SBC A, (HL)
                     case PrimaryOpCode.SBC_A_mHL:
-                        yield return Expression.Assign(Xpr.A, Expression.Call(Xpr.Alu, Xpr.AluSubtractWithCarry, Xpr.A, index.IndexedValue));
+                        yield return Expression.Assign(Xpr.A, Expression.Call(Xpr.Alu, Xpr.AluSubtractWithCarry, Xpr.A, index.ReadIndexedValue));
                         if (index.UsesDisplacedIndexTimings) timer.Add(2, 8);
                         timer.Add(2, 7);
                         break;
@@ -781,7 +763,7 @@
 
                     // AND (HL)
                     case PrimaryOpCode.AND_mHL:
-                        yield return Expression.Assign(Xpr.A, Expression.Call(Xpr.Alu, Xpr.AluAnd, Xpr.A, index.IndexedValue));
+                        yield return Expression.Assign(Xpr.A, Expression.Call(Xpr.Alu, Xpr.AluAnd, Xpr.A, index.ReadIndexedValue));
                         if (index.UsesDisplacedIndexTimings) timer.Add(2, 8);
                         timer.Add(2, 7);
                         break;
@@ -824,7 +806,7 @@
 
                     // OR (HL)
                     case PrimaryOpCode.OR_mHL:
-                        yield return Expression.Assign(Xpr.A, Expression.Call(Xpr.Alu, Xpr.AluOr, Xpr.A, index.IndexedValue));
+                        yield return Expression.Assign(Xpr.A, Expression.Call(Xpr.Alu, Xpr.AluOr, Xpr.A, index.ReadIndexedValue));
                         if (index.UsesDisplacedIndexTimings) timer.Add(2, 8);
                         timer.Add(2, 7);
                         break;
@@ -867,7 +849,7 @@
 
                     // XOR (HL)
                     case PrimaryOpCode.XOR_mHL:
-                        yield return Expression.Assign(Xpr.A, Expression.Call(Xpr.Alu, Xpr.AluXor, Xpr.A, index.IndexedValue));
+                        yield return Expression.Assign(Xpr.A, Expression.Call(Xpr.Alu, Xpr.AluXor, Xpr.A, index.ReadIndexedValue));
                         if (index.UsesDisplacedIndexTimings) timer.Add(2, 8);
                         timer.Add(2, 7);
                         break;
@@ -910,7 +892,7 @@
 
                     // CP (HL)
                     case PrimaryOpCode.CP_mHL:
-                        yield return Expression.Call(Xpr.Alu, Xpr.AluCompare, Xpr.A, index.IndexedValue);
+                        yield return Expression.Call(Xpr.Alu, Xpr.AluCompare, Xpr.A, index.ReadIndexedValue);
                         if (index.UsesDisplacedIndexTimings) timer.Add(2, 8);
                         timer.Add(2, 7);
                         break;
@@ -947,7 +929,7 @@
 
                     // INC (HL)
                     case PrimaryOpCode.INC_mHL:
-                        yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteByte, index.IndexedAddress, Expression.Call(Xpr.Alu, Xpr.AluIncrement, index.IndexedValue));
+                        yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteByte, index.IndexedAddress, Expression.Call(Xpr.Alu, Xpr.AluIncrement, index.ReadIndexedValue));
                         if (index.UsesDisplacedIndexTimings) timer.Add(2, 8);
                         timer.Add(3, 11);
                         break;
@@ -984,7 +966,7 @@
 
                     // DEC (HL)
                     case PrimaryOpCode.DEC_mHL:
-                        yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteByte, index.IndexedAddress, Expression.Call(Xpr.Alu, Xpr.AluDecrement, index.IndexedValue));
+                        yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteByte, index.IndexedAddress, Expression.Call(Xpr.Alu, Xpr.AluDecrement, index.ReadIndexedValue));
                         if (index.UsesDisplacedIndexTimings) timer.Add(2, 8);
                         timer.Add(3, 11);
                         break;
@@ -1143,218 +1125,6 @@
             var returnTarget = Expression.Label(typeof(InstructionTimings), "InstructionTimings_Return");
             yield return Expression.Return(returnTarget, Expression.Call(Xpr.DynamicTimer, getInstructionTimings), typeof(InstructionTimings));
             yield return Expression.Label(returnTarget, Expression.Constant(default(InstructionTimings)));
-        }
-        
-        private IEnumerable<Expression> TryDecodeNextEdPrefixOperation()
-        {
-            var opCode = (PrefixEdOpCode)mmuCache.NextByte();
-            
-            switch (opCode)
-            {
-                // ********* 8-bit load *********
-                // LD A, I
-                case PrefixEdOpCode.LD_A_I:
-                    yield return Expression.Assign(Xpr.A, Xpr.I);
-                    yield return Expression.Call(Xpr.Flags, Xpr.SetResultFlags, Xpr.A);
-
-                    // Also reset H & N and copy IFF2 to P/V
-                    yield return Expression.Assign(Xpr.HalfCarry, Expression.Constant(false));
-                    yield return Expression.Assign(Xpr.Subtract, Expression.Constant(false));
-                    yield return Expression.Assign(Xpr.ParityOverflow, Xpr.IFF2);
-                    timer.Add(2, 9);
-                    break;
-
-                // LD A, R
-                case PrefixEdOpCode.LD_A_R:
-                    yield return Expression.Assign(Xpr.A, Xpr.R);
-                    yield return Expression.Call(Xpr.Flags, Xpr.SetResultFlags, Xpr.A);
-
-                    // Also reset H & N and copy IFF2 to P/V
-                    yield return Expression.Assign(Xpr.HalfCarry, Expression.Constant(false));
-                    yield return Expression.Assign(Xpr.Subtract, Expression.Constant(false));
-                    yield return Expression.Assign(Xpr.ParityOverflow, Xpr.IFF2);
-                    timer.Add(2, 9);
-                    break;
-
-                // LD I, A
-                case PrefixEdOpCode.LD_I_A:
-                    yield return Expression.Assign(Xpr.I, Xpr.A);
-                    timer.Add(2, 9);
-                    break;
-
-                // LD R, A
-                case PrefixEdOpCode.LD_R_A:
-                    yield return Expression.Assign(Xpr.R, Xpr.A);
-                    timer.Add(2, 9);
-                    break;
-
-                // ********* 16-bit load *********
-                // LD dd, (nn)
-                case PrefixEdOpCode.LD_BC_mnn:
-                    yield return Expression.Assign(Xpr.BC, Expression.Call(Xpr.Mmu, Xpr.MmuReadWord, NextWord));
-                    timer.Add(6, 20);
-                    break;
-                case PrefixEdOpCode.LD_DE_mnn:
-                    yield return Expression.Assign(Xpr.DE, Expression.Call(Xpr.Mmu, Xpr.MmuReadWord, NextWord));
-                    timer.Add(6, 20);
-                    break;
-                case PrefixEdOpCode.LD_HL_mnn:
-                    yield return Expression.Assign(Xpr.HL, Expression.Call(Xpr.Mmu, Xpr.MmuReadWord, NextWord));
-                    timer.Add(6, 20);
-                    break;
-                case PrefixEdOpCode.LD_SP_mnn:
-                    yield return Expression.Assign(Xpr.SP, Expression.Call(Xpr.Mmu, Xpr.MmuReadWord, NextWord));
-                    timer.Add(6, 20);
-                    break;
-
-                // LD (nn), dd
-                case PrefixEdOpCode.LD_mnn_BC:
-                    yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteWord, NextWord, Xpr.BC);
-                    timer.Add(6, 20);
-                    break;
-                case PrefixEdOpCode.LD_mnn_DE:
-                    yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteWord, NextWord, Xpr.DE);
-                    timer.Add(6, 20);
-                    break;
-                case PrefixEdOpCode.LD_mnn_HL:
-                    yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteWord, NextWord, Xpr.HL);
-                    timer.Add(6, 20);
-                    break;
-                case PrefixEdOpCode.LD_mnn_SP:
-                    yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteWord, NextWord, Xpr.SP);
-                    timer.Add(6, 20);
-                    break;
-
-
-                // ********* Block Transfer *********
-                // LDI
-                case PrefixEdOpCode.LDI:
-                    foreach (var expression in Xpr.GetLdExpressions())
-                    {
-                        yield return expression;
-                    }
-                    timer.Add(4, 16);
-                    break;
-
-                // LDIR
-                case PrefixEdOpCode.LDIR:
-                    foreach (var expression in Xpr.GetLdrExpressions())
-                    {
-                        yield return expression;
-                    }
-                    timer.Add(4, 16);
-                    break;
-
-                // LDD
-                case PrefixEdOpCode.LDD:
-                    foreach (var expression in Xpr.GetLdExpressions(true))
-                    {
-                        yield return expression;
-                    }
-                    timer.Add(4, 16);
-                    break;
-
-                // LDDR
-                case PrefixEdOpCode.LDDR:
-                    foreach (var expression in Xpr.GetLdrExpressions(true))
-                    {
-                        yield return expression;
-                    }
-                    timer.Add(4, 16);
-                    break;
-
-                // ********* Search *********
-                case PrefixEdOpCode.CPI:
-                    foreach (var expression in Xpr.GetCpExpressions())
-                    {
-                        yield return expression;
-                    }
-                    timer.Add(4, 16);
-                    break;
-
-                case PrefixEdOpCode.CPIR:
-                    yield return Xpr.GetCprExpression();
-                    timer.Add(4, 16);
-                    break;
-
-                case PrefixEdOpCode.CPD:
-                    foreach (var expression in Xpr.GetCpExpressions(true))
-                    {
-                        yield return expression;
-                    }
-                    timer.Add(4, 16);
-                    break;
-
-                case PrefixEdOpCode.CPDR:
-                    yield return Xpr.GetCprExpression(true);
-                    timer.Add(4, 16);
-                    break;
-
-                // ********* 16-Bit Arithmetic *********
-                // ADC HL, ss
-                case PrefixEdOpCode.ADC_HL_BC:
-                    yield return Expression.Assign(Xpr.HL, Expression.Call(Xpr.Alu, Xpr.AluAdd16WithCarry, Xpr.HL, Xpr.BC));
-                    timer.Add(4, 15);
-                    break;
-                case PrefixEdOpCode.ADC_HL_DE:
-                    yield return Expression.Assign(Xpr.HL, Expression.Call(Xpr.Alu, Xpr.AluAdd16WithCarry, Xpr.HL, Xpr.DE));
-                    timer.Add(4, 15);
-                    break;
-                case PrefixEdOpCode.ADC_HL_HL:
-                    yield return Expression.Assign(Xpr.HL, Expression.Call(Xpr.Alu, Xpr.AluAdd16WithCarry, Xpr.HL, Xpr.HL));
-                    timer.Add(4, 15);
-                    break;
-                case PrefixEdOpCode.ADC_HL_SP:
-                    yield return Expression.Assign(Xpr.HL, Expression.Call(Xpr.Alu, Xpr.AluAdd16WithCarry, Xpr.HL, Xpr.SP));
-                    timer.Add(4, 15);
-                    break;
-
-                // SBC HL, ss
-                case PrefixEdOpCode.SBC_HL_BC:
-                    yield return Expression.Assign(Xpr.HL, Expression.Call(Xpr.Alu, Xpr.AluSubtract16WithCarry, Xpr.HL, Xpr.BC));
-                    timer.Add(4, 15);
-                    break;
-                case PrefixEdOpCode.SBC_HL_DE:
-                    yield return Expression.Assign(Xpr.HL, Expression.Call(Xpr.Alu, Xpr.AluSubtract16WithCarry, Xpr.HL, Xpr.DE));
-                    timer.Add(4, 15);
-                    break;
-                case PrefixEdOpCode.SBC_HL_HL:
-                    yield return Expression.Assign(Xpr.HL, Expression.Call(Xpr.Alu, Xpr.AluSubtract16WithCarry, Xpr.HL, Xpr.HL));
-                    timer.Add(4, 15);
-                    break;
-                case PrefixEdOpCode.SBC_HL_SP:
-                    yield return Expression.Assign(Xpr.HL, Expression.Call(Xpr.Alu, Xpr.AluSubtract16WithCarry, Xpr.HL, Xpr.SP));
-                    timer.Add(4, 15);
-                    break;
-
-                // ********* General-Purpose Arithmetic *********
-                // NEG
-                case PrefixEdOpCode.NEG:
-                    yield return Expression.Assign(Xpr.A, Expression.Call(Xpr.Alu, Xpr.AluSubtract, Expression.Constant((byte)0), Xpr.A));
-                    timer.Add(2, 8);
-                    break;
-
-                // IM 0
-                case PrefixEdOpCode.IM0:
-                    yield return Expression.Assign(Xpr.IM, Expression.Constant(InterruptMode.InterruptMode0));
-                    timer.Add(2, 8);
-                    break;
-
-                // IM 1
-                case PrefixEdOpCode.IM1:
-                    yield return Expression.Assign(Xpr.IM, Expression.Constant(InterruptMode.InterruptMode1));
-                    timer.Add(2, 8);
-                    break;
-
-                // IM 2
-                case PrefixEdOpCode.IM2:
-                    yield return Expression.Assign(Xpr.IM, Expression.Constant(InterruptMode.InterruptMode2));
-                    timer.Add(2, 8);
-                    break;
-
-                default:
-                    throw new NotImplementedException(opCode.ToString());
-            }
         }
 
         /// <summary>

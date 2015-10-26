@@ -41,12 +41,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Core\ArithmeticLogicUnit.cs" />
-    <Compile Include="Core\DecodeResult.cs" />
+    <Compile Include="Core\DynaRec\DecodeResult.cs" />
     <Compile Include="Core\IndexRegister.cs" />
-    <Compile Include="Core\IndexRegisterExpressions.cs" />
-    <Compile Include="Core\InstructionTimer.cs" />
-    <Compile Include="Core\Z80ExpressionBuilder.cs" />
-    <Compile Include="Core\Z80Expressions.cs" />
+    <Compile Include="Core\DynaRec\IndexRegisterExpressions.cs" />
+    <Compile Include="Core\DynaRec\InstructionTimer.cs" />
+    <Compile Include="Core\DynaRec\Z80BlockBuilder.cs" />
+    <Compile Include="Core\DynaRec\Z80BlockBuilder.PrefixEd.cs" />
+    <Compile Include="Core\DynaRec\Z80BlockBuilder.Primary.cs" />
+    <Compile Include="Core\DynaRec\Z80Expressions.cs" />
     <Compile Include="Factories\MmuFactory.cs" />
     <Compile Include="Factories\Z80RegisterFactory.cs" />
     <Compile Include="Memory\ArrayBackedMemoryBank.cs" />
@@ -61,7 +63,7 @@
     <Compile Include="Core\Z80Core.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Mmu\SegmentMmu.cs" />
-    <Compile Include="Core\DynaRecInstructionBlockDecoder.cs" />
+    <Compile Include="Core\DynaRec\DynaRecInstructionBlockDecoder.cs" />
     <Compile Include="Util\ExpressionHelpers.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -73,6 +75,12 @@
       <Project>{15e8bff0-aa13-420f-8527-9187a37f6360}</Project>
       <Name>Axh.Retro.CPU.X80.Contracts</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Core\DynaRec\Z80BlockBuilder.PrefixCb.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Core\DynaRec\Z80BlockBuilder.PrefixIndexCb.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

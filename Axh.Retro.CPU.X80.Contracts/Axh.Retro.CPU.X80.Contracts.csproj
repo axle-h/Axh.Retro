@@ -61,6 +61,7 @@
     <Compile Include="Memory\IMmuCache.cs" />
     <Compile Include="Memory\IReadableAddressSegment.cs" />
     <Compile Include="Memory\IWriteableAddressSegment.cs" />
+    <Compile Include="OpCodes\PrefixCbOpCode.cs" />
     <Compile Include="OpCodes\PrefixEdOpCode.cs" />
     <Compile Include="OpCodes\PrimaryOpCode.cs" />
     <Compile Include="Registers\IAccumulatorAndFlagsRegisterSet.cs" />
