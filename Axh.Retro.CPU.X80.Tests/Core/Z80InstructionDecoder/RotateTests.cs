@@ -74,6 +74,46 @@
             this.AfRegisters.VerifySet(x => x.A = Value, Times.Once);
         }
 
+        [Test]
+        public void RLD()
+        {
+            this.SetupRegisters();
+            this.ResetMocks();
+
+            const byte ValueAtHL = 0x43;
+            const byte ExpectedAccumulator = 0x58;
+            const byte ExpectedResult = 0x92;
+            this.Alu.Setup(x => x.RotateLeftDigit(A, ValueAtHL)).Returns(new AccumulatorAndResult { Accumulator = ExpectedAccumulator, Result = ExpectedResult });
+            this.Mmu.Setup(x => x.ReadByte(HL)).Returns(ValueAtHL);
+
+            Run(5, 18, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.RLD);
+
+            this.Mmu.Verify(x => x.ReadByte(HL), Times.Once);
+            this.Alu.Verify(x => x.RotateLeftDigit(A, ValueAtHL), Times.Once);
+            this.Mmu.Verify(x => x.WriteByte(HL, ExpectedResult), Times.Once);
+            this.AfRegisters.VerifySet(x => x.A = ExpectedAccumulator, Times.Once);
+        }
+
+        [Test]
+        public void RRD()
+        {
+            this.SetupRegisters();
+            this.ResetMocks();
+
+            const byte ValueAtHL = 0x1b;
+            const byte ExpectedAccumulator = 0x83;
+            const byte ExpectedResult = 0x3a;
+            this.Alu.Setup(x => x.RotateRightDigit(A, ValueAtHL)).Returns(new AccumulatorAndResult { Accumulator = ExpectedAccumulator, Result = ExpectedResult });
+            this.Mmu.Setup(x => x.ReadByte(HL)).Returns(ValueAtHL);
+
+            Run(5, 18, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.RRD);
+
+            this.Mmu.Verify(x => x.ReadByte(HL), Times.Once);
+            this.Alu.Verify(x => x.RotateRightDigit(A, ValueAtHL), Times.Once);
+            this.Mmu.Verify(x => x.WriteByte(HL, ExpectedResult), Times.Once);
+            this.AfRegisters.VerifySet(x => x.A = ExpectedAccumulator, Times.Once);
+        }
+
         [TestCase(PrefixCbOpCode.RLC_A)]
         [TestCase(PrefixCbOpCode.RLC_B)]
         [TestCase(PrefixCbOpCode.RLC_C)]

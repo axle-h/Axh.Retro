@@ -218,6 +218,23 @@
                     timer.Add(2, 8);
                     break;
 
+                // ********* Rotate *********
+                // RLD
+                case PrefixEdOpCode.RLD:
+                    yield return Expression.Assign(Xpr.AccumulatorAndResult, Expression.Call(Xpr.Alu, Xpr.AluRotateLeftDigit, Xpr.A, Xpr.ReadByteAtHL));
+                    yield return Expression.Assign(Xpr.A, Xpr.AccumulatorAndResult_Accumulator);
+                    yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteByte, Xpr.HL, Xpr.AccumulatorAndResult_Result);
+                    timer.Add(5, 18);
+                    break;
+
+                // RRD
+                case PrefixEdOpCode.RRD:
+                    yield return Expression.Assign(Xpr.AccumulatorAndResult, Expression.Call(Xpr.Alu, Xpr.AluRotateRightDigit, Xpr.A, Xpr.ReadByteAtHL));
+                    yield return Expression.Assign(Xpr.A, Xpr.AccumulatorAndResult_Accumulator);
+                    yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteByte, Xpr.HL, Xpr.AccumulatorAndResult_Result);
+                    timer.Add(5, 18);
+                    break;
+
                 default:
                     throw new NotImplementedException(opCode.ToString());
             }

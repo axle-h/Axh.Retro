@@ -16,21 +16,28 @@
         public static readonly ParameterExpression Alu;
 
         /// <summary>
-        /// Byte parameter b
+        /// Byte parameter 'b'
         /// </summary>
         public static readonly ParameterExpression LocalByte;
 
         /// <summary>
-        /// Word parameter w
+        /// Word parameter 'w'
         /// </summary>
         public static readonly ParameterExpression LocalWord;
 
         /// <summary>
-        /// The dynamic instruction timer that is updated at runtime.
+        /// The dynamic instruction timer parameter 'timer'.
         /// This is required for instructions that don't have compile time known timings e.g. LDIR.
         /// </summary>
         public static readonly ParameterExpression DynamicTimer;
         public static readonly MethodInfo DynamicTimerAdd;
+
+        /// <summary>
+        /// AccumulatorAndResult parameter 'result'
+        /// </summary>
+        public static readonly ParameterExpression AccumulatorAndResult;
+        public static readonly Expression AccumulatorAndResult_Accumulator;
+        public static readonly Expression AccumulatorAndResult_Result;
 
         // Register expressions
         public static readonly Expression A;
@@ -155,11 +162,14 @@
         public static readonly MethodInfo AluRotateLeft;
         public static readonly MethodInfo AluRotateRightWithCarry;
         public static readonly MethodInfo AluRotateRight;
-
+        
         public static readonly MethodInfo AluShiftLeft;
         public static readonly MethodInfo AluShiftLeftSet;
         public static readonly MethodInfo AluShiftRight;
         public static readonly MethodInfo AluShiftRightLogical;
+
+        public static readonly MethodInfo AluRotateRightDigit;
+        public static readonly MethodInfo AluRotateLeftDigit;
 
         public static readonly IDictionary<IndexRegister, IndexRegisterExpressions> IndexRegisterExpressions;
 
@@ -172,6 +182,10 @@
             LocalWord = Expression.Parameter(typeof(ushort), "w");
             DynamicTimer = Expression.Parameter(typeof(IInstructionTimer), "timer");
             DynamicTimerAdd = ExpressionHelpers.GetMethodInfo<IInstructionTimer, int, int>((dt, m, t) => dt.Add(m, t));
+
+            AccumulatorAndResult = Expression.Parameter(typeof(AccumulatorAndResult), "result");
+            AccumulatorAndResult_Accumulator = AccumulatorAndResult.GetPropertyExpression<AccumulatorAndResult, byte>(r => r.Accumulator);
+            AccumulatorAndResult_Result = AccumulatorAndResult.GetPropertyExpression<AccumulatorAndResult, byte>(r => r.Result);
 
             // General purpose register expressions
             var generalPurposeRegisters = Registers.GetPropertyExpression<IZ80Registers, IGeneralPurposeRegisterSet>(r => r.GeneralPurposeRegisters);
@@ -258,15 +272,18 @@
             AluAnd = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, byte>((alu, a, b) => alu.And(a, b));
             AluOr = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, byte>((alu, a, b) => alu.Or(a, b));
             AluXor = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, byte>((alu, a, b) => alu.Xor(a, b));
-            AluDecimalAdjust = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte>((alu, a) => alu.DecimalAdjust(a));
-            AluRotateLeftWithCarry = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte>((alu, a) => alu.RotateLeftWithCarry(a));
-            AluRotateLeft = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte>((alu, a) => alu.RotateLeft(a));
-            AluRotateRightWithCarry = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte>((alu, a) => alu.RotateRightWithCarry(a));
-            AluRotateRight = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte>((alu, a) => alu.RotateRight(a));
-            AluShiftLeft = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte>((alu, a) => alu.ShiftLeft(a));
-            AluShiftLeftSet = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte>((alu, a) => alu.ShiftLeftSet(a));
-            AluShiftRight = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte>((alu, a) => alu.ShiftRight(a));
-            AluShiftRightLogical = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte>((alu, a) => alu.ShiftRightLogical(a));
+            AluDecimalAdjust = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, byte>((alu, a) => alu.DecimalAdjust(a));
+            AluRotateLeftWithCarry = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, byte>((alu, a) => alu.RotateLeftWithCarry(a));
+            AluRotateLeft = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, byte>((alu, a) => alu.RotateLeft(a));
+            AluRotateRightWithCarry = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, byte>((alu, a) => alu.RotateRightWithCarry(a));
+            AluRotateRight = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, byte>((alu, a) => alu.RotateRight(a));
+            AluShiftLeft = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, byte>((alu, a) => alu.ShiftLeft(a));
+            AluShiftLeftSet = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, byte>((alu, a) => alu.ShiftLeftSet(a));
+            AluShiftRight = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, byte>((alu, a) => alu.ShiftRight(a));
+            AluShiftRightLogical = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, byte>((alu, a) => alu.ShiftRightLogical(a));
+
+            AluRotateRightDigit = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, byte, AccumulatorAndResult>((alu, a, b) => alu.RotateRightDigit(a, b));
+            AluRotateLeftDigit = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, byte, AccumulatorAndResult>((alu, a, b) => alu.RotateLeftDigit(a, b));
 
             IndexRegisterExpressions = new Dictionary<IndexRegister, IndexRegisterExpressions>
                                        {

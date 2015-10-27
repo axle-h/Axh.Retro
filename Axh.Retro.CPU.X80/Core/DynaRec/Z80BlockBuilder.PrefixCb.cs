@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq.Expressions;
+    using System.Reflection;
 
     using Axh.Retro.CPU.X80.Contracts.OpCodes;
 
@@ -10,319 +11,163 @@
 
     internal partial class Z80BlockBuilder
     {
+
         /// <summary>
         /// Run CB prefixed opcodes without an index
         /// </summary>
         /// <returns></returns>
-        private IEnumerable<Expression> TryDecodeNextCbPrefixOperation()
+        private Expression TryDecodeNextCbPrefixOperation()
         {
             var opCode = (PrefixCbOpCode)mmuCache.NextByte();
 
             switch (opCode)
             {
+                // ********* Rotate *********
                 // RLC r
-                case PrefixCbOpCode.RLC_B:
-                    yield return Expression.Assign(Xpr.B, Expression.Call(Xpr.Alu, Xpr.AluRotateLeftWithCarry, Xpr.B));
-                    timer.Add(2, 8);
-                    break;
-                case PrefixCbOpCode.RLC_C:
-                    yield return Expression.Assign(Xpr.C, Expression.Call(Xpr.Alu, Xpr.AluRotateLeftWithCarry, Xpr.C));
-                    timer.Add(2, 8);
-                    break;
-                case PrefixCbOpCode.RLC_D:
-                    yield return Expression.Assign(Xpr.D, Expression.Call(Xpr.Alu, Xpr.AluRotateLeftWithCarry, Xpr.D));
-                    timer.Add(2, 8);
-                    break;
-                case PrefixCbOpCode.RLC_E:
-                    yield return Expression.Assign(Xpr.E, Expression.Call(Xpr.Alu, Xpr.AluRotateLeftWithCarry, Xpr.E));
-                    timer.Add(2, 8);
-                    break;
-                case PrefixCbOpCode.RLC_H:
-                    yield return Expression.Assign(Xpr.H, Expression.Call(Xpr.Alu, Xpr.AluRotateLeftWithCarry, Xpr.H));
-                    timer.Add(2, 8);
-                    break;
-                case PrefixCbOpCode.RLC_L:
-                    yield return Expression.Assign(Xpr.L, Expression.Call(Xpr.Alu, Xpr.AluRotateLeftWithCarry, Xpr.L));
-                    timer.Add(2, 8);
-                    break;
-
-                // RLC (HL)
-                case PrefixCbOpCode.RLC_mHL:
-                    yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteByte, Xpr.HL, Expression.Call(Xpr.Alu, Xpr.AluRotateLeftWithCarry, Xpr.ReadByteAtHL));
-                    timer.Add(4, 15);
-                    break;
-
-                // RLC A
                 case PrefixCbOpCode.RLC_A:
-                    yield return Expression.Assign(Xpr.A, Expression.Call(Xpr.Alu, Xpr.AluRotateLeftWithCarry, Xpr.A));
-                    timer.Add(2, 8);
-                    break;
-
+                    return GetAluCallAssign(2, 8, Xpr.AluRotateLeftWithCarry, Xpr.A);
+                case PrefixCbOpCode.RLC_B:
+                    return GetAluCallAssign(2, 8, Xpr.AluRotateLeftWithCarry, Xpr.B);
+                case PrefixCbOpCode.RLC_C:
+                    return GetAluCallAssign(2, 8, Xpr.AluRotateLeftWithCarry, Xpr.C);
+                case PrefixCbOpCode.RLC_D:
+                    return GetAluCallAssign(2, 8, Xpr.AluRotateLeftWithCarry, Xpr.D);
+                case PrefixCbOpCode.RLC_E:
+                    return GetAluCallAssign(2, 8, Xpr.AluRotateLeftWithCarry, Xpr.E);
+                case PrefixCbOpCode.RLC_H:
+                    return GetAluCallAssign(2, 8, Xpr.AluRotateLeftWithCarry, Xpr.H);
+                case PrefixCbOpCode.RLC_L:
+                    return GetAluCallAssign(2, 8, Xpr.AluRotateLeftWithCarry, Xpr.L);
+                case PrefixCbOpCode.RLC_mHL:
+                    return GetAluCallWrite(4, 15, Xpr.AluRotateLeftWithCarry);
+                    
                 // RL r
-                case PrefixCbOpCode.RL_B:
-                    yield return Expression.Assign(Xpr.B, Expression.Call(Xpr.Alu, Xpr.AluRotateLeft, Xpr.B));
-                    timer.Add(2, 8);
-                    break;
-                case PrefixCbOpCode.RL_C:
-                    yield return Expression.Assign(Xpr.C, Expression.Call(Xpr.Alu, Xpr.AluRotateLeft, Xpr.C));
-                    timer.Add(2, 8);
-                    break;
-                case PrefixCbOpCode.RL_D:
-                    yield return Expression.Assign(Xpr.D, Expression.Call(Xpr.Alu, Xpr.AluRotateLeft, Xpr.D));
-                    timer.Add(2, 8);
-                    break;
-                case PrefixCbOpCode.RL_E:
-                    yield return Expression.Assign(Xpr.E, Expression.Call(Xpr.Alu, Xpr.AluRotateLeft, Xpr.E));
-                    timer.Add(2, 8);
-                    break;
-                case PrefixCbOpCode.RL_H:
-                    yield return Expression.Assign(Xpr.H, Expression.Call(Xpr.Alu, Xpr.AluRotateLeft, Xpr.H));
-                    timer.Add(2, 8);
-                    break;
-                case PrefixCbOpCode.RL_L:
-                    yield return Expression.Assign(Xpr.L, Expression.Call(Xpr.Alu, Xpr.AluRotateLeft, Xpr.L));
-                    timer.Add(2, 8);
-                    break;
-
-                // RL (HL)
-                case PrefixCbOpCode.RL_mHL:
-                    yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteByte, Xpr.HL, Expression.Call(Xpr.Alu, Xpr.AluRotateLeft, Xpr.ReadByteAtHL));
-                    timer.Add(4, 15);
-                    break;
-
-                // RL A
                 case PrefixCbOpCode.RL_A:
-                    yield return Expression.Assign(Xpr.A, Expression.Call(Xpr.Alu, Xpr.AluRotateLeft, Xpr.A));
-                    timer.Add(2, 8);
-                    break;
-
+                    return GetAluCallAssign(2, 8, Xpr.AluRotateLeft, Xpr.A);
+                case PrefixCbOpCode.RL_B:
+                    return GetAluCallAssign(2, 8, Xpr.AluRotateLeft, Xpr.B);
+                case PrefixCbOpCode.RL_C:
+                    return GetAluCallAssign(2, 8, Xpr.AluRotateLeft, Xpr.C);
+                case PrefixCbOpCode.RL_D:
+                    return GetAluCallAssign(2, 8, Xpr.AluRotateLeft, Xpr.D);
+                case PrefixCbOpCode.RL_E:
+                    return GetAluCallAssign(2, 8, Xpr.AluRotateLeft, Xpr.E);
+                case PrefixCbOpCode.RL_H:
+                    return GetAluCallAssign(2, 8, Xpr.AluRotateLeft, Xpr.H);
+                case PrefixCbOpCode.RL_L:
+                    return GetAluCallAssign(2, 8, Xpr.AluRotateLeft, Xpr.L);
+                case PrefixCbOpCode.RL_mHL:
+                    return GetAluCallWrite(4, 15, Xpr.AluRotateLeft);
+                    
                 // RRC r
-                case PrefixCbOpCode.RRC_B:
-                    yield return Expression.Assign(Xpr.B, Expression.Call(Xpr.Alu, Xpr.AluRotateRightWithCarry, Xpr.B));
-                    timer.Add(2, 8);
-                    break;
-                case PrefixCbOpCode.RRC_C:
-                    yield return Expression.Assign(Xpr.C, Expression.Call(Xpr.Alu, Xpr.AluRotateRightWithCarry, Xpr.C));
-                    timer.Add(2, 8);
-                    break;
-                case PrefixCbOpCode.RRC_D:
-                    yield return Expression.Assign(Xpr.D, Expression.Call(Xpr.Alu, Xpr.AluRotateRightWithCarry, Xpr.D));
-                    timer.Add(2, 8);
-                    break;
-                case PrefixCbOpCode.RRC_E:
-                    yield return Expression.Assign(Xpr.E, Expression.Call(Xpr.Alu, Xpr.AluRotateRightWithCarry, Xpr.E));
-                    timer.Add(2, 8);
-                    break;
-                case PrefixCbOpCode.RRC_H:
-                    yield return Expression.Assign(Xpr.H, Expression.Call(Xpr.Alu, Xpr.AluRotateRightWithCarry, Xpr.H));
-                    timer.Add(2, 8);
-                    break;
-                case PrefixCbOpCode.RRC_L:
-                    yield return Expression.Assign(Xpr.L, Expression.Call(Xpr.Alu, Xpr.AluRotateRightWithCarry, Xpr.L));
-                    timer.Add(2, 8);
-                    break;
-
-                // RRC (HL)
-                case PrefixCbOpCode.RRC_mHL:
-                    yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteByte, Xpr.HL, Expression.Call(Xpr.Alu, Xpr.AluRotateRightWithCarry, Xpr.ReadByteAtHL));
-                    timer.Add(4, 15);
-                    break;
-
-                // RRC A
                 case PrefixCbOpCode.RRC_A:
-                    yield return Expression.Assign(Xpr.A, Expression.Call(Xpr.Alu, Xpr.AluRotateRightWithCarry, Xpr.A));
-                    timer.Add(2, 8);
-                    break;
-
+                    return GetAluCallAssign(2, 8, Xpr.AluRotateRightWithCarry, Xpr.A);
+                case PrefixCbOpCode.RRC_B:
+                    return GetAluCallAssign(2, 8, Xpr.AluRotateRightWithCarry, Xpr.B);
+                case PrefixCbOpCode.RRC_C:
+                    return GetAluCallAssign(2, 8, Xpr.AluRotateRightWithCarry, Xpr.C);
+                case PrefixCbOpCode.RRC_D:
+                    return GetAluCallAssign(2, 8, Xpr.AluRotateRightWithCarry, Xpr.D);
+                case PrefixCbOpCode.RRC_E:
+                    return GetAluCallAssign(2, 8, Xpr.AluRotateRightWithCarry, Xpr.E);
+                case PrefixCbOpCode.RRC_H:
+                    return GetAluCallAssign(2, 8, Xpr.AluRotateRightWithCarry, Xpr.H);
+                case PrefixCbOpCode.RRC_L:
+                    return GetAluCallAssign(2, 8, Xpr.AluRotateRightWithCarry, Xpr.L);
+                case PrefixCbOpCode.RRC_mHL:
+                    return GetAluCallWrite(4, 15, Xpr.AluRotateRightWithCarry);
+                    
                 // RR r
-                case PrefixCbOpCode.RR_B:
-                    yield return Expression.Assign(Xpr.B, Expression.Call(Xpr.Alu, Xpr.AluRotateRight, Xpr.B));
-                    timer.Add(2, 8);
-                    break;
-                case PrefixCbOpCode.RR_C:
-                    yield return Expression.Assign(Xpr.C, Expression.Call(Xpr.Alu, Xpr.AluRotateRight, Xpr.C));
-                    timer.Add(2, 8);
-                    break;
-                case PrefixCbOpCode.RR_D:
-                    yield return Expression.Assign(Xpr.D, Expression.Call(Xpr.Alu, Xpr.AluRotateRight, Xpr.D));
-                    timer.Add(2, 8);
-                    break;
-                case PrefixCbOpCode.RR_E:
-                    yield return Expression.Assign(Xpr.E, Expression.Call(Xpr.Alu, Xpr.AluRotateRight, Xpr.E));
-                    timer.Add(2, 8);
-                    break;
-                case PrefixCbOpCode.RR_H:
-                    yield return Expression.Assign(Xpr.H, Expression.Call(Xpr.Alu, Xpr.AluRotateRight, Xpr.H));
-                    timer.Add(2, 8);
-                    break;
-                case PrefixCbOpCode.RR_L:
-                    yield return Expression.Assign(Xpr.L, Expression.Call(Xpr.Alu, Xpr.AluRotateRight, Xpr.L));
-                    timer.Add(2, 8);
-                    break;
-
-                // RR (HL)
-                case PrefixCbOpCode.RR_mHL:
-                    yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteByte, Xpr.HL, Expression.Call(Xpr.Alu, Xpr.AluRotateRight, Xpr.ReadByteAtHL));
-                    timer.Add(4, 15);
-                    break;
-
-                // RR A
                 case PrefixCbOpCode.RR_A:
-                    yield return Expression.Assign(Xpr.A, Expression.Call(Xpr.Alu, Xpr.AluRotateRight, Xpr.A));
-                    timer.Add(2, 8);
-                    break;
+                    return GetAluCallAssign(2, 8, Xpr.AluRotateRight, Xpr.A);
+                case PrefixCbOpCode.RR_B:
+                    return GetAluCallAssign(2, 8, Xpr.AluRotateRight, Xpr.B);
+                case PrefixCbOpCode.RR_C:
+                    return GetAluCallAssign(2, 8, Xpr.AluRotateRight, Xpr.C);
+                case PrefixCbOpCode.RR_D:
+                    return GetAluCallAssign(2, 8, Xpr.AluRotateRight, Xpr.D);
+                case PrefixCbOpCode.RR_E:
+                    return GetAluCallAssign(2, 8, Xpr.AluRotateRight, Xpr.E);
+                case PrefixCbOpCode.RR_H:
+                    return GetAluCallAssign(2, 8, Xpr.AluRotateRight, Xpr.H);
+                case PrefixCbOpCode.RR_L:
+                    return GetAluCallAssign(2, 8, Xpr.AluRotateRight, Xpr.L);
+                case PrefixCbOpCode.RR_mHL:
+                    return GetAluCallWrite(4, 15, Xpr.AluRotateRight);
 
+                // ********* Shift *********
                 // SLA r
-                case PrefixCbOpCode.SLA_B:
-                    yield return Expression.Assign(Xpr.B, Expression.Call(Xpr.Alu, Xpr.AluShiftLeft, Xpr.B));
-                    timer.Add(2, 8);
-                    break;
-                case PrefixCbOpCode.SLA_C:
-                    yield return Expression.Assign(Xpr.C, Expression.Call(Xpr.Alu, Xpr.AluShiftLeft, Xpr.C));
-                    timer.Add(2, 8);
-                    break;
-                case PrefixCbOpCode.SLA_D:
-                    yield return Expression.Assign(Xpr.D, Expression.Call(Xpr.Alu, Xpr.AluShiftLeft, Xpr.D));
-                    timer.Add(2, 8);
-                    break;
-                case PrefixCbOpCode.SLA_E:
-                    yield return Expression.Assign(Xpr.E, Expression.Call(Xpr.Alu, Xpr.AluShiftLeft, Xpr.E));
-                    timer.Add(2, 8);
-                    break;
-                case PrefixCbOpCode.SLA_H:
-                    yield return Expression.Assign(Xpr.H, Expression.Call(Xpr.Alu, Xpr.AluShiftLeft, Xpr.H));
-                    timer.Add(2, 8);
-                    break;
-                case PrefixCbOpCode.SLA_L:
-                    yield return Expression.Assign(Xpr.L, Expression.Call(Xpr.Alu, Xpr.AluShiftLeft, Xpr.L));
-                    timer.Add(2, 8);
-                    break;
-
-                // SLA (HL)
-                case PrefixCbOpCode.SLA_mHL:
-                    yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteByte, Xpr.HL, Expression.Call(Xpr.Alu, Xpr.AluShiftLeft, Xpr.ReadByteAtHL));
-                    timer.Add(4, 15);
-                    break;
-
-                // SLA A
                 case PrefixCbOpCode.SLA_A:
-                    yield return Expression.Assign(Xpr.A, Expression.Call(Xpr.Alu, Xpr.AluShiftLeft, Xpr.A));
-                    timer.Add(2, 8);
-                    break;
+                    return GetAluCallAssign(2, 8, Xpr.AluShiftLeft, Xpr.A);
+                case PrefixCbOpCode.SLA_B:
+                    return GetAluCallAssign(2, 8, Xpr.AluShiftLeft, Xpr.B);
+                case PrefixCbOpCode.SLA_C:
+                    return GetAluCallAssign(2, 8, Xpr.AluShiftLeft, Xpr.C);
+                case PrefixCbOpCode.SLA_D:
+                    return GetAluCallAssign(2, 8, Xpr.AluShiftLeft, Xpr.D);
+                case PrefixCbOpCode.SLA_E:
+                    return GetAluCallAssign(2, 8, Xpr.AluShiftLeft, Xpr.E);
+                case PrefixCbOpCode.SLA_H:
+                    return GetAluCallAssign(2, 8, Xpr.AluShiftLeft, Xpr.H);
+                case PrefixCbOpCode.SLA_L:
+                    return GetAluCallAssign(2, 8, Xpr.AluShiftLeft, Xpr.L);
+                case PrefixCbOpCode.SLA_mHL:
+                    return GetAluCallWrite(4, 15, Xpr.AluShiftLeft);
 
                 // SLS r (undocumented)
-                case PrefixCbOpCode.SLS_B:
-                    yield return Expression.Assign(Xpr.B, Expression.Call(Xpr.Alu, Xpr.AluShiftLeftSet, Xpr.B));
-                    timer.Add(2, 8);
-                    break;
-                case PrefixCbOpCode.SLS_C:
-                    yield return Expression.Assign(Xpr.C, Expression.Call(Xpr.Alu, Xpr.AluShiftLeftSet, Xpr.C));
-                    timer.Add(2, 8);
-                    break;
-                case PrefixCbOpCode.SLS_D:
-                    yield return Expression.Assign(Xpr.D, Expression.Call(Xpr.Alu, Xpr.AluShiftLeftSet, Xpr.D));
-                    timer.Add(2, 8);
-                    break;
-                case PrefixCbOpCode.SLS_E:
-                    yield return Expression.Assign(Xpr.E, Expression.Call(Xpr.Alu, Xpr.AluShiftLeftSet, Xpr.E));
-                    timer.Add(2, 8);
-                    break;
-                case PrefixCbOpCode.SLS_H:
-                    yield return Expression.Assign(Xpr.H, Expression.Call(Xpr.Alu, Xpr.AluShiftLeftSet, Xpr.H));
-                    timer.Add(2, 8);
-                    break;
-                case PrefixCbOpCode.SLS_L:
-                    yield return Expression.Assign(Xpr.L, Expression.Call(Xpr.Alu, Xpr.AluShiftLeftSet, Xpr.L));
-                    timer.Add(2, 8);
-                    break;
-
-                // SLS (HL) (undocumented)
-                case PrefixCbOpCode.SLS_mHL:
-                    yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteByte, Xpr.HL, Expression.Call(Xpr.Alu, Xpr.AluShiftLeftSet, Xpr.ReadByteAtHL));
-                    timer.Add(4, 15);
-                    break;
-
-                // SLS A (undocumented)
                 case PrefixCbOpCode.SLS_A:
-                    yield return Expression.Assign(Xpr.A, Expression.Call(Xpr.Alu, Xpr.AluShiftLeftSet, Xpr.A));
-                    timer.Add(2, 8);
-                    break;
+                    return GetAluCallAssign(2, 8, Xpr.AluShiftLeftSet, Xpr.A);
+                case PrefixCbOpCode.SLS_B:
+                    return GetAluCallAssign(2, 8, Xpr.AluShiftLeftSet, Xpr.B);
+                case PrefixCbOpCode.SLS_C:
+                    return GetAluCallAssign(2, 8, Xpr.AluShiftLeftSet, Xpr.C);
+                case PrefixCbOpCode.SLS_D:
+                    return GetAluCallAssign(2, 8, Xpr.AluShiftLeftSet, Xpr.D);
+                case PrefixCbOpCode.SLS_E:
+                    return GetAluCallAssign(2, 8, Xpr.AluShiftLeftSet, Xpr.E);
+                case PrefixCbOpCode.SLS_H:
+                    return GetAluCallAssign(2, 8, Xpr.AluShiftLeftSet, Xpr.H);
+                case PrefixCbOpCode.SLS_L:
+                    return GetAluCallAssign(2, 8, Xpr.AluShiftLeftSet, Xpr.L);
+                case PrefixCbOpCode.SLS_mHL:
+                    return GetAluCallWrite(4, 15, Xpr.AluShiftLeftSet);
 
                 // SRA r
-                case PrefixCbOpCode.SRA_B:
-                    yield return Expression.Assign(Xpr.B, Expression.Call(Xpr.Alu, Xpr.AluShiftRight, Xpr.B));
-                    timer.Add(2, 8);
-                    break;
-                case PrefixCbOpCode.SRA_C:
-                    yield return Expression.Assign(Xpr.C, Expression.Call(Xpr.Alu, Xpr.AluShiftRight, Xpr.C));
-                    timer.Add(2, 8);
-                    break;
-                case PrefixCbOpCode.SRA_D:
-                    yield return Expression.Assign(Xpr.D, Expression.Call(Xpr.Alu, Xpr.AluShiftRight, Xpr.D));
-                    timer.Add(2, 8);
-                    break;
-                case PrefixCbOpCode.SRA_E:
-                    yield return Expression.Assign(Xpr.E, Expression.Call(Xpr.Alu, Xpr.AluShiftRight, Xpr.E));
-                    timer.Add(2, 8);
-                    break;
-                case PrefixCbOpCode.SRA_H:
-                    yield return Expression.Assign(Xpr.H, Expression.Call(Xpr.Alu, Xpr.AluShiftRight, Xpr.H));
-                    timer.Add(2, 8);
-                    break;
-                case PrefixCbOpCode.SRA_L:
-                    yield return Expression.Assign(Xpr.L, Expression.Call(Xpr.Alu, Xpr.AluShiftRight, Xpr.L));
-                    timer.Add(2, 8);
-                    break;
-
-                // SRA (HL)
-                case PrefixCbOpCode.SRA_mHL:
-                    yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteByte, Xpr.HL, Expression.Call(Xpr.Alu, Xpr.AluShiftRight, Xpr.ReadByteAtHL));
-                    timer.Add(4, 15);
-                    break;
-
-                // SRA A (undocumented)
                 case PrefixCbOpCode.SRA_A:
-                    yield return Expression.Assign(Xpr.A, Expression.Call(Xpr.Alu, Xpr.AluShiftRight, Xpr.A));
-                    timer.Add(2, 8);
-                    break;
-
+                    return GetAluCallAssign(2, 8, Xpr.AluShiftRight, Xpr.A);
+                case PrefixCbOpCode.SRA_B:
+                    return GetAluCallAssign(2, 8, Xpr.AluShiftRight, Xpr.B);
+                case PrefixCbOpCode.SRA_C:
+                    return GetAluCallAssign(2, 8, Xpr.AluShiftRight, Xpr.C);
+                case PrefixCbOpCode.SRA_D:
+                    return GetAluCallAssign(2, 8, Xpr.AluShiftRight, Xpr.D);
+                case PrefixCbOpCode.SRA_E:
+                    return GetAluCallAssign(2, 8, Xpr.AluShiftRight, Xpr.E);
+                case PrefixCbOpCode.SRA_H:
+                    return GetAluCallAssign(2, 8, Xpr.AluShiftRight, Xpr.H);
+                case PrefixCbOpCode.SRA_L:
+                    return GetAluCallAssign(2, 8, Xpr.AluShiftRight, Xpr.L);
+                case PrefixCbOpCode.SRA_mHL:
+                    return GetAluCallWrite(4, 15, Xpr.AluShiftRight);
+                    
                 // SRL r
-                case PrefixCbOpCode.SRL_B:
-                    yield return Expression.Assign(Xpr.B, Expression.Call(Xpr.Alu, Xpr.AluShiftRightLogical, Xpr.B));
-                    timer.Add(2, 8);
-                    break;
-                case PrefixCbOpCode.SRL_C:
-                    yield return Expression.Assign(Xpr.C, Expression.Call(Xpr.Alu, Xpr.AluShiftRightLogical, Xpr.C));
-                    timer.Add(2, 8);
-                    break;
-                case PrefixCbOpCode.SRL_D:
-                    yield return Expression.Assign(Xpr.D, Expression.Call(Xpr.Alu, Xpr.AluShiftRightLogical, Xpr.D));
-                    timer.Add(2, 8);
-                    break;
-                case PrefixCbOpCode.SRL_E:
-                    yield return Expression.Assign(Xpr.E, Expression.Call(Xpr.Alu, Xpr.AluShiftRightLogical, Xpr.E));
-                    timer.Add(2, 8);
-                    break;
-                case PrefixCbOpCode.SRL_H:
-                    yield return Expression.Assign(Xpr.H, Expression.Call(Xpr.Alu, Xpr.AluShiftRightLogical, Xpr.H));
-                    timer.Add(2, 8);
-                    break;
-                case PrefixCbOpCode.SRL_L:
-                    yield return Expression.Assign(Xpr.L, Expression.Call(Xpr.Alu, Xpr.AluShiftRightLogical, Xpr.L));
-                    timer.Add(2, 8);
-                    break;
-
-                // SRL (HL)
-                case PrefixCbOpCode.SRL_mHL:
-                    yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteByte, Xpr.HL, Expression.Call(Xpr.Alu, Xpr.AluShiftRightLogical, Xpr.ReadByteAtHL));
-                    timer.Add(4, 15);
-                    break;
-
-                // SRL A (undocumented)
                 case PrefixCbOpCode.SRL_A:
-                    yield return Expression.Assign(Xpr.A, Expression.Call(Xpr.Alu, Xpr.AluShiftRightLogical, Xpr.A));
-                    timer.Add(2, 8);
-                    break;
+                    return GetAluCallAssign(2, 8, Xpr.AluShiftRightLogical, Xpr.A);
+                case PrefixCbOpCode.SRL_B:
+                    return GetAluCallAssign(2, 8, Xpr.AluShiftRightLogical, Xpr.B);
+                case PrefixCbOpCode.SRL_C:
+                    return GetAluCallAssign(2, 8, Xpr.AluShiftRightLogical, Xpr.C);
+                case PrefixCbOpCode.SRL_D:
+                    return GetAluCallAssign(2, 8, Xpr.AluShiftRightLogical, Xpr.D);
+                case PrefixCbOpCode.SRL_E:
+                    return GetAluCallAssign(2, 8, Xpr.AluShiftRightLogical, Xpr.E);
+                case PrefixCbOpCode.SRL_H:
+                    return GetAluCallAssign(2, 8, Xpr.AluShiftRightLogical, Xpr.H);
+                case PrefixCbOpCode.SRL_L:
+                    return GetAluCallAssign(2, 8, Xpr.AluShiftRightLogical, Xpr.L);
+                case PrefixCbOpCode.SRL_mHL:
+                    return GetAluCallWrite(4, 15, Xpr.AluShiftRightLogical);
+
                 default:
                     throw new ArgumentOutOfRangeException();
             }

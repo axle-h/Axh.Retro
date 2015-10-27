@@ -15,22 +15,18 @@
     {
         private IEnumerable<Expression> GetBlockExpressions()
         {
-            // Create a new dynamic timer to record any timings calculated at runtime.
-            yield return Expression.Assign(Xpr.DynamicTimer, Expression.New(typeof(InstructionTimer)));
+            lastDecodeResult = DecodeResult.Continue;
+            index = Xpr.IndexRegisterExpressions[IndexRegister.HL];
 
-            var currentIndexRegister = IndexRegister.HL;
-            var currentDecodeResult = DecodeResult.Continue;
-
-            while (currentDecodeResult == DecodeResult.Continue)
+            while (true)
             {
                 if (mmuCache.TotalBytesRead == ushort.MaxValue)
                 {
-                    currentDecodeResult = DecodeResult.FinalizeAndSync;
-                    break;
+                    lastDecodeResult = DecodeResult.FinalizeAndSync;
+                    yield break;
                 }
 
                 var opCode = (PrimaryOpCode)this.mmuCache.NextByte();
-                var index = Xpr.IndexRegisterExpressions[currentIndexRegister];
 
                 if (index.UsesDisplacedIndexTimings && OpCodeUsesDisplacedIndex(opCode))
                 {
@@ -45,8 +41,8 @@
                         break;
                     case PrimaryOpCode.HALT:
                         timer.Add(1, 4);
-                        currentDecodeResult = DecodeResult.FinalizeAndSync;
-                        break;
+                        lastDecodeResult = DecodeResult.FinalizeAndSync;
+                        yield break;
 
                     // ********* Prefixes *********
                     case PrimaryOpCode.Prefix_DD:
@@ -55,7 +51,7 @@
                         if (cpuMode == CpuMode.Z80)
                         {
                             // Only Z80 has prefix DD
-                            currentIndexRegister = IndexRegister.IX;
+                            this.index = Xpr.IndexRegisterExpressions[IndexRegister.IX];
                         }
                         continue;
 
@@ -65,7 +61,7 @@
                         if (cpuMode == CpuMode.Z80)
                         {
                             // Only Z80 has prefix FD
-                            currentIndexRegister = IndexRegister.IY;
+                            this.index = Xpr.IndexRegisterExpressions[IndexRegister.IY];
                         }
                         continue;
 
@@ -89,9 +85,16 @@
                         if (cpuMode == CpuMode.Z80 || cpuMode == CpuMode.GameBoy)
                         {
                             // Only Gameboy & Z80 have prefix CB opcodes.
-                            foreach (var expression in index.UsesDisplacedIndexTimings ? TryDecodeNextCbPrefixOperationWithDisplacedIndexTimings(index) : TryDecodeNextCbPrefixOperation())
+                            if (index.UsesDisplacedIndexTimings)
                             {
-                                yield return expression;
+                                foreach (var expression in TryDecodeNextDdFdCbPrefixOperation())
+                                {
+                                    yield return expression;
+                                }
+                            }
+                            else
+                            {
+                                yield return TryDecodeNextCbPrefixOperation();
                             }
                         }
                         else
@@ -1128,30 +1131,19 @@
                     case PrimaryOpCode.JP:
                         yield return Expression.Assign(Xpr.PC, NextWord);
                         timer.Add(3, 10);
-                        currentDecodeResult = DecodeResult.Finalize;
-                        break;
+                        lastDecodeResult = DecodeResult.Finalize;
+                        yield break;
 
                     default:
                         throw new NotImplementedException(opCode.ToString());
                 }
+
+                // Set index back
+                if (this.index.IndexRegister != IndexRegister.HL)
+                {
+                    this.index = Xpr.IndexRegisterExpressions[IndexRegister.HL];
+                }
             }
-
-            // Finalize
-            if (currentDecodeResult == DecodeResult.FinalizeAndSync)
-            {
-                // Increment the program counter by how many bytes were read.
-                yield return Expression.Assign(Xpr.PC, Expression.Convert(Expression.Add(Expression.Convert(Xpr.PC, typeof(int)), Expression.Constant(this.mmuCache.TotalBytesRead)), typeof(ushort)));
-            }
-
-            // Add the block length to the 7 lsb of memory refresh register.
-            var blockLengthExpression = Expression.Constant(this.mmuCache.TotalBytesRead, typeof(int));
-            yield return Xpr.GetMemoryRefreshDeltaExpression(blockLengthExpression);
-
-            // Return the dynamic timings.
-            var getInstructionTimings = ExpressionHelpers.GetMethodInfo<IInstructionTimer>(dt => dt.GetInstructionTimings());
-            var returnTarget = Expression.Label(typeof(InstructionTimings), "InstructionTimings_Return");
-            yield return Expression.Return(returnTarget, Expression.Call(Xpr.DynamicTimer, getInstructionTimings), typeof(InstructionTimings));
-            yield return Expression.Label(returnTarget, Expression.Constant(default(InstructionTimings)));
         }
 
         /// <summary>
