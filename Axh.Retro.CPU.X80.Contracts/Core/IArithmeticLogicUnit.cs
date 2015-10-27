@@ -60,5 +60,42 @@
         /// <param name="a"></param>
         /// <returns></returns>
         byte RotateRight(byte a);
+
+        /// <summary>
+        /// An arithmetic shift left 1 bit position is performed on the contents of operand m.
+        /// The contents of bit 7 are copied to the Carry flag.
+        /// Bit 0 is the least-significant bit.
+        /// </summary>
+        /// <param name="a"></param>
+        /// <returns></returns>
+        byte ShiftLeft(byte a);
+
+        /// <summary>
+        /// Undocumented Z80 instruction known as SLS, SLL or SL1.
+        /// An arithmetic shift left 1 bit position is performed on the contents of operand m.
+        /// The contents of bit 7 are copied to the Carry flag, and bit 0 is set.
+        /// Bit 0 is the least-significant bit.
+        /// </summary>
+        /// <param name="a"></param>
+        /// <returns></returns>
+        byte ShiftLeftSet(byte a);
+
+        /// <summary>
+        /// An arithmetic shift right 1 bit position is performed on the contents of operand m.
+        /// The contents of bit 0 are copied to the Carry flag and the previous contents of bit 7 remain unchanged.
+        /// Bit 0 is the least-significant bit.
+        /// </summary>
+        /// <param name="a"></param>
+        /// <returns></returns>
+        byte ShiftRight(byte a);
+
+        /// <summary>
+        /// The contents of operand m are shifted right 1 bit position.
+        /// The contents of bit 0 are copied to the Carry flag, and bit 7 is reset.
+        /// Bit 0 is the least-significant bit.
+        /// </summary>
+        /// <param name="a"></param>
+        /// <returns></returns>
+        byte ShiftRightLogical(byte a);
     }
 }

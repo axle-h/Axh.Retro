@@ -107,6 +107,8 @@
         {
             a &= b;
             flags.SetParityFlags(a);
+            flags.HalfCarry = true;
+            flags.Carry = false;
             return a;
         }
 
@@ -114,6 +116,8 @@
         {
             a |= b;
             flags.SetParityFlags(a);
+            flags.HalfCarry = true;
+            flags.Carry = false;
             return a;
         }
 
@@ -121,6 +125,8 @@
         {
             a ^= b;
             flags.SetParityFlags(a);
+            flags.HalfCarry = true;
+            flags.Carry = false;
             return a;
         }
 
@@ -232,6 +238,75 @@
             flags.Subtract = false;
             flags.SetUndocumentedFlags(result);
 
+            return result;
+        }
+
+        /// <summary>
+        /// An arithmetic shift left 1 bit position is performed on the contents of operand m.
+        /// The contents of bit 7 are copied to the Carry flag.
+        /// Bit 0 is the least-significant bit.
+        /// </summary>
+        /// <param name="a"></param>
+        /// <returns></returns>
+        public byte ShiftLeft(byte a)
+        {
+            flags.Carry = (a & 0x80) > 0;
+            var result = unchecked((byte)(a << 1));
+
+            this.flags.SetParityFlags(result);
+            flags.HalfCarry = false;
+            return result;
+        }
+
+        /// <summary>
+        /// Undocumented Z80 instruction known as SLS, SLL or SL1.
+        /// An arithmetic shift left 1 bit position is performed on the contents of operand m.
+        /// The contents of bit 7 are copied to the Carry flag, and bit 0 is set.
+        /// Bit 0 is the least-significant bit.
+        /// </summary>
+        /// <param name="a"></param>
+        /// <returns></returns>
+        public byte ShiftLeftSet(byte a)
+        {
+            flags.Carry = (a & 0x80) > 0;
+            var result = unchecked((byte)((a << 1) | 0x01));
+
+            this.flags.SetParityFlags(result);
+            flags.HalfCarry = false;
+            return result;
+        }
+
+        /// <summary>
+        /// An arithmetic shift right 1 bit position is performed on the contents of operand m.
+        /// The contents of bit 0 are copied to the Carry flag and the previous contents of bit 7 remain unchanged.
+        /// Bit 0 is the least-significant bit.
+        /// </summary>
+        /// <param name="a"></param>
+        /// <returns></returns>
+        public byte ShiftRight(byte a)
+        {
+            flags.Carry = (a & 0x01) > 0;
+            var result = unchecked((byte)((a >> 1) | (a & 0x80)));
+            
+            this.flags.SetParityFlags(result);
+            flags.HalfCarry = false;
+            return result;
+        }
+
+        /// <summary>
+        /// The contents of operand m are shifted right 1 bit position.
+        /// The contents of bit 0 are copied to the Carry flag, and bit 7 is reset.
+        /// Bit 0 is the least-significant bit.
+        /// </summary>
+        /// <param name="a"></param>
+        /// <returns></returns>
+        public byte ShiftRightLogical(byte a)
+        {
+            flags.Carry = (a & 0x01) > 0;
+            var result = unchecked((byte)(a >> 1));
+
+            this.flags.SetParityFlags(result);
+            flags.HalfCarry = false;
             return result;
         }
 

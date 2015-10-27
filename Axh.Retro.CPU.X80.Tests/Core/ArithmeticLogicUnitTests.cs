@@ -26,7 +26,7 @@
             alu = new ArithmeticLogicUnit(flags.Object);
         }
 
-        private void Reset()
+        private void Reset(bool carry = false)
         {
             this.flags.ResetCalls();
             this.flags.SetupProperty(x => x.Sign, false);
@@ -36,7 +36,7 @@
             this.flags.SetupProperty(x => x.ParityOverflow, false);
             this.flags.SetupProperty(x => x.Flag3, false);
             this.flags.SetupProperty(x => x.Subtract, false);
-            this.flags.SetupProperty(x => x.Carry, false);
+            this.flags.SetupProperty(x => x.Carry, carry);
         }
 
         [TestCase(0x4e, 0x4f, false, false)]
@@ -312,6 +312,8 @@
 
             Assert.AreEqual(expected, result);
             flags.Verify(x => x.SetParityFlags(expected), Times.Once);
+            flags.VerifySet(x => x.HalfCarry = true, Times.Once);
+            flags.VerifySet(x => x.Carry = false, Times.Once);
         }
         
         [TestCase(0x48, 0x12, 0x5a)]
@@ -323,6 +325,8 @@
 
             Assert.AreEqual(expected, result);
             flags.Verify(x => x.SetParityFlags(expected), Times.Once);
+            flags.VerifySet(x => x.HalfCarry = true, Times.Once);
+            flags.VerifySet(x => x.Carry = false, Times.Once);
         }
         
         [TestCase(0x96, 0x5d, 0xcb)]
@@ -334,6 +338,8 @@
 
             Assert.AreEqual(expected, result);
             flags.Verify(x => x.SetParityFlags(expected), Times.Once);
+            flags.VerifySet(x => x.HalfCarry = true, Times.Once);
+            flags.VerifySet(x => x.Carry = false, Times.Once);
         }
 
         [TestCase(0x15 + 0x27, 0x42)]
@@ -401,7 +407,7 @@
 
         [TestCase(0x88, 0x11, true)]
         [TestCase(0x11, 0x22, false)]
-        public void RotateLeftWithCarry(byte a, byte expected, bool carry)
+        public void RotateLeftWithCarry(byte a, byte expected, bool expectedCarry)
         {
             Reset();
 
@@ -409,29 +415,31 @@
 
             Assert.AreEqual(expected, result);
 
-            AssertFlags(null, false, null, false, carry);
+            AssertFlags(null, false, null, false, expectedCarry);
 
             flags.Verify(x => x.SetUndocumentedFlags(result), Times.Once);
         }
 
-        [TestCase(0x88, 0x10, true)]
-        [TestCase(0x11, 0x22, false)]
-        public void RotateLeft(byte a, byte expected, bool carry)
+        [TestCase(false, 0x88, 0x10, true)]
+        [TestCase(false, 0x11, 0x22, false)]
+        [TestCase(true, 0x88, 0x11, true)]
+        [TestCase(true, 0x11, 0x23, false)]
+        public void RotateLeft(bool carry, byte a, byte expected, bool expectedCarry)
         {
-            Reset();
+            Reset(carry);
 
             var result = alu.RotateLeft(a);
 
             Assert.AreEqual(expected, result);
 
-            AssertFlags(null, false, null, false, carry);
+            AssertFlags(null, false, null, false, expectedCarry);
 
             flags.Verify(x => x.SetUndocumentedFlags(result), Times.Once);
         }
 
         [TestCase(0x11, 0x88, true)]
         [TestCase(0x22, 0x11, false)]
-        public void RotateRightWithCarry(byte a, byte expected, bool carry)
+        public void RotateRightWithCarry(byte a, byte expected, bool expectedCarry)
         {
             Reset();
 
@@ -439,24 +447,87 @@
 
             Assert.AreEqual(expected, result);
 
-            AssertFlags(null, false, null, false, carry);
+            AssertFlags(null, false, null, false, expectedCarry);
 
             flags.Verify(x => x.SetUndocumentedFlags(result), Times.Once);
         }
         
-        [TestCase(0x11, 0x08, true)]
-        [TestCase(0x22, 0x11, false)]
-        public void RotateRight(byte a, byte expected, bool carry)
+        [TestCase(false, 0x11, 0x08, true)]
+        [TestCase(false, 0x22, 0x11, false)]
+        [TestCase(true, 0x11, 0x88, true)]
+        [TestCase(true, 0x22, 0x91, false)]
+        public void RotateRight(bool carry, byte a, byte expected, bool expectedCarry)
         {
-            Reset();
+            Reset(carry);
 
             var result = alu.RotateRight(a);
 
             Assert.AreEqual(expected, result);
 
-            AssertFlags(null, false, null, false, carry);
+            AssertFlags(null, false, null, false, expectedCarry);
 
             flags.Verify(x => x.SetUndocumentedFlags(result), Times.Once);
+        }
+
+        [TestCase(0x88, 0x10, true)]
+        [TestCase(0x11, 0x22, false)]
+        public void ShiftLeft(byte a, byte expected, bool expectedCarry)
+        {
+            Reset();
+
+            var result = alu.ShiftLeft(a);
+
+            Assert.AreEqual(expected, result);
+
+            AssertFlags(null, false, null, null, expectedCarry);
+
+            flags.Verify(x => x.SetParityFlags(result), Times.Once);
+        }
+
+        [TestCase(0x88, 0x11, true)]
+        [TestCase(0x11, 0x23, false)]
+        public void ShiftLeftSet(byte a, byte expected, bool expectedCarry)
+        {
+            Reset();
+
+            var result = alu.ShiftLeftSet(a);
+
+            Assert.AreEqual(expected, result);
+
+            AssertFlags(null, false, null, null, expectedCarry);
+
+            flags.Verify(x => x.SetParityFlags(result), Times.Once);
+        }
+
+        [TestCase(0x88, 0xc4, false)]
+        [TestCase(0x11, 0x08, true)]
+        public void ShiftRight(byte a, byte expected, bool expectedCarry)
+        {
+            Reset();
+
+            var result = alu.ShiftRight(a);
+
+            Assert.AreEqual(expected, result);
+
+            AssertFlags(null, false, null, null, expectedCarry);
+
+            flags.Verify(x => x.SetParityFlags(result), Times.Once);
+        }
+
+
+        [TestCase(0x88, 0x44, false)]
+        [TestCase(0x11, 0x08, true)]
+        public void ShiftRightLogical(byte a, byte expected, bool expectedCarry)
+        {
+            Reset();
+
+            var result = alu.ShiftRightLogical(a);
+
+            Assert.AreEqual(expected, result);
+
+            AssertFlags(null, false, null, null, expectedCarry);
+
+            flags.Verify(x => x.SetParityFlags(result), Times.Once);
         }
 
         private void AssertFlags(byte? result, bool? halfCarry, bool? parityOverflow, bool? subtract, bool? carry)

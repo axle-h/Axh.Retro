@@ -130,10 +130,8 @@
         public void SetParityFlags(byte result)
         {
             this.SetResultFlags(result);
-            this.HalfCarry = true;
             this.ParityOverflow = result.IsEvenParity();
             this.Subtract = false;
-            this.Carry = false;
         }
 
         public void ResetFlags()
