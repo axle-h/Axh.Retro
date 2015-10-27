@@ -529,6 +529,36 @@
 
             flags.Verify(x => x.SetParityFlags(result), Times.Once);
         }
+        
+        [TestCase(0x7a, 0x31, 0x73, 0x1a)]
+        public void RotateLeftDigit(byte accumulator, byte b, byte expectedAccumulator, byte expected)
+        {
+            Reset();
+
+            var result = alu.RotateLeftDigit(accumulator, b);
+
+            Assert.AreEqual(expectedAccumulator, result.Accumulator);
+            Assert.AreEqual(expected, result.Result);
+
+            AssertFlags(null, false, null, null, null);
+
+            flags.Verify(x => x.SetParityFlags(result.Accumulator), Times.Once);
+        }
+
+        [TestCase(0x84, 0x20, 0x80, 0x42)]
+        public void RotateRightDigit(byte accumulator, byte b, byte expectedAccumulator, byte expected)
+        {
+            Reset();
+
+            var result = alu.RotateRightDigit(accumulator, b);
+
+            Assert.AreEqual(expectedAccumulator, result.Accumulator);
+            Assert.AreEqual(expected, result.Result);
+
+            AssertFlags(null, false, null, null, null);
+
+            flags.Verify(x => x.SetParityFlags(result.Accumulator), Times.Once);
+        }
 
         private void AssertFlags(byte? result, bool? halfCarry, bool? parityOverflow, bool? subtract, bool? carry)
         {

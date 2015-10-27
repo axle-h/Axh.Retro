@@ -97,5 +97,21 @@
         /// <param name="a"></param>
         /// <returns></returns>
         byte ShiftRightLogical(byte a);
+
+        /// <summary>
+        /// Performs a 4-bit clockwise (right) rotation of the 12-bit number whose 4 most signigifcant bits are the 4 least significant bits of accumulator, and its 8 least significant bits are b.
+        /// </summary>
+        /// <param name="accumulator"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        AccumulatorAndResult RotateLeftDigit(byte accumulator, byte b);
+
+        /// <summary>
+        /// Performs a 4-bit anti-clockwise (left) rotation of the 12-bit number whose 4 most signigifcant bits are the 4 least significant bits of accumulator, and its 8 least significant bits are b.
+        /// </summary>
+        /// <param name="accumulator"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        AccumulatorAndResult RotateRightDigit(byte accumulator, byte b);
     }
 }

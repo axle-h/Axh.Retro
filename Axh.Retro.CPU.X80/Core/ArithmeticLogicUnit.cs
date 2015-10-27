@@ -310,6 +310,42 @@
             return result;
         }
 
+        /// <summary>
+        /// Performs a 4-bit clockwise (right) rotation of the 12-bit number whose 4 most signigifcant bits are the 4 least significant bits of accumulator, and its 8 least significant bits are b.
+        /// </summary>
+        /// <param name="accumulator"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        public AccumulatorAndResult RotateLeftDigit(byte accumulator, byte b)
+        {
+            var result = new AccumulatorAndResult
+                         {
+                             Accumulator = (byte)((accumulator & 0xf0) | ((b & 0xf0) >> 4)),
+                             Result = (byte)(((b & 0x0f) << 4) | (accumulator & 0x0f))
+                         };
+            this.flags.SetParityFlags(result.Accumulator);
+            flags.HalfCarry = false;
+            return result;
+        }
+
+        /// <summary>
+        /// Performs a 4-bit anti-clockwise (left) rotation of the 12-bit number whose 4 most signigifcant bits are the 4 least significant bits of accumulator, and its 8 least significant bits are b.
+        /// </summary>
+        /// <param name="accumulator"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        public AccumulatorAndResult RotateRightDigit(byte accumulator, byte b)
+        {
+            var result = new AccumulatorAndResult
+                         {
+                             Accumulator = (byte)((accumulator & 0xf0) | (b & 0x0f)),
+                             Result = (byte)(((accumulator & 0x0f) << 4) | ((b & 0xf0) >> 4))
+                         };
+            this.flags.SetParityFlags(result.Accumulator);
+            flags.HalfCarry = false;
+            return result;
+        }
+
         private byte Add(byte a, byte b, bool addCarry)
         {
             var carry = addCarry ? 1 : 0;
