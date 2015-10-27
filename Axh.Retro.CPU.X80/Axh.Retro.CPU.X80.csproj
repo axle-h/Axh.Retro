@@ -80,7 +80,7 @@
     <Compile Include="Core\DynaRec\Z80BlockBuilder.PrefixCb.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Core\DynaRec\Z80BlockBuilder.PrefixIndexCb.cs" />
+    <Compile Include="Core\DynaRec\Z80BlockBuilder.PrefixDdFd.PrefixCb.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

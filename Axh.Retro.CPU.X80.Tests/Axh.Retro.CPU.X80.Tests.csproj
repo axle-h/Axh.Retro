@@ -61,6 +61,7 @@
     <Compile Include="Core\Z80InstructionDecoder\ExchangeTests.cs" />
     <Compile Include="Core\Z80InstructionDecoder\ArithmeticGeneralPurposeTests.cs" />
     <Compile Include="Core\Z80InstructionDecoder\RotateTests.cs" />
+    <Compile Include="Core\Z80InstructionDecoder\ShiftTests.cs" />
     <Compile Include="Core\Z80InstructionDecoder\TransferTests.cs" />
     <Compile Include="Memory\ArrayBackedMemoryTests.cs" />
     <Compile Include="Memory\ReadOnlyMemoryBankTests.cs" />

@@ -48,6 +48,15 @@
         SLA_mHL = 0x26,
         SLA_A = 0x27,
 
+        SLS_B = 0x30,
+        SLS_C = 0x31,
+        SLS_D = 0x32,
+        SLS_E = 0x33,
+        SLS_H = 0x34,
+        SLS_L = 0x35,
+        SLS_mHL = 0x36,
+        SLS_A = 0x37,
+
         SRA_B = 0x28,
         SRA_C = 0x29,
         SRA_D = 0x2A,

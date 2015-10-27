@@ -218,76 +218,193 @@
                 // SLA r (undocumented)
                 // Actually SLA (IX+d) & LD r,(IX+d) or SLA (IY+d) & LD r,(IY+d)
                 case PrefixCbOpCode.SLA_B:
+                    yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteByte, index.IndexedAddress, Expression.Call(Xpr.Alu, Xpr.AluShiftLeft, index.ReadIndexedValue));
+                    yield return Expression.Assign(Xpr.B, index.ReadIndexedValue);
+                    timer.Add(7, 26);
                     break;
                 case PrefixCbOpCode.SLA_C:
+                    yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteByte, index.IndexedAddress, Expression.Call(Xpr.Alu, Xpr.AluShiftLeft, index.ReadIndexedValue));
+                    yield return Expression.Assign(Xpr.C, index.ReadIndexedValue);
+                    timer.Add(7, 26);
                     break;
                 case PrefixCbOpCode.SLA_D:
+                    yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteByte, index.IndexedAddress, Expression.Call(Xpr.Alu, Xpr.AluShiftLeft, index.ReadIndexedValue));
+                    yield return Expression.Assign(Xpr.D, index.ReadIndexedValue);
+                    timer.Add(7, 26);
                     break;
                 case PrefixCbOpCode.SLA_E:
+                    yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteByte, index.IndexedAddress, Expression.Call(Xpr.Alu, Xpr.AluShiftLeft, index.ReadIndexedValue));
+                    yield return Expression.Assign(Xpr.E, index.ReadIndexedValue);
+                    timer.Add(7, 26);
                     break;
                 case PrefixCbOpCode.SLA_H:
+                    yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteByte, index.IndexedAddress, Expression.Call(Xpr.Alu, Xpr.AluShiftLeft, index.ReadIndexedValue));
+                    yield return Expression.Assign(Xpr.H, index.ReadIndexedValue);
+                    timer.Add(7, 26);
                     break;
                 case PrefixCbOpCode.SLA_L:
+                    yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteByte, index.IndexedAddress, Expression.Call(Xpr.Alu, Xpr.AluShiftLeft, index.ReadIndexedValue));
+                    yield return Expression.Assign(Xpr.L, index.ReadIndexedValue);
+                    timer.Add(7, 26);
                     break;
 
                 // SLA (IX+d)
                 // SLA (IY+d)
                 case PrefixCbOpCode.SLA_mHL:
+                    yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteByte, index.IndexedAddress, Expression.Call(Xpr.Alu, Xpr.AluShiftLeft, index.ReadIndexedValue));
+                    timer.Add(5, 19);
                     break;
 
                 // SLA A (undocumented)
                 // Actually SLA (IX+d) & LD A,(IX+d) or SLA (IY+d) & LD A,(IY+d)
                 case PrefixCbOpCode.SLA_A:
+                    yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteByte, index.IndexedAddress, Expression.Call(Xpr.Alu, Xpr.AluShiftLeft, index.ReadIndexedValue));
+                    yield return Expression.Assign(Xpr.A, index.ReadIndexedValue);
+                    timer.Add(7, 26);
+                    break;
+
+                // SLS r (undocumented)
+                // Actually SLS (IX+d) & LD r,(IX+d) or SLS (IY+d) & LD r,(IY+d)
+                case PrefixCbOpCode.SLS_B:
+                    yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteByte, index.IndexedAddress, Expression.Call(Xpr.Alu, Xpr.AluShiftLeftSet, index.ReadIndexedValue));
+                    yield return Expression.Assign(Xpr.B, index.ReadIndexedValue);
+                    timer.Add(7, 26);
+                    break;
+                case PrefixCbOpCode.SLS_C:
+                    yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteByte, index.IndexedAddress, Expression.Call(Xpr.Alu, Xpr.AluShiftLeftSet, index.ReadIndexedValue));
+                    yield return Expression.Assign(Xpr.C, index.ReadIndexedValue);
+                    timer.Add(7, 26);
+                    break;
+                case PrefixCbOpCode.SLS_D:
+                    yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteByte, index.IndexedAddress, Expression.Call(Xpr.Alu, Xpr.AluShiftLeftSet, index.ReadIndexedValue));
+                    yield return Expression.Assign(Xpr.D, index.ReadIndexedValue);
+                    timer.Add(7, 26);
+                    break;
+                case PrefixCbOpCode.SLS_E:
+                    yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteByte, index.IndexedAddress, Expression.Call(Xpr.Alu, Xpr.AluShiftLeftSet, index.ReadIndexedValue));
+                    yield return Expression.Assign(Xpr.E, index.ReadIndexedValue);
+                    timer.Add(7, 26);
+                    break;
+                case PrefixCbOpCode.SLS_H:
+                    yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteByte, index.IndexedAddress, Expression.Call(Xpr.Alu, Xpr.AluShiftLeftSet, index.ReadIndexedValue));
+                    yield return Expression.Assign(Xpr.H, index.ReadIndexedValue);
+                    timer.Add(7, 26);
+                    break;
+                case PrefixCbOpCode.SLS_L:
+                    yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteByte, index.IndexedAddress, Expression.Call(Xpr.Alu, Xpr.AluShiftLeftSet, index.ReadIndexedValue));
+                    yield return Expression.Assign(Xpr.L, index.ReadIndexedValue);
+                    timer.Add(7, 26);
+                    break;
+
+                // SLS (IX+d) (undocumented)
+                // SLS (IY+d) (undocumented)
+                case PrefixCbOpCode.SLS_mHL:
+                    yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteByte, index.IndexedAddress, Expression.Call(Xpr.Alu, Xpr.AluShiftLeftSet, index.ReadIndexedValue));
+                    timer.Add(5, 19);
+                    break;
+
+                // SLS A (undocumented)
+                // Actually SLS (IX+d) & LD A,(IX+d) or SLS (IY+d) & LD A,(IY+d)
+                case PrefixCbOpCode.SLS_A:
+                    yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteByte, index.IndexedAddress, Expression.Call(Xpr.Alu, Xpr.AluShiftLeftSet, index.ReadIndexedValue));
+                    yield return Expression.Assign(Xpr.A, index.ReadIndexedValue);
+                    timer.Add(7, 26);
                     break;
 
                 // SRA r (undocumented)
                 // Actually SRA (IX+d) & LD r,(IX+d) or SRA (IY+d) & LD r,(IY+d)
                 case PrefixCbOpCode.SRA_B:
+                    yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteByte, index.IndexedAddress, Expression.Call(Xpr.Alu, Xpr.AluShiftRight, index.ReadIndexedValue));
+                    yield return Expression.Assign(Xpr.B, index.ReadIndexedValue);
+                    timer.Add(7, 26);
                     break;
                 case PrefixCbOpCode.SRA_C:
+                    yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteByte, index.IndexedAddress, Expression.Call(Xpr.Alu, Xpr.AluShiftRight, index.ReadIndexedValue));
+                    yield return Expression.Assign(Xpr.C, index.ReadIndexedValue);
+                    timer.Add(7, 26);
                     break;
                 case PrefixCbOpCode.SRA_D:
+                    yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteByte, index.IndexedAddress, Expression.Call(Xpr.Alu, Xpr.AluShiftRight, index.ReadIndexedValue));
+                    yield return Expression.Assign(Xpr.D, index.ReadIndexedValue);
+                    timer.Add(7, 26);
                     break;
                 case PrefixCbOpCode.SRA_E:
+                    yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteByte, index.IndexedAddress, Expression.Call(Xpr.Alu, Xpr.AluShiftRight, index.ReadIndexedValue));
+                    yield return Expression.Assign(Xpr.E, index.ReadIndexedValue);
+                    timer.Add(7, 26);
                     break;
                 case PrefixCbOpCode.SRA_H:
+                    yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteByte, index.IndexedAddress, Expression.Call(Xpr.Alu, Xpr.AluShiftRight, index.ReadIndexedValue));
+                    yield return Expression.Assign(Xpr.H, index.ReadIndexedValue);
+                    timer.Add(7, 26);
                     break;
                 case PrefixCbOpCode.SRA_L:
+                    yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteByte, index.IndexedAddress, Expression.Call(Xpr.Alu, Xpr.AluShiftRight, index.ReadIndexedValue));
+                    yield return Expression.Assign(Xpr.L, index.ReadIndexedValue);
+                    timer.Add(7, 26);
                     break;
 
                 // SRA (IX+d)
                 // SRA (IY+d)
                 case PrefixCbOpCode.SRA_mHL:
+                    yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteByte, index.IndexedAddress, Expression.Call(Xpr.Alu, Xpr.AluShiftRight, index.ReadIndexedValue));
+                    timer.Add(5, 19);
                     break;
 
                 // SRA A (undocumented)
                 // Actually SRA (IX+d) & LD A,(IX+d) or SRA (IY+d) & LD A,(IY+d)
                 case PrefixCbOpCode.SRA_A:
+                    yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteByte, index.IndexedAddress, Expression.Call(Xpr.Alu, Xpr.AluShiftRight, index.ReadIndexedValue));
+                    yield return Expression.Assign(Xpr.A, index.ReadIndexedValue);
+                    timer.Add(7, 26);
                     break;
 
                 // SRL r (undocumented)
                 // Actually SRL (IX+d) & LD r,(IX+d) or SRL (IY+d) & LD r,(IY+d)
                 case PrefixCbOpCode.SRL_B:
+                    yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteByte, index.IndexedAddress, Expression.Call(Xpr.Alu, Xpr.AluShiftRightLogical, index.ReadIndexedValue));
+                    yield return Expression.Assign(Xpr.B, index.ReadIndexedValue);
+                    timer.Add(7, 26);
                     break;
                 case PrefixCbOpCode.SRL_C:
+                    yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteByte, index.IndexedAddress, Expression.Call(Xpr.Alu, Xpr.AluShiftRightLogical, index.ReadIndexedValue));
+                    yield return Expression.Assign(Xpr.C, index.ReadIndexedValue);
+                    timer.Add(7, 26);
                     break;
                 case PrefixCbOpCode.SRL_D:
+                    yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteByte, index.IndexedAddress, Expression.Call(Xpr.Alu, Xpr.AluShiftRightLogical, index.ReadIndexedValue));
+                    yield return Expression.Assign(Xpr.D, index.ReadIndexedValue);
+                    timer.Add(7, 26);
                     break;
                 case PrefixCbOpCode.SRL_E:
+                    yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteByte, index.IndexedAddress, Expression.Call(Xpr.Alu, Xpr.AluShiftRightLogical, index.ReadIndexedValue));
+                    yield return Expression.Assign(Xpr.E, index.ReadIndexedValue);
+                    timer.Add(7, 26);
                     break;
                 case PrefixCbOpCode.SRL_H:
+                    yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteByte, index.IndexedAddress, Expression.Call(Xpr.Alu, Xpr.AluShiftRightLogical, index.ReadIndexedValue));
+                    yield return Expression.Assign(Xpr.H, index.ReadIndexedValue);
+                    timer.Add(7, 26);
                     break;
                 case PrefixCbOpCode.SRL_L:
+                    yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteByte, index.IndexedAddress, Expression.Call(Xpr.Alu, Xpr.AluShiftRightLogical, index.ReadIndexedValue));
+                    yield return Expression.Assign(Xpr.L, index.ReadIndexedValue);
+                    timer.Add(7, 26);
                     break;
 
                 // SRL (IX+d)
                 // SRL (IY+d)
                 case PrefixCbOpCode.SRL_mHL:
+                    yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteByte, index.IndexedAddress, Expression.Call(Xpr.Alu, Xpr.AluShiftRightLogical, index.ReadIndexedValue));
+                    timer.Add(5, 19);
                     break;
 
                 // SRL A (undocumented)
                 // Actually SRL (IX+d) & LD A,(IX+d) or SRL (IY+d) & LD A,(IY+d)
                 case PrefixCbOpCode.SRL_A:
+                    yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteByte, index.IndexedAddress, Expression.Call(Xpr.Alu, Xpr.AluShiftRightLogical, index.ReadIndexedValue));
+                    yield return Expression.Assign(Xpr.A, index.ReadIndexedValue);
+                    timer.Add(7, 26);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
