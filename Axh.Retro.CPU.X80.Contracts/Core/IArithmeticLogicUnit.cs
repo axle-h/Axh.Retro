@@ -113,5 +113,16 @@
         /// <param name="b"></param>
         /// <returns></returns>
         AccumulatorAndResult RotateRightDigit(byte accumulator, byte b);
+
+        /// <summary>
+        /// Tests bit 'bit' in byte a and sets the Z flag accordingly.
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="bit"></param>
+        void BitTest(byte a, int bit);
+
+        byte BitSet(byte a, int bit);
+
+        byte BitReset(byte a, int bit);
     }
 }

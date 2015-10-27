@@ -49,7 +49,7 @@
 
             Assert.AreEqual(expected, result);
 
-            AssertFlags(result, halfCarry, overflow, false, null);
+            AssertFlags(result, null, null, halfCarry, overflow, false, null);
         }
 
         [TestCase(0x4e, 0x4d, false, false)]
@@ -63,7 +63,7 @@
 
             Assert.AreEqual(expected, result);
 
-            AssertFlags(result, halfCarry, overflow, true, null);
+            AssertFlags(result, null, null, halfCarry, overflow, true, null);
         }
         
         [TestCase(0, 0, 0, false, false, false)]
@@ -110,7 +110,7 @@
 
             Assert.AreEqual(expected, result);
 
-            AssertFlags(result, halfCarry, overflow, false, carry);
+            AssertFlags(result, null, null, halfCarry, overflow, false, carry);
         }
         
         [TestCase(0, 0, 1, false, false, false)]
@@ -159,7 +159,7 @@
 
             Assert.AreEqual(expected, result);
 
-            AssertFlags(result, halfCarry, overflow, false, carry);
+            AssertFlags(result, null, null, halfCarry, overflow, false, carry);
         }
 
         [TestCase(0, 0, 0, false, false, false)]
@@ -206,7 +206,7 @@
 
             Assert.AreEqual(expected, result);
 
-            AssertFlags(result, halfCarry, overflow, true, carry);
+            AssertFlags(result, null, null, halfCarry, overflow, true, carry);
         }
 
         [TestCase(0, 0, 255, true, true, false)]
@@ -255,7 +255,7 @@
 
             Assert.AreEqual(expected, result);
 
-            AssertFlags(result, halfCarry, overflow, true, carry);
+            AssertFlags(result, null, null, halfCarry, overflow, true, carry);
         }
 
         [TestCase(0, 0, 0, false, false)]
@@ -300,7 +300,7 @@
 
             alu.Compare(a, b);
             
-            AssertFlags(expected, halfCarry, overflow, true, null);
+            AssertFlags(expected, null, null, halfCarry, overflow, true, null);
         }
 
         [TestCase(0x7b, 0xc3, 0x43)]
@@ -366,7 +366,7 @@
 
             Assert.AreEqual(expected, result);
 
-            AssertFlags(null, halfCarry, null, false, carry);
+            AssertFlags(null, null, null, halfCarry, null, false, carry);
         }
 
         [TestCase((ushort)0x4242, (ushort)0x1111, (ushort)0x5354, false, false, false)]
@@ -383,7 +383,7 @@
 
             Assert.AreEqual(expected, result);
 
-            AssertFlags(null, halfCarry, overflow, false, carry);
+            AssertFlags(null, null, null, halfCarry, overflow, false, carry);
             flags.Verify(x => x.SetResultFlags(result), Times.Once);
         }
 
@@ -401,7 +401,7 @@
 
             Assert.AreEqual(expected, result);
 
-            AssertFlags(null, halfCarry, overflow, true, carry);
+            AssertFlags(null, null, null, halfCarry, overflow, true, carry);
             flags.Verify(x => x.SetResultFlags(result), Times.Once);
         }
 
@@ -415,7 +415,7 @@
 
             Assert.AreEqual(expected, result);
 
-            AssertFlags(null, false, null, false, expectedCarry);
+            AssertFlags(null, null, null, false, null, false, expectedCarry);
 
             flags.Verify(x => x.SetUndocumentedFlags(result), Times.Once);
         }
@@ -432,7 +432,7 @@
 
             Assert.AreEqual(expected, result);
 
-            AssertFlags(null, false, null, false, expectedCarry);
+            AssertFlags(null, null, null, false, null, false, expectedCarry);
 
             flags.Verify(x => x.SetUndocumentedFlags(result), Times.Once);
         }
@@ -447,7 +447,7 @@
 
             Assert.AreEqual(expected, result);
 
-            AssertFlags(null, false, null, false, expectedCarry);
+            AssertFlags(null, null, null, false, null, false, expectedCarry);
 
             flags.Verify(x => x.SetUndocumentedFlags(result), Times.Once);
         }
@@ -464,7 +464,7 @@
 
             Assert.AreEqual(expected, result);
 
-            AssertFlags(null, false, null, false, expectedCarry);
+            AssertFlags(null, null, null, false, null, false, expectedCarry);
 
             flags.Verify(x => x.SetUndocumentedFlags(result), Times.Once);
         }
@@ -479,7 +479,7 @@
 
             Assert.AreEqual(expected, result);
 
-            AssertFlags(null, false, null, null, expectedCarry);
+            AssertFlags(null, null, null, false, null, null, expectedCarry);
 
             flags.Verify(x => x.SetParityFlags(result), Times.Once);
         }
@@ -494,7 +494,7 @@
 
             Assert.AreEqual(expected, result);
 
-            AssertFlags(null, false, null, null, expectedCarry);
+            AssertFlags(null, null, null, false, null, null, expectedCarry);
 
             flags.Verify(x => x.SetParityFlags(result), Times.Once);
         }
@@ -509,7 +509,7 @@
 
             Assert.AreEqual(expected, result);
 
-            AssertFlags(null, false, null, null, expectedCarry);
+            AssertFlags(null, null, null, false, null, null, expectedCarry);
 
             flags.Verify(x => x.SetParityFlags(result), Times.Once);
         }
@@ -525,7 +525,7 @@
 
             Assert.AreEqual(expected, result);
 
-            AssertFlags(null, false, null, null, expectedCarry);
+            AssertFlags(null, null, null, false, null, null, expectedCarry);
 
             flags.Verify(x => x.SetParityFlags(result), Times.Once);
         }
@@ -540,7 +540,7 @@
             Assert.AreEqual(expectedAccumulator, result.Accumulator);
             Assert.AreEqual(expected, result.Result);
 
-            AssertFlags(null, false, null, null, null);
+            AssertFlags(null, null, null, false, null, null, null);
 
             flags.Verify(x => x.SetParityFlags(result.Accumulator), Times.Once);
         }
@@ -555,18 +555,66 @@
             Assert.AreEqual(expectedAccumulator, result.Accumulator);
             Assert.AreEqual(expected, result.Result);
 
-            AssertFlags(null, false, null, null, null);
+            AssertFlags(null, null, null, false, null, null, null);
 
             flags.Verify(x => x.SetParityFlags(result.Accumulator), Times.Once);
         }
+        
+        [Test]
+        public void BitTest0()
+        {
+            for (var i = 0; i < 8; i++)
+            {
+                Reset();
+                alu.BitTest(0x00, i);
+                AssertFlags(null, i == 7, true, true, true, false, null);
+                flags.Verify(x => x.SetUndocumentedFlags(0x00), Times.Once);
+            }
+        }
 
-        private void AssertFlags(byte? result, bool? halfCarry, bool? parityOverflow, bool? subtract, bool? carry)
+        [Test]
+        public void BitTest1()
+        {
+            for (var i = 0; i < 8; i++)
+            {
+                Reset();
+                alu.BitTest(0xff, i);
+                AssertFlags(null, false, false, true, false, false, null);
+                flags.Verify(x => x.SetUndocumentedFlags(0xff), Times.Once);
+            }
+        }
+
+        [Test]
+        public void BitSet()
+        {
+            for (var i = 0; i < 8; i++)
+            {
+                Reset();
+                var result = alu.BitSet(0x00, i);
+                Assert.AreEqual(1 << i, result);
+            }
+        }
+
+        [Test]
+        public void BitReset()
+        {
+            for (var i = 0; i < 8; i++)
+            {
+                Reset();
+                var result = alu.BitReset(0xff, i);
+                Assert.AreEqual((1 << i) ^ 0xff, result);
+            }
+        }
+
+        private void AssertFlags(byte? result, bool? sign, bool? zero, bool? halfCarry, bool? parityOverflow, bool? subtract, bool? carry)
         {
             if (result.HasValue)
             {
                 flags.Verify(x => x.SetResultFlags(result.Value), Times.Once);
             }
-            
+
+            VerifyFlag(x => x.Sign, sign);
+            VerifyFlag(x => x.Zero, zero);
             VerifyFlag(x => x.HalfCarry, halfCarry);
             VerifyFlag(x => x.ParityOverflow, parityOverflow);
             VerifyFlag(x => x.Subtract, subtract);

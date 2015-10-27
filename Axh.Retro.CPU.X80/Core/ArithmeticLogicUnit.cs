@@ -346,6 +346,33 @@
             return result;
         }
 
+        /// <summary>
+        /// Tests bit 'bit' in byte a and sets the Z flag accordingly.
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="bit"></param>
+        public void BitTest(byte a, int bit)
+        {
+            flags.Zero = ((0x1 << bit) & a) == 0;
+            flags.HalfCarry = true;
+            flags.Subtract = false;
+            flags.SetUndocumentedFlags(a);
+
+            // PV as Z, S set only if n=7 and b7 of r set
+            flags.ParityOverflow = flags.Zero;
+            flags.Sign = bit == 7 && flags.Zero;
+        }
+        
+        public byte BitSet(byte a, int bit)
+        {
+            return (byte)(a | (0x1 << bit));
+        }
+
+        public byte BitReset(byte a, int bit)
+        {
+            return (byte)(a ^ (0x1 << bit));
+        }
+
         private byte Add(byte a, byte b, bool addCarry)
         {
             var carry = addCarry ? 1 : 0;
