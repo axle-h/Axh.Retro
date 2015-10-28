@@ -1,4 +1,4 @@
-﻿namespace Axh.Retro.CPU.X80.Tests.Core.Z80InstructionDecoder
+﻿namespace Axh.Retro.CPU.X80.Tests.Core.InstructionBlockDecoder
 {
     using System;
     using System.Collections;
@@ -18,7 +18,7 @@
 
     using NUnit.Framework;
 
-    public abstract class Z80InstructionDecoderTestsBase
+    public abstract class InstructionBlockDecoderTestsBase
     {
         protected const ushort Address = 0x0000;
 
@@ -47,7 +47,7 @@
         protected const byte IYl = 0x55;
         protected const byte IYh = 0x22;
 
-        protected IInstructionBlockDecoder<IZ80Registers> BlockDecoder;
+        protected IInstructionBlockDecoder<IZ80Registers> DynaRecBlockDecoder;
 
         protected Mock<IZ80Registers> Registers;
 
@@ -87,7 +87,7 @@
             var platformConfig = new Mock<IPlatformConfig>();
             platformConfig.Setup(x => x.CpuMode).Returns(CpuMode.Z80);
 
-            this.BlockDecoder = new DynaRecInstructionBlockDecoder(platformConfig.Object, mmuFactory.Object, this.Mmu.Object);
+            this.DynaRecBlockDecoder = new DynaRecInstructionBlockDecoder<IZ80Registers>(platformConfig.Object, mmuFactory.Object);
         }
 
         protected void SetupRegisters(ushort? bc = null)
@@ -161,7 +161,7 @@
 
             this.Cache.Setup(x => x.TotalBytesRead).Returns(() => length);
 
-            var block = this.BlockDecoder.DecodeNextBlock(Address);
+            var block = this.DynaRecBlockDecoder.DecodeNextBlock(this.Mmu.Object, Address);
             Assert.IsNotNull(block);
 
             var timings = block.ExecuteInstructionBlock(this.Registers.Object, this.Mmu.Object, this.Alu.Object);

@@ -4,6 +4,8 @@
 
     public interface ICpuCore
     {
-        Task StartCoreProcess();
+        Task StartCoreProcessAsync();
+
+        void StartCoreProcess();
     }
 }

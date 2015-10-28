@@ -1,4 +1,4 @@
-﻿namespace Axh.Retro.CPU.X80.Tests.Core.Z80InstructionDecoder
+﻿namespace Axh.Retro.CPU.X80.Tests.Core.InstructionBlockDecoder
 {
     using System;
 
@@ -9,7 +9,7 @@
     using NUnit.Framework;
 
     [TestFixture]
-    public class JumpTests : Z80InstructionDecoderTestsBase
+    public class JumpTests : InstructionBlockDecoderTestsBase
     {
         [Test]
         public void JP()

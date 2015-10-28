@@ -9,7 +9,7 @@
     using Axh.Retro.CPU.X80.Contracts.Registers;
     using Axh.Retro.CPU.X80.Util;
 
-    internal static class Z80Expressions
+    internal static class DynaRecExpressions
     {
         public static readonly ParameterExpression Registers;
         public static readonly ParameterExpression Mmu;
@@ -71,6 +71,33 @@
         public static readonly Expression IYl;
         public static readonly Expression IYh;
 
+        // Z80 specific helpers
+        /// <summary>
+        /// IX + d
+        /// d is read from LocalByte
+        /// </summary>
+        public static readonly Expression IXd;
+
+        /// <summary>
+        /// IY + d
+        /// d is read from LocalByte
+        /// </summary>
+        public static readonly Expression IYd;
+
+        /// <summary>
+        /// Reads a byte from the mmu at the address at IX + b (using 2's compliant addition)
+        /// </summary>
+        public static readonly Expression ReadByteAtIXd;
+
+        /// <summary>
+        /// Reads a byte from the mmu at the address at IY + b (using 2's compliant addition)
+        /// </summary>
+        public static readonly Expression ReadByteAtIYd;
+
+        // Z80 specific register methods
+        public static readonly Expression SwitchToAlternativeGeneralPurposeRegisters;
+        public static readonly Expression SwitchToAlternativeAccumulatorAndFlagsRegisters;
+
         // Interrupt stuff
         public static readonly Expression IFF1;
         public static readonly Expression IFF2;
@@ -88,22 +115,6 @@
         public static readonly Expression Carry;
         public static readonly MethodInfo SetResultFlags;
         public static readonly MethodInfo SetUndocumentedFlags;
-
-        // Register methods
-        public static readonly Expression SwitchToAlternativeGeneralPurposeRegisters;
-        public static readonly Expression SwitchToAlternativeAccumulatorAndFlagsRegisters;
-
-        /// <summary>
-        /// IX + d
-        /// d is read from LocalByte
-        /// </summary>
-        public static readonly Expression IXd;
-
-        /// <summary>
-        /// IY + d
-        /// d is read from LocalByte
-        /// </summary>
-        public static readonly Expression IYd;
 
         /// <summary>
         /// Reads a byte from the mmu at the address at LocalWord
@@ -124,17 +135,7 @@
         /// Reads a byte from the mmu at the address in DE
         /// </summary>
         public static readonly Expression ReadByteAtDE;
-
-        /// <summary>
-        /// Reads a byte from the mmu at the address at IX + b (using 2's compliant addition)
-        /// </summary>
-        public static readonly Expression ReadByteAtIXd;
-
-        /// <summary>
-        /// Reads a byte from the mmu at the address at IY + b (using 2's compliant addition)
-        /// </summary>
-        public static readonly Expression ReadByteAtIYd;
-
+        
         // MMU methods
         public static readonly MethodInfo MmuReadByte;
         public static readonly MethodInfo MmuReadWord;
@@ -177,7 +178,7 @@
 
         public static readonly IDictionary<IndexRegister, IndexRegisterExpressions> IndexRegisterExpressions;
 
-        static Z80Expressions()
+        static DynaRecExpressions()
         {
             Registers = Expression.Parameter(typeof(IZ80Registers), "registers");
             Mmu = Expression.Parameter(typeof(IMmu), "mmu");
@@ -192,7 +193,7 @@
             AccumulatorAndResult_Result = AccumulatorAndResult.GetPropertyExpression<AccumulatorAndResult, byte>(r => r.Result);
 
             // General purpose register expressions
-            var generalPurposeRegisters = Registers.GetPropertyExpression<IZ80Registers, IGeneralPurposeRegisterSet>(r => r.GeneralPurposeRegisters);
+            var generalPurposeRegisters = Registers.GetPropertyExpression<IRegisters, IGeneralPurposeRegisterSet>(r => r.GeneralPurposeRegisters);
             B = generalPurposeRegisters.GetPropertyExpression<IGeneralPurposeRegisterSet, byte>(r => r.B);
             C = generalPurposeRegisters.GetPropertyExpression<IGeneralPurposeRegisterSet, byte>(r => r.C);
             D = generalPurposeRegisters.GetPropertyExpression<IGeneralPurposeRegisterSet, byte>(r => r.D);
@@ -202,10 +203,10 @@
             BC = generalPurposeRegisters.GetPropertyExpression<IGeneralPurposeRegisterSet, ushort>(r => r.BC);
             DE = generalPurposeRegisters.GetPropertyExpression<IGeneralPurposeRegisterSet, ushort>(r => r.DE);
             HL = generalPurposeRegisters.GetPropertyExpression<IGeneralPurposeRegisterSet, ushort>(r => r.HL);
-            PC = Registers.GetPropertyExpression<IZ80Registers, ushort>(r => r.ProgramCounter);
+            PC = Registers.GetPropertyExpression<IRegisters, ushort>(r => r.ProgramCounter);
 
             // Stack pointer stuff
-            SP = Registers.GetPropertyExpression<IZ80Registers, ushort>(r => r.StackPointer);
+            SP = Registers.GetPropertyExpression<IRegisters, ushort>(r => r.StackPointer);
             PushSP = Expression.PreDecrementAssign(SP);
             PopSP = Expression.PreIncrementAssign(SP);
 
@@ -219,13 +220,22 @@
             IYl = Registers.GetPropertyExpression<IZ80Registers, byte>(r => r.IYl);
             IYh = Registers.GetPropertyExpression<IZ80Registers, byte>(r => r.IYh);
 
+            // Z80 specific Index register expressions i.e. IX+d and IY+d where d is LocalByte (expression local value, which must be initialised before running these)
+            IXd = Expression.Convert(Expression.Add(Expression.Convert(IX, typeof(int)), Expression.Convert(Expression.Convert(LocalByte, typeof(sbyte)), typeof(int))), typeof(ushort));
+            IYd = Expression.Convert(Expression.Add(Expression.Convert(IY, typeof(int)), Expression.Convert(Expression.Convert(LocalByte, typeof(sbyte)), typeof(int))), typeof(ushort));
+            
+            // Z80 specific register methods
+            SwitchToAlternativeGeneralPurposeRegisters = Expression.Call(Registers, ExpressionHelpers.GetMethodInfo<IZ80Registers>((registers) => registers.SwitchToAlternativeGeneralPurposeRegisters()));
+            SwitchToAlternativeAccumulatorAndFlagsRegisters = Expression.Call(Registers, ExpressionHelpers.GetMethodInfo<IZ80Registers>((registers) => registers.SwitchToAlternativeAccumulatorAndFlagsRegisters()));
+
+
             // Interrupt stuff
-            IFF1 = Registers.GetPropertyExpression<IZ80Registers, bool>(r => r.InterruptFlipFlop1);
-            IFF2 = Registers.GetPropertyExpression<IZ80Registers, bool>(r => r.InterruptFlipFlop2);
-            IM = Registers.GetPropertyExpression<IZ80Registers, InterruptMode>(r => r.InterruptMode);
+            IFF1 = Registers.GetPropertyExpression<IRegisters, bool>(r => r.InterruptFlipFlop1);
+            IFF2 = Registers.GetPropertyExpression<IRegisters, bool>(r => r.InterruptFlipFlop2);
+            IM = Registers.GetPropertyExpression<IRegisters, InterruptMode>(r => r.InterruptMode);
 
             // Accumulator & Flags register expressions
-            var accumulatorAndFlagsRegisters = Registers.GetPropertyExpression<IZ80Registers, IAccumulatorAndFlagsRegisterSet>(r => r.AccumulatorAndFlagsRegisters);
+            var accumulatorAndFlagsRegisters = Registers.GetPropertyExpression<IRegisters, IAccumulatorAndFlagsRegisterSet>(r => r.AccumulatorAndFlagsRegisters);
             A = accumulatorAndFlagsRegisters.GetPropertyExpression<IAccumulatorAndFlagsRegisterSet, byte>(r => r.A);
             Flags = accumulatorAndFlagsRegisters.GetPropertyExpression<IAccumulatorAndFlagsRegisterSet, IFlagsRegister>(r => r.Flags);
             F = Flags.GetPropertyExpression<IFlagsRegister, byte>(r => r.Register);
@@ -239,15 +249,7 @@
             Carry = Flags.GetPropertyExpression<IFlagsRegister, bool>(r => r.Carry);
             SetResultFlags = ExpressionHelpers.GetMethodInfo<IFlagsRegister, byte>((flags, result) => flags.SetResultFlags(result));
             SetUndocumentedFlags = ExpressionHelpers.GetMethodInfo<IFlagsRegister, byte>((flags, result) => flags.SetUndocumentedFlags(result));
-
-            // Index register expressions i.e. IX+d and IY+d where d is LocalByte (expression local value, which must be initialised before running these)
-            IXd = Expression.Convert(Expression.Add(Expression.Convert(IX, typeof(int)), Expression.Convert(Expression.Convert(LocalByte, typeof(sbyte)), typeof(int))), typeof(ushort));
-            IYd = Expression.Convert(Expression.Add(Expression.Convert(IY, typeof(int)), Expression.Convert(Expression.Convert(LocalByte, typeof(sbyte)), typeof(int))), typeof(ushort));
-
-            // Register methods
-            SwitchToAlternativeGeneralPurposeRegisters = Expression.Call(Registers, ExpressionHelpers.GetMethodInfo<IZ80Registers>((registers) => registers.SwitchToAlternativeGeneralPurposeRegisters()));
-            SwitchToAlternativeAccumulatorAndFlagsRegisters = Expression.Call(Registers, ExpressionHelpers.GetMethodInfo<IZ80Registers>((registers) => registers.SwitchToAlternativeAccumulatorAndFlagsRegisters()));
-
+            
             // MMU expressions
             MmuReadByte = ExpressionHelpers.GetMethodInfo<IMmu, ushort, byte>((mmu, address) => mmu.ReadByte(address));
             MmuReadWord = ExpressionHelpers.GetMethodInfo<IMmu, ushort, ushort>((mmu, address) => mmu.ReadWord(address));
@@ -259,6 +261,8 @@
             ReadByteAtHL = Expression.Call(Mmu, MmuReadByte, HL);
             ReadByteAtBC = Expression.Call(Mmu, MmuReadByte, BC);
             ReadByteAtDE = Expression.Call(Mmu, MmuReadByte, DE);
+
+            // Z80 specific
             ReadByteAtIXd = Expression.Call(Mmu, MmuReadByte, IXd);
             ReadByteAtIYd = Expression.Call(Mmu, MmuReadByte, IYd);
 

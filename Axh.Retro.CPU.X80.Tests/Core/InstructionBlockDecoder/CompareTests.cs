@@ -1,4 +1,4 @@
-﻿namespace Axh.Retro.CPU.X80.Tests.Core.Z80InstructionDecoder
+﻿namespace Axh.Retro.CPU.X80.Tests.Core.InstructionBlockDecoder
 {
     using Axh.Retro.CPU.X80.Contracts.OpCodes;
 
@@ -7,7 +7,7 @@
     using NUnit.Framework;
 
     [TestFixture]
-    public class CompareTests : Z80InstructionDecoderTestsBase
+    public class CompareTests : InstructionBlockDecoderTestsBase
     {
         [Test]
         public void CPI()

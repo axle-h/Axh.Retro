@@ -7,7 +7,7 @@
 
     using Axh.Retro.CPU.X80.Contracts.Exceptions;
     using Axh.Retro.CPU.X80.Contracts.Memory;
-
+    
     public class SegmentMmu : IMmu
     {
         private readonly ushort[] readSegmentAddresses;
@@ -89,13 +89,17 @@
         
         public void WriteByte(ushort address, byte value)
         {
+            OnAddressWrite(address, 1);
+
             ushort segmentAddress;
             var addressSegment = GetAddressSegmentForAddress(this.writeSegmentAddresses, this.writeSegments, address, out segmentAddress);
             addressSegment.WriteByte(segmentAddress, value);
         }
-
+        
         public void WriteWord(ushort address, ushort word)
         {
+            OnAddressWrite(address, 2);
+
             ushort segmentAddress;
             int segmentIndex;
             IWriteableAddressSegment segment;
@@ -113,6 +117,8 @@
 
         public void WriteBytes(ushort address, byte[] bytes)
         {
+            OnAddressWrite(address, bytes.Length);
+
             ushort segmentAddress;
             int segmentIndex;
             IWriteableAddressSegment segment;
@@ -151,7 +157,14 @@
             var b = this.ReadByte(addressFrom);
             this.WriteByte(addressTo, b);
         }
+
+        public event EventHandler<AddressWriteEventArgs> AddressWrite;
         
+        protected void OnAddressWrite(ushort address, int length)
+        {
+            AddressWrite?.Invoke(this, new AddressWriteEventArgs(address, length));
+        }
+
         private static TAddressSegment GetAddressSegmentForAddress<TAddressSegment>(ushort[] segmentAddresses, IList<TAddressSegment> segments, ushort address, out ushort segmentAddress)
             where TAddressSegment : IAddressSegment
         {

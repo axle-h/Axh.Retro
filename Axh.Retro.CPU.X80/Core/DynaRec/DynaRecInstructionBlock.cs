@@ -1,11 +1,13 @@
-﻿namespace Axh.Retro.CPU.X80.Contracts.Core
+﻿namespace Axh.Retro.CPU.X80.Core.DynaRec
 {
     using System;
 
+    using Axh.Retro.CPU.X80.Contracts.Core;
     using Axh.Retro.CPU.X80.Contracts.Memory;
     using Axh.Retro.CPU.X80.Contracts.Registers;
 
-    public class InstructionBlock<TRegisters> where TRegisters : IRegisters
+    internal class DynaRecInstructionBlock<TRegisters> : IInstructionBlock<TRegisters>
+        where TRegisters : IRegisters
     {
         private readonly Func<TRegisters, IMmu, IArithmeticLogicUnit, InstructionTimings> action;
 
@@ -14,7 +16,7 @@
         /// </summary>
         private readonly InstructionTimings staticTimings;
 
-        public InstructionBlock(ushort address, ushort length, Func<TRegisters, IMmu, IArithmeticLogicUnit, InstructionTimings> action, InstructionTimings staticTimings)
+        public DynaRecInstructionBlock(ushort address, ushort length, Func<TRegisters, IMmu, IArithmeticLogicUnit, InstructionTimings> action, InstructionTimings staticTimings)
         {
             this.action = action;
             this.staticTimings = staticTimings;

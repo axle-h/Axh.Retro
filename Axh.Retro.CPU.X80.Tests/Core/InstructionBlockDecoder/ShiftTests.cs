@@ -1,4 +1,4 @@
-﻿namespace Axh.Retro.CPU.X80.Tests.Core.Z80InstructionDecoder
+﻿namespace Axh.Retro.CPU.X80.Tests.Core.InstructionBlockDecoder
 {
     using System;
 
@@ -9,7 +9,7 @@
     using NUnit.Framework;
 
     [TestFixture]
-    public class ShiftTests : Z80InstructionDecoderTestsBase
+    public class ShiftTests : InstructionBlockDecoderTestsBase
     {
         [TestCase(PrefixCbOpCode.SLA_A)]
         [TestCase(PrefixCbOpCode.SLA_B)]

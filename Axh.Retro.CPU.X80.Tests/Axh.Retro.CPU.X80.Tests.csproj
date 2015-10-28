@@ -54,17 +54,17 @@
   </Choose>
   <ItemGroup>
     <Compile Include="Core\ArithmeticLogicUnitTests.cs" />
-    <Compile Include="Core\Z80InstructionDecoder\Arithmetic16BitTests.cs" />
-    <Compile Include="Core\Z80InstructionDecoder\BitTestSetResetTests.cs" />
-    <Compile Include="Core\Z80InstructionDecoder\JumpTests.cs" />
-    <Compile Include="Core\Z80InstructionDecoder\Load16BitTests.cs" />
-    <Compile Include="Core\Z80InstructionDecoder\Arithmetic8BitTests.cs" />
-    <Compile Include="Core\Z80InstructionDecoder\CompareTests.cs" />
-    <Compile Include="Core\Z80InstructionDecoder\ExchangeTests.cs" />
-    <Compile Include="Core\Z80InstructionDecoder\ArithmeticGeneralPurposeTests.cs" />
-    <Compile Include="Core\Z80InstructionDecoder\RotateTests.cs" />
-    <Compile Include="Core\Z80InstructionDecoder\ShiftTests.cs" />
-    <Compile Include="Core\Z80InstructionDecoder\TransferTests.cs" />
+    <Compile Include="Core\InstructionBlockDecoder\Arithmetic16BitTests.cs" />
+    <Compile Include="Core\InstructionBlockDecoder\BitTestSetResetTests.cs" />
+    <Compile Include="Core\InstructionBlockDecoder\JumpTests.cs" />
+    <Compile Include="Core\InstructionBlockDecoder\Load16BitTests.cs" />
+    <Compile Include="Core\InstructionBlockDecoder\Arithmetic8BitTests.cs" />
+    <Compile Include="Core\InstructionBlockDecoder\CompareTests.cs" />
+    <Compile Include="Core\InstructionBlockDecoder\ExchangeTests.cs" />
+    <Compile Include="Core\InstructionBlockDecoder\ArithmeticGeneralPurposeTests.cs" />
+    <Compile Include="Core\InstructionBlockDecoder\RotateTests.cs" />
+    <Compile Include="Core\InstructionBlockDecoder\ShiftTests.cs" />
+    <Compile Include="Core\InstructionBlockDecoder\TransferTests.cs" />
     <Compile Include="Memory\ArrayBackedMemoryTests.cs" />
     <Compile Include="Memory\ReadOnlyMemoryBankTests.cs" />
     <Compile Include="Mmu\IReadableWriteableAddressSegment.cs" />
@@ -78,9 +78,9 @@
     <Compile Include="Registers\RegisterTestObjects.cs" />
     <Compile Include="Registers\Z80RegistersTests.cs" />
     <Compile Include="Mmu\MmuConfigTests.cs" />
-    <Compile Include="Core\Z80InstructionDecoder\Load8BitTests.cs" />
-    <Compile Include="Core\Z80InstructionDecoder\Z80InstructionDecoderTestsBase.cs" />
-    <Compile Include="Core\Z80InstructionDecoder\GeneralTests.cs" />
+    <Compile Include="Core\InstructionBlockDecoder\Load8BitTests.cs" />
+    <Compile Include="Core\InstructionBlockDecoder\InstructionBlockDecoderTestsBase.cs" />
+    <Compile Include="Core\InstructionBlockDecoder\GeneralTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

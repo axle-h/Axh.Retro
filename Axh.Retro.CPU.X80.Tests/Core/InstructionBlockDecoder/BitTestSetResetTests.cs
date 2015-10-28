@@ -1,4 +1,4 @@
-﻿namespace Axh.Retro.CPU.X80.Tests.Core.Z80InstructionDecoder
+﻿namespace Axh.Retro.CPU.X80.Tests.Core.InstructionBlockDecoder
 {
     using System;
     using System.Collections.Generic;
@@ -11,7 +11,7 @@
     using NUnit.Framework;
 
     [TestFixture]
-    public class BitTestSetResetTests : Z80InstructionDecoderTestsBase
+    public class BitTestSetResetTests : InstructionBlockDecoderTestsBase
     {
         [Test]
         public void BIT_n_r()
