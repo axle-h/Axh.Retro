@@ -171,6 +171,10 @@
         public static readonly MethodInfo AluRotateRightDigit;
         public static readonly MethodInfo AluRotateLeftDigit;
 
+        public static readonly MethodInfo AluBitTest;
+        public static readonly MethodInfo AluBitSet;
+        public static readonly MethodInfo AluBitReset;
+
         public static readonly IDictionary<IndexRegister, IndexRegisterExpressions> IndexRegisterExpressions;
 
         static Z80Expressions()
@@ -284,6 +288,10 @@
 
             AluRotateRightDigit = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, byte, AccumulatorAndResult>((alu, a, b) => alu.RotateRightDigit(a, b));
             AluRotateLeftDigit = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, byte, AccumulatorAndResult>((alu, a, b) => alu.RotateLeftDigit(a, b));
+
+            AluBitTest = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, int>((alu, a, bit) => alu.BitTest(a, bit));
+            AluBitSet = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, int, byte>((alu, a, bit) => alu.BitSet(a, bit));
+            AluBitReset = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, int, byte>((alu, a, bit) => alu.BitReset(a, bit));
 
             IndexRegisterExpressions = new Dictionary<IndexRegister, IndexRegisterExpressions>
                                        {

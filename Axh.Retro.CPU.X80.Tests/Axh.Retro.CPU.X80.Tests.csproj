@@ -55,6 +55,7 @@
   <ItemGroup>
     <Compile Include="Core\ArithmeticLogicUnitTests.cs" />
     <Compile Include="Core\Z80InstructionDecoder\Arithmetic16BitTests.cs" />
+    <Compile Include="Core\Z80InstructionDecoder\BitTestSetResetTests.cs" />
     <Compile Include="Core\Z80InstructionDecoder\Load16BitTests.cs" />
     <Compile Include="Core\Z80InstructionDecoder\Arithmetic8BitTests.cs" />
     <Compile Include="Core\Z80InstructionDecoder\CompareTests.cs" />
