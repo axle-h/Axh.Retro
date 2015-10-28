@@ -71,10 +71,7 @@
     <Compile Include="Core\DynaRec\DynaRecInstructionBlockDecoder.cs" />
     <Compile Include="Util\ExpressionHelpers.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="GameBoy\" />
-    <Folder Include="Intel8080\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <ProjectReference Include="..\Axh.Retro.CPU.X80.Contracts\Axh.Retro.CPU.X80.Contracts.csproj">
       <Project>{15e8bff0-aa13-420f-8527-9187a37f6360}</Project>

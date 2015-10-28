@@ -1,10 +1,8 @@
 ﻿namespace Axh.Retro.CPU.X80.Core
 {
     using System;
-    using System.Runtime.Caching;
     using System.Threading.Tasks;
-
-    using Axh.Retro.CPU.X80.Contracts;
+    
     using Axh.Retro.CPU.X80.Contracts.Cache;
     using Axh.Retro.CPU.X80.Contracts.Core;
     using Axh.Retro.CPU.X80.Contracts.Factories;

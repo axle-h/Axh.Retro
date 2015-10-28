@@ -49,7 +49,7 @@
     <Compile Include="Core\IInstructionBlock.cs" />
     <Compile Include="Core\IInstructionTimer.cs" />
     <Compile Include="Core\InstructionTimings.cs" />
-    <Compile Include="CpuMode.cs" />
+    <Compile Include="Config\CpuMode.cs" />
     <Compile Include="Exceptions\MemoryConfigStateException.cs" />
     <Compile Include="Exceptions\MmuAddressSegmentGapException.cs" />
     <Compile Include="Exceptions\MmuAddressSegmentOverlapException.cs" />
@@ -57,7 +57,7 @@
     <Compile Include="Exceptions\PlatformConfigurationException.cs" />
     <Compile Include="Factories\IMmuFactory.cs" />
     <Compile Include="Factories\IRegisterFactory.cs" />
-    <Compile Include="ICpuCore.cs" />
+    <Compile Include="Core\ICpuCore.cs" />
     <Compile Include="Memory\AddressWriteEventArgs.cs" />
     <Compile Include="Memory\IMmu.cs" />
     <Compile Include="Memory\IAddressSegment.cs" />

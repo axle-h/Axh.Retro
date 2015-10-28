@@ -12,12 +12,12 @@
             this.State = new byte[length];
         }
 
-        public int BankId { get; private set; }
+        public int BankId { get; }
 
-        public ushort Address { get; private set; }
+        public ushort Address { get; }
 
-        public ushort Length { get; private set; }
+        public ushort Length { get; }
 
-        public byte[] State { get; private set; }
+        public byte[] State { get; }
     }
 }

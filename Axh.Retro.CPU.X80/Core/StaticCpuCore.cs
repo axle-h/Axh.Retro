@@ -1,15 +1,11 @@
-﻿namespace Axh.Retro.CPU.X80.Core.Interpreted
+﻿namespace Axh.Retro.CPU.X80.Core
 {
-    using System;
     using System.Threading.Tasks;
 
-    using Axh.Retro.CPU.X80.Contracts;
     using Axh.Retro.CPU.X80.Contracts.Core;
     using Axh.Retro.CPU.X80.Contracts.Factories;
     using Axh.Retro.CPU.X80.Contracts.Memory;
-    using Axh.Retro.CPU.X80.Contracts.OpCodes;
     using Axh.Retro.CPU.X80.Contracts.Registers;
-    using Axh.Retro.CPU.X80.Util;
 
     /// <summary>
     /// Not implemented

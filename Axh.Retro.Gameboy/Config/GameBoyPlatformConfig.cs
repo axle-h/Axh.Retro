@@ -19,14 +19,8 @@
             this.RandomAccessMemoryBanks = new[] { systemMemoryBank0Config, systemMemoryBank1Config };
         }
 
-        public CpuMode CpuMode
-        {
-            get
-            {
-                return CpuMode.GameBoy;
-            }
-        }
+        public CpuMode CpuMode => CpuMode.GameBoy;
 
-        public IEnumerable<IMemoryBankConfig> RandomAccessMemoryBanks { get; private set; }
+        public IEnumerable<IMemoryBankConfig> RandomAccessMemoryBanks { get; }
     }
 }

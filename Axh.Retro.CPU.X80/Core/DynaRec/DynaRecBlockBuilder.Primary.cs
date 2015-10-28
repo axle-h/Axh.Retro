@@ -5,6 +5,7 @@
     using System.Linq.Expressions;
 
     using Axh.Retro.CPU.X80.Contracts;
+    using Axh.Retro.CPU.X80.Contracts.Config;
     using Axh.Retro.CPU.X80.Contracts.Core;
     using Axh.Retro.CPU.X80.Contracts.OpCodes;
     using Axh.Retro.CPU.X80.Contracts.Registers;
