@@ -1,4 +1,4 @@
-﻿namespace Axh.Retro.CPU.X80.Core
+﻿namespace Axh.Retro.CPU.X80.Core.Interpreted
 {
     using System;
     using System.Threading.Tasks;
@@ -10,13 +10,16 @@
     using Axh.Retro.CPU.X80.Contracts.Registers;
     using Axh.Retro.CPU.X80.Util;
 
-    public class Z80Core : ICpuCore
+    /// <summary>
+    /// Not implemented
+    /// </summary>
+    public class Z80InterpretedCore : ICpuCore
     {
         private readonly IZ80Registers registers;
 
         private readonly IMmu mmu;
         
-        public Z80Core(IRegisterFactory<IZ80Registers> registerFactory, IMmuFactory mmuFactory)
+        public Z80InterpretedCore(IRegisterFactory<IZ80Registers> registerFactory, IMmuFactory mmuFactory)
         {
             this.registers = registerFactory.GetInitialRegisters();
             this.mmu = mmuFactory.GetMmu();

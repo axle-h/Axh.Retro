@@ -140,19 +140,11 @@
             this.Mmu.ResetCalls();
             this.Alu.ResetCalls();
         }
-        
+
         protected void Run(int expectedMachineCycles, int expectedThrottlingStates, params object[] bytes)
         {
-            // Add halt
-            var opcodes = new object[bytes.Length + 1];
-            Array.Copy(bytes, opcodes, bytes.Length);
-
-            opcodes[bytes.Length] = PrimaryOpCode.HALT;
-            expectedMachineCycles += 1;
-            expectedThrottlingStates += 4;
-
             var length = 0;
-            var queue = new Queue(opcodes);
+            var queue = new Queue(bytes);
             this.Cache.Setup(x => x.NextByte()).Returns(
                 () =>
                 {
@@ -171,15 +163,28 @@
 
             var block = this.BlockDecoder.DecodeNextBlock(Address);
             Assert.IsNotNull(block);
-            
+
             var timings = block.ExecuteInstructionBlock(this.Registers.Object, this.Mmu.Object, this.Alu.Object);
 
             Assert.AreEqual(expectedMachineCycles, timings.MachineCycles);
             Assert.AreEqual(expectedThrottlingStates, timings.ThrottlingStates);
 
             // Make sure all bytes were read
-            this.Cache.Verify(x => x.NextByte(), Times.Exactly(opcodes.Count(x => x is byte || x is PrimaryOpCode || x is PrefixEdOpCode || x is PrefixCbOpCode)));
-            this.Cache.Verify(x => x.NextWord(), Times.Exactly(opcodes.Count(x => x is ushort)));
+            this.Cache.Verify(x => x.NextByte(), Times.Exactly(bytes.Count(x => x is byte || x is PrimaryOpCode || x is PrefixEdOpCode || x is PrefixCbOpCode)));
+            this.Cache.Verify(x => x.NextWord(), Times.Exactly(bytes.Count(x => x is ushort)));
+        }
+        
+        protected void RunWithNOP(int expectedMachineCycles, int expectedThrottlingStates, params object[] bytes)
+        {
+            // Add halt
+            var opcodes = new object[bytes.Length + 1];
+            Array.Copy(bytes, opcodes, bytes.Length);
+
+            opcodes[bytes.Length] = PrimaryOpCode.HALT;
+            expectedMachineCycles += 1;
+            expectedThrottlingStates += 4;
+
+            Run(expectedMachineCycles, expectedThrottlingStates, opcodes);
         }
     }
 }

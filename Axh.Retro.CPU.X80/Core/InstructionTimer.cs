@@ -1,4 +1,4 @@
-﻿namespace Axh.Retro.CPU.X80.Core.DynaRec
+﻿namespace Axh.Retro.CPU.X80.Core
 {
     using Axh.Retro.CPU.X80.Contracts.Core;
 

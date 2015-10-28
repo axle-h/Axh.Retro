@@ -66,7 +66,7 @@
             this.SetupRegisters();
             this.ResetMocks();
 
-            Run(1, 4, opcode);
+            RunWithNOP(1, 4, opcode);
 
             switch (opcode)
             {
@@ -578,7 +578,7 @@
             this.SetupRegisters();
             this.ResetMocks();
 
-            Run(2, 7, opcode, value);
+            RunWithNOP(2, 7, opcode, value);
 
             switch (opcode)
             {
@@ -674,7 +674,7 @@
 
             this.Mmu.Setup(x => x.ReadByte(HL)).Returns(Value);
 
-            Run(2, 7, opcode);
+            RunWithNOP(2, 7, opcode);
 
             this.Mmu.Verify(x => x.ReadByte(HL), Times.Once);
             this.GpRegisters.VerifyGet(x => x.HL, Times.Once);
@@ -725,7 +725,7 @@
             const byte ValueAtIXd = 0x8f;
 
             this.Mmu.Setup(x => x.ReadByte(IX + SignedD)).Returns(ValueAtIXd);
-            Run(5, 19, PrimaryOpCode.Prefix_DD, opcode, UnsignedD);
+            RunWithNOP(5, 19, PrimaryOpCode.Prefix_DD, opcode, UnsignedD);
 
             this.Mmu.Verify(x => x.ReadByte(IX + SignedD), Times.Once);
             this.Registers.VerifyGet(x => x.IX, Times.Once);
@@ -776,7 +776,7 @@
 
             this.Mmu.Setup(x => x.ReadByte(IY + SignedD)).Returns(ValueAtIYd);
 
-            Run(5, 19, PrimaryOpCode.Prefix_FD, opcode, UnsignedD);
+            RunWithNOP(5, 19, PrimaryOpCode.Prefix_FD, opcode, UnsignedD);
 
             this.Mmu.Verify(x => x.ReadByte(IY + SignedD), Times.Once);
             this.Registers.VerifyGet(x => x.IY, Times.Once);
@@ -821,7 +821,7 @@
             this.SetupRegisters();
             this.ResetMocks();
 
-            Run(2, 7, opcode);
+            RunWithNOP(2, 7, opcode);
 
             switch (opcode)
             {
@@ -865,7 +865,7 @@
             this.SetupRegisters();
             this.ResetMocks();
 
-            Run(3, 10, PrimaryOpCode.LD_mHL_n, value);
+            RunWithNOP(3, 10, PrimaryOpCode.LD_mHL_n, value);
             
             this.Mmu.Verify(x => x.WriteByte(HL, value), Times.Once);
         }
@@ -885,7 +885,7 @@
             const sbyte SignedD = -66;
             const byte UnsignedD = unchecked((byte)SignedD);
             
-            Run(5, 19, PrimaryOpCode.Prefix_DD, opcode, UnsignedD);
+            RunWithNOP(5, 19, PrimaryOpCode.Prefix_DD, opcode, UnsignedD);
             
             this.Registers.VerifyGet(x => x.IX, Times.Once);
 
@@ -932,7 +932,7 @@
             const sbyte SignedD = 88;
             const byte UnsignedD = unchecked((byte)SignedD);
 
-            Run(5, 19, PrimaryOpCode.Prefix_FD, opcode, UnsignedD);
+            RunWithNOP(5, 19, PrimaryOpCode.Prefix_FD, opcode, UnsignedD);
 
             this.Registers.VerifyGet(x => x.IY, Times.Once);
 
@@ -974,7 +974,7 @@
             const byte UnsignedD = unchecked((byte)SignedD);
             const byte N = 0x73;
             
-            Run(5, 19, PrimaryOpCode.Prefix_DD, PrimaryOpCode.LD_mHL_n, UnsignedD, N);
+            RunWithNOP(5, 19, PrimaryOpCode.Prefix_DD, PrimaryOpCode.LD_mHL_n, UnsignedD, N);
 
             this.Registers.VerifyGet(x => x.IX, Times.Once);
             this.Mmu.Verify(x => x.WriteByte(IX + SignedD, N), Times.Once);
@@ -990,7 +990,7 @@
             const byte UnsignedD = unchecked((byte)SignedD);
             const byte N = 0xF6;
 
-            Run(5, 19, PrimaryOpCode.Prefix_FD, PrimaryOpCode.LD_mHL_n, UnsignedD, N);
+            RunWithNOP(5, 19, PrimaryOpCode.Prefix_FD, PrimaryOpCode.LD_mHL_n, UnsignedD, N);
 
             this.Registers.VerifyGet(x => x.IY, Times.Once);
             this.Mmu.Verify(x => x.WriteByte(IY + SignedD, N), Times.Once);
@@ -1006,7 +1006,7 @@
 
             this.Mmu.Setup(x => x.ReadByte(BC)).Returns(ValueAtBC);
 
-            Run(2, 7, PrimaryOpCode.LD_A_mBC);
+            RunWithNOP(2, 7, PrimaryOpCode.LD_A_mBC);
 
             this.Mmu.Verify(x => x.ReadByte(BC), Times.Once);
             Assert.AreEqual(ValueAtBC, this.AfRegisters.Object.A);
@@ -1022,7 +1022,7 @@
 
             this.Mmu.Setup(x => x.ReadByte(DE)).Returns(ValueAtDE);
 
-            Run(2, 7, PrimaryOpCode.LD_A_mDE);
+            RunWithNOP(2, 7, PrimaryOpCode.LD_A_mDE);
 
             this.Mmu.Verify(x => x.ReadByte(DE), Times.Once);
             Assert.AreEqual(ValueAtDE, this.AfRegisters.Object.A);
@@ -1040,7 +1040,7 @@
 
             this.Mmu.Setup(x => x.ReadByte(NN)).Returns(ValueAtNN);
 
-            Run(4, 13, PrimaryOpCode.LD_A_mnn, NN);
+            RunWithNOP(4, 13, PrimaryOpCode.LD_A_mnn, NN);
 
             this.Mmu.Verify(x => x.ReadByte(NN), Times.Once);
             Assert.AreEqual(ValueAtNN, this.AfRegisters.Object.A);
@@ -1052,7 +1052,7 @@
             this.SetupRegisters();
             this.ResetMocks();
 
-            Run(2, 7, PrimaryOpCode.LD_mBC_A);
+            RunWithNOP(2, 7, PrimaryOpCode.LD_mBC_A);
 
             this.Mmu.Verify(x => x.WriteByte(BC, A), Times.Once);
             this.AfRegisters.VerifyGet(x => x.A, Times.Once);
@@ -1064,7 +1064,7 @@
             this.SetupRegisters();
             this.ResetMocks();
 
-            Run(2, 7, PrimaryOpCode.LD_mDE_A);
+            RunWithNOP(2, 7, PrimaryOpCode.LD_mDE_A);
 
             this.Mmu.Verify(x => x.WriteByte(DE, A), Times.Once);
             this.AfRegisters.VerifyGet(x => x.A, Times.Once);
@@ -1077,7 +1077,7 @@
             this.ResetMocks();
             const ushort N = 0x613b;
 
-            Run(2, 7, PrimaryOpCode.LD_mnn_A, N);
+            RunWithNOP(2, 7, PrimaryOpCode.LD_mnn_A, N);
 
             this.Mmu.Verify(x => x.WriteByte(N, A), Times.Once);
             this.AfRegisters.VerifyGet(x => x.A, Times.Once);
@@ -1089,7 +1089,7 @@
             this.SetupRegisters();
             this.ResetMocks();
             
-            Run(2, 9, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.LD_A_I);
+            RunWithNOP(2, 9, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.LD_A_I);
             
             this.AfRegisters.VerifySet(x => x.A = It.Is<byte>(y => y == I), Times.Once);
             Assert.AreEqual(I, this.AfRegisters.Object.A);
@@ -1108,7 +1108,7 @@
             this.SetupRegisters();
             this.ResetMocks();
 
-            Run(2, 9, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.LD_A_R);
+            RunWithNOP(2, 9, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.LD_A_R);
 
             this.AfRegisters.VerifySet(x => x.A = It.Is<byte>(y => y == R), Times.Once);
             Assert.AreEqual(R, this.AfRegisters.Object.A);
@@ -1127,7 +1127,7 @@
             this.SetupRegisters();
             this.ResetMocks();
 
-            Run(2, 9, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.LD_I_A);
+            RunWithNOP(2, 9, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.LD_I_A);
 
             this.Registers.VerifySet(x => x.I = It.Is<byte>(y => y == A), Times.Once);
             Assert.AreEqual(A, this.Registers.Object.I);
@@ -1146,7 +1146,7 @@
             // Note: this is not cycle accurate. R should only be incremented twice as Prefix_ED has already been run. However, it really doesn't matter. 
             const int ExprectedR = ((A + 3) & 0x7f) | ((A & 0x80) >> 8);
 
-            Run(2, 9, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.LD_R_A);
+            RunWithNOP(2, 9, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.LD_R_A);
 
             this.Registers.VerifySet(x => x.R = It.Is<byte>(y => y == A), Times.Once);
             

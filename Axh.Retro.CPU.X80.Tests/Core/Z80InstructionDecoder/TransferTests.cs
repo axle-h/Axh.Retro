@@ -16,7 +16,7 @@
             this.SetupRegisters();
             this.ResetMocks();
             
-            Run(4, 16, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.LDI);
+            RunWithNOP(4, 16, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.LDI);
 
             this.GpRegisters.VerifySet(x => x.DE = It.Is<ushort>(y => y == DE + 1), Times.Once);
             this.GpRegisters.VerifySet(x => x.HL = It.Is<ushort>(y => y == HL + 1), Times.Once);
@@ -37,7 +37,7 @@
             this.SetupRegisters(bc: BC1);
             this.ResetMocks();
             
-            Run(4, 16, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.LDI);
+            RunWithNOP(4, 16, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.LDI);
 
             this.GpRegisters.VerifySet(x => x.DE = It.Is<ushort>(y => y == DE + 1), Times.Once);
             this.GpRegisters.VerifySet(x => x.HL = It.Is<ushort>(y => y == HL + 1), Times.Once);
@@ -58,7 +58,7 @@
             this.SetupRegisters(bc: Length);
             this.ResetMocks();
             
-            Run((Length - 1) * 5 + 4, (Length - 1) * 21 + 16, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.LDIR);
+            RunWithNOP((Length - 1) * 5 + 4, (Length - 1) * 21 + 16, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.LDIR);
 
             for(var i = 1; i < Length; i++)
             {
@@ -85,7 +85,7 @@
             this.SetupRegisters();
             this.ResetMocks();
 
-            Run(4, 16, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.LDD);
+            RunWithNOP(4, 16, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.LDD);
 
             this.GpRegisters.VerifySet(x => x.DE = It.Is<ushort>(y => y == DE - 1), Times.Once);
             this.GpRegisters.VerifySet(x => x.HL = It.Is<ushort>(y => y == HL - 1), Times.Once);
@@ -107,7 +107,7 @@
             this.SetupRegisters(bc: BC1);
             this.ResetMocks();
 
-            Run(4, 16, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.LDD);
+            RunWithNOP(4, 16, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.LDD);
 
             this.GpRegisters.VerifySet(x => x.DE = It.Is<ushort>(y => y == DE - 1), Times.Once);
             this.GpRegisters.VerifySet(x => x.HL = It.Is<ushort>(y => y == HL - 1), Times.Once);
@@ -128,7 +128,7 @@
             this.SetupRegisters(bc: Length);
             this.ResetMocks();
 
-            Run((Length - 1) * 5 + 4, (Length - 1) * 21 + 16, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.LDDR);
+            RunWithNOP((Length - 1) * 5 + 4, (Length - 1) * 21 + 16, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.LDDR);
 
             for (var i = 1; i < Length; i++)
             {

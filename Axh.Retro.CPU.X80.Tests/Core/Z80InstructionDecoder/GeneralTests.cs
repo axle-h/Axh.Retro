@@ -17,7 +17,7 @@
             this.Registers.SetupProperty(x => x.R, (byte)0x5f);
             this.Registers.SetupProperty(x => x.ProgramCounter, (ushort)0x1234);
 
-            this.Run(2, 8, PrimaryOpCode.NOP, PrimaryOpCode.NOP);
+            this.RunWithNOP(2, 8, PrimaryOpCode.NOP, PrimaryOpCode.NOP);
 
             this.Cache.Verify(x => x.NextByte(), Times.Exactly(3));
             Assert.AreEqual(0x62, this.Registers.Object.R);
@@ -32,7 +32,7 @@
             this.Registers.SetupProperty(x => x.R, (byte)0x7f);
             this.Registers.SetupProperty(x => x.ProgramCounter, (ushort)0xffff);
 
-            this.Run(0, 0);
+            this.RunWithNOP(0, 0);
             
             this.Cache.Verify(x => x.NextByte(), Times.Once);
             Assert.AreEqual(0x00, this.Registers.Object.R);

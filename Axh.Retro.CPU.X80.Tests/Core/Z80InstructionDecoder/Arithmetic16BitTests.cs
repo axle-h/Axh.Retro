@@ -21,7 +21,7 @@
             const ushort Value = 0x5353;
             this.Alu.Setup(x => x.Add(HL, It.IsAny<ushort>())).Returns(Value);
 
-            Run(3, 11, opCode);
+            RunWithNOP(3, 11, opCode);
 
             switch (opCode)
             {
@@ -59,7 +59,7 @@
             const ushort Value = 0x5353;
             this.Alu.Setup(x => x.Add(indexRegister, It.IsAny<ushort>())).Returns(Value);
 
-            Run(4, 15, prefix, opCode);
+            RunWithNOP(4, 15, prefix, opCode);
             
             switch (opCode)
             {
@@ -99,7 +99,7 @@
             const ushort Value = 0x5353;
             this.Alu.Setup(x => x.AddWithCarry(HL, It.IsAny<ushort>())).Returns(Value);
 
-            Run(4, 15, PrimaryOpCode.Prefix_ED, opCode);
+            RunWithNOP(4, 15, PrimaryOpCode.Prefix_ED, opCode);
 
             switch (opCode)
             {
@@ -132,7 +132,7 @@
             const ushort Value = 0x5353;
             this.Alu.Setup(x => x.SubtractWithCarry(HL, It.IsAny<ushort>())).Returns(Value);
 
-            Run(4, 15, PrimaryOpCode.Prefix_ED, opCode);
+            RunWithNOP(4, 15, PrimaryOpCode.Prefix_ED, opCode);
 
             switch (opCode)
             {
@@ -163,7 +163,7 @@
             this.SetupRegisters();
             this.ResetMocks();
 
-            Run(1, 6, opCode);
+            RunWithNOP(1, 6, opCode);
 
             switch (opCode)
             {
@@ -189,7 +189,7 @@
             this.SetupRegisters();
             this.ResetMocks();
             
-            Run(2, 10, prefix, PrimaryOpCode.INC_HL);
+            RunWithNOP(2, 10, prefix, PrimaryOpCode.INC_HL);
 
             switch (prefix)
             {
@@ -211,7 +211,7 @@
             this.SetupRegisters();
             this.ResetMocks();
 
-            Run(1, 6, opCode);
+            RunWithNOP(1, 6, opCode);
 
             switch (opCode)
             {
@@ -238,7 +238,7 @@
             this.SetupRegisters();
             this.ResetMocks();
 
-            Run(2, 10, prefix, PrimaryOpCode.DEC_HL);
+            RunWithNOP(2, 10, prefix, PrimaryOpCode.DEC_HL);
 
             switch (prefix)
             {
