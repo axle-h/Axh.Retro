@@ -12,6 +12,8 @@
     using Axh.Retro.CPU.X80.Contracts.Registers;
     using Axh.Retro.CPU.X80.Util;
 
+    using Xpr = DynaRecExpressions;
+
     /// <summary>
     /// Core opcode decoder & expression builder logic.
     /// This is not thread safe.
@@ -24,6 +26,7 @@
 
         private ConstantExpression NextByte => Expression.Constant(mmuCache.NextByte(), typeof(byte));
         private ConstantExpression NextWord => Expression.Constant(mmuCache.NextWord(), typeof(ushort));
+        private Expression SyncProgramCounter => Expression.Assign(Xpr.PC, Expression.Convert(Expression.Add(Expression.Convert(Xpr.PC, typeof(int)), Expression.Constant(this.mmuCache.TotalBytesRead)), typeof(ushort)));
 
         private DecodeResult lastDecodeResult;
         private IndexRegisterExpressions index;
@@ -44,34 +47,28 @@
             var expressions = initExpressions.Concat(blockExpressions).Concat(finalExpressions).ToArray();
 
             var expressionBlock = Expression.Block(GeParameterExpressions(), expressions);
-            var lambda = Expression.Lambda<Func<TRegisters, IMmu, IArithmeticLogicUnit, InstructionTimings>>(expressionBlock, DynaRecExpressions.Registers, DynaRecExpressions.Mmu, DynaRecExpressions.Alu);
+            var lambda = Expression.Lambda<Func<TRegisters, IMmu, IArithmeticLogicUnit, InstructionTimings>>(expressionBlock, Xpr.Registers, Xpr.Mmu, Xpr.Alu);
 
             return lambda;
         }
 
         private IEnumerable<ParameterExpression> GeParameterExpressions()
         {
-            yield return DynaRecExpressions.LocalByte;
-            yield return DynaRecExpressions.LocalWord;
+            yield return Xpr.LocalByte;
+            yield return Xpr.LocalWord;
+            yield return Xpr.DynamicTimer;
 
             if (this.CpuSupportsAccummulatorAndResultOperations())
             {
-                yield return DynaRecExpressions.AccumulatorAndResult;
+                yield return Xpr.AccumulatorAndResult;
             }
-
-            if (this.CpuSupportsDynamicTimings())
-            {
-                yield return DynaRecExpressions.DynamicTimer;
-            }
+            
         }
 
-        private IEnumerable<Expression> GetBlockInitExpressions()
+        private static IEnumerable<Expression> GetBlockInitExpressions()
         {
-            if (this.CpuSupportsDynamicTimings())
-            {
-                // Create a new dynamic timer to record any timings calculated at runtime.
-                yield return Expression.Assign(DynaRecExpressions.DynamicTimer, Expression.New(typeof(InstructionTimer)));
-            }     
+            // Create a new dynamic timer to record any timings calculated at runtime.
+            yield return Expression.Assign(Xpr.DynamicTimer, Expression.New(typeof(InstructionTimer)));
         }
 
         private IEnumerable<Expression> GetBlockFinalExpressions()
@@ -79,23 +76,17 @@
             if (lastDecodeResult == DecodeResult.FinalizeAndSync)
             {
                 // Increment the program counter by how many bytes were read.
-                yield return Expression.Assign(DynaRecExpressions.PC, Expression.Convert(Expression.Add(Expression.Convert(DynaRecExpressions.PC, typeof(int)), Expression.Constant(this.mmuCache.TotalBytesRead)), typeof(ushort)));
+                yield return SyncProgramCounter;
             }
 
             // Add the block length to the 7 lsb of memory refresh register.
             var blockLengthExpression = Expression.Constant(this.mmuCache.TotalBytesRead, typeof(int));
-            yield return DynaRecExpressions.GetMemoryRefreshDeltaExpression(blockLengthExpression);
+            yield return Xpr.GetMemoryRefreshDeltaExpression(blockLengthExpression);
 
             // Return the dynamic timings.
             var returnTarget = Expression.Label(typeof(InstructionTimings), "InstructionTimings_Return");
-
-            if (this.CpuSupportsDynamicTimings())
-            {
-                // Only Z80 actually calculates the timings.
-                var getInstructionTimings = ExpressionHelpers.GetMethodInfo<IInstructionTimer>(dt => dt.GetInstructionTimings());
-                yield return Expression.Return(returnTarget, Expression.Call(DynaRecExpressions.DynamicTimer, getInstructionTimings), typeof(InstructionTimings));
-            }
-
+            var getInstructionTimings = ExpressionHelpers.GetMethodInfo<IInstructionTimer>(dt => dt.GetInstructionTimings());
+            yield return Expression.Return(returnTarget, Expression.Call(Xpr.DynamicTimer, getInstructionTimings), typeof(InstructionTimings));
             yield return Expression.Label(returnTarget, Expression.Constant(default(InstructionTimings)));
         }
     }

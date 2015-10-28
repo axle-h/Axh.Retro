@@ -176,6 +176,12 @@
         public static readonly MethodInfo AluBitSet;
         public static readonly MethodInfo AluBitReset;
 
+        // General helpers
+        /// <summary>
+        /// Increment the program counter by a 2s complement displacement set in LocalByte
+        /// </summary>
+        public static readonly Expression JumpToDisplacement;
+
         public static readonly IDictionary<IndexRegister, IndexRegisterExpressions> IndexRegisterExpressions;
 
         static DynaRecExpressions()
@@ -296,6 +302,8 @@
             AluBitTest = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, int>((alu, a, bit) => alu.BitTest(a, bit));
             AluBitSet = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, int, byte>((alu, a, bit) => alu.BitSet(a, bit));
             AluBitReset = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, int, byte>((alu, a, bit) => alu.BitReset(a, bit));
+
+            JumpToDisplacement = Expression.Assign(PC, Expression.Convert(Expression.Add(Expression.Convert(PC, typeof(int)), Expression.Convert(Expression.Convert(LocalByte, typeof(sbyte)), typeof(int))), typeof(ushort)));
 
             IndexRegisterExpressions = new Dictionary<IndexRegister, IndexRegisterExpressions>
                                        {

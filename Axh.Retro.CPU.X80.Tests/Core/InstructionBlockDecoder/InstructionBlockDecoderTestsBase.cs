@@ -36,6 +36,8 @@
         protected const ushort HL = 0x4477;
         protected const ushort SP = 0xf000;
 
+        protected const ushort PC = 0x0480;
+
         protected const byte I = 0xe7;
         protected const byte R = 0xed;
 
@@ -103,7 +105,7 @@
             this.GpRegisters.SetupProperty(x => x.DE, DE);
 
             this.GpRegisters.SetupProperty(x => x.HL, HL);
-
+            
             this.Registers.SetupProperty(x => x.I, I);
             this.Registers.SetupProperty(x => x.R, R);
 
@@ -114,7 +116,8 @@
             this.Registers.SetupProperty(x => x.IXl, IXl);
             this.Registers.SetupProperty(x => x.IYh, IYh);
             this.Registers.SetupProperty(x => x.IYl, IYl);
-            
+
+            this.Registers.SetupProperty(x => x.ProgramCounter, PC);
             this.Registers.SetupProperty(x => x.StackPointer, SP);
 
             this.AfRegisters.SetupProperty(x => x.A, A);

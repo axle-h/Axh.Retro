@@ -54,6 +54,7 @@
   </Choose>
   <ItemGroup>
     <Compile Include="Core\ArithmeticLogicUnitTests.cs" />
+    <Compile Include="Core\FlagsHelpers.cs" />
     <Compile Include="Core\InstructionBlockDecoder\Arithmetic16BitTests.cs" />
     <Compile Include="Core\InstructionBlockDecoder\BitTestSetResetTests.cs" />
     <Compile Include="Core\InstructionBlockDecoder\JumpTests.cs" />

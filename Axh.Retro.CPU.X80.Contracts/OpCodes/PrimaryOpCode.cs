@@ -248,8 +248,26 @@
         RRCA = 0x0f,
         RRA = 0x1f,
 
+        // Jump
         JP = 0xC3,
+        JP_NZ = 0xC2,
+        JP_Z = 0xCA,
+        JP_NC = 0xD2,
+        JP_C = 0xDA,
+        JP_PO = 0xE2,
+        JP_PE = 0xEA,
+        JP_P = 0xF2,
+        JP_M = 0xFA,
 
-        
+        JR = 0x18,
+        JR_C = 0x38,
+        JR_NC = 0x30,
+        JR_Z = 0x28,
+        JR_NZ = 0x20,
+
+        JP_mHL = 0xE9,
+
+        DJNZ = 0x10,
+
     }
 }
