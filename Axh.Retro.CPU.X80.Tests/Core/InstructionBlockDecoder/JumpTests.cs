@@ -211,8 +211,7 @@
                 this.Registers.VerifySet(x => x.ProgramCounter = Value, Times.Never);
             }
         }
-
-
+        
         private void TestRelativeJump(PrimaryOpCode opCode, Expression<Func<IFlagsRegister, bool>> propertyLambda, bool flagValue, bool expectJump)
         {
             const sbyte Displacement = -45;

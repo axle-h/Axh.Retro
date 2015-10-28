@@ -214,7 +214,9 @@
             // Stack pointer stuff
             SP = Registers.GetPropertyExpression<IRegisters, ushort>(r => r.StackPointer);
             PushSP = Expression.PreDecrementAssign(SP);
+            PushPushSP = Expression.SubtractAssign(SP, Expression.Constant((ushort)2));
             PopSP = Expression.PreIncrementAssign(SP);
+            PopPopSP = Expression.AddAssign(SP, Expression.Constant((ushort)2));
 
             // Z80 specific register expressions
             I = Registers.GetPropertyExpression<IZ80Registers, byte>(r => r.I);

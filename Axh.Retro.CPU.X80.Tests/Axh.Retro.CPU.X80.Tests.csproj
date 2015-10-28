@@ -57,6 +57,7 @@
     <Compile Include="Core\FlagsHelpers.cs" />
     <Compile Include="Core\InstructionBlockDecoder\Arithmetic16BitTests.cs" />
     <Compile Include="Core\InstructionBlockDecoder\BitTestSetResetTests.cs" />
+    <Compile Include="Core\InstructionBlockDecoder\CallReturnTests.cs" />
     <Compile Include="Core\InstructionBlockDecoder\JumpTests.cs" />
     <Compile Include="Core\InstructionBlockDecoder\Load16BitTests.cs" />
     <Compile Include="Core\InstructionBlockDecoder\Arithmetic8BitTests.cs" />

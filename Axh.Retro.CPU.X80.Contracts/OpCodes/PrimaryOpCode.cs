@@ -269,5 +269,17 @@
 
         DJNZ = 0x10,
 
+        // Call
+        CALL = 0xCD,
+        CALL_NZ = 0xC4,
+        CALL_Z = 0xCC,
+        CALL_NC = 0xD4,
+        CALL_C = 0xDC,
+        CALL_PO = 0xE4,
+        CALL_PE = 0xEC,
+        CALL_P = 0xF4,
+        CALL_M = 0xFC,
+
+
     }
 }

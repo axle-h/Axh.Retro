@@ -1256,6 +1256,81 @@
                         lastDecodeResult = DecodeResult.FinalizeAndSync;
                         yield break;
 
+                    // ********* Call, Return *********
+                    case PrimaryOpCode.CALL:
+                        yield return Expression.Assign(Xpr.LocalWord, NextWord);
+                        yield return SyncProgramCounter;
+                        yield return Xpr.PushPushSP;
+                        yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteWord, Xpr.SP, Xpr.PC);
+                        yield return Expression.Assign(Xpr.PC, Xpr.LocalWord);
+                        timer.Add(5, 17);
+                        lastDecodeResult = DecodeResult.Finalize;
+                        yield break;
+
+                    case PrimaryOpCode.CALL_NZ:
+                        yield return Expression.Assign(Xpr.LocalWord, NextWord);
+                        yield return SyncProgramCounter;
+                        yield return CallIf(Xpr.Zero, true);
+                        timer.Add(3, 10);
+                        lastDecodeResult = DecodeResult.Finalize;
+                        yield break;
+                        
+                    case PrimaryOpCode.CALL_Z:
+                        yield return Expression.Assign(Xpr.LocalWord, NextWord);
+                        yield return SyncProgramCounter;
+                        yield return CallIf(Xpr.Zero);
+                        timer.Add(3, 10);
+                        lastDecodeResult = DecodeResult.Finalize;
+                        yield break;
+
+                    case PrimaryOpCode.CALL_NC:
+                        yield return Expression.Assign(Xpr.LocalWord, NextWord);
+                        yield return SyncProgramCounter;
+                        yield return CallIf(Xpr.Carry, true);
+                        timer.Add(3, 10);
+                        lastDecodeResult = DecodeResult.Finalize;
+                        yield break;
+
+                    case PrimaryOpCode.CALL_C:
+                        yield return Expression.Assign(Xpr.LocalWord, NextWord);
+                        yield return SyncProgramCounter;
+                        yield return CallIf(Xpr.Carry);
+                        timer.Add(3, 10);
+                        lastDecodeResult = DecodeResult.Finalize;
+                        yield break;
+                        
+                    case PrimaryOpCode.CALL_PO:
+                        yield return Expression.Assign(Xpr.LocalWord, NextWord);
+                        yield return SyncProgramCounter;
+                        yield return CallIf(Xpr.ParityOverflow, true);
+                        timer.Add(3, 10);
+                        lastDecodeResult = DecodeResult.Finalize;
+                        yield break;
+
+                    case PrimaryOpCode.CALL_PE:
+                        yield return Expression.Assign(Xpr.LocalWord, NextWord);
+                        yield return SyncProgramCounter;
+                        yield return CallIf(Xpr.ParityOverflow);
+                        timer.Add(3, 10);
+                        lastDecodeResult = DecodeResult.Finalize;
+                        yield break;
+                        
+                    case PrimaryOpCode.CALL_P:
+                        yield return Expression.Assign(Xpr.LocalWord, NextWord);
+                        yield return SyncProgramCounter;
+                        yield return CallIf(Xpr.Sign, true);
+                        timer.Add(3, 10);
+                        lastDecodeResult = DecodeResult.Finalize;
+                        yield break;
+
+                    case PrimaryOpCode.CALL_M:
+                        yield return Expression.Assign(Xpr.LocalWord, NextWord);
+                        yield return SyncProgramCounter;
+                        yield return CallIf(Xpr.Sign);
+                        timer.Add(3, 10);
+                        lastDecodeResult = DecodeResult.Finalize;
+                        yield break;
+                        
                     default:
                         throw new NotImplementedException(opCode.ToString());
                 }
@@ -1267,7 +1342,7 @@
                 }
             }
         }
-
+        
         /// <summary>
         /// Checks that when a DD or FD index prefix is applied whether the opcode will need a displacement adding to the index register i.e. (IX + d) and (IY + d) opcodes.
         /// </summary>

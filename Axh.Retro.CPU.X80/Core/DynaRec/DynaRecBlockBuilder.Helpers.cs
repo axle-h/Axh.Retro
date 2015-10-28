@@ -90,5 +90,16 @@
 
             return Expression.Call(Xpr.Mmu, Xpr.MmuWriteByte, index.IndexedAddress, Expression.Call(Xpr.Alu, Xpr.AluBitReset, index.ReadIndexedValue, Expression.Constant(bit)));
         }
+        
+        private static Expression CallIf(Expression flag, bool not = false)
+        {
+            return Expression.IfThen(
+                                not ? Expression.Not(flag) : flag,
+                                Expression.Block(
+                                    Xpr.PushPushSP,
+                                    Expression.Call(Xpr.Mmu, Xpr.MmuWriteWord, Xpr.SP, Xpr.PC),
+                                    Expression.Assign(Xpr.PC, Xpr.LocalWord),
+                                    Expression.Call(Xpr.DynamicTimer, Xpr.DynamicTimerAdd, Expression.Constant(2), Expression.Constant(7))));
+        }
     }
 }
