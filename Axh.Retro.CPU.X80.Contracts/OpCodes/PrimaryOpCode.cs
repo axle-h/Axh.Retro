@@ -258,15 +258,12 @@
         JP_PE = 0xEA,
         JP_P = 0xF2,
         JP_M = 0xFA,
-
         JR = 0x18,
         JR_C = 0x38,
         JR_NC = 0x30,
         JR_Z = 0x28,
         JR_NZ = 0x20,
-
         JP_mHL = 0xE9,
-
         DJNZ = 0x10,
 
         // Call
@@ -280,6 +277,16 @@
         CALL_P = 0xF4,
         CALL_M = 0xFC,
 
+        // Return
+        RET = 0xC9,
+        RET_NZ = 0xC0,
+        RET_Z = 0xC8,
+        RET_NC = 0xD0,
+        RET_C = 0xD8,
+        RET_PO = 0xE0,
+        RET_PE = 0xE8,
+        RET_P = 0xF0,
+        RET_M = 0xF8,
 
     }
 }

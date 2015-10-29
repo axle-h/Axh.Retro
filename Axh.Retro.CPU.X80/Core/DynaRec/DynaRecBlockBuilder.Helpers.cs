@@ -93,13 +93,12 @@
         
         private static Expression CallIf(Expression flag, bool not = false)
         {
-            return Expression.IfThen(
-                                not ? Expression.Not(flag) : flag,
-                                Expression.Block(
-                                    Xpr.PushPushSP,
-                                    Expression.Call(Xpr.Mmu, Xpr.MmuWriteWord, Xpr.SP, Xpr.PC),
-                                    Expression.Assign(Xpr.PC, Xpr.LocalWord),
-                                    Expression.Call(Xpr.DynamicTimer, Xpr.DynamicTimerAdd, Expression.Constant(2), Expression.Constant(7))));
+            return Expression.IfThen(not ? Expression.Not(flag) : flag, Expression.Block(Xpr.PushPushSP, Xpr.WritePCToStack, Expression.Assign(Xpr.PC, Xpr.LocalWord), Xpr.GetDynamicTimings(2, 7)));
+        }
+
+        private static Expression ReturnIf(Expression flag, bool not = false)
+        {
+            return Expression.IfThen(not ? Expression.Not(flag) : flag, Expression.Block(Xpr.ReadPCFromStack, Xpr.PopPopSP, Xpr.GetDynamicTimings(2, 6)));
         }
     }
 }

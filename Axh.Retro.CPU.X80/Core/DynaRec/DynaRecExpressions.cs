@@ -135,7 +135,17 @@
         /// Reads a byte from the mmu at the address in DE
         /// </summary>
         public static readonly Expression ReadByteAtDE;
-        
+
+        /// <summary>
+        /// Writes the PC to the mmu at the address in SP
+        /// </summary>
+        public static readonly Expression WritePCToStack;
+
+        /// <summary>
+        /// Reads a word from the mmu at the address in SP and assigns it to PC
+        /// </summary>
+        public static readonly Expression ReadPCFromStack;
+
         // MMU methods
         public static readonly MethodInfo MmuReadByte;
         public static readonly MethodInfo MmuReadWord;
@@ -270,6 +280,9 @@
             ReadByteAtBC = Expression.Call(Mmu, MmuReadByte, BC);
             ReadByteAtDE = Expression.Call(Mmu, MmuReadByte, DE);
 
+            ReadPCFromStack = Expression.Assign(PC, Expression.Call(Mmu, MmuReadWord, SP));
+            WritePCToStack = Expression.Call(Mmu, MmuWriteWord, SP, PC);
+
             // Z80 specific
             ReadByteAtIXd = Expression.Call(Mmu, MmuReadByte, IXd);
             ReadByteAtIYd = Expression.Call(Mmu, MmuReadByte, IYd);
@@ -352,6 +365,11 @@
                                        };
         }
 
+        public static Expression GetDynamicTimings(int mCycles, int tStates)
+        {
+            return Expression.Call(DynamicTimer, DynamicTimerAdd, Expression.Constant(mCycles), Expression.Constant(tStates));
+        }
+
         public static Expression GetMemoryRefreshDeltaExpression(Expression deltaExpression)
         {
             var increment7LsbR = Expression.And(Expression.Add(Expression.Convert(R, typeof(int)), deltaExpression), Expression.Constant(0x7f));
@@ -380,7 +398,7 @@
                         decrement ? Expression.PreDecrementAssign(DE) : Expression.PreIncrementAssign(DE),
                         Expression.PreDecrementAssign(BC),
                         Expression.IfThen(Expression.Equal(BC, Expression.Constant((ushort)0)), Expression.Break(breakLabel)),
-                        Expression.Call(DynamicTimer, DynamicTimerAdd, Expression.Constant(5), Expression.Constant(21)),
+                        GetDynamicTimings(5, 21),
                         GetMemoryRefreshDeltaExpression(Expression.Constant(2))), // This function actually decreases the PC by two for each 'loop' hence need more refresh cycles.
                     breakLabel);
 
@@ -406,7 +424,7 @@
                         decrement ? Expression.PreDecrementAssign(HL) : Expression.PreIncrementAssign(HL),
                         Expression.PreDecrementAssign(BC),
                         Expression.IfThen(Expression.OrElse(Expression.Equal(BC, Expression.Constant((ushort)0)), Zero), Expression.Break(breakLabel)),
-                        Expression.Call(DynamicTimer, DynamicTimerAdd, Expression.Constant(5), Expression.Constant(21)),
+                        GetDynamicTimings(5, 21),
                         GetMemoryRefreshDeltaExpression(Expression.Constant(2))), // This function actually decreases the PC by two for each 'loop' hence need more refresh cycles.
                     breakLabel);
         }

@@ -1201,40 +1201,28 @@
 
                     case PrimaryOpCode.JR_C:
                         yield return Expression.Assign(Xpr.LocalByte, NextByte);
-                        yield return
-                            Expression.IfThen(
-                                Xpr.Carry,
-                                Expression.Block(Xpr.JumpToDisplacement, Expression.Call(Xpr.DynamicTimer, Xpr.DynamicTimerAdd, Expression.Constant(1), Expression.Constant(5))));
+                        yield return Expression.IfThen(Xpr.Carry, Xpr.GetDynamicTimings(1, 5));
                         timer.Add(2, 7);
                         lastDecodeResult = DecodeResult.FinalizeAndSync;
                         yield break;
                         
                     case PrimaryOpCode.JR_NC:
                         yield return Expression.Assign(Xpr.LocalByte, NextByte);
-                        yield return
-                            Expression.IfThen(
-                                Expression.Not(Xpr.Carry),
-                                Expression.Block(Xpr.JumpToDisplacement, Expression.Call(Xpr.DynamicTimer, Xpr.DynamicTimerAdd, Expression.Constant(1), Expression.Constant(5))));
+                        yield return Expression.IfThen(Expression.Not(Xpr.Carry), Xpr.GetDynamicTimings(1, 5));
                         timer.Add(2, 7);
                         lastDecodeResult = DecodeResult.FinalizeAndSync;
                         yield break;
 
                     case PrimaryOpCode.JR_Z:
                         yield return Expression.Assign(Xpr.LocalByte, NextByte);
-                        yield return
-                            Expression.IfThen(
-                                Xpr.Zero,
-                                Expression.Block(Xpr.JumpToDisplacement, Expression.Call(Xpr.DynamicTimer, Xpr.DynamicTimerAdd, Expression.Constant(1), Expression.Constant(5))));
+                        yield return Expression.IfThen(Xpr.Zero, Xpr.GetDynamicTimings(1, 5));
                         timer.Add(2, 7);
                         lastDecodeResult = DecodeResult.FinalizeAndSync;
                         yield break;
 
                     case PrimaryOpCode.JR_NZ:
                         yield return Expression.Assign(Xpr.LocalByte, NextByte);
-                        yield return
-                            Expression.IfThen(
-                                Expression.Not(Xpr.Zero),
-                                Expression.Block(Xpr.JumpToDisplacement, Expression.Call(Xpr.DynamicTimer, Xpr.DynamicTimerAdd, Expression.Constant(1), Expression.Constant(5))));
+                        yield return Expression.IfThen(Expression.Not(Xpr.Zero), Xpr.GetDynamicTimings(1, 5));
                         timer.Add(2, 7);
                         lastDecodeResult = DecodeResult.FinalizeAndSync;
                         yield break;
@@ -1248,10 +1236,7 @@
                     case PrimaryOpCode.DJNZ:
                         yield return Expression.Assign(Xpr.LocalByte, NextByte);
                         yield return Expression.Assign(Xpr.B, Expression.Convert(Expression.Decrement(Expression.Convert(Xpr.B, typeof(int))), typeof(byte)));
-                        yield return
-                            Expression.IfThen(
-                                Expression.NotEqual(Xpr.B, Expression.Constant((byte)0)),
-                                Expression.Block(Xpr.JumpToDisplacement, Expression.Call(Xpr.DynamicTimer, Xpr.DynamicTimerAdd, Expression.Constant(1), Expression.Constant(5))));
+                        yield return Expression.IfThen(Expression.NotEqual(Xpr.B, Expression.Constant((byte)0)), Xpr.GetDynamicTimings(1, 5));
                         timer.Add(2, 8);
                         lastDecodeResult = DecodeResult.FinalizeAndSync;
                         yield break;
@@ -1330,7 +1315,70 @@
                         timer.Add(3, 10);
                         lastDecodeResult = DecodeResult.Finalize;
                         yield break;
+
+                    case PrimaryOpCode.RET:
+                        yield return Xpr.ReadPCFromStack;
+                        yield return Xpr.PopPopSP;
+                        timer.Add(3, 10);
+                        lastDecodeResult = DecodeResult.Finalize;
+                        yield break;
                         
+                    case PrimaryOpCode.RET_NZ:
+                        yield return SyncProgramCounter;
+                        yield return ReturnIf(Xpr.Zero, true);
+                        timer.Add(1, 5);
+                        lastDecodeResult = DecodeResult.Finalize;
+                        yield break;
+
+                    case PrimaryOpCode.RET_Z:
+                        yield return SyncProgramCounter;
+                        yield return ReturnIf(Xpr.Zero);
+                        timer.Add(1, 5);
+                        lastDecodeResult = DecodeResult.Finalize;
+                        yield break;
+
+                    case PrimaryOpCode.RET_NC:
+                        yield return SyncProgramCounter;
+                        yield return ReturnIf(Xpr.Carry, true);
+                        timer.Add(1, 5);
+                        lastDecodeResult = DecodeResult.Finalize;
+                        yield break;
+
+                    case PrimaryOpCode.RET_C:
+                        yield return SyncProgramCounter;
+                        yield return ReturnIf(Xpr.Carry);
+                        timer.Add(1, 5);
+                        lastDecodeResult = DecodeResult.Finalize;
+                        yield break;
+
+                    case PrimaryOpCode.RET_PO:
+                        yield return SyncProgramCounter;
+                        yield return ReturnIf(Xpr.ParityOverflow, true);
+                        timer.Add(1, 5);
+                        lastDecodeResult = DecodeResult.Finalize;
+                        yield break;
+
+                    case PrimaryOpCode.RET_PE:
+                        yield return SyncProgramCounter;
+                        yield return ReturnIf(Xpr.ParityOverflow);
+                        timer.Add(1, 5);
+                        lastDecodeResult = DecodeResult.Finalize;
+                        yield break;
+
+                    case PrimaryOpCode.RET_P:
+                        yield return SyncProgramCounter;
+                        yield return ReturnIf(Xpr.Sign, true);
+                        timer.Add(1, 5);
+                        lastDecodeResult = DecodeResult.Finalize;
+                        yield break;
+
+                    case PrimaryOpCode.RET_M:
+                        yield return SyncProgramCounter;
+                        yield return ReturnIf(Xpr.Sign);
+                        timer.Add(1, 5);
+                        lastDecodeResult = DecodeResult.Finalize;
+                        yield break;
+
                     default:
                         throw new NotImplementedException(opCode.ToString());
                 }

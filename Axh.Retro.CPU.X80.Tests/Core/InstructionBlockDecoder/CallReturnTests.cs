@@ -83,6 +83,80 @@
             TestCall(PrimaryOpCode.CALL_M, x => x.Sign, false, false);
         }
 
+        [Test]
+        public void RET()
+        {
+            this.SetupRegisters();
+            this.ResetMocks();
+
+            const ushort Value = 0xd466;
+
+            this.Mmu.Setup(x => x.ReadWord(SP)).Returns(Value);
+
+            Run(3, 10, PrimaryOpCode.RET);
+
+            this.Mmu.Verify(x => x.ReadWord(SP), Times.Once);
+            this.Registers.VerifySet(x => x.ProgramCounter = Value, Times.Once);
+            this.Registers.VerifySet(x => x.StackPointer = SP + 2, Times.Once);
+        }
+
+
+        [Test]
+        public void RET_NZ()
+        {
+            TestReturn(PrimaryOpCode.RET_NZ, x => x.Zero, true, false);
+            TestReturn(PrimaryOpCode.RET_NZ, x => x.Zero, false, true);
+        }
+
+        [Test]
+        public void RET_Z()
+        {
+            TestReturn(PrimaryOpCode.RET_Z, x => x.Zero, true, true);
+            TestReturn(PrimaryOpCode.RET_Z, x => x.Zero, false, false);
+        }
+
+        [Test]
+        public void RET_NC()
+        {
+            TestReturn(PrimaryOpCode.RET_NC, x => x.Carry, true, false);
+            TestReturn(PrimaryOpCode.RET_NC, x => x.Carry, false, true);
+        }
+
+        [Test]
+        public void RET_C()
+        {
+            TestReturn(PrimaryOpCode.RET_C, x => x.Carry, true, true);
+            TestReturn(PrimaryOpCode.RET_C, x => x.Carry, false, false);
+        }
+
+        [Test]
+        public void RET_PO()
+        {
+            TestReturn(PrimaryOpCode.RET_PO, x => x.ParityOverflow, true, false);
+            TestReturn(PrimaryOpCode.RET_PO, x => x.ParityOverflow, false, true);
+        }
+
+        [Test]
+        public void RET_PE()
+        {
+            TestReturn(PrimaryOpCode.RET_PE, x => x.ParityOverflow, true, true);
+            TestReturn(PrimaryOpCode.RET_PE, x => x.ParityOverflow, false, false);
+        }
+
+        [Test]
+        public void RET_P()
+        {
+            TestReturn(PrimaryOpCode.RET_P, x => x.Sign, true, false);
+            TestReturn(PrimaryOpCode.RET_P, x => x.Sign, false, true);
+        }
+
+        [Test]
+        public void RET_M()
+        {
+            TestReturn(PrimaryOpCode.RET_M, x => x.Sign, true, true);
+            TestReturn(PrimaryOpCode.RET_M, x => x.Sign, false, false);
+        }
+
         private void TestCall(PrimaryOpCode opCode, Expression<Func<IFlagsRegister, bool>> propertyLambda, bool flagValue, bool expectJump)
         {
             const ushort Value = 0x6dc4;
@@ -112,6 +186,40 @@
                 // No Call
                 this.Registers.VerifySet(x => x.ProgramCounter = PC + 3, Times.Once);
                 this.Registers.VerifySet(x => x.ProgramCounter = Value, Times.Never);
+            }
+        }
+
+        private void TestReturn(PrimaryOpCode opCode, Expression<Func<IFlagsRegister, bool>> propertyLambda, bool flagValue, bool expectReturn)
+        {
+            const ushort Value = 0x6dc4;
+
+            this.SetupRegisters();
+            this.ResetMocks();
+            this.FlagsRegister.SetupProperty(propertyLambda, flagValue);
+            this.Mmu.Setup(x => x.ReadWord(SP)).Returns(Value);
+
+            var m = 1;
+            var t = 5;
+            if (expectReturn)
+            {
+                m += 2;
+                t += 6;
+            }
+
+            Run(m, t, opCode);
+
+            if (expectReturn)
+            {
+                this.Mmu.Verify(x => x.ReadWord(SP), Times.Once);
+                this.Registers.VerifySet(x => x.ProgramCounter = Value, Times.Once);
+                this.Registers.VerifySet(x => x.StackPointer = SP + 2, Times.Once);
+            }
+            else
+            {
+                // No Call
+                this.Registers.VerifySet(x => x.StackPointer = It.IsAny<ushort>(), Times.Never);
+                this.Mmu.Verify(x => x.ReadWord(It.IsAny<ushort>()), Times.Never);
+                this.Registers.VerifySet(x => x.ProgramCounter = PC + 1, Times.Once);
             }
         }
     }
