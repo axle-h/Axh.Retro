@@ -11,7 +11,7 @@
     using NUnit.Framework;
 
     [TestFixture]
-    public class CallReturnTests: InstructionBlockDecoderTestsBase
+    public class CallReturnResetTests: InstructionBlockDecoderTestsBase
     {
         [Test]
         public void CALL()
@@ -192,6 +192,25 @@
 
             // RETN The state of IFF2 is copied back to IFF1
             this.Registers.VerifySet(x => x.InterruptFlipFlop1 = IFF2, Times.Once);
+        }
+
+        [TestCase(PrimaryOpCode.RST_00, (ushort)0x0000)]
+        [TestCase(PrimaryOpCode.RST_08, (ushort)0x0008)]
+        [TestCase(PrimaryOpCode.RST_10, (ushort)0x0010)]
+        [TestCase(PrimaryOpCode.RST_18, (ushort)0x0018)]
+        [TestCase(PrimaryOpCode.RST_20, (ushort)0x0020)]
+        [TestCase(PrimaryOpCode.RST_28, (ushort)0x0028)]
+        [TestCase(PrimaryOpCode.RST_30, (ushort)0x0030)]
+        [TestCase(PrimaryOpCode.RST_38, (ushort)0x0038)]
+        public void TestReset(PrimaryOpCode opCode, ushort address)
+        {
+            this.SetupRegisters();
+            this.ResetMocks();
+            
+            Run(3, 11, opCode);
+
+            this.Mmu.Verify(x => x.WriteWord(SP - 2, PC + 1), Times.Once);
+            this.Registers.VerifySet(x => x.ProgramCounter = address, Times.Once);
         }
 
         private void TestCall(PrimaryOpCode opCode, Expression<Func<IFlagsRegister, bool>> propertyLambda, bool flagValue, bool expectJump)

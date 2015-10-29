@@ -288,5 +288,16 @@
         RET_P = 0xF0,
         RET_M = 0xF8,
 
+        // Reset
+        RST_00 = 0xC7,
+        RST_08 = 0xCF,
+        RST_10 = 0xD7,
+        RST_18 = 0xDF,
+        RST_20 = 0xE7,
+        RST_28 = 0xEF,
+        RST_30 = 0xF7,
+        RST_38 = 0xFF,
+
+
     }
 }

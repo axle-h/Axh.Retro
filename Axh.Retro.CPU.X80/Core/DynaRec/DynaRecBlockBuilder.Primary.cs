@@ -1379,7 +1379,81 @@
                         timer.Add(1, 5);
                         lastDecodeResult = DecodeResult.Finalize;
                         yield break;
-                        
+
+                    // ********* Reset *********
+                    case PrimaryOpCode.RST_00:
+                        yield return SyncProgramCounter;
+                        yield return Xpr.PushPushSP;
+                        yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteWord, Xpr.SP, Xpr.PC);
+                        yield return Expression.Assign(Xpr.PC, Expression.Constant((ushort)0x0000));
+                        timer.Add(3, 11);
+                        lastDecodeResult = DecodeResult.Finalize;
+                        yield break;
+
+                    case PrimaryOpCode.RST_08:
+                        yield return SyncProgramCounter;
+                        yield return Xpr.PushPushSP;
+                        yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteWord, Xpr.SP, Xpr.PC);
+                        yield return Expression.Assign(Xpr.PC, Expression.Constant((ushort)0x0008));
+                        timer.Add(3, 11);
+                        lastDecodeResult = DecodeResult.Finalize;
+                        yield break;
+
+                    case PrimaryOpCode.RST_10:
+                        yield return SyncProgramCounter;
+                        yield return Xpr.PushPushSP;
+                        yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteWord, Xpr.SP, Xpr.PC);
+                        yield return Expression.Assign(Xpr.PC, Expression.Constant((ushort)0x0010));
+                        timer.Add(3, 11);
+                        lastDecodeResult = DecodeResult.Finalize;
+                        yield break;
+
+                    case PrimaryOpCode.RST_18:
+                        yield return SyncProgramCounter;
+                        yield return Xpr.PushPushSP;
+                        yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteWord, Xpr.SP, Xpr.PC);
+                        yield return Expression.Assign(Xpr.PC, Expression.Constant((ushort)0x0018));
+                        timer.Add(3, 11);
+                        lastDecodeResult = DecodeResult.Finalize;
+                        yield break;
+
+                    case PrimaryOpCode.RST_20:
+                        yield return SyncProgramCounter;
+                        yield return Xpr.PushPushSP;
+                        yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteWord, Xpr.SP, Xpr.PC);
+                        yield return Expression.Assign(Xpr.PC, Expression.Constant((ushort)0x0020));
+                        timer.Add(3, 11);
+                        lastDecodeResult = DecodeResult.Finalize;
+                        yield break;
+
+                    case PrimaryOpCode.RST_28:
+                        yield return SyncProgramCounter;
+                        yield return Xpr.PushPushSP;
+                        yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteWord, Xpr.SP, Xpr.PC);
+                        yield return Expression.Assign(Xpr.PC, Expression.Constant((ushort)0x0028));
+                        timer.Add(3, 11);
+                        lastDecodeResult = DecodeResult.Finalize;
+                        yield break;
+
+                    case PrimaryOpCode.RST_30:
+                        yield return SyncProgramCounter;
+                        yield return Xpr.PushPushSP;
+                        yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteWord, Xpr.SP, Xpr.PC);
+                        yield return Expression.Assign(Xpr.PC, Expression.Constant((ushort)0x0030));
+                        timer.Add(3, 11);
+                        lastDecodeResult = DecodeResult.Finalize;
+                        yield break;
+
+                    case PrimaryOpCode.RST_38:
+                        yield return SyncProgramCounter;
+                        yield return Xpr.PushPushSP;
+                        yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteWord, Xpr.SP, Xpr.PC);
+                        yield return Expression.Assign(Xpr.PC, Expression.Constant((ushort)0x0038));
+                        timer.Add(3, 11);
+                        lastDecodeResult = DecodeResult.Finalize;
+                        yield break;
+
+
                     default:
                         throw new NotImplementedException(opCode.ToString());
                 }
