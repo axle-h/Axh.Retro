@@ -20,7 +20,7 @@
             lastDecodeResult = DecodeResult.Continue;
             index = Xpr.IndexRegisterExpressions[IndexRegister.HL];
 
-            while (true)
+            while (this.lastDecodeResult == DecodeResult.Continue)
             {
                 if (mmuCache.TotalBytesRead == ushort.MaxValue)
                 {
@@ -1379,7 +1379,7 @@
                         timer.Add(1, 5);
                         lastDecodeResult = DecodeResult.Finalize;
                         yield break;
-
+                        
                     default:
                         throw new NotImplementedException(opCode.ToString());
                 }
@@ -1390,6 +1390,8 @@
                     this.index = Xpr.IndexRegisterExpressions[IndexRegister.HL];
                 }
             }
+
+            // Don't add anything here
         }
         
         /// <summary>

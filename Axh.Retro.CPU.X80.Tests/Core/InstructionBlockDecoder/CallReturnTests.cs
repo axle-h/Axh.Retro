@@ -156,6 +156,43 @@
             TestReturn(PrimaryOpCode.RET_M, x => x.Sign, true, true);
             TestReturn(PrimaryOpCode.RET_M, x => x.Sign, false, false);
         }
+        
+        [Test]
+        public void RETI()
+        {
+            this.SetupRegisters();
+            this.ResetMocks();
+
+            const ushort Value = 0xd466;
+
+            this.Mmu.Setup(x => x.ReadWord(SP)).Returns(Value);
+
+            Run(4, 14, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.RETI);
+
+            this.Mmu.Verify(x => x.ReadWord(SP), Times.Once);
+            this.Registers.VerifySet(x => x.ProgramCounter = Value, Times.Once);
+            this.Registers.VerifySet(x => x.StackPointer = SP + 2, Times.Once);
+        }
+
+        [Test]
+        public void RETN()
+        {
+            this.SetupRegisters();
+            this.ResetMocks();
+
+            const ushort Value = 0xd466;
+
+            this.Mmu.Setup(x => x.ReadWord(SP)).Returns(Value);
+
+            Run(4, 14, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.RETN);
+
+            this.Mmu.Verify(x => x.ReadWord(SP), Times.Once);
+            this.Registers.VerifySet(x => x.ProgramCounter = Value, Times.Once);
+            this.Registers.VerifySet(x => x.StackPointer = SP + 2, Times.Once);
+
+            // RETN The state of IFF2 is copied back to IFF1
+            this.Registers.VerifySet(x => x.InterruptFlipFlop1 = IFF2, Times.Once);
+        }
 
         private void TestCall(PrimaryOpCode opCode, Expression<Func<IFlagsRegister, bool>> propertyLambda, bool flagValue, bool expectJump)
         {

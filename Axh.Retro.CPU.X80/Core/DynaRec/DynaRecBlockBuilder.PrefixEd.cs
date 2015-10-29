@@ -235,6 +235,22 @@
                     timer.Add(5, 18);
                     break;
 
+                // ********* Return *********
+                case PrefixEdOpCode.RETI:
+                    yield return Xpr.ReadPCFromStack;
+                    yield return Xpr.PopPopSP;
+                    timer.Add(4, 14);
+                    lastDecodeResult = DecodeResult.Finalize;
+                    yield break;
+
+                case PrefixEdOpCode.RETN:
+                    yield return Xpr.ReadPCFromStack;
+                    yield return Xpr.PopPopSP;
+                    yield return Expression.Assign(Xpr.IFF1, Xpr.IFF2);
+                    timer.Add(4, 14);
+                    lastDecodeResult = DecodeResult.Finalize;
+                    yield break;
+
                 default:
                     throw new NotImplementedException(opCode.ToString());
             }

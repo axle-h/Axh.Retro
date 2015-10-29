@@ -1097,7 +1097,7 @@
             // Check flags
             this.FlagsRegister.Verify(x => x.SetResultFlags(It.Is<byte>(y => y == I)), Times.Once);
             this.FlagsRegister.VerifySet(x => x.HalfCarry = It.Is<bool>(y => !y), Times.Once);
-            this.FlagsRegister.VerifySet(x => x.ParityOverflow = It.Is<bool>(y => !y), Times.Once);
+            this.FlagsRegister.VerifySet(x => x.ParityOverflow = IFF2, Times.Once);
             this.FlagsRegister.VerifySet(x => x.Subtract = It.Is<bool>(y => !y), Times.Once);
         }
 
@@ -1116,7 +1116,7 @@
             // Check flags
             this.FlagsRegister.Verify(x => x.SetResultFlags(It.Is<byte>(y => y == R)), Times.Once);
             this.FlagsRegister.VerifySet(x => x.HalfCarry = It.Is<bool>(y => !y), Times.Once);
-            this.FlagsRegister.VerifySet(x => x.ParityOverflow = It.Is<bool>(y => !y), Times.Once);
+            this.FlagsRegister.VerifySet(x => x.ParityOverflow = IFF2, Times.Once);
             this.FlagsRegister.VerifySet(x => x.Subtract = It.Is<bool>(y => !y), Times.Once);
         }
 

@@ -49,6 +49,9 @@
         protected const byte IYl = 0x55;
         protected const byte IYh = 0x22;
 
+        protected const bool IFF1 = false;
+        protected const bool IFF2 = true;
+
         protected IInstructionBlockDecoder<IZ80Registers> DynaRecBlockDecoder;
 
         protected Mock<IZ80Registers> Registers;
@@ -116,6 +119,9 @@
             this.Registers.SetupProperty(x => x.IXl, IXl);
             this.Registers.SetupProperty(x => x.IYh, IYh);
             this.Registers.SetupProperty(x => x.IYl, IYl);
+
+            this.Registers.SetupProperty(x => x.InterruptFlipFlop1, IFF1);
+            this.Registers.SetupProperty(x => x.InterruptFlipFlop2, IFF2);
 
             this.Registers.SetupProperty(x => x.ProgramCounter, PC);
             this.Registers.SetupProperty(x => x.StackPointer, SP);

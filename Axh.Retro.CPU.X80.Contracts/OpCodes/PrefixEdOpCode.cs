@@ -49,7 +49,9 @@
         RLD = 0x6F,
         RRD = 0x67,
 
-
-
+        // Return
+        RETI = 0x4D,
+        RETN = 0x45,
+        
     }
 }
