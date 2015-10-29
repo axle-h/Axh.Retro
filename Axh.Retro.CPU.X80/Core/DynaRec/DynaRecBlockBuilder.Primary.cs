@@ -1201,28 +1201,28 @@
 
                     case PrimaryOpCode.JR_C:
                         yield return Expression.Assign(Xpr.LocalByte, NextByte);
-                        yield return Expression.IfThen(Xpr.Carry, Xpr.GetDynamicTimings(1, 5));
+                        yield return Expression.IfThen(Xpr.Carry, Expression.Block(Xpr.JumpToDisplacement, Xpr.GetDynamicTimings(1, 5)));
                         timer.Add(2, 7);
                         lastDecodeResult = DecodeResult.FinalizeAndSync;
                         yield break;
                         
                     case PrimaryOpCode.JR_NC:
                         yield return Expression.Assign(Xpr.LocalByte, NextByte);
-                        yield return Expression.IfThen(Expression.Not(Xpr.Carry), Xpr.GetDynamicTimings(1, 5));
+                        yield return Expression.IfThen(Expression.Not(Xpr.Carry), Expression.Block(Xpr.JumpToDisplacement, Xpr.GetDynamicTimings(1, 5)));
                         timer.Add(2, 7);
                         lastDecodeResult = DecodeResult.FinalizeAndSync;
                         yield break;
 
                     case PrimaryOpCode.JR_Z:
                         yield return Expression.Assign(Xpr.LocalByte, NextByte);
-                        yield return Expression.IfThen(Xpr.Zero, Xpr.GetDynamicTimings(1, 5));
+                        yield return Expression.IfThen(Xpr.Zero, Expression.Block(Xpr.JumpToDisplacement, Xpr.GetDynamicTimings(1, 5)));
                         timer.Add(2, 7);
                         lastDecodeResult = DecodeResult.FinalizeAndSync;
                         yield break;
 
                     case PrimaryOpCode.JR_NZ:
                         yield return Expression.Assign(Xpr.LocalByte, NextByte);
-                        yield return Expression.IfThen(Expression.Not(Xpr.Zero), Xpr.GetDynamicTimings(1, 5));
+                        yield return Expression.IfThen(Expression.Not(Xpr.Zero), Expression.Block(Xpr.JumpToDisplacement, Xpr.GetDynamicTimings(1, 5)));
                         timer.Add(2, 7);
                         lastDecodeResult = DecodeResult.FinalizeAndSync;
                         yield break;
@@ -1236,12 +1236,12 @@
                     case PrimaryOpCode.DJNZ:
                         yield return Expression.Assign(Xpr.LocalByte, NextByte);
                         yield return Expression.Assign(Xpr.B, Expression.Convert(Expression.Decrement(Expression.Convert(Xpr.B, typeof(int))), typeof(byte)));
-                        yield return Expression.IfThen(Expression.NotEqual(Xpr.B, Expression.Constant((byte)0)), Xpr.GetDynamicTimings(1, 5));
+                        yield return Expression.IfThen(Expression.NotEqual(Xpr.B, Expression.Constant((byte)0)), Expression.Block(Xpr.JumpToDisplacement, Xpr.GetDynamicTimings(1, 5)));
                         timer.Add(2, 8);
                         lastDecodeResult = DecodeResult.FinalizeAndSync;
                         yield break;
 
-                    // ********* Call, Return *********
+                    // ********* Call *********
                     case PrimaryOpCode.CALL:
                         yield return Expression.Assign(Xpr.LocalWord, NextWord);
                         yield return SyncProgramCounter;
@@ -1316,6 +1316,7 @@
                         lastDecodeResult = DecodeResult.Finalize;
                         yield break;
 
+                    // ********* Return *********
                     case PrimaryOpCode.RET:
                         yield return Xpr.ReadPCFromStack;
                         yield return Xpr.PopPopSP;
