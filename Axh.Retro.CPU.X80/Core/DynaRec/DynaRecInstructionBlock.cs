@@ -3,20 +3,21 @@
     using System;
 
     using Axh.Retro.CPU.X80.Contracts.Core;
+    using Axh.Retro.CPU.X80.Contracts.IO;
     using Axh.Retro.CPU.X80.Contracts.Memory;
     using Axh.Retro.CPU.X80.Contracts.Registers;
 
     internal class DynaRecInstructionBlock<TRegisters> : IInstructionBlock<TRegisters>
         where TRegisters : IRegisters
     {
-        private readonly Func<TRegisters, IMmu, IArithmeticLogicUnit, InstructionTimings> action;
+        private readonly Func<TRegisters, IMmu, IArithmeticLogicUnit, IInputOutputManager, InstructionTimings> action;
 
         /// <summary>
         /// Static instruction timings, known at compile time
         /// </summary>
         private readonly InstructionTimings staticTimings;
 
-        public DynaRecInstructionBlock(ushort address, ushort length, Func<TRegisters, IMmu, IArithmeticLogicUnit, InstructionTimings> action, InstructionTimings staticTimings)
+        public DynaRecInstructionBlock(ushort address, ushort length, Func<TRegisters, IMmu, IArithmeticLogicUnit, IInputOutputManager, InstructionTimings> action, InstructionTimings staticTimings)
         {
             this.action = action;
             this.staticTimings = staticTimings;
@@ -28,9 +29,9 @@
 
         public ushort Length { get; }
 
-        public InstructionTimings ExecuteInstructionBlock(TRegisters registers, IMmu mmu, IArithmeticLogicUnit alu)
+        public InstructionTimings ExecuteInstructionBlock(TRegisters registers, IMmu mmu, IArithmeticLogicUnit alu, IInputOutputManager inputOutputManager)
         {
-            return action(registers, mmu, alu) + staticTimings;
+            return action(registers, mmu, alu, inputOutputManager) + staticTimings;
         }
     }
 }

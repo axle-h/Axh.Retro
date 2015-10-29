@@ -8,6 +8,7 @@
     using Axh.Retro.CPU.X80.Contracts.Config;
     using Axh.Retro.CPU.X80.Contracts.Core;
     using Axh.Retro.CPU.X80.Contracts.Factories;
+    using Axh.Retro.CPU.X80.Contracts.IO;
     using Axh.Retro.CPU.X80.Contracts.Memory;
     using Axh.Retro.CPU.X80.Contracts.OpCodes;
     using Axh.Retro.CPU.X80.Contracts.Registers;
@@ -60,6 +61,8 @@
 
         protected Mock<IArithmeticLogicUnit> Alu;
 
+        protected Mock<IInputOutputManager> Io;
+
         protected Mock<IGeneralPurposeRegisterSet> GpRegisters;
 
         protected Mock<IAccumulatorAndFlagsRegisterSet> AfRegisters;
@@ -88,6 +91,8 @@
             mmuFactory.Setup(x => x.GetMmuCache(this.Mmu.Object, Address)).Returns(this.Cache.Object);
 
             this.Alu = new Mock<IArithmeticLogicUnit>();
+
+            this.Io = new Mock<IInputOutputManager>();
 
             var platformConfig = new Mock<IPlatformConfig>();
             platformConfig.Setup(x => x.CpuMode).Returns(CpuMode.Z80);
@@ -148,6 +153,7 @@
             this.Cache.ResetCalls();
             this.Mmu.ResetCalls();
             this.Alu.ResetCalls();
+            this.Io.ResetCalls();
         }
 
         protected void Run(int expectedMachineCycles, int expectedThrottlingStates, params object[] bytes)
@@ -170,10 +176,10 @@
 
             this.Cache.Setup(x => x.TotalBytesRead).Returns(() => length);
 
-            var block = this.DynaRecBlockDecoder.DecodeNextBlock(this.Mmu.Object, Address);
+            var block = this.DynaRecBlockDecoder.DecodeNextBlock(Address, this.Mmu.Object);
             Assert.IsNotNull(block);
 
-            var timings = block.ExecuteInstructionBlock(this.Registers.Object, this.Mmu.Object, this.Alu.Object);
+            var timings = block.ExecuteInstructionBlock(this.Registers.Object, this.Mmu.Object, this.Alu.Object, this.Io.Object);
 
             Assert.AreEqual(expectedMachineCycles, timings.MachineCycles);
             Assert.AreEqual(expectedThrottlingStates, timings.ThrottlingStates);

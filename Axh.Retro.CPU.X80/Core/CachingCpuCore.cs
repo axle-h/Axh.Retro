@@ -6,6 +6,7 @@
     using Axh.Retro.CPU.X80.Contracts.Cache;
     using Axh.Retro.CPU.X80.Contracts.Core;
     using Axh.Retro.CPU.X80.Contracts.Factories;
+    using Axh.Retro.CPU.X80.Contracts.IO;
     using Axh.Retro.CPU.X80.Contracts.Memory;
     using Axh.Retro.CPU.X80.Contracts.Registers;
 
@@ -21,11 +22,20 @@
 
         private readonly IInstructionBlockCache<TRegisters> instructionBlockCache;
 
-        public CachingCpuCore(IRegisterFactory<TRegisters> registerFactory, IMmuFactory mmuFactory, IInstructionBlockDecoder<TRegisters> instructionBlockDecoder, IArithmeticLogicUnit arithmeticLogicUnit, IInstructionBlockCache<TRegisters> instructionBlockCache)
+        private readonly IInputOutputManager inputOutputManager;
+
+        public CachingCpuCore(
+            IRegisterFactory<TRegisters> registerFactory,
+            IMmuFactory mmuFactory,
+            IInstructionBlockDecoder<TRegisters> instructionBlockDecoder,
+            IArithmeticLogicUnit arithmeticLogicUnit,
+            IInstructionBlockCache<TRegisters> instructionBlockCache,
+            IInputOutputManager inputOutputManager)
         {
             this.instructionBlockDecoder = instructionBlockDecoder;
             this.arithmeticLogicUnit = arithmeticLogicUnit;
             this.instructionBlockCache = instructionBlockCache;
+            this.inputOutputManager = inputOutputManager;
             this.registers = registerFactory.GetInitialRegisters();
             this.mmu = mmuFactory.GetMmu();
 
@@ -48,8 +58,8 @@
             while (true)
             {
                 var address = this.registers.ProgramCounter;
-                var instructionBlock = this.instructionBlockCache.GetOrSet(address, () => this.instructionBlockDecoder.DecodeNextBlock(this.mmu, address));
-                instructionBlock.ExecuteInstructionBlock(this.registers, this.mmu, this.arithmeticLogicUnit);
+                var instructionBlock = this.instructionBlockCache.GetOrSet(address, () => this.instructionBlockDecoder.DecodeNextBlock(address, this.mmu));
+                instructionBlock.ExecuteInstructionBlock(this.registers, this.mmu, this.arithmeticLogicUnit, this.inputOutputManager);
             }
         }
     }

@@ -4,6 +4,7 @@
     using Axh.Retro.CPU.X80.Contracts.Config;
     using Axh.Retro.CPU.X80.Contracts.Core;
     using Axh.Retro.CPU.X80.Contracts.Factories;
+    using Axh.Retro.CPU.X80.Contracts.IO;
     using Axh.Retro.CPU.X80.Contracts.Memory;
     using Axh.Retro.CPU.X80.Contracts.Registers;
 
@@ -21,7 +22,7 @@
 
         public bool SupportsInstructionBlockCaching => true;
 
-        public IInstructionBlock<TRegisters> DecodeNextBlock(IMmu mmu, ushort address)
+        public IInstructionBlock<TRegisters> DecodeNextBlock(ushort address, IMmu mmu)
         {
             var mmuCache = this.mmuFactory.GetMmuCache(mmu, address);
             var timer = new InstructionTimer();

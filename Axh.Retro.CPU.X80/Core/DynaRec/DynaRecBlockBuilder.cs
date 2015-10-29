@@ -8,6 +8,7 @@
     using Axh.Retro.CPU.X80.Contracts;
     using Axh.Retro.CPU.X80.Contracts.Config;
     using Axh.Retro.CPU.X80.Contracts.Core;
+    using Axh.Retro.CPU.X80.Contracts.IO;
     using Axh.Retro.CPU.X80.Contracts.Memory;
     using Axh.Retro.CPU.X80.Contracts.Registers;
     using Axh.Retro.CPU.X80.Util;
@@ -38,7 +39,7 @@
             this.mmuCache = mmuCache;
         }
 
-        public Expression<Func<TRegisters, IMmu, IArithmeticLogicUnit, InstructionTimings>> DecodeNextBlock()
+        public Expression<Func<TRegisters, IMmu, IArithmeticLogicUnit, IInputOutputManager, InstructionTimings>> DecodeNextBlock()
         {
             var initExpressions = GetBlockInitExpressions();
             var blockExpressions = GetBlockExpressions();
@@ -47,7 +48,7 @@
             var expressions = initExpressions.Concat(blockExpressions).Concat(finalExpressions).ToArray();
 
             var expressionBlock = Expression.Block(GeParameterExpressions(), expressions);
-            var lambda = Expression.Lambda<Func<TRegisters, IMmu, IArithmeticLogicUnit, InstructionTimings>>(expressionBlock, Xpr.Registers, Xpr.Mmu, Xpr.Alu);
+            var lambda = Expression.Lambda<Func<TRegisters, IMmu, IArithmeticLogicUnit, IInputOutputManager, InstructionTimings>>(expressionBlock, Xpr.Registers, Xpr.Mmu, Xpr.Alu, Xpr.IO);
 
             return lambda;
         }

@@ -55,6 +55,18 @@
             return outermostExpression.Method;
         }
 
+        public static MethodInfo GetMethodInfo<TSource, TArg1, TArg2, TArg3>(Expression<Action<TSource, TArg1, TArg2, TArg3>> methodLambda)
+        {
+            var outermostExpression = methodLambda.Body as MethodCallExpression;
+
+            if (outermostExpression == null)
+            {
+                throw new ArgumentException("Invalid Expression. Expression should consist of a Method call only.");
+            }
+
+            return outermostExpression.Method;
+        }
+
         public static MethodInfo GetMethodInfo<TSource, TArg1, TArg2>(Expression<Action<TSource, TArg1, TArg2>> methodLambda)
         {
             var outermostExpression = methodLambda.Body as MethodCallExpression;

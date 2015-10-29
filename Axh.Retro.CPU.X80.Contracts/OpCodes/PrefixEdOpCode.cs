@@ -52,6 +52,17 @@
         // Return
         RETI = 0x4D,
         RETN = 0x45,
-        
+
+        // IO
+        IN_B_C = 0x40,
+        IN_C_C = 0x48,
+        IN_D_C = 0x50,
+        IN_E_C = 0x58,
+        IN_H_C = 0x60,
+        IN_L_C = 0x68,
+        IN_F_C = 0x70,
+        IN_A_C = 0x78,
+
+
     }
 }

@@ -1453,6 +1453,11 @@
                         lastDecodeResult = DecodeResult.Finalize;
                         yield break;
 
+                    // ********* IO *********
+                    case PrimaryOpCode.IN_A_n:
+                        yield return Expression.Assign(Xpr.A, Expression.Call(Xpr.IO, Xpr.IoReadByte, NextByte, Xpr.A));
+                        timer.Add(3, 11);
+                        break;
 
                     default:
                         throw new NotImplementedException(opCode.ToString());

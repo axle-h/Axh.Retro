@@ -298,6 +298,7 @@
         RST_30 = 0xF7,
         RST_38 = 0xFF,
 
-
+        // IO
+        IN_A_n = 0xDB,
     }
 }

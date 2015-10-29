@@ -1,6 +1,7 @@
 ﻿namespace Axh.Retro.CPU.X80.Core.Interpreted
 {
     using Axh.Retro.CPU.X80.Contracts.Core;
+    using Axh.Retro.CPU.X80.Contracts.IO;
     using Axh.Retro.CPU.X80.Contracts.Memory;
     using Axh.Retro.CPU.X80.Registers;
 
@@ -8,7 +9,7 @@
     {
         public bool SupportsInstructionBlockCaching => false;
 
-        public IInstructionBlock<Z80Registers> DecodeNextBlock(IMmu mmu, ushort address)
+        public IInstructionBlock<Z80Registers> DecodeNextBlock(ushort address, IMmu mmu)
         {
             throw new System.NotImplementedException();
         }

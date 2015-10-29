@@ -58,6 +58,8 @@
     <Compile Include="Factories\IMmuFactory.cs" />
     <Compile Include="Factories\IRegisterFactory.cs" />
     <Compile Include="Core\ICpuCore.cs" />
+    <Compile Include="IO\IInputOutputManager.cs" />
+    <Compile Include="IO\IPeripheral.cs" />
     <Compile Include="Memory\AddressWriteEventArgs.cs" />
     <Compile Include="Memory\IMmu.cs" />
     <Compile Include="Memory\IAddressSegment.cs" />

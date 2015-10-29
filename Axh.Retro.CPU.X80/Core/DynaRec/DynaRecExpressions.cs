@@ -5,6 +5,7 @@
     using System.Reflection;
 
     using Axh.Retro.CPU.X80.Contracts.Core;
+    using Axh.Retro.CPU.X80.Contracts.IO;
     using Axh.Retro.CPU.X80.Contracts.Memory;
     using Axh.Retro.CPU.X80.Contracts.Registers;
     using Axh.Retro.CPU.X80.Util;
@@ -14,6 +15,7 @@
         public static readonly ParameterExpression Registers;
         public static readonly ParameterExpression Mmu;
         public static readonly ParameterExpression Alu;
+        public static readonly ParameterExpression IO;
 
         /// <summary>
         /// Byte parameter 'b'
@@ -186,6 +188,10 @@
         public static readonly MethodInfo AluBitSet;
         public static readonly MethodInfo AluBitReset;
 
+        // IO Methods
+        public static readonly MethodInfo IoReadByte;
+        public static readonly MethodInfo IoWriteByte;
+
         // General helpers
         /// <summary>
         /// Increment the program counter by a 2s complement displacement set in LocalByte
@@ -199,6 +205,7 @@
             Registers = Expression.Parameter(typeof(IZ80Registers), "registers");
             Mmu = Expression.Parameter(typeof(IMmu), "mmu");
             Alu = Expression.Parameter(typeof(IArithmeticLogicUnit), "alu");
+            IO = Expression.Parameter(typeof(IInputOutputManager), "io");
             LocalByte = Expression.Parameter(typeof(byte), "b");
             LocalWord = Expression.Parameter(typeof(ushort), "w");
             DynamicTimer = Expression.Parameter(typeof(IInstructionTimer), "timer");
@@ -317,6 +324,10 @@
             AluBitTest = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, int>((alu, a, bit) => alu.BitTest(a, bit));
             AluBitSet = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, int, byte>((alu, a, bit) => alu.BitSet(a, bit));
             AluBitReset = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, int, byte>((alu, a, bit) => alu.BitReset(a, bit));
+
+            // IO Expressions
+            IoReadByte = ExpressionHelpers.GetMethodInfo<IInputOutputManager, byte, byte, byte>((io, port, addressMsb) => io.ReadByte(port, addressMsb));
+            IoWriteByte = ExpressionHelpers.GetMethodInfo<IInputOutputManager, byte, byte, byte>((io, port, addressMsb, value) => io.WriteByte(port, addressMsb, value));
 
             JumpToDisplacement = Expression.Assign(PC, Expression.Convert(Expression.Add(Expression.Convert(PC, typeof(int)), Expression.Convert(Expression.Convert(LocalByte, typeof(sbyte)), typeof(int))), typeof(ushort)));
 

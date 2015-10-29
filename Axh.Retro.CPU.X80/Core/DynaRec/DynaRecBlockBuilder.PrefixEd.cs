@@ -250,6 +250,48 @@
                     timer.Add(4, 14);
                     lastDecodeResult = DecodeResult.Finalize;
                     yield break;
+                    
+                // ********* IO *********
+                case PrefixEdOpCode.IN_A_C:
+                    yield return Expression.Assign(Xpr.A, Expression.Call(Xpr.IO, Xpr.IoReadByte, Xpr.C, Xpr.B));
+                    timer.Add(3, 12);
+                    break;
+
+                case PrefixEdOpCode.IN_B_C:
+                    yield return Expression.Assign(Xpr.B, Expression.Call(Xpr.IO, Xpr.IoReadByte, Xpr.C, Xpr.B));
+                    timer.Add(3, 12);
+                    break;
+
+                case PrefixEdOpCode.IN_C_C:
+                    yield return Expression.Assign(Xpr.C, Expression.Call(Xpr.IO, Xpr.IoReadByte, Xpr.C, Xpr.B));
+                    timer.Add(3, 12);
+                    break;
+
+                case PrefixEdOpCode.IN_D_C:
+                    yield return Expression.Assign(Xpr.D, Expression.Call(Xpr.IO, Xpr.IoReadByte, Xpr.C, Xpr.B));
+                    timer.Add(3, 12);
+                    break;
+
+                case PrefixEdOpCode.IN_E_C:
+                    yield return Expression.Assign(Xpr.E, Expression.Call(Xpr.IO, Xpr.IoReadByte, Xpr.C, Xpr.B));
+                    timer.Add(3, 12);
+                    break;
+
+                case PrefixEdOpCode.IN_F_C:
+                    yield return Expression.Assign(Xpr.F, Expression.Call(Xpr.IO, Xpr.IoReadByte, Xpr.C, Xpr.B));
+                    timer.Add(3, 12);
+                    break;
+
+                case PrefixEdOpCode.IN_H_C:
+                    yield return Expression.Assign(Xpr.H, Expression.Call(Xpr.IO, Xpr.IoReadByte, Xpr.C, Xpr.B));
+                    timer.Add(3, 12);
+                    break;
+
+                case PrefixEdOpCode.IN_L_C:
+                    yield return Expression.Assign(Xpr.L, Expression.Call(Xpr.IO, Xpr.IoReadByte, Xpr.C, Xpr.B));
+                    timer.Add(3, 12);
+                    break;
+
 
                 default:
                     throw new NotImplementedException(opCode.ToString());

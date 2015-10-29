@@ -4,6 +4,7 @@
 
     using Axh.Retro.CPU.X80.Contracts.Core;
     using Axh.Retro.CPU.X80.Contracts.Factories;
+    using Axh.Retro.CPU.X80.Contracts.IO;
     using Axh.Retro.CPU.X80.Contracts.Memory;
     using Axh.Retro.CPU.X80.Contracts.Registers;
 
@@ -20,10 +21,18 @@
 
         private readonly IInstructionBlockDecoder<TRegisters> instructionBlockDecoder;
 
-        public StaticCpuCore(IRegisterFactory<TRegisters> registerFactory, IMmuFactory mmuFactory, IInstructionBlockDecoder<TRegisters> instructionBlockDecoder, IArithmeticLogicUnit arithmeticLogicUnit)
+        private readonly IInputOutputManager inputOutputManager;
+
+        public StaticCpuCore(
+            IRegisterFactory<TRegisters> registerFactory,
+            IMmuFactory mmuFactory,
+            IInstructionBlockDecoder<TRegisters> instructionBlockDecoder,
+            IArithmeticLogicUnit arithmeticLogicUnit,
+            IInputOutputManager inputOutputManager)
         {
             this.instructionBlockDecoder = instructionBlockDecoder;
             this.arithmeticLogicUnit = arithmeticLogicUnit;
+            this.inputOutputManager = inputOutputManager;
             this.registers = registerFactory.GetInitialRegisters();
             this.mmu = mmuFactory.GetMmu();
         }
@@ -37,8 +46,8 @@
         {
             while (true)
             {
-                var instructionBlock = this.instructionBlockDecoder.DecodeNextBlock(this.mmu, this.registers.ProgramCounter);
-                instructionBlock.ExecuteInstructionBlock(this.registers, this.mmu, this.arithmeticLogicUnit);
+                var instructionBlock = this.instructionBlockDecoder.DecodeNextBlock(this.registers.ProgramCounter, this.mmu);
+                instructionBlock.ExecuteInstructionBlock(this.registers, this.mmu, this.arithmeticLogicUnit, this.inputOutputManager);
             }
         }
     }
