@@ -18,15 +18,15 @@
             
             RunWithNOP(4, 16, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.LDI);
 
-            this.GpRegisters.VerifySet(x => x.DE = It.Is<ushort>(y => y == DE + 1), Times.Once);
-            this.GpRegisters.VerifySet(x => x.HL = It.Is<ushort>(y => y == HL + 1), Times.Once);
-            this.GpRegisters.VerifySet(x => x.BC = It.Is<ushort>(y => y == BC - 1), Times.Once);
+            this.GpRegisters.VerifySet(x => x.DE = DE + 1, Times.Once);
+            this.GpRegisters.VerifySet(x => x.HL = HL + 1, Times.Once);
+            this.GpRegisters.VerifySet(x => x.BC = BC - 1, Times.Once);
             
             this.Mmu.Verify(x => x.TransferByte(HL, DE), Times.Once);
 
-            this.FlagsRegister.VerifySet(x => x.HalfCarry = It.Is<bool>(y => !y), Times.Once);
-            this.FlagsRegister.VerifySet(x => x.ParityOverflow = It.Is<bool>(y => y), Times.Once);
-            this.FlagsRegister.VerifySet(x => x.Subtract = It.Is<bool>(y => !y), Times.Once);
+            this.FlagsRegister.VerifySet(x => x.HalfCarry = false, Times.Once);
+            this.FlagsRegister.VerifySet(x => x.ParityOverflow = true, Times.Once);
+            this.FlagsRegister.VerifySet(x => x.Subtract = false, Times.Once);
         }
 
         [Test]
@@ -39,15 +39,15 @@
             
             RunWithNOP(4, 16, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.LDI);
 
-            this.GpRegisters.VerifySet(x => x.DE = It.Is<ushort>(y => y == DE + 1), Times.Once);
-            this.GpRegisters.VerifySet(x => x.HL = It.Is<ushort>(y => y == HL + 1), Times.Once);
-            this.GpRegisters.VerifySet(x => x.BC = It.Is<ushort>(y => y == 0), Times.Once);
+            this.GpRegisters.VerifySet(x => x.DE = DE + 1, Times.Once);
+            this.GpRegisters.VerifySet(x => x.HL = HL + 1, Times.Once);
+            this.GpRegisters.VerifySet(x => x.BC = 0, Times.Once);
 
             this.Mmu.Verify(x => x.TransferByte(HL, DE), Times.Once);
 
-            this.FlagsRegister.VerifySet(x => x.HalfCarry = It.Is<bool>(y => !y), Times.Once);
-            this.FlagsRegister.VerifySet(x => x.ParityOverflow = It.Is<bool>(y => !y), Times.Once);
-            this.FlagsRegister.VerifySet(x => x.Subtract = It.Is<bool>(y => !y), Times.Once);
+            this.FlagsRegister.VerifySet(x => x.HalfCarry = false, Times.Once);
+            this.FlagsRegister.VerifySet(x => x.ParityOverflow = false, Times.Once);
+            this.FlagsRegister.VerifySet(x => x.Subtract = false, Times.Once);
         }
 
         [Test]
@@ -63,9 +63,9 @@
             for(var i = 1; i < Length; i++)
             {
                 var index = i;
-                this.GpRegisters.VerifySet(x => x.DE = It.Is<ushort>(y => y == DE + index), Times.Once);
-                this.GpRegisters.VerifySet(x => x.HL = It.Is<ushort>(y => y == HL + index), Times.Once);
-                this.GpRegisters.VerifySet(x => x.BC = It.Is<ushort>(y => y == Length - index), Times.Once);
+                this.GpRegisters.VerifySet(x => x.DE = (ushort)(DE + index), Times.Once);
+                this.GpRegisters.VerifySet(x => x.HL = (ushort)(HL + index), Times.Once);
+                this.GpRegisters.VerifySet(x => x.BC = (ushort)(Length - index), Times.Once);
             }
 
             for (var i = 0; i < Length; i++)
@@ -74,9 +74,9 @@
                 this.Mmu.Verify(x => x.TransferByte((ushort)(HL + index), (ushort)(DE + index)), Times.Once);
             }
 
-            this.FlagsRegister.VerifySet(x => x.HalfCarry = It.Is<bool>(y => !y), Times.Once);
-            this.FlagsRegister.VerifySet(x => x.ParityOverflow = It.Is<bool>(y => !y), Times.Once);
-            this.FlagsRegister.VerifySet(x => x.Subtract = It.Is<bool>(y => !y), Times.Once);
+            this.FlagsRegister.VerifySet(x => x.HalfCarry = false, Times.Once);
+            this.FlagsRegister.VerifySet(x => x.ParityOverflow = false, Times.Once);
+            this.FlagsRegister.VerifySet(x => x.Subtract = false, Times.Once);
         }
 
         [Test]
@@ -87,15 +87,15 @@
 
             RunWithNOP(4, 16, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.LDD);
 
-            this.GpRegisters.VerifySet(x => x.DE = It.Is<ushort>(y => y == DE - 1), Times.Once);
-            this.GpRegisters.VerifySet(x => x.HL = It.Is<ushort>(y => y == HL - 1), Times.Once);
-            this.GpRegisters.VerifySet(x => x.BC = It.Is<ushort>(y => y == BC - 1), Times.Once);
+            this.GpRegisters.VerifySet(x => x.DE = DE - 1, Times.Once);
+            this.GpRegisters.VerifySet(x => x.HL = HL - 1, Times.Once);
+            this.GpRegisters.VerifySet(x => x.BC = BC - 1, Times.Once);
 
             this.Mmu.Verify(x => x.TransferByte(HL, DE), Times.Once);
 
-            this.FlagsRegister.VerifySet(x => x.HalfCarry = It.Is<bool>(y => !y), Times.Once);
-            this.FlagsRegister.VerifySet(x => x.ParityOverflow = It.Is<bool>(y => y), Times.Once);
-            this.FlagsRegister.VerifySet(x => x.Subtract = It.Is<bool>(y => !y), Times.Once);
+            this.FlagsRegister.VerifySet(x => x.HalfCarry = false, Times.Once);
+            this.FlagsRegister.VerifySet(x => x.ParityOverflow = true, Times.Once);
+            this.FlagsRegister.VerifySet(x => x.Subtract = false, Times.Once);
         }
 
 
@@ -109,15 +109,15 @@
 
             RunWithNOP(4, 16, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.LDD);
 
-            this.GpRegisters.VerifySet(x => x.DE = It.Is<ushort>(y => y == DE - 1), Times.Once);
-            this.GpRegisters.VerifySet(x => x.HL = It.Is<ushort>(y => y == HL - 1), Times.Once);
-            this.GpRegisters.VerifySet(x => x.BC = It.Is<ushort>(y => y == 0), Times.Once);
+            this.GpRegisters.VerifySet(x => x.DE = DE - 1, Times.Once);
+            this.GpRegisters.VerifySet(x => x.HL = HL - 1, Times.Once);
+            this.GpRegisters.VerifySet(x => x.BC = 0, Times.Once);
 
             this.Mmu.Verify(x => x.TransferByte(HL, DE), Times.Once);
 
-            this.FlagsRegister.VerifySet(x => x.HalfCarry = It.Is<bool>(y => !y), Times.Once);
-            this.FlagsRegister.VerifySet(x => x.ParityOverflow = It.Is<bool>(y => !y), Times.Once);
-            this.FlagsRegister.VerifySet(x => x.Subtract = It.Is<bool>(y => !y), Times.Once);
+            this.FlagsRegister.VerifySet(x => x.HalfCarry = false, Times.Once);
+            this.FlagsRegister.VerifySet(x => x.ParityOverflow = false, Times.Once);
+            this.FlagsRegister.VerifySet(x => x.Subtract = false, Times.Once);
         }
 
         [Test]
@@ -133,9 +133,9 @@
             for (var i = 1; i < Length; i++)
             {
                 var index = i;
-                this.GpRegisters.VerifySet(x => x.DE = It.Is<ushort>(y => y == DE - index), Times.Once);
-                this.GpRegisters.VerifySet(x => x.HL = It.Is<ushort>(y => y == HL - index), Times.Once);
-                this.GpRegisters.VerifySet(x => x.BC = It.Is<ushort>(y => y == Length - index), Times.Once);
+                this.GpRegisters.VerifySet(x => x.DE = (ushort)(DE - index), Times.Once);
+                this.GpRegisters.VerifySet(x => x.HL = (ushort)(HL - index), Times.Once);
+                this.GpRegisters.VerifySet(x => x.BC = (ushort)(Length - index), Times.Once);
             }
 
             for (var i = 0; i < Length; i++)
@@ -144,9 +144,9 @@
                 this.Mmu.Verify(x => x.TransferByte((ushort)(HL - index), (ushort)(DE - index)), Times.Once);
             }
 
-            this.FlagsRegister.VerifySet(x => x.HalfCarry = It.Is<bool>(y => !y), Times.Once);
-            this.FlagsRegister.VerifySet(x => x.ParityOverflow = It.Is<bool>(y => !y), Times.Once);
-            this.FlagsRegister.VerifySet(x => x.Subtract = It.Is<bool>(y => !y), Times.Once);
+            this.FlagsRegister.VerifySet(x => x.HalfCarry = false, Times.Once);
+            this.FlagsRegister.VerifySet(x => x.ParityOverflow = false, Times.Once);
+            this.FlagsRegister.VerifySet(x => x.Subtract = false, Times.Once);
         }
     }
 }

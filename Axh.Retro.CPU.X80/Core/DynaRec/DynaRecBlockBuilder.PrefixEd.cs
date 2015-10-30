@@ -252,6 +252,7 @@
                     yield break;
                     
                 // ********* IO *********
+                // IN r, (C)
                 case PrefixEdOpCode.IN_A_C:
                     yield return Expression.Assign(Xpr.A, Expression.Call(Xpr.IO, Xpr.IoReadByte, Xpr.C, Xpr.B));
                     timer.Add(3, 12);
@@ -292,6 +293,106 @@
                     timer.Add(3, 12);
                     break;
 
+                // INI
+                case PrefixEdOpCode.INI:
+                    foreach (var expression in Xpr.GetInExpressions())
+                    {
+                        yield return expression;
+                    }
+                    timer.Add(4, 16);
+                    break;
+
+                // INIR
+                case PrefixEdOpCode.INIR:
+                    yield return Xpr.GetInrExpression();
+                    timer.Add(4, 16);
+                    break;
+
+                // IND
+                case PrefixEdOpCode.IND:
+                    foreach (var expression in Xpr.GetInExpressions(true))
+                    {
+                        yield return expression;
+                    }
+                    timer.Add(4, 16);
+                    break;
+
+                // INDR
+                case PrefixEdOpCode.INDR:
+                    yield return Xpr.GetInrExpression(true);
+                    timer.Add(4, 16);
+                    break;
+
+                // OUT r, (C)
+                case PrefixEdOpCode.OUT_A_C:
+                    yield return Expression.Call(Xpr.IO, Xpr.IoWriteByte, Xpr.C, Xpr.B, Xpr.A);
+                    timer.Add(3, 12);
+                    break;
+
+                case PrefixEdOpCode.OUT_B_C:
+                    yield return Expression.Call(Xpr.IO, Xpr.IoWriteByte, Xpr.C, Xpr.B, Xpr.B);
+                    timer.Add(3, 12);
+                    break;
+
+                case PrefixEdOpCode.OUT_C_C:
+                    yield return Expression.Call(Xpr.IO, Xpr.IoWriteByte, Xpr.C, Xpr.B, Xpr.C);
+                    timer.Add(3, 12);
+                    break;
+                    
+                case PrefixEdOpCode.OUT_D_C:
+                    yield return Expression.Call(Xpr.IO, Xpr.IoWriteByte, Xpr.C, Xpr.B, Xpr.D);
+                    timer.Add(3, 12);
+                    break;
+
+                case PrefixEdOpCode.OUT_E_C:
+                    yield return Expression.Call(Xpr.IO, Xpr.IoWriteByte, Xpr.C, Xpr.B, Xpr.E);
+                    timer.Add(3, 12);
+                    break;
+
+                case PrefixEdOpCode.OUT_F_C:
+                    yield return Expression.Call(Xpr.IO, Xpr.IoWriteByte, Xpr.C, Xpr.B, Xpr.F);
+                    timer.Add(3, 12);
+                    break;
+
+                case PrefixEdOpCode.OUT_H_C:
+                    yield return Expression.Call(Xpr.IO, Xpr.IoWriteByte, Xpr.C, Xpr.B, Xpr.H);
+                    timer.Add(3, 12);
+                    break;
+                    
+                case PrefixEdOpCode.OUT_L_C:
+                    yield return Expression.Call(Xpr.IO, Xpr.IoWriteByte, Xpr.C, Xpr.B, Xpr.L);
+                    timer.Add(3, 12);
+                    break;
+
+                // OUTI
+                case PrefixEdOpCode.OUTI:
+                    foreach (var expression in Xpr.GetOutExpressions())
+                    {
+                        yield return expression;
+                    }
+                    timer.Add(4, 16);
+                    break;
+
+                // OUTIR
+                case PrefixEdOpCode.OUTIR:
+                    yield return Xpr.GetOutrExpression();
+                    timer.Add(4, 16);
+                    break;
+
+                // OUTD
+                case PrefixEdOpCode.OUTD:
+                    foreach (var expression in Xpr.GetOutExpressions(true))
+                    {
+                        yield return expression;
+                    }
+                    timer.Add(4, 16);
+                    break;
+
+                // OUTDR
+                case PrefixEdOpCode.OUTDR:
+                    yield return Xpr.GetOutrExpression(true);
+                    timer.Add(4, 16);
+                    break;
 
                 default:
                     throw new NotImplementedException(opCode.ToString());

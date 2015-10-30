@@ -11,7 +11,6 @@
     public class OpCodeDistributionTests
     {
         [Test]
-        [Ignore]
         public void PrimaryOpCode()
         {
             AssertOpCodes<PrimaryOpCode>();

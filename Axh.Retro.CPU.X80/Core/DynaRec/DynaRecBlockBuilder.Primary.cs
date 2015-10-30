@@ -1454,8 +1454,15 @@
                         yield break;
 
                     // ********* IO *********
+                    // IN A, (n)
                     case PrimaryOpCode.IN_A_n:
                         yield return Expression.Assign(Xpr.A, Expression.Call(Xpr.IO, Xpr.IoReadByte, NextByte, Xpr.A));
+                        timer.Add(3, 11);
+                        break;
+                    
+                    // OUT A, (n)
+                    case PrimaryOpCode.OUT_A_n:
+                        yield return Expression.Call(Xpr.IO, Xpr.IoWriteByte, NextByte, Xpr.A, Xpr.A);
                         timer.Add(3, 11);
                         break;
 

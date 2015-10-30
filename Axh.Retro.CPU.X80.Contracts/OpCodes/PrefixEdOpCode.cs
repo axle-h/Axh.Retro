@@ -63,6 +63,24 @@
         IN_F_C = 0x70,
         IN_A_C = 0x78,
 
+        INI = 0xA2,
+        INIR = 0xB2,
+        IND = 0xAA,
+        INDR = 0xBA,
+
+        OUT_B_C = 0x41,
+        OUT_C_C = 0x49,
+        OUT_D_C = 0x51,
+        OUT_E_C = 0x59,
+        OUT_H_C = 0x61,
+        OUT_L_C = 0x69,
+        OUT_F_C = 0x71,
+        OUT_A_C = 0x79,
+
+        OUTI = 0xA3,
+        OUTIR = 0xB3,
+        OUTD = 0xAB,
+        OUTDR = 0xBB,
 
     }
 }

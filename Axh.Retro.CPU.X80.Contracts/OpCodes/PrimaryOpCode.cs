@@ -300,5 +300,6 @@
 
         // IO
         IN_A_n = 0xDB,
+        OUT_A_n = 0xD3,
     }
 }

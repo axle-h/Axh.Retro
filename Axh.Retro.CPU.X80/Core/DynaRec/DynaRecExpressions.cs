@@ -1,6 +1,7 @@
 ﻿namespace Axh.Retro.CPU.X80.Core.DynaRec
 {
     using System.Collections.Generic;
+    using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
 
@@ -428,16 +429,59 @@
         public static Expression GetCprExpression(bool decrement = false)
         {
             var breakLabel = Expression.Label();
-            return
-                Expression.Loop(
-                    Expression.Block(
-                        Expression.Call(Alu, AluCompare, A, Expression.Call(Mmu, MmuReadByte, HL)),
-                        decrement ? Expression.PreDecrementAssign(HL) : Expression.PreIncrementAssign(HL),
-                        Expression.PreDecrementAssign(BC),
-                        Expression.IfThen(Expression.OrElse(Expression.Equal(BC, Expression.Constant((ushort)0)), Zero), Expression.Break(breakLabel)),
-                        GetDynamicTimings(5, 21),
-                        GetMemoryRefreshDeltaExpression(Expression.Constant(2))), // This function actually decreases the PC by two for each 'loop' hence need more refresh cycles.
-                    breakLabel);
+            var expressions = GetCpExpressions(decrement);
+            var iterationExpressions = new[]
+                                       {
+                                           Expression.IfThen(Expression.OrElse(Expression.Equal(BC, Expression.Constant((ushort)0)), Zero), Expression.Break(breakLabel)), GetDynamicTimings(5, 21),
+                                           GetMemoryRefreshDeltaExpression(Expression.Constant(2))
+                                       };
+            return Expression.Loop(Expression.Block(expressions.Concat(iterationExpressions).ToArray()), breakLabel);
+        }
+
+        public static IEnumerable<Expression> GetInExpressions(bool decrement = false)
+        {
+            yield return Expression.Call(Mmu, MmuWriteByte, HL, Expression.Call(IO, IoReadByte, C, B));
+            yield return decrement ? Expression.PreDecrementAssign(HL) : Expression.PreIncrementAssign(HL);
+            yield return Expression.Assign(B, Expression.Convert(Expression.Subtract(Expression.Convert(B, typeof(int)), Expression.Constant(1)), typeof(byte)));
+            yield return Expression.Assign(Subtract, Expression.Constant(true));
+            yield return Expression.Call(Flags, SetResultFlags, B);
+        }
+        
+        public static Expression GetInrExpression(bool decrement = false)
+        {
+            var breakLabel = Expression.Label();
+
+            var expressions = GetInExpressions(decrement);
+            var iterationExpressions = new[]
+                                       {
+                                           Expression.IfThen(Expression.Equal(B, Expression.Constant((byte)0)), Expression.Break(breakLabel)), GetDynamicTimings(5, 21),
+                                           GetMemoryRefreshDeltaExpression(Expression.Constant(2))
+                                       };
+
+            return Expression.Loop(Expression.Block(expressions.Concat(iterationExpressions).ToArray()), breakLabel);
+        }
+
+        public static IEnumerable<Expression> GetOutExpressions(bool decrement = false)
+        {
+            yield return Expression.Call(IO, IoWriteByte, C, B, ReadByteAtHL);
+            yield return decrement ? Expression.PreDecrementAssign(HL) : Expression.PreIncrementAssign(HL);
+            yield return Expression.Assign(B, Expression.Convert(Expression.Subtract(Expression.Convert(B, typeof(int)), Expression.Constant(1)), typeof(byte)));
+            yield return Expression.Assign(Subtract, Expression.Constant(true));
+            yield return Expression.Call(Flags, SetResultFlags, B);
+        }
+
+        public static Expression GetOutrExpression(bool decrement = false)
+        {
+            var breakLabel = Expression.Label();
+
+            var expressions = GetOutExpressions(decrement);
+            var iterationExpressions = new[]
+                                       {
+                                           Expression.IfThen(Expression.Equal(B, Expression.Constant((byte)0)), Expression.Break(breakLabel)), GetDynamicTimings(5, 21),
+                                           GetMemoryRefreshDeltaExpression(Expression.Constant(2))
+                                       };
+
+            return Expression.Loop(Expression.Block(expressions.Concat(iterationExpressions).ToArray()), breakLabel);
         }
     }
 }
