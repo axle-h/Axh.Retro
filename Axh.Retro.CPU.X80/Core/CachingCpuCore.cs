@@ -12,11 +12,11 @@
 
     public class CachingCpuCore<TRegisters> : ICpuCore where TRegisters : IRegisters
     {
-        private readonly TRegisters registers;
+        private readonly IRegisterFactory<TRegisters> registerFactory;
 
-        private readonly IMmu mmu;
+        private readonly IMmuFactory mmuFactory;
 
-        private readonly IArithmeticLogicUnit arithmeticLogicUnit;
+        private readonly IAluFactory aluFactory;
 
         private readonly IInstructionBlockDecoder<TRegisters> instructionBlockDecoder;
 
@@ -28,24 +28,21 @@
             IRegisterFactory<TRegisters> registerFactory,
             IMmuFactory mmuFactory,
             IInstructionBlockDecoder<TRegisters> instructionBlockDecoder,
-            IArithmeticLogicUnit arithmeticLogicUnit,
+            IAluFactory aluFactory,
             IInstructionBlockCache<TRegisters> instructionBlockCache,
             IInputOutputManager inputOutputManager)
         {
+            this.registerFactory = registerFactory;
+            this.mmuFactory = mmuFactory;
             this.instructionBlockDecoder = instructionBlockDecoder;
-            this.arithmeticLogicUnit = arithmeticLogicUnit;
+            this.aluFactory = aluFactory;
             this.instructionBlockCache = instructionBlockCache;
             this.inputOutputManager = inputOutputManager;
-            this.registers = registerFactory.GetInitialRegisters();
-            this.mmu = mmuFactory.GetMmu();
-
+            
             if (!this.instructionBlockDecoder.SupportsInstructionBlockCaching)
             {
                 throw new Exception("Instruction block decoder must support caching");
             }
-
-            // Register the invalidate cache event with mmu AddressWrite event
-            this.mmu.AddressWrite += (sender, args) => this.instructionBlockCache.InvalidateCache(args.Address, args.Length);
         }
 
         public Task StartCoreProcessAsync()
@@ -55,11 +52,19 @@
 
         public void StartCoreProcess()
         {
+            // Build components
+            var registers = registerFactory.GetInitialRegisters();
+            var mmu = mmuFactory.GetMmu();
+            var alu = this.aluFactory.GetArithmeticLogicUnit(registers.AccumulatorAndFlagsRegisters.Flags);
+
+            // Register the invalidate cache event with mmu AddressWrite event
+            mmu.AddressWrite += (sender, args) => this.instructionBlockCache.InvalidateCache(args.Address, args.Length);
+
             while (true)
             {
-                var address = this.registers.ProgramCounter;
-                var instructionBlock = this.instructionBlockCache.GetOrSet(address, () => this.instructionBlockDecoder.DecodeNextBlock(address, this.mmu));
-                instructionBlock.ExecuteInstructionBlock(this.registers, this.mmu, this.arithmeticLogicUnit, this.inputOutputManager);
+                var address = registers.ProgramCounter;
+                var instructionBlock = this.instructionBlockCache.GetOrSet(address, () => this.instructionBlockDecoder.DecodeNextBlock(address, mmu));
+                instructionBlock.ExecuteInstructionBlock(registers, mmu, alu, this.inputOutputManager);
             }
         }
     }

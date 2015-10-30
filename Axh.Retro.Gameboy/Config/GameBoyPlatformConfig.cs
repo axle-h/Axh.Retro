@@ -13,8 +13,8 @@
 
         public GameBoyPlatformConfig()
         {
-            var systemMemoryBank0Config = new MemoryBankConfig(0, SystemMemoryBank0Address, SystemMemoryBankLength);
-            var systemMemoryBank1Config = new MemoryBankConfig(1, SystemMemoryBank1Address, SystemMemoryBankLength);
+            var systemMemoryBank0Config = new SimpleMemoryBankConfig(0, SystemMemoryBank0Address, SystemMemoryBankLength);
+            var systemMemoryBank1Config = new SimpleMemoryBankConfig(1, SystemMemoryBank1Address, SystemMemoryBankLength);
 
             this.RandomAccessMemoryBanks = new[] { systemMemoryBank0Config, systemMemoryBank1Config };
         }

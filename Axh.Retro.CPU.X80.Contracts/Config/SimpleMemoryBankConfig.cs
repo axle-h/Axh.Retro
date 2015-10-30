@@ -1,10 +1,8 @@
-﻿namespace Axh.Retro.GameBoy.Config
+﻿namespace Axh.Retro.CPU.X80.Contracts.Config
 {
-    using Axh.Retro.CPU.X80.Contracts.Config;
-
-    public class MemoryBankConfig : IMemoryBankConfig
+    public class SimpleMemoryBankConfig : IMemoryBankConfig
     {
-        public MemoryBankConfig(int bankId, ushort address, ushort length)
+        public SimpleMemoryBankConfig(int bankId, ushort address, ushort length)
         {
             this.BankId = bankId;
             this.Address = address;

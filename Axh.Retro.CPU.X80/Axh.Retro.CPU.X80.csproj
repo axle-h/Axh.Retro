@@ -54,6 +54,7 @@
     <Compile Include="Core\DynaRec\DynaRecBlockBuilder.Primary.cs" />
     <Compile Include="Core\DynaRec\DynaRecExpressions.cs" />
     <Compile Include="Core\Interpreted\InterpretedInstructionBlockDecoder.cs" />
+    <Compile Include="Factories\AluFactory.cs" />
     <Compile Include="Factories\MmuFactory.cs" />
     <Compile Include="Factories\Z80RegisterFactory.cs" />
     <Compile Include="IO\AsciiSystemConsole.cs" />

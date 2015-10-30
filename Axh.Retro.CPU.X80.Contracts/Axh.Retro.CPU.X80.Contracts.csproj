@@ -44,6 +44,7 @@
     <Compile Include="Config\IInitialStateConfig.cs" />
     <Compile Include="Config\IMemoryBankConfig.cs" />
     <Compile Include="Config\IPlatformConfig.cs" />
+    <Compile Include="Config\SimpleMemoryBankConfig.cs" />
     <Compile Include="Core\AccumulatorAndResult.cs" />
     <Compile Include="Core\IArithmeticLogicUnit.cs" />
     <Compile Include="Core\IInstructionBlock.cs" />
@@ -55,6 +56,7 @@
     <Compile Include="Exceptions\MmuAddressSegmentOverlapException.cs" />
     <Compile Include="Exceptions\SegmentationFaultException.cs" />
     <Compile Include="Exceptions\PlatformConfigurationException.cs" />
+    <Compile Include="Factories\IAluFactory.cs" />
     <Compile Include="Factories\IMmuFactory.cs" />
     <Compile Include="Factories\IRegisterFactory.cs" />
     <Compile Include="Core\ICpuCore.cs" />
