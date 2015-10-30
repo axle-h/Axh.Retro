@@ -4,9 +4,9 @@
 
     using Axh.Retro.CPU.X80.Contracts.IO;
 
-    public class AsciiConsole : IPeripheral
+    public class AsciiSystemConsole : IPeripheral
     {
-        public AsciiConsole(byte port)
+        public AsciiSystemConsole(byte port)
         {
             this.Port = port;
         }
@@ -15,8 +15,8 @@
 
         public byte ReadByte(byte addressMsb)
         {
-            var c = Console.Read();
-            return unchecked((byte)c);
+            var key = Console.ReadKey();
+            return unchecked((byte)key.KeyChar);
         }
 
         public void WriteByte(byte addressMsb, byte value)

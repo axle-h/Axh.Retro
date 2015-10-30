@@ -56,7 +56,8 @@
     <Compile Include="Core\Interpreted\InterpretedInstructionBlockDecoder.cs" />
     <Compile Include="Factories\MmuFactory.cs" />
     <Compile Include="Factories\Z80RegisterFactory.cs" />
-    <Compile Include="IO\AsciiConsole.cs" />
+    <Compile Include="IO\AsciiSystemConsole.cs" />
+    <Compile Include="IO\SystemConsoleStatus.cs" />
     <Compile Include="IO\InputOutputManager.cs" />
     <Compile Include="Memory\ArrayBackedMemoryBank.cs" />
     <Compile Include="Memory\MmuCache.cs" />
