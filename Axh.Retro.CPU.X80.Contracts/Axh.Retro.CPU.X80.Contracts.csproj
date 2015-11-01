@@ -46,6 +46,7 @@
     <Compile Include="Config\IPlatformConfig.cs" />
     <Compile Include="Config\SimpleMemoryBankConfig.cs" />
     <Compile Include="Core\AccumulatorAndResult.cs" />
+    <Compile Include="Core\DecodeResult.cs" />
     <Compile Include="Core\IArithmeticLogicUnit.cs" />
     <Compile Include="Core\IInstructionBlock.cs" />
     <Compile Include="Core\Timing\IInstructionTimer.cs" />

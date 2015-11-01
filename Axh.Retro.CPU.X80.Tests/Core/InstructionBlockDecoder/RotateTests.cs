@@ -23,7 +23,7 @@
             const byte Value = 0x03;
             this.Alu.Setup(x => x.RotateLeftWithCarry(A)).Returns(Value);
 
-            RunWithNOP(1, 4, PrimaryOpCode.RLCA);
+            RunWithHalt(1, 4, PrimaryOpCode.RLCA);
 
             this.Alu.Verify(x => x.RotateLeftWithCarry(A), Times.Once);
             this.AfRegisters.VerifySet(x => x.A = Value, Times.Once);
@@ -38,7 +38,7 @@
             const byte Value = 0x27;
             this.Alu.Setup(x => x.RotateLeft(A)).Returns(Value);
 
-            RunWithNOP(1, 4, PrimaryOpCode.RLA);
+            RunWithHalt(1, 4, PrimaryOpCode.RLA);
 
             this.Alu.Verify(x => x.RotateLeft(A), Times.Once);
             this.AfRegisters.VerifySet(x => x.A = Value, Times.Once);
@@ -53,7 +53,7 @@
             const byte Value = 0xbc;
             this.Alu.Setup(x => x.RotateRightWithCarry(A)).Returns(Value);
 
-            RunWithNOP(1, 4, PrimaryOpCode.RRCA);
+            RunWithHalt(1, 4, PrimaryOpCode.RRCA);
 
             this.Alu.Verify(x => x.RotateRightWithCarry(A), Times.Once);
             this.AfRegisters.VerifySet(x => x.A = Value, Times.Once);
@@ -68,7 +68,7 @@
             const byte Value = 0xe3;
             this.Alu.Setup(x => x.RotateRight(A)).Returns(Value);
 
-            RunWithNOP(1, 4, PrimaryOpCode.RRA);
+            RunWithHalt(1, 4, PrimaryOpCode.RRA);
 
             this.Alu.Verify(x => x.RotateRight(A), Times.Once);
             this.AfRegisters.VerifySet(x => x.A = Value, Times.Once);
@@ -86,7 +86,7 @@
             this.Alu.Setup(x => x.RotateLeftDigit(A, ValueAtHL)).Returns(new AccumulatorAndResult { Accumulator = ExpectedAccumulator, Result = ExpectedResult });
             this.Mmu.Setup(x => x.ReadByte(HL)).Returns(ValueAtHL);
 
-            RunWithNOP(5, 18, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.RLD);
+            RunWithHalt(5, 18, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.RLD);
 
             this.Mmu.Verify(x => x.ReadByte(HL), Times.Once);
             this.Alu.Verify(x => x.RotateLeftDigit(A, ValueAtHL), Times.Once);
@@ -106,7 +106,7 @@
             this.Alu.Setup(x => x.RotateRightDigit(A, ValueAtHL)).Returns(new AccumulatorAndResult { Accumulator = ExpectedAccumulator, Result = ExpectedResult });
             this.Mmu.Setup(x => x.ReadByte(HL)).Returns(ValueAtHL);
 
-            RunWithNOP(5, 18, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.RRD);
+            RunWithHalt(5, 18, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.RRD);
 
             this.Mmu.Verify(x => x.ReadByte(HL), Times.Once);
             this.Alu.Verify(x => x.RotateRightDigit(A, ValueAtHL), Times.Once);
@@ -128,7 +128,7 @@
             const byte Value = 0x4e;
             this.Alu.Setup(x => x.RotateLeftWithCarry(It.IsAny<byte>())).Returns(Value);
 
-            RunWithNOP(2, 8, PrimaryOpCode.Prefix_CB, opcode);
+            RunWithHalt(2, 8, PrimaryOpCode.Prefix_CB, opcode);
 
             switch (opcode)
             {
@@ -176,7 +176,7 @@
             this.Alu.Setup(x => x.RotateLeftWithCarry(ValueAtHL)).Returns(Expected);
             this.Mmu.Setup(x => x.ReadByte(HL)).Returns(ValueAtHL);
 
-            RunWithNOP(4, 15, PrimaryOpCode.Prefix_CB, PrefixCbOpCode.RLC_mHL);
+            RunWithHalt(4, 15, PrimaryOpCode.Prefix_CB, PrefixCbOpCode.RLC_mHL);
 
             this.Mmu.Verify(x => x.ReadByte(HL), Times.Once);
             this.Alu.Verify(x => x.RotateLeftWithCarry(ValueAtHL), Times.Once);
@@ -197,7 +197,7 @@
             const byte Value = 0x4e;
             this.Alu.Setup(x => x.RotateLeft(It.IsAny<byte>())).Returns(Value);
 
-            RunWithNOP(2, 8, PrimaryOpCode.Prefix_CB, opcode);
+            RunWithHalt(2, 8, PrimaryOpCode.Prefix_CB, opcode);
 
             switch (opcode)
             {
@@ -245,7 +245,7 @@
             this.Alu.Setup(x => x.RotateLeft(ValueAtHL)).Returns(Expected);
             this.Mmu.Setup(x => x.ReadByte(HL)).Returns(ValueAtHL);
 
-            RunWithNOP(4, 15, PrimaryOpCode.Prefix_CB, PrefixCbOpCode.RL_mHL);
+            RunWithHalt(4, 15, PrimaryOpCode.Prefix_CB, PrefixCbOpCode.RL_mHL);
 
             this.Mmu.Verify(x => x.ReadByte(HL), Times.Once);
             this.Alu.Verify(x => x.RotateLeft(ValueAtHL), Times.Once);
@@ -278,7 +278,7 @@
             this.Alu.Setup(x => x.RotateLeftWithCarry(ValueAtIndex)).Returns(Expected);
             this.Mmu.Setup(x => x.ReadByte(displacedIndex)).Returns(ValueAtIndex);
 
-            RunWithNOP(8, 31, prefix, PrimaryOpCode.Prefix_CB, unchecked((byte)Displacement), opcode);
+            RunWithHalt(8, 31, prefix, PrimaryOpCode.Prefix_CB, unchecked((byte)Displacement), opcode);
 
             this.Alu.Verify(x => x.RotateLeftWithCarry(ValueAtIndex), Times.Once);
             this.Mmu.Verify(x => x.WriteByte(displacedIndex, Expected), Times.Once);
@@ -327,7 +327,7 @@
             this.Alu.Setup(x => x.RotateLeftWithCarry(ValueAtIndex)).Returns(Expected);
             this.Mmu.Setup(x => x.ReadByte(displacedIndex)).Returns(ValueAtIndex);
 
-            RunWithNOP(6, 23, prefix, PrimaryOpCode.Prefix_CB, unchecked((byte)Displacement), PrefixCbOpCode.RLC_mHL);
+            RunWithHalt(6, 23, prefix, PrimaryOpCode.Prefix_CB, unchecked((byte)Displacement), PrefixCbOpCode.RLC_mHL);
 
             this.Mmu.Verify(x => x.ReadByte(displacedIndex), Times.Once);
             this.Alu.Verify(x => x.RotateLeftWithCarry(ValueAtIndex), Times.Once);
@@ -360,7 +360,7 @@
             this.Alu.Setup(x => x.RotateLeft(ValueAtIndex)).Returns(Expected);
             this.Mmu.Setup(x => x.ReadByte(displacedIndex)).Returns(ValueAtIndex);
 
-            RunWithNOP(8, 31, prefix, PrimaryOpCode.Prefix_CB, unchecked((byte)Displacement), opcode);
+            RunWithHalt(8, 31, prefix, PrimaryOpCode.Prefix_CB, unchecked((byte)Displacement), opcode);
 
             this.Alu.Verify(x => x.RotateLeft(ValueAtIndex), Times.Once);
             this.Mmu.Verify(x => x.WriteByte(displacedIndex, Expected), Times.Once);
@@ -409,7 +409,7 @@
             this.Alu.Setup(x => x.RotateLeft(ValueAtIndex)).Returns(Expected);
             this.Mmu.Setup(x => x.ReadByte(displacedIndex)).Returns(ValueAtIndex);
 
-            RunWithNOP(6, 23, prefix, PrimaryOpCode.Prefix_CB, unchecked((byte)Displacement), PrefixCbOpCode.RL_mHL);
+            RunWithHalt(6, 23, prefix, PrimaryOpCode.Prefix_CB, unchecked((byte)Displacement), PrefixCbOpCode.RL_mHL);
 
             this.Mmu.Verify(x => x.ReadByte(displacedIndex), Times.Once);
             this.Alu.Verify(x => x.RotateLeft(ValueAtIndex), Times.Once);
@@ -430,7 +430,7 @@
             const byte Value = 0x4e;
             this.Alu.Setup(x => x.RotateRightWithCarry(It.IsAny<byte>())).Returns(Value);
 
-            RunWithNOP(2, 8, PrimaryOpCode.Prefix_CB, opcode);
+            RunWithHalt(2, 8, PrimaryOpCode.Prefix_CB, opcode);
 
             switch (opcode)
             {
@@ -478,7 +478,7 @@
             this.Alu.Setup(x => x.RotateRightWithCarry(ValueAtHL)).Returns(Expected);
             this.Mmu.Setup(x => x.ReadByte(HL)).Returns(ValueAtHL);
 
-            RunWithNOP(4, 15, PrimaryOpCode.Prefix_CB, PrefixCbOpCode.RRC_mHL);
+            RunWithHalt(4, 15, PrimaryOpCode.Prefix_CB, PrefixCbOpCode.RRC_mHL);
 
             this.Mmu.Verify(x => x.ReadByte(HL), Times.Once);
             this.Alu.Verify(x => x.RotateRightWithCarry(ValueAtHL), Times.Once);
@@ -499,7 +499,7 @@
             const byte Value = 0x4e;
             this.Alu.Setup(x => x.RotateRight(It.IsAny<byte>())).Returns(Value);
 
-            RunWithNOP(2, 8, PrimaryOpCode.Prefix_CB, opcode);
+            RunWithHalt(2, 8, PrimaryOpCode.Prefix_CB, opcode);
 
             switch (opcode)
             {
@@ -547,7 +547,7 @@
             this.Alu.Setup(x => x.RotateRight(ValueAtHL)).Returns(Expected);
             this.Mmu.Setup(x => x.ReadByte(HL)).Returns(ValueAtHL);
 
-            RunWithNOP(4, 15, PrimaryOpCode.Prefix_CB, PrefixCbOpCode.RR_mHL);
+            RunWithHalt(4, 15, PrimaryOpCode.Prefix_CB, PrefixCbOpCode.RR_mHL);
 
             this.Mmu.Verify(x => x.ReadByte(HL), Times.Once);
             this.Alu.Verify(x => x.RotateRight(ValueAtHL), Times.Once);
@@ -580,7 +580,7 @@
             this.Alu.Setup(x => x.RotateRightWithCarry(ValueAtIndex)).Returns(Expected);
             this.Mmu.Setup(x => x.ReadByte(displacedIndex)).Returns(ValueAtIndex);
 
-            RunWithNOP(8, 31, prefix, PrimaryOpCode.Prefix_CB, unchecked((byte)Displacement), opcode);
+            RunWithHalt(8, 31, prefix, PrimaryOpCode.Prefix_CB, unchecked((byte)Displacement), opcode);
 
             this.Alu.Verify(x => x.RotateRightWithCarry(ValueAtIndex), Times.Once);
             this.Mmu.Verify(x => x.WriteByte(displacedIndex, Expected), Times.Once);
@@ -629,7 +629,7 @@
             this.Alu.Setup(x => x.RotateRightWithCarry(ValueAtIndex)).Returns(Expected);
             this.Mmu.Setup(x => x.ReadByte(displacedIndex)).Returns(ValueAtIndex);
 
-            RunWithNOP(6, 23, prefix, PrimaryOpCode.Prefix_CB, unchecked((byte)Displacement), PrefixCbOpCode.RRC_mHL);
+            RunWithHalt(6, 23, prefix, PrimaryOpCode.Prefix_CB, unchecked((byte)Displacement), PrefixCbOpCode.RRC_mHL);
 
             this.Mmu.Verify(x => x.ReadByte(displacedIndex), Times.Once);
             this.Alu.Verify(x => x.RotateRightWithCarry(ValueAtIndex), Times.Once);
@@ -662,7 +662,7 @@
             this.Alu.Setup(x => x.RotateRight(ValueAtIndex)).Returns(Expected);
             this.Mmu.Setup(x => x.ReadByte(displacedIndex)).Returns(ValueAtIndex);
 
-            RunWithNOP(8, 31, prefix, PrimaryOpCode.Prefix_CB, unchecked((byte)Displacement), opcode);
+            RunWithHalt(8, 31, prefix, PrimaryOpCode.Prefix_CB, unchecked((byte)Displacement), opcode);
 
             this.Alu.Verify(x => x.RotateRight(ValueAtIndex), Times.Once);
             this.Mmu.Verify(x => x.WriteByte(displacedIndex, Expected), Times.Once);
@@ -711,7 +711,7 @@
             this.Alu.Setup(x => x.RotateRight(ValueAtIndex)).Returns(Expected);
             this.Mmu.Setup(x => x.ReadByte(displacedIndex)).Returns(ValueAtIndex);
 
-            RunWithNOP(6, 23, prefix, PrimaryOpCode.Prefix_CB, unchecked((byte)Displacement), PrefixCbOpCode.RR_mHL);
+            RunWithHalt(6, 23, prefix, PrimaryOpCode.Prefix_CB, unchecked((byte)Displacement), PrefixCbOpCode.RR_mHL);
 
             this.Mmu.Verify(x => x.ReadByte(displacedIndex), Times.Once);
             this.Alu.Verify(x => x.RotateRight(ValueAtIndex), Times.Once);

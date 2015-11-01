@@ -39,7 +39,7 @@
                     expectedTCycles = 8;
                 }
 
-                RunWithNOP(expectedMCycles, expectedTCycles, PrimaryOpCode.Prefix_CB, opCode.OpCode);
+                RunWithHalt(expectedMCycles, expectedTCycles, PrimaryOpCode.Prefix_CB, opCode.OpCode);
 
                 switch (opCode.TargetRegister)
                 {
@@ -94,7 +94,7 @@
 
                 Console.WriteLine(opCode.OpCode);
 
-                RunWithNOP(5, 20, prefix, PrimaryOpCode.Prefix_CB, unchecked((byte)Displacement), opCode.OpCode);
+                RunWithHalt(5, 20, prefix, PrimaryOpCode.Prefix_CB, unchecked((byte)Displacement), opCode.OpCode);
 
                 this.Mmu.Verify(x => x.ReadByte(displacedIndex), Times.Once);
                 this.Alu.Verify(x => x.BitTest(ValueAtIndex, opCode.Bit), Times.Once);
@@ -132,7 +132,7 @@
                     expectedTCycles = 8;
                 }
 
-                RunWithNOP(expectedMCycles, expectedTCycles, PrimaryOpCode.Prefix_CB, opCode.OpCode);
+                RunWithHalt(expectedMCycles, expectedTCycles, PrimaryOpCode.Prefix_CB, opCode.OpCode);
 
                 switch (opCode.TargetRegister)
                 {
@@ -206,7 +206,7 @@
                     expectedTCycles += 15;
                 }
 
-                RunWithNOP(expectedMCycles, expectedTCycles, prefix, PrimaryOpCode.Prefix_CB, unchecked((byte)Displacement), opCode.OpCode);
+                RunWithHalt(expectedMCycles, expectedTCycles, prefix, PrimaryOpCode.Prefix_CB, unchecked((byte)Displacement), opCode.OpCode);
                 
                 this.Mmu.Verify(x => x.ReadByte(displacedIndex), Times.AtLeastOnce);
                 this.Alu.Verify(x => x.BitSet(ValueAtIndex, opCode.Bit), Times.Once);
@@ -270,7 +270,7 @@
                     expectedTCycles = 8;
                 }
 
-                RunWithNOP(expectedMCycles, expectedTCycles, PrimaryOpCode.Prefix_CB, opCode.OpCode);
+                RunWithHalt(expectedMCycles, expectedTCycles, PrimaryOpCode.Prefix_CB, opCode.OpCode);
 
                 switch (opCode.TargetRegister)
                 {
@@ -344,7 +344,7 @@
                     expectedTCycles += 15;
                 }
 
-                RunWithNOP(expectedMCycles, expectedTCycles, prefix, PrimaryOpCode.Prefix_CB, unchecked((byte)Displacement), opCode.OpCode);
+                RunWithHalt(expectedMCycles, expectedTCycles, prefix, PrimaryOpCode.Prefix_CB, unchecked((byte)Displacement), opCode.OpCode);
 
                 this.Mmu.Verify(x => x.ReadByte(displacedIndex), Times.AtLeastOnce);
                 this.Alu.Verify(x => x.BitReset(ValueAtIndex, opCode.Bit), Times.Once);

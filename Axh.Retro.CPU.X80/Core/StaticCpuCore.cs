@@ -51,5 +51,10 @@
                 await this.instructionTimer.SyncToTimings(timings);
             }
         }
+
+        public Task Interrupt(ushort address)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

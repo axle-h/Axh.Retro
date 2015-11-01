@@ -28,5 +28,21 @@
 
             peripherals[port].WriteByte(addressMsb, value);
         }
+
+        public void Halt()
+        {
+            foreach (var peripheral in this.peripherals.Values)
+            {
+                peripheral.Halt();
+            }
+        }
+
+        public void Resume()
+        {
+            foreach (var peripheral in this.peripherals.Values)
+            {
+                peripheral.Resume();
+            }
+        }
     }
 }

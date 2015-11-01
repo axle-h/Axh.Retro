@@ -21,7 +21,7 @@
             const byte Value = 0x5e;
             this.Io.Setup(x => x.ReadByte(Port, A)).Returns(Value);
 
-            RunWithNOP(3, 11, PrimaryOpCode.IN_A_n, Port);
+            RunWithHalt(3, 11, PrimaryOpCode.IN_A_n, Port);
 
             this.Io.Verify(x => x.ReadByte(Port, A), Times.Once);
             this.AfRegisters.VerifySet(x => x.A = Value, Times.Once);
@@ -43,7 +43,7 @@
             const byte Value = 0x5e;
             this.Io.Setup(x => x.ReadByte(C, B)).Returns(Value);
 
-            RunWithNOP(3, 12, PrimaryOpCode.Prefix_ED, opCode);
+            RunWithHalt(3, 12, PrimaryOpCode.Prefix_ED, opCode);
 
             this.Io.Verify(x => x.ReadByte(C, B), Times.Once);
 
@@ -87,7 +87,7 @@
             const byte Value = 0xb9;
             this.Io.Setup(x => x.ReadByte(C, B)).Returns(Value);
 
-            RunWithNOP(4, 16, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.INI);
+            RunWithHalt(4, 16, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.INI);
 
             this.Io.Verify(x => x.ReadByte(C, B), Times.Once);
             this.Mmu.Verify(x => x.WriteByte(HL, Value), Times.Once);
@@ -108,7 +108,7 @@
             const byte Value = 0xb9;
             this.Io.Setup(x => x.ReadByte(C, It.IsAny<byte>())).Returns(Value);
 
-            RunWithNOP((Length - 1) * 5 + 4, (Length - 1) * 21 + 16, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.INIR);
+            RunWithHalt((Length - 1) * 5 + 4, (Length - 1) * 21 + 16, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.INIR);
 
             for (var i = 1; i < Length; i++)
             {
@@ -137,7 +137,7 @@
             const byte Value = 0xb9;
             this.Io.Setup(x => x.ReadByte(C, B)).Returns(Value);
 
-            RunWithNOP(4, 16, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.IND);
+            RunWithHalt(4, 16, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.IND);
 
             this.Io.Verify(x => x.ReadByte(C, B), Times.Once);
             this.Mmu.Verify(x => x.WriteByte(HL, Value), Times.Once);
@@ -158,7 +158,7 @@
             const byte Value = 0xb9;
             this.Io.Setup(x => x.ReadByte(C, It.IsAny<byte>())).Returns(Value);
 
-            RunWithNOP((Length - 1) * 5 + 4, (Length - 1) * 21 + 16, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.INDR);
+            RunWithHalt((Length - 1) * 5 + 4, (Length - 1) * 21 + 16, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.INDR);
 
             for (var i = 1; i < Length; i++)
             {
@@ -186,7 +186,7 @@
 
             const byte Port = 0xdb;
 
-            RunWithNOP(3, 11, PrimaryOpCode.OUT_A_n, Port);
+            RunWithHalt(3, 11, PrimaryOpCode.OUT_A_n, Port);
 
             this.Io.Verify(x => x.WriteByte(Port, A, A), Times.Once);
         }
@@ -204,7 +204,7 @@
             this.SetupRegisters();
             this.ResetMocks();
             
-            RunWithNOP(3, 12, PrimaryOpCode.Prefix_ED, opCode);
+            RunWithHalt(3, 12, PrimaryOpCode.Prefix_ED, opCode);
             
             switch (opCode)
             {
@@ -246,7 +246,7 @@
             const byte Value = 0xb1;
             this.Mmu.Setup(x => x.ReadByte(HL)).Returns(Value);
 
-            RunWithNOP(4, 16, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.OUTI);
+            RunWithHalt(4, 16, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.OUTI);
 
             this.Mmu.Verify(x => x.ReadByte(HL), Times.Once);
             this.Io.Verify(x => x.WriteByte(C, B, Value), Times.Once);
@@ -267,7 +267,7 @@
             const byte Value = 0xb9;
             this.Mmu.Setup(x => x.ReadByte(It.IsAny<ushort>())).Returns(Value);
 
-            RunWithNOP((Length - 1) * 5 + 4, (Length - 1) * 21 + 16, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.OUTIR);
+            RunWithHalt((Length - 1) * 5 + 4, (Length - 1) * 21 + 16, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.OUTIR);
 
             for (var i = 1; i < Length; i++)
             {
@@ -296,7 +296,7 @@
             const byte Value = 0xb1;
             this.Mmu.Setup(x => x.ReadByte(HL)).Returns(Value);
 
-            RunWithNOP(4, 16, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.OUTD);
+            RunWithHalt(4, 16, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.OUTD);
 
             this.Mmu.Verify(x => x.ReadByte(HL), Times.Once);
             this.Io.Verify(x => x.WriteByte(C, B, Value), Times.Once);
@@ -317,7 +317,7 @@
             const byte Value = 0xb9;
             this.Mmu.Setup(x => x.ReadByte(It.IsAny<ushort>())).Returns(Value);
 
-            RunWithNOP((Length - 1) * 5 + 4, (Length - 1) * 21 + 16, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.OUTDR);
+            RunWithHalt((Length - 1) * 5 + 4, (Length - 1) * 21 + 16, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.OUTDR);
 
             for (var i = 1; i < Length; i++)
             {

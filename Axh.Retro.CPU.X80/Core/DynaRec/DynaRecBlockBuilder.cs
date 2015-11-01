@@ -31,7 +31,6 @@
         private ConstantExpression NextWord => Expression.Constant(mmuCache.NextWord(), typeof(ushort));
         private Expression SyncProgramCounter => Expression.Assign(Xpr.PC, Expression.Convert(Expression.Add(Expression.Convert(Xpr.PC, typeof(int)), Expression.Constant(this.mmuCache.TotalBytesRead)), typeof(ushort)));
 
-        private DecodeResult lastDecodeResult;
         private IndexRegisterExpressions index;
 
         public DynaRecBlockBuilder(CpuMode cpuMode, IMmuCache mmuCache, IInstructionTimingsBuilder timingsBuilder)
@@ -40,6 +39,8 @@
             this.timingsBuilder = timingsBuilder;
             this.mmuCache = mmuCache;
         }
+
+        public DecodeResult LastDecodeResult { get; private set; }
 
         public Expression<Func<TRegisters, IMmu, IArithmeticLogicUnit, IInputOutputManager, InstructionTimings>> DecodeNextBlock()
         {
@@ -65,7 +66,6 @@
             {
                 yield return Xpr.AccumulatorAndResult;
             }
-            
         }
 
         private static IEnumerable<Expression> GetBlockInitExpressions()
@@ -76,7 +76,7 @@
 
         private IEnumerable<Expression> GetBlockFinalExpressions()
         {
-            if (lastDecodeResult == DecodeResult.FinalizeAndSync)
+            if (LastDecodeResult == DecodeResult.FinalizeAndSync || LastDecodeResult == DecodeResult.Halt || LastDecodeResult == DecodeResult.Stop)
             {
                 // Increment the program counter by how many bytes were read.
                 yield return SyncProgramCounter;

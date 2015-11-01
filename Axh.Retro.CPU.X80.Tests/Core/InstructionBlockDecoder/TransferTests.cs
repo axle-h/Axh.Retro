@@ -16,7 +16,7 @@
             this.SetupRegisters();
             this.ResetMocks();
             
-            RunWithNOP(4, 16, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.LDI);
+            RunWithHalt(4, 16, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.LDI);
 
             this.GpRegisters.VerifySet(x => x.DE = DE + 1, Times.Once);
             this.GpRegisters.VerifySet(x => x.HL = HL + 1, Times.Once);
@@ -37,7 +37,7 @@
             this.SetupRegisters(bc: BC1);
             this.ResetMocks();
             
-            RunWithNOP(4, 16, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.LDI);
+            RunWithHalt(4, 16, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.LDI);
 
             this.GpRegisters.VerifySet(x => x.DE = DE + 1, Times.Once);
             this.GpRegisters.VerifySet(x => x.HL = HL + 1, Times.Once);
@@ -58,7 +58,7 @@
             this.SetupRegisters(bc: Length);
             this.ResetMocks();
             
-            RunWithNOP((Length - 1) * 5 + 4, (Length - 1) * 21 + 16, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.LDIR);
+            RunWithHalt((Length - 1) * 5 + 4, (Length - 1) * 21 + 16, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.LDIR);
 
             for(var i = 1; i < Length; i++)
             {
@@ -85,7 +85,7 @@
             this.SetupRegisters();
             this.ResetMocks();
 
-            RunWithNOP(4, 16, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.LDD);
+            RunWithHalt(4, 16, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.LDD);
 
             this.GpRegisters.VerifySet(x => x.DE = DE - 1, Times.Once);
             this.GpRegisters.VerifySet(x => x.HL = HL - 1, Times.Once);
@@ -107,7 +107,7 @@
             this.SetupRegisters(bc: BC1);
             this.ResetMocks();
 
-            RunWithNOP(4, 16, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.LDD);
+            RunWithHalt(4, 16, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.LDD);
 
             this.GpRegisters.VerifySet(x => x.DE = DE - 1, Times.Once);
             this.GpRegisters.VerifySet(x => x.HL = HL - 1, Times.Once);
@@ -128,7 +128,7 @@
             this.SetupRegisters(bc: Length);
             this.ResetMocks();
 
-            RunWithNOP((Length - 1) * 5 + 4, (Length - 1) * 21 + 16, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.LDDR);
+            RunWithHalt((Length - 1) * 5 + 4, (Length - 1) * 21 + 16, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.LDDR);
 
             for (var i = 1; i < Length; i++)
             {

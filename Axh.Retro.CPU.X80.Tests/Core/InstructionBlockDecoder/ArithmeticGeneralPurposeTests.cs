@@ -19,7 +19,7 @@
             const byte Expected = 0xac;
             this.Alu.Setup(x => x.DecimalAdjust(A)).Returns(Expected);
 
-            RunWithNOP(1, 4, PrimaryOpCode.DAA);
+            RunWithHalt(1, 4, PrimaryOpCode.DAA);
 
             this.Alu.Verify(x => x.DecimalAdjust(A), Times.Once);
             this.AfRegisters.VerifySet(x => x.A = Expected, Times.Once);
@@ -33,7 +33,7 @@
 
             const byte Expected = unchecked ((byte)~A);
 
-            RunWithNOP(1, 4, PrimaryOpCode.CPL);
+            RunWithHalt(1, 4, PrimaryOpCode.CPL);
 
             this.AfRegisters.VerifySet(x => x.A = Expected, Times.Once);
             this.FlagsRegister.VerifySet(x => x.HalfCarry = true);
@@ -52,7 +52,7 @@
 
             this.Alu.Setup(x => x.Subtract(0, A)).Returns(Expected);
 
-            RunWithNOP(2, 8, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.NEG);
+            RunWithHalt(2, 8, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.NEG);
 
             this.Alu.Verify(x => x.Subtract(0, A), Times.Once);
             this.AfRegisters.VerifySet(x => x.A = Expected, Times.Once);
@@ -64,7 +64,7 @@
             this.SetupRegisters();
             this.ResetMocks();
 
-            RunWithNOP(1, 4, PrimaryOpCode.CCF);
+            RunWithHalt(1, 4, PrimaryOpCode.CCF);
 
             this.FlagsRegister.VerifySet(x => x.HalfCarry = false);
             this.FlagsRegister.VerifySet(x => x.Subtract = false);
@@ -78,7 +78,7 @@
             this.SetupRegisters();
             this.ResetMocks();
 
-            RunWithNOP(1, 4, PrimaryOpCode.SCF);
+            RunWithHalt(1, 4, PrimaryOpCode.SCF);
 
             this.FlagsRegister.VerifySet(x => x.HalfCarry = false);
             this.FlagsRegister.VerifySet(x => x.Subtract = false);
@@ -91,7 +91,7 @@
             this.SetupRegisters();
             this.ResetMocks();
 
-            RunWithNOP(1, 4, PrimaryOpCode.DI);
+            RunWithHalt(1, 4, PrimaryOpCode.DI);
 
             this.Registers.VerifySet(x => x.InterruptFlipFlop1 = false, Times.Once);
             this.Registers.VerifySet(x => x.InterruptFlipFlop2 = false, Times.Once);
@@ -103,7 +103,7 @@
             this.SetupRegisters();
             this.ResetMocks();
 
-            RunWithNOP(1, 4, PrimaryOpCode.EI);
+            RunWithHalt(1, 4, PrimaryOpCode.EI);
 
             this.Registers.VerifySet(x => x.InterruptFlipFlop1 = true, Times.Once);
             this.Registers.VerifySet(x => x.InterruptFlipFlop2 = true, Times.Once);
@@ -115,7 +115,7 @@
             this.SetupRegisters();
             this.ResetMocks();
             
-            RunWithNOP(2, 8, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.IM0);
+            RunWithHalt(2, 8, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.IM0);
 
             this.Registers.VerifySet(x => x.InterruptMode = InterruptMode.InterruptMode0, Times.Once);
         }
@@ -126,7 +126,7 @@
             this.SetupRegisters();
             this.ResetMocks();
 
-            RunWithNOP(2, 8, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.IM1);
+            RunWithHalt(2, 8, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.IM1);
 
             this.Registers.VerifySet(x => x.InterruptMode = InterruptMode.InterruptMode1, Times.Once);
         }
@@ -138,7 +138,7 @@
             this.SetupRegisters();
             this.ResetMocks();
 
-            RunWithNOP(2, 8, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.IM2);
+            RunWithHalt(2, 8, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.IM2);
 
             this.Registers.VerifySet(x => x.InterruptMode = InterruptMode.InterruptMode2, Times.Once);
         }

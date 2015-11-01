@@ -18,17 +18,23 @@
         /// </summary>
         private readonly InstructionTimings staticTimings;
 
-        public DynaRecInstructionBlock(ushort address, ushort length, Func<TRegisters, IMmu, IArithmeticLogicUnit, IInputOutputManager, InstructionTimings> action, InstructionTimings staticTimings)
+        public DynaRecInstructionBlock(ushort address, ushort length, Func<TRegisters, IMmu, IArithmeticLogicUnit, IInputOutputManager, InstructionTimings> action, InstructionTimings staticTimings, DecodeResult lastDecodeResult)
         {
             this.action = action;
             this.staticTimings = staticTimings;
-            Address = address;
-            Length = length;
+            this.Address = address;
+            this.Length = length;
+            this.HaltCpu = lastDecodeResult == DecodeResult.Halt;
+            this.HaltPeripherals= lastDecodeResult == DecodeResult.Stop;
         }
 
         public ushort Address { get; }
 
         public ushort Length { get; }
+
+        public bool HaltCpu { get; }
+
+        public bool HaltPeripherals { get; }
 
         public InstructionTimings ExecuteInstructionBlock(TRegisters registers, IMmu mmu, IArithmeticLogicUnit alu, IInputOutputManager inputOutputManager)
         {

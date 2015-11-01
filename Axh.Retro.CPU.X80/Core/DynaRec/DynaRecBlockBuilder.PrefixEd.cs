@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq.Expressions;
 
+    using Axh.Retro.CPU.X80.Contracts.Core;
     using Axh.Retro.CPU.X80.Contracts.OpCodes;
     using Axh.Retro.CPU.X80.Contracts.Registers;
 
@@ -240,7 +241,7 @@
                     yield return Xpr.ReadPCFromStack;
                     yield return Xpr.PopPopSP;
                     timingsBuilder.Add(4, 14);
-                    lastDecodeResult = DecodeResult.Finalize;
+                    LastDecodeResult = DecodeResult.Finalize;
                     yield break;
 
                 case PrefixEdOpCode.RETN:
@@ -248,7 +249,7 @@
                     yield return Xpr.PopPopSP;
                     yield return Expression.Assign(Xpr.IFF1, Xpr.IFF2);
                     timingsBuilder.Add(4, 14);
-                    lastDecodeResult = DecodeResult.Finalize;
+                    LastDecodeResult = DecodeResult.Finalize;
                     yield break;
                     
                 // ********* IO *********

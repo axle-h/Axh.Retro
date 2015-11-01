@@ -30,7 +30,7 @@
             var expressionBuilder = new DynaRecBlockBuilder<TRegisters>(cpuMode, mmuCache, timer);
             var lambda = expressionBuilder.DecodeNextBlock();
 
-            return new DynaRecInstructionBlock<TRegisters>(address, (ushort)mmuCache.TotalBytesRead, lambda.Compile(), timer.GetInstructionTimings());
+            return new DynaRecInstructionBlock<TRegisters>(address, (ushort)mmuCache.TotalBytesRead, lambda.Compile(), timer.GetInstructionTimings(), expressionBuilder.LastDecodeResult);
         }
         
     }

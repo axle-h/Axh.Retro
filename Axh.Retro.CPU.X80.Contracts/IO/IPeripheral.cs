@@ -25,5 +25,9 @@
         /// <param name="addressMsb">The most significant byte of the address bus (the LSB is used as the IO port)</param>
         /// <param name="value">The byte to write</param>
         void WriteByte(byte addressMsb, byte value);
+
+        void Halt();
+
+        void Resume();
     }
 }

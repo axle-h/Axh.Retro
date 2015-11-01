@@ -15,7 +15,7 @@
             this.SetupRegisters();
             this.ResetMocks();
 
-            RunWithNOP(1, 4, PrimaryOpCode.EX_DE_HL);
+            RunWithHalt(1, 4, PrimaryOpCode.EX_DE_HL);
 
             this.GpRegisters.VerifySet(x => x.DE = It.Is<ushort>(y => y == HL), Times.Once);
             this.GpRegisters.VerifySet(x => x.HL = It.Is<ushort>(y => y == DE), Times.Once);
@@ -29,7 +29,7 @@
             this.SetupRegisters();
             this.ResetMocks();
 
-            RunWithNOP(1, 4, PrimaryOpCode.EX_AF);
+            RunWithHalt(1, 4, PrimaryOpCode.EX_AF);
 
             this.Registers.Verify(x => x.SwitchToAlternativeAccumulatorAndFlagsRegisters(), Times.Once);
         }
@@ -40,7 +40,7 @@
             this.SetupRegisters();
             this.ResetMocks();
 
-            RunWithNOP(1, 4, PrimaryOpCode.EXX);
+            RunWithHalt(1, 4, PrimaryOpCode.EXX);
 
             this.Registers.Verify(x => x.SwitchToAlternativeGeneralPurposeRegisters(), Times.Once);
         }
@@ -58,7 +58,7 @@
             this.Mmu.Setup(x => x.ReadByte(SP)).Returns(Value0);
             this.Mmu.Setup(x => x.ReadByte(SP1)).Returns(Value1);
 
-            RunWithNOP(5, 19, PrimaryOpCode.EX_mSP_HL);
+            RunWithHalt(5, 19, PrimaryOpCode.EX_mSP_HL);
 
             this.GpRegisters.VerifySet(x => x.H = It.Is<byte>(y => y == Value1), Times.Once);
             this.GpRegisters.VerifySet(x => x.L = It.Is<byte>(y => y == Value0), Times.Once);
@@ -90,7 +90,7 @@
             this.Mmu.Setup(x => x.ReadByte(SP)).Returns(Value0);
             this.Mmu.Setup(x => x.ReadByte(SP1)).Returns(Value1);
 
-            RunWithNOP(6, 23, PrimaryOpCode.Prefix_DD, PrimaryOpCode.EX_mSP_HL);
+            RunWithHalt(6, 23, PrimaryOpCode.Prefix_DD, PrimaryOpCode.EX_mSP_HL);
 
             this.Registers.VerifySet(x => x.IXh = It.Is<byte>(y => y == Value1), Times.Once);
             this.Registers.VerifySet(x => x.IXl = It.Is<byte>(y => y == Value0), Times.Once);
@@ -122,7 +122,7 @@
             this.Mmu.Setup(x => x.ReadByte(SP)).Returns(Value0);
             this.Mmu.Setup(x => x.ReadByte(SP1)).Returns(Value1);
 
-            RunWithNOP(6, 23, PrimaryOpCode.Prefix_FD, PrimaryOpCode.EX_mSP_HL);
+            RunWithHalt(6, 23, PrimaryOpCode.Prefix_FD, PrimaryOpCode.EX_mSP_HL);
 
             this.Registers.VerifySet(x => x.IYh = It.Is<byte>(y => y == Value1), Times.Once);
             this.Registers.VerifySet(x => x.IYl = It.Is<byte>(y => y == Value0), Times.Once);

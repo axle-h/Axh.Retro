@@ -19,7 +19,7 @@
 
             this.Mmu.Setup(x => x.ReadByte(HL)).Returns(Value);
 
-            RunWithNOP(4, 16, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.CPI);
+            RunWithHalt(4, 16, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.CPI);
             
             this.GpRegisters.VerifySet(x => x.HL = It.Is<ushort>(y => y == HL + 1), Times.Once);
             this.GpRegisters.VerifySet(x => x.BC = It.Is<ushort>(y => y == BC - 1), Times.Once);
@@ -45,7 +45,7 @@
             // Replicate implementation. When values compared match the zero flag is set.
             this.Alu.Setup(x => x.Compare(A, A)).Callback(() => FlagsRegister.Object.Zero = true);
 
-            RunWithNOP(4 + 5 * (queue.Length - 1), 16 + 21 * (queue.Length - 1), PrimaryOpCode.Prefix_ED, PrefixEdOpCode.CPIR);
+            RunWithHalt(4 + 5 * (queue.Length - 1), 16 + 21 * (queue.Length - 1), PrimaryOpCode.Prefix_ED, PrefixEdOpCode.CPIR);
 
             for (var i = 1; i < queue.Length; i++)
             {
@@ -76,7 +76,7 @@
             // Replicate implementation. When values compared match the zero flag is set.
             this.Alu.Setup(x => x.Compare(A, A)).Callback(() => FlagsRegister.Object.Zero = true);
 
-            RunWithNOP(4 + 5 * (Count - 1), 16 + 21 * (Count - 1), PrimaryOpCode.Prefix_ED, PrefixEdOpCode.CPIR);
+            RunWithHalt(4 + 5 * (Count - 1), 16 + 21 * (Count - 1), PrimaryOpCode.Prefix_ED, PrefixEdOpCode.CPIR);
 
             // We are expecting to keep looping until BC = 0.
             for (var i = 1; i < Count; i++)
@@ -100,7 +100,7 @@
 
             this.Mmu.Setup(x => x.ReadByte(HL)).Returns(Value);
 
-            RunWithNOP(4, 16, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.CPD);
+            RunWithHalt(4, 16, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.CPD);
 
             this.GpRegisters.VerifySet(x => x.HL = It.Is<ushort>(y => y == HL - 1), Times.Once);
             this.GpRegisters.VerifySet(x => x.BC = It.Is<ushort>(y => y == BC - 1), Times.Once);
@@ -126,7 +126,7 @@
             // Replicate implementation. When values compared match the zero flag is set.
             this.Alu.Setup(x => x.Compare(A, A)).Callback(() => FlagsRegister.Object.Zero = true);
 
-            RunWithNOP(4 + 5 * (queue.Length - 1), 16 + 21 * (queue.Length - 1), PrimaryOpCode.Prefix_ED, PrefixEdOpCode.CPDR);
+            RunWithHalt(4 + 5 * (queue.Length - 1), 16 + 21 * (queue.Length - 1), PrimaryOpCode.Prefix_ED, PrefixEdOpCode.CPDR);
 
             for (var i = 1; i < queue.Length; i++)
             {
@@ -157,7 +157,7 @@
             // Replicate implementation. When values compared match the zero flag is set.
             this.Alu.Setup(x => x.Compare(A, A)).Callback(() => FlagsRegister.Object.Zero = true);
 
-            RunWithNOP(4 + 5 * (Count - 1), 16 + 21 * (Count - 1), PrimaryOpCode.Prefix_ED, PrefixEdOpCode.CPDR);
+            RunWithHalt(4 + 5 * (Count - 1), 16 + 21 * (Count - 1), PrimaryOpCode.Prefix_ED, PrefixEdOpCode.CPDR);
 
             // We are expecting to keep looping until BC = 0.
             for (var i = 1; i < Count; i++)

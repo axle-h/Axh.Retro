@@ -44,7 +44,6 @@
     <Compile Include="Cache\NaiveInstructionBlockCache.cs" />
     <Compile Include="Core\ArithmeticLogicUnit.cs" />
     <Compile Include="Core\CachingCpuCore.cs" />
-    <Compile Include="Core\DynaRec\DecodeResult.cs" />
     <Compile Include="Core\DynaRec\DynaRecInstructionBlock.cs" />
     <Compile Include="Core\IndexRegister.cs" />
     <Compile Include="Core\DynaRec\IndexRegisterExpressions.cs" />

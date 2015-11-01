@@ -25,7 +25,7 @@
             // Core
             this.Bind<ICpuCore>().To<CachingCpuCore<IZ80Registers>>();
             this.Bind<IInstructionBlockDecoder<IZ80Registers>>().To<DynaRecInstructionBlockDecoder<IZ80Registers>>();
-            this.Bind<IInstructionTimer>().To<MachineCycleTimer>().InSingletonScope();
+            this.Bind<IInstructionTimer>().To<MachineCycleTimer>();
 
             // Cache
             this.Bind<IInstructionBlockCache<IZ80Registers>>().To<NaiveInstructionBlockCache<IZ80Registers>>();
@@ -38,7 +38,7 @@
             // Factories
             this.Bind<IRegisterFactory<IZ80Registers>>().To<Z80RegisterFactory>().InSingletonScope();
             this.Bind<IMmuFactory>().To<MmuFactory>().InSingletonScope();
-            this.Bind<IAluFactory>().To<AluFactory>();
+            this.Bind<IAluFactory>().To<AluFactory>().InSingletonScope();
 
             // Config
             this.Bind<IInitialStateConfig<Z80RegisterState>>().To<Z80InitialStateConfig>().InSingletonScope();

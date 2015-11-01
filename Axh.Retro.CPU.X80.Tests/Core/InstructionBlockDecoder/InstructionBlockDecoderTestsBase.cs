@@ -189,7 +189,7 @@
             this.Cache.Verify(x => x.NextWord(), Times.Exactly(bytes.Count(x => x is ushort)));
         }
         
-        protected void RunWithNOP(int expectedMachineCycles, int expectedThrottlingStates, params object[] bytes)
+        protected void RunWithHalt(int expectedMachineCycles, int expectedThrottlingStates, params object[] bytes)
         {
             // Add halt
             var opcodes = new object[bytes.Length + 1];

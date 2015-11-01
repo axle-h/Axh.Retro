@@ -11,6 +11,10 @@ namespace Axh.Retro.CPU.X80.Contracts.Core
 
         ushort Length { get; }
 
+        bool HaltCpu { get; }
+
+        bool HaltPeripherals { get; }
+
         InstructionTimings ExecuteInstructionBlock(TRegisters registers, IMmu mmu, IArithmeticLogicUnit alu, IInputOutputManager inputOutputManager);
     }
 }

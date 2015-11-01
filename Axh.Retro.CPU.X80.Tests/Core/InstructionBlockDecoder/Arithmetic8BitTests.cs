@@ -26,7 +26,7 @@
             const byte Value = 0x18;
             this.Alu.Setup(x => x.Add(A, It.IsAny<byte>())).Returns(Value);
 
-            RunWithNOP(1, 4, opCode);
+            RunWithHalt(1, 4, opCode);
 
             switch (opCode)
             {
@@ -68,7 +68,7 @@
             const byte Expected = unchecked((byte)(N + A));
             this.Alu.Setup(x => x.Add(A, N)).Returns(Expected);
 
-            RunWithNOP(2, 7, PrimaryOpCode.ADD_A_n, N);
+            RunWithHalt(2, 7, PrimaryOpCode.ADD_A_n, N);
             
             this.Alu.Verify(x => x.Add(A, N), Times.Once);
             this.AfRegisters.VerifySet(x => x.A = Expected, Times.Once);
@@ -85,7 +85,7 @@
             this.Alu.Setup(x => x.Add(A, ValueAtHL)).Returns(Expected);
             this.Mmu.Setup(x => x.ReadByte(HL)).Returns(ValueAtHL);
 
-            RunWithNOP(2, 7, PrimaryOpCode.ADD_A_mHL);
+            RunWithHalt(2, 7, PrimaryOpCode.ADD_A_mHL);
 
             this.Mmu.Verify(x => x.ReadByte(HL), Times.Once);
             this.Alu.Verify(x => x.Add(A, ValueAtHL), Times.Once);
@@ -109,7 +109,7 @@
             
             this.Mmu.Setup(x => x.ReadByte(displacedIndex)).Returns(ValueAtIndex);
 
-            RunWithNOP(5, 19, opCode, PrimaryOpCode.ADD_A_mHL, unchecked((byte)Displacement));
+            RunWithHalt(5, 19, opCode, PrimaryOpCode.ADD_A_mHL, unchecked((byte)Displacement));
 
             this.Mmu.Verify(x => x.ReadByte(displacedIndex), Times.Once);
             this.Alu.Verify(x => x.Add(A, ValueAtIndex), Times.Once);
@@ -131,7 +131,7 @@
             const byte Value = 0x18;
             this.Alu.Setup(x => x.AddWithCarry(A, It.IsAny<byte>())).Returns(Value);
 
-            RunWithNOP(1, 4, opCode);
+            RunWithHalt(1, 4, opCode);
 
             switch (opCode)
             {
@@ -173,7 +173,7 @@
             const byte Expected = unchecked((byte)(N + A));
             this.Alu.Setup(x => x.AddWithCarry(A, N)).Returns(Expected);
 
-            RunWithNOP(2, 7, PrimaryOpCode.ADC_A_n, N);
+            RunWithHalt(2, 7, PrimaryOpCode.ADC_A_n, N);
 
             this.Alu.Verify(x => x.AddWithCarry(A, N), Times.Once);
             this.AfRegisters.VerifySet(x => x.A = Expected, Times.Once);
@@ -190,7 +190,7 @@
             this.Alu.Setup(x => x.AddWithCarry(A, ValueAtHL)).Returns(Expected);
             this.Mmu.Setup(x => x.ReadByte(HL)).Returns(ValueAtHL);
 
-            RunWithNOP(2, 7, PrimaryOpCode.ADC_A_mHL);
+            RunWithHalt(2, 7, PrimaryOpCode.ADC_A_mHL);
 
             this.Mmu.Verify(x => x.ReadByte(HL), Times.Once);
             this.Alu.Verify(x => x.AddWithCarry(A, ValueAtHL), Times.Once);
@@ -214,7 +214,7 @@
 
             this.Mmu.Setup(x => x.ReadByte(displacedIndex)).Returns(ValueAtIndex);
 
-            RunWithNOP(5, 19, opCode, PrimaryOpCode.ADC_A_mHL, unchecked((byte)Displacement));
+            RunWithHalt(5, 19, opCode, PrimaryOpCode.ADC_A_mHL, unchecked((byte)Displacement));
 
             this.Mmu.Verify(x => x.ReadByte(displacedIndex), Times.Once);
             this.Alu.Verify(x => x.AddWithCarry(A, ValueAtIndex), Times.Once);
@@ -236,7 +236,7 @@
             const byte Value = 0x9c;
             this.Alu.Setup(x => x.Subtract(A, It.IsAny<byte>())).Returns(Value);
 
-            RunWithNOP(1, 4, opCode);
+            RunWithHalt(1, 4, opCode);
 
             switch (opCode)
             {
@@ -278,7 +278,7 @@
             const byte Expected = unchecked((byte)(A - N));
             this.Alu.Setup(x => x.Subtract(A, N)).Returns(Expected);
 
-            RunWithNOP(2, 7, PrimaryOpCode.SUB_A_n, N);
+            RunWithHalt(2, 7, PrimaryOpCode.SUB_A_n, N);
 
             this.Alu.Verify(x => x.Subtract(A, N), Times.Once);
             this.AfRegisters.VerifySet(x => x.A = Expected, Times.Once);
@@ -295,7 +295,7 @@
             this.Alu.Setup(x => x.Subtract(A, ValueAtHL)).Returns(Expected);
             this.Mmu.Setup(x => x.ReadByte(HL)).Returns(ValueAtHL);
 
-            RunWithNOP(2, 7, PrimaryOpCode.SUB_A_mHL);
+            RunWithHalt(2, 7, PrimaryOpCode.SUB_A_mHL);
 
             this.Mmu.Verify(x => x.ReadByte(HL), Times.Once);
             this.Alu.Verify(x => x.Subtract(A, ValueAtHL), Times.Once);
@@ -319,7 +319,7 @@
 
             this.Mmu.Setup(x => x.ReadByte(displacedIndex)).Returns(ValueAtIndex);
 
-            RunWithNOP(5, 19, opCode, PrimaryOpCode.SUB_A_mHL, unchecked((byte)Displacement));
+            RunWithHalt(5, 19, opCode, PrimaryOpCode.SUB_A_mHL, unchecked((byte)Displacement));
 
             this.Mmu.Verify(x => x.ReadByte(displacedIndex), Times.Once);
             this.Alu.Verify(x => x.Subtract(A, ValueAtIndex), Times.Once);
@@ -342,7 +342,7 @@
             const byte Value = 0x9c;
             this.Alu.Setup(x => x.SubtractWithCarry(A, It.IsAny<byte>())).Returns(Value);
 
-            RunWithNOP(1, 4, opCode);
+            RunWithHalt(1, 4, opCode);
 
             switch (opCode)
             {
@@ -384,7 +384,7 @@
             const byte Expected = unchecked((byte)(A - N));
             this.Alu.Setup(x => x.SubtractWithCarry(A, N)).Returns(Expected);
 
-            RunWithNOP(2, 7, PrimaryOpCode.SBC_A_n, N);
+            RunWithHalt(2, 7, PrimaryOpCode.SBC_A_n, N);
 
             this.Alu.Verify(x => x.SubtractWithCarry(A, N), Times.Once);
             this.AfRegisters.VerifySet(x => x.A = Expected, Times.Once);
@@ -401,7 +401,7 @@
             this.Alu.Setup(x => x.SubtractWithCarry(A, ValueAtHL)).Returns(Expected);
             this.Mmu.Setup(x => x.ReadByte(HL)).Returns(ValueAtHL);
 
-            RunWithNOP(2, 7, PrimaryOpCode.SBC_A_mHL);
+            RunWithHalt(2, 7, PrimaryOpCode.SBC_A_mHL);
 
             this.Mmu.Verify(x => x.ReadByte(HL), Times.Once);
             this.Alu.Verify(x => x.SubtractWithCarry(A, ValueAtHL), Times.Once);
@@ -425,7 +425,7 @@
 
             this.Mmu.Setup(x => x.ReadByte(displacedIndex)).Returns(ValueAtIndex);
 
-            RunWithNOP(5, 19, opCode, PrimaryOpCode.SBC_A_mHL, unchecked((byte)Displacement));
+            RunWithHalt(5, 19, opCode, PrimaryOpCode.SBC_A_mHL, unchecked((byte)Displacement));
 
             this.Mmu.Verify(x => x.ReadByte(displacedIndex), Times.Once);
             this.Alu.Verify(x => x.SubtractWithCarry(A, ValueAtIndex), Times.Once);
@@ -448,7 +448,7 @@
             const byte Value = 0x9c;
             this.Alu.Setup(x => x.And(A, It.IsAny<byte>())).Returns(Value);
 
-            RunWithNOP(1, 4, opCode);
+            RunWithHalt(1, 4, opCode);
 
             switch (opCode)
             {
@@ -490,7 +490,7 @@
             const byte Expected = unchecked((byte)(A - N));
             this.Alu.Setup(x => x.And(A, N)).Returns(Expected);
 
-            RunWithNOP(2, 7, PrimaryOpCode.AND_n, N);
+            RunWithHalt(2, 7, PrimaryOpCode.AND_n, N);
 
             this.Alu.Verify(x => x.And(A, N), Times.Once);
             this.AfRegisters.VerifySet(x => x.A = Expected, Times.Once);
@@ -507,7 +507,7 @@
             this.Alu.Setup(x => x.And(A, ValueAtHL)).Returns(Expected);
             this.Mmu.Setup(x => x.ReadByte(HL)).Returns(ValueAtHL);
 
-            RunWithNOP(2, 7, PrimaryOpCode.AND_mHL);
+            RunWithHalt(2, 7, PrimaryOpCode.AND_mHL);
 
             this.Mmu.Verify(x => x.ReadByte(HL), Times.Once);
             this.Alu.Verify(x => x.And(A, ValueAtHL), Times.Once);
@@ -531,7 +531,7 @@
 
             this.Mmu.Setup(x => x.ReadByte(displacedIndex)).Returns(ValueAtIndex);
 
-            RunWithNOP(5, 19, opCode, PrimaryOpCode.AND_mHL, unchecked((byte)Displacement));
+            RunWithHalt(5, 19, opCode, PrimaryOpCode.AND_mHL, unchecked((byte)Displacement));
 
             this.Mmu.Verify(x => x.ReadByte(displacedIndex), Times.Once);
             this.Alu.Verify(x => x.And(A, ValueAtIndex), Times.Once);
@@ -554,7 +554,7 @@
             const byte Value = 0x9c;
             this.Alu.Setup(x => x.Or(A, It.IsAny<byte>())).Returns(Value);
 
-            RunWithNOP(1, 4, opCode);
+            RunWithHalt(1, 4, opCode);
 
             switch (opCode)
             {
@@ -596,7 +596,7 @@
             const byte Expected = unchecked((byte)(A - N));
             this.Alu.Setup(x => x.Or(A, N)).Returns(Expected);
 
-            RunWithNOP(2, 7, PrimaryOpCode.OR_n, N);
+            RunWithHalt(2, 7, PrimaryOpCode.OR_n, N);
 
             this.Alu.Verify(x => x.Or(A, N), Times.Once);
             this.AfRegisters.VerifySet(x => x.A = Expected, Times.Once);
@@ -613,7 +613,7 @@
             this.Alu.Setup(x => x.Or(A, ValueAtHL)).Returns(Expected);
             this.Mmu.Setup(x => x.ReadByte(HL)).Returns(ValueAtHL);
 
-            RunWithNOP(2, 7, PrimaryOpCode.OR_mHL);
+            RunWithHalt(2, 7, PrimaryOpCode.OR_mHL);
 
             this.Mmu.Verify(x => x.ReadByte(HL), Times.Once);
             this.Alu.Verify(x => x.Or(A, ValueAtHL), Times.Once);
@@ -637,7 +637,7 @@
 
             this.Mmu.Setup(x => x.ReadByte(displacedIndex)).Returns(ValueAtIndex);
 
-            RunWithNOP(5, 19, opCode, PrimaryOpCode.OR_mHL, unchecked((byte)Displacement));
+            RunWithHalt(5, 19, opCode, PrimaryOpCode.OR_mHL, unchecked((byte)Displacement));
 
             this.Mmu.Verify(x => x.ReadByte(displacedIndex), Times.Once);
             this.Alu.Verify(x => x.Or(A, ValueAtIndex), Times.Once);
@@ -660,7 +660,7 @@
             const byte Value = 0x9c;
             this.Alu.Setup(x => x.Xor(A, It.IsAny<byte>())).Returns(Value);
 
-            RunWithNOP(1, 4, opCode);
+            RunWithHalt(1, 4, opCode);
 
             switch (opCode)
             {
@@ -702,7 +702,7 @@
             const byte Expected = unchecked((byte)(A - N));
             this.Alu.Setup(x => x.Xor(A, N)).Returns(Expected);
 
-            RunWithNOP(2, 7, PrimaryOpCode.XOR_n, N);
+            RunWithHalt(2, 7, PrimaryOpCode.XOR_n, N);
 
             this.Alu.Verify(x => x.Xor(A, N), Times.Once);
             this.AfRegisters.VerifySet(x => x.A = Expected, Times.Once);
@@ -719,7 +719,7 @@
             this.Alu.Setup(x => x.Xor(A, ValueAtHL)).Returns(Expected);
             this.Mmu.Setup(x => x.ReadByte(HL)).Returns(ValueAtHL);
 
-            RunWithNOP(2, 7, PrimaryOpCode.XOR_mHL);
+            RunWithHalt(2, 7, PrimaryOpCode.XOR_mHL);
 
             this.Mmu.Verify(x => x.ReadByte(HL), Times.Once);
             this.Alu.Verify(x => x.Xor(A, ValueAtHL), Times.Once);
@@ -743,7 +743,7 @@
 
             this.Mmu.Setup(x => x.ReadByte(displacedIndex)).Returns(ValueAtIndex);
 
-            RunWithNOP(5, 19, opCode, PrimaryOpCode.XOR_mHL, unchecked((byte)Displacement));
+            RunWithHalt(5, 19, opCode, PrimaryOpCode.XOR_mHL, unchecked((byte)Displacement));
 
             this.Mmu.Verify(x => x.ReadByte(displacedIndex), Times.Once);
             this.Alu.Verify(x => x.Xor(A, ValueAtIndex), Times.Once);
@@ -762,7 +762,7 @@
             this.SetupRegisters();
             this.ResetMocks();
             
-            RunWithNOP(1, 4, opCode);
+            RunWithHalt(1, 4, opCode);
 
             switch (opCode)
             {
@@ -802,7 +802,7 @@
 
             const byte N = 0xc1;
 
-            RunWithNOP(2, 7, PrimaryOpCode.CP_n, N);
+            RunWithHalt(2, 7, PrimaryOpCode.CP_n, N);
 
             this.Alu.Verify(x => x.Compare(A, N), Times.Once);
             this.AfRegisters.VerifySet(x => x.A = It.IsAny<byte>(), Times.Never);
@@ -817,7 +817,7 @@
             const byte ValueAtHL = 0x3a;
             this.Mmu.Setup(x => x.ReadByte(HL)).Returns(ValueAtHL);
 
-            RunWithNOP(2, 7, PrimaryOpCode.CP_mHL);
+            RunWithHalt(2, 7, PrimaryOpCode.CP_mHL);
 
             this.Mmu.Verify(x => x.ReadByte(HL), Times.Once);
             this.Alu.Verify(x => x.Compare(A, ValueAtHL), Times.Once);
@@ -839,7 +839,7 @@
 
             this.Mmu.Setup(x => x.ReadByte(displacedIndex)).Returns(ValueAtIndex);
 
-            RunWithNOP(5, 19, opCode, PrimaryOpCode.CP_mHL, unchecked((byte)Displacement));
+            RunWithHalt(5, 19, opCode, PrimaryOpCode.CP_mHL, unchecked((byte)Displacement));
 
             this.Mmu.Verify(x => x.ReadByte(displacedIndex), Times.Once);
             this.Alu.Verify(x => x.Compare(A, ValueAtIndex), Times.Once);
@@ -861,7 +861,7 @@
             const byte Expected = 0xab;
             this.Alu.Setup(x => x.Increment(It.IsAny<byte>())).Returns(Expected);
 
-            RunWithNOP(1, 4, opCode);
+            RunWithHalt(1, 4, opCode);
 
             switch (opCode)
             {
@@ -902,7 +902,7 @@
             this.Alu.Setup(x => x.Increment(ValueAtHL)).Returns(Expected);
             this.Mmu.Setup(x => x.ReadByte(HL)).Returns(ValueAtHL);
 
-            RunWithNOP(3, 11, PrimaryOpCode.INC_mHL);
+            RunWithHalt(3, 11, PrimaryOpCode.INC_mHL);
 
             this.Mmu.Verify(x => x.ReadByte(HL), Times.Once);
             this.Alu.Verify(x => x.Increment(ValueAtHL), Times.Once);
@@ -926,7 +926,7 @@
             this.Alu.Setup(x => x.Increment(ValueAtIndex)).Returns(Expected);
             this.Mmu.Setup(x => x.ReadByte(displacedIndex)).Returns(ValueAtIndex);
 
-            RunWithNOP(6, 23, prefix, PrimaryOpCode.INC_mHL, unchecked((byte)Displacement));
+            RunWithHalt(6, 23, prefix, PrimaryOpCode.INC_mHL, unchecked((byte)Displacement));
 
             this.Mmu.Verify(x => x.ReadByte(displacedIndex), Times.Once);
             this.Alu.Verify(x => x.Increment(ValueAtIndex), Times.Once);
@@ -948,7 +948,7 @@
             const byte Expected = 0xab;
             this.Alu.Setup(x => x.Decrement(It.IsAny<byte>())).Returns(Expected);
 
-            RunWithNOP(1, 4, opCode);
+            RunWithHalt(1, 4, opCode);
 
             switch (opCode)
             {
@@ -989,7 +989,7 @@
             this.Alu.Setup(x => x.Decrement(ValueAtHL)).Returns(Expected);
             this.Mmu.Setup(x => x.ReadByte(HL)).Returns(ValueAtHL);
 
-            RunWithNOP(3, 11, PrimaryOpCode.DEC_mHL);
+            RunWithHalt(3, 11, PrimaryOpCode.DEC_mHL);
 
             this.Mmu.Verify(x => x.ReadByte(HL), Times.Once);
             this.Alu.Verify(x => x.Decrement(ValueAtHL), Times.Once);
@@ -1013,7 +1013,7 @@
             this.Alu.Setup(x => x.Decrement(ValueAtIndex)).Returns(Expected);
             this.Mmu.Setup(x => x.ReadByte(displacedIndex)).Returns(ValueAtIndex);
 
-            RunWithNOP(6, 23, prefix, PrimaryOpCode.DEC_mHL, unchecked((byte)Displacement));
+            RunWithHalt(6, 23, prefix, PrimaryOpCode.DEC_mHL, unchecked((byte)Displacement));
 
             this.Mmu.Verify(x => x.ReadByte(displacedIndex), Times.Once);
             this.Alu.Verify(x => x.Decrement(ValueAtIndex), Times.Once);
