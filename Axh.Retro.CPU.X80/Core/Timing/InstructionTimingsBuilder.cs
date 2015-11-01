@@ -1,13 +1,13 @@
-﻿namespace Axh.Retro.CPU.X80.Core
+﻿namespace Axh.Retro.CPU.X80.Core.Timing
 {
-    using Axh.Retro.CPU.X80.Contracts.Core;
+    using Axh.Retro.CPU.X80.Contracts.Core.Timing;
 
     /// <summary>
     /// This is just to clean up incrementing the cycle counters per instruction. Calls to Add 'should' be inlined by the JIT compiler.
     /// </summary>
-    internal class InstructionTimer : IInstructionTimer
+    internal class InstructionTimingsBuilder : IInstructionTimingsBuilder
     {
-        public InstructionTimer()
+        public InstructionTimingsBuilder()
         {
             MachineCycles = 0;
             ThrottlingStates = 0;

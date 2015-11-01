@@ -7,6 +7,7 @@
     using Axh.Retro.CPU.X80.Contracts.IO;
     using Axh.Retro.CPU.X80.Contracts.Memory;
     using Axh.Retro.CPU.X80.Contracts.Registers;
+    using Axh.Retro.CPU.X80.Core.Timing;
 
     public class DynaRecInstructionBlockDecoder<TRegisters> : IInstructionBlockDecoder<TRegisters> where TRegisters : IRegisters
     {
@@ -25,7 +26,7 @@
         public IInstructionBlock<TRegisters> DecodeNextBlock(ushort address, IMmu mmu)
         {
             var mmuCache = this.mmuFactory.GetMmuCache(mmu, address);
-            var timer = new InstructionTimer();
+            var timer = new InstructionTimingsBuilder();
             var expressionBuilder = new DynaRecBlockBuilder<TRegisters>(cpuMode, mmuCache, timer);
             var lambda = expressionBuilder.DecodeNextBlock();
 

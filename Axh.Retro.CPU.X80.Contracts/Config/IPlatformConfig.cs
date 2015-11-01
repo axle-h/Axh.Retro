@@ -8,6 +8,8 @@
 
         IEnumerable<IMemoryBankConfig> RandomAccessMemoryBanks { get; }
         
+        double? MachineCycleSpeedMhz { get; }
 
+        double? ThrottlingStateSpeedMhz { get; }
     }
 }

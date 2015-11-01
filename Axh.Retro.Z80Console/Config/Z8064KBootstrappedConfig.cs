@@ -26,5 +26,9 @@
         public CpuMode CpuMode => CpuMode.Z80;
 
         public IEnumerable<IMemoryBankConfig> RandomAccessMemoryBanks { get; }
+
+        public double? MachineCycleSpeedMhz => null;
+
+        public double? ThrottlingStateSpeedMhz => null;
     }
 }

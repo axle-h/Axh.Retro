@@ -3,6 +3,7 @@
     using System.Threading.Tasks;
 
     using Axh.Retro.CPU.X80.Contracts.Core;
+    using Axh.Retro.CPU.X80.Contracts.Core.Timing;
     using Axh.Retro.CPU.X80.Contracts.Factories;
     using Axh.Retro.CPU.X80.Contracts.IO;
     using Axh.Retro.CPU.X80.Contracts.Memory;
@@ -23,31 +24,31 @@
 
         private readonly IInputOutputManager inputOutputManager;
 
+        private readonly IInstructionTimer instructionTimer;
+
         public StaticCpuCore(
             IRegisterFactory<TRegisters> registerFactory,
             IMmuFactory mmuFactory,
             IInstructionBlockDecoder<TRegisters> instructionBlockDecoder,
             IArithmeticLogicUnit arithmeticLogicUnit,
-            IInputOutputManager inputOutputManager)
+            IInputOutputManager inputOutputManager,
+            IInstructionTimer instructionTimer)
         {
             this.instructionBlockDecoder = instructionBlockDecoder;
             this.arithmeticLogicUnit = arithmeticLogicUnit;
             this.inputOutputManager = inputOutputManager;
+            this.instructionTimer = instructionTimer;
             this.registers = registerFactory.GetInitialRegisters();
             this.mmu = mmuFactory.GetMmu();
         }
 
-        public Task StartCoreProcessAsync()
-        {
-            return Task.Factory.StartNew(StartCoreProcess, TaskCreationOptions.LongRunning);
-        }
-
-        public void StartCoreProcess()
+        public async Task StartCoreProcessAsync()
         {
             while (true)
             {
                 var instructionBlock = this.instructionBlockDecoder.DecodeNextBlock(this.registers.ProgramCounter, this.mmu);
-                instructionBlock.ExecuteInstructionBlock(this.registers, this.mmu, this.arithmeticLogicUnit, this.inputOutputManager);
+                var timings = instructionBlock.ExecuteInstructionBlock(this.registers, this.mmu, this.arithmeticLogicUnit, this.inputOutputManager);
+                await this.instructionTimer.SyncToTimings(timings);
             }
         }
     }

@@ -5,6 +5,7 @@
     
     using Axh.Retro.CPU.X80.Contracts.Cache;
     using Axh.Retro.CPU.X80.Contracts.Core;
+    using Axh.Retro.CPU.X80.Contracts.Core.Timing;
     using Axh.Retro.CPU.X80.Contracts.Factories;
     using Axh.Retro.CPU.X80.Contracts.IO;
     using Axh.Retro.CPU.X80.Contracts.Memory;
@@ -24,13 +25,16 @@
 
         private readonly IInputOutputManager inputOutputManager;
 
+        private readonly IInstructionTimer instructionTimer;
+
         public CachingCpuCore(
             IRegisterFactory<TRegisters> registerFactory,
             IMmuFactory mmuFactory,
             IInstructionBlockDecoder<TRegisters> instructionBlockDecoder,
             IAluFactory aluFactory,
             IInstructionBlockCache<TRegisters> instructionBlockCache,
-            IInputOutputManager inputOutputManager)
+            IInputOutputManager inputOutputManager,
+            IInstructionTimer instructionTimer)
         {
             this.registerFactory = registerFactory;
             this.mmuFactory = mmuFactory;
@@ -38,19 +42,15 @@
             this.aluFactory = aluFactory;
             this.instructionBlockCache = instructionBlockCache;
             this.inputOutputManager = inputOutputManager;
-            
+            this.instructionTimer = instructionTimer;
+
             if (!this.instructionBlockDecoder.SupportsInstructionBlockCaching)
             {
                 throw new Exception("Instruction block decoder must support caching");
             }
         }
 
-        public Task StartCoreProcessAsync()
-        {
-            return Task.Factory.StartNew(StartCoreProcess, TaskCreationOptions.LongRunning);
-        }
-
-        public void StartCoreProcess()
+        public async Task StartCoreProcessAsync()
         {
             // Build components
             var registers = registerFactory.GetInitialRegisters();
@@ -64,7 +64,9 @@
             {
                 var address = registers.ProgramCounter;
                 var instructionBlock = this.instructionBlockCache.GetOrSet(address, () => this.instructionBlockDecoder.DecodeNextBlock(address, mmu));
-                instructionBlock.ExecuteInstructionBlock(registers, mmu, alu, this.inputOutputManager);
+                var timings = instructionBlock.ExecuteInstructionBlock(registers, mmu, alu, this.inputOutputManager);
+
+                await this.instructionTimer.SyncToTimings(timings);
             }
         }
     }

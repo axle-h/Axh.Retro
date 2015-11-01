@@ -6,6 +6,7 @@
     using System.Reflection;
 
     using Axh.Retro.CPU.X80.Contracts.Core;
+    using Axh.Retro.CPU.X80.Contracts.Core.Timing;
     using Axh.Retro.CPU.X80.Contracts.IO;
     using Axh.Retro.CPU.X80.Contracts.Memory;
     using Axh.Retro.CPU.X80.Contracts.Registers;
@@ -209,8 +210,8 @@
             IO = Expression.Parameter(typeof(IInputOutputManager), "io");
             LocalByte = Expression.Parameter(typeof(byte), "b");
             LocalWord = Expression.Parameter(typeof(ushort), "w");
-            DynamicTimer = Expression.Parameter(typeof(IInstructionTimer), "timer");
-            DynamicTimerAdd = ExpressionHelpers.GetMethodInfo<IInstructionTimer, int, int>((dt, m, t) => dt.Add(m, t));
+            DynamicTimer = Expression.Parameter(typeof(IInstructionTimingsBuilder), "timer");
+            DynamicTimerAdd = ExpressionHelpers.GetMethodInfo<IInstructionTimingsBuilder, int, int>((dt, m, t) => dt.Add(m, t));
 
             AccumulatorAndResult = Expression.Parameter(typeof(AccumulatorAndResult), "result");
             AccumulatorAndResult_Accumulator = AccumulatorAndResult.GetPropertyExpression<AccumulatorAndResult, byte>(r => r.Accumulator);

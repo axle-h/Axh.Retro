@@ -1,5 +1,6 @@
 namespace Axh.Retro.CPU.X80.Contracts.Core
 {
+    using Axh.Retro.CPU.X80.Contracts.Core.Timing;
     using Axh.Retro.CPU.X80.Contracts.IO;
     using Axh.Retro.CPU.X80.Contracts.Memory;
     using Axh.Retro.CPU.X80.Contracts.Registers;

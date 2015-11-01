@@ -1,4 +1,4 @@
-﻿namespace Axh.Retro.CPU.X80.Contracts.Core
+﻿namespace Axh.Retro.CPU.X80.Contracts.Core.Timing
 {
     public struct InstructionTimings
     {

@@ -416,242 +416,242 @@
                 case PrefixCbOpCode.SET_0_B:
                     yield return BitSetFromIndex(0);
                     yield return Expression.Assign(Xpr.B, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.SET_1_B:
                     yield return BitSetFromIndex(1);
                     yield return Expression.Assign(Xpr.B, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.SET_2_B:
                     yield return BitSetFromIndex(2);
                     yield return Expression.Assign(Xpr.B, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.SET_3_B:
                     yield return BitSetFromIndex(3);
                     yield return Expression.Assign(Xpr.B, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.SET_4_B:
                     yield return BitSetFromIndex(4);
                     yield return Expression.Assign(Xpr.B, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.SET_5_B:
                     yield return BitSetFromIndex(5);
                     yield return Expression.Assign(Xpr.B, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.SET_6_B:
                     yield return BitSetFromIndex(6);
                     yield return Expression.Assign(Xpr.B, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.SET_7_B:
                     yield return BitSetFromIndex(7);
                     yield return Expression.Assign(Xpr.B, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.SET_0_C:
                     yield return BitSetFromIndex(0);
                     yield return Expression.Assign(Xpr.C, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.SET_1_C:
                     yield return BitSetFromIndex(1);
                     yield return Expression.Assign(Xpr.C, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.SET_2_C:
                     yield return BitSetFromIndex(2);
                     yield return Expression.Assign(Xpr.C, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.SET_3_C:
                     yield return BitSetFromIndex(3);
                     yield return Expression.Assign(Xpr.C, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.SET_4_C:
                     yield return BitSetFromIndex(4);
                     yield return Expression.Assign(Xpr.C, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.SET_5_C:
                     yield return BitSetFromIndex(5);
                     yield return Expression.Assign(Xpr.C, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.SET_6_C:
                     yield return BitSetFromIndex(6);
                     yield return Expression.Assign(Xpr.C, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.SET_7_C:
                     yield return BitSetFromIndex(7);
                     yield return Expression.Assign(Xpr.C, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.SET_0_D:
                     yield return BitSetFromIndex(0);
                     yield return Expression.Assign(Xpr.D, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.SET_1_D:
                     yield return BitSetFromIndex(1);
                     yield return Expression.Assign(Xpr.D, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.SET_2_D:
                     yield return BitSetFromIndex(2);
                     yield return Expression.Assign(Xpr.D, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.SET_3_D:
                     yield return BitSetFromIndex(3);
                     yield return Expression.Assign(Xpr.D, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.SET_4_D:
                     yield return BitSetFromIndex(4);
                     yield return Expression.Assign(Xpr.D, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.SET_5_D:
                     yield return BitSetFromIndex(5);
                     yield return Expression.Assign(Xpr.D, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.SET_6_D:
                     yield return BitSetFromIndex(6);
                     yield return Expression.Assign(Xpr.D, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.SET_7_D:
                     yield return BitSetFromIndex(7);
                     yield return Expression.Assign(Xpr.D, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.SET_0_E:
                     yield return BitSetFromIndex(0);
                     yield return Expression.Assign(Xpr.E, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.SET_1_E:
                     yield return BitSetFromIndex(1);
                     yield return Expression.Assign(Xpr.E, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.SET_2_E:
                     yield return BitSetFromIndex(2);
                     yield return Expression.Assign(Xpr.E, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.SET_3_E:
                     yield return BitSetFromIndex(3);
                     yield return Expression.Assign(Xpr.E, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.SET_4_E:
                     yield return BitSetFromIndex(4);
                     yield return Expression.Assign(Xpr.E, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.SET_5_E:
                     yield return BitSetFromIndex(5);
                     yield return Expression.Assign(Xpr.E, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.SET_6_E:
                     yield return BitSetFromIndex(6);
                     yield return Expression.Assign(Xpr.E, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.SET_7_E:
                     yield return BitSetFromIndex(7);
                     yield return Expression.Assign(Xpr.E, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.SET_0_H:
                     yield return BitSetFromIndex(0);
                     yield return Expression.Assign(Xpr.H, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.SET_1_H:
                     yield return BitSetFromIndex(1);
                     yield return Expression.Assign(Xpr.H, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.SET_2_H:
                     yield return BitSetFromIndex(2);
                     yield return Expression.Assign(Xpr.H, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.SET_3_H:
                     yield return BitSetFromIndex(3);
                     yield return Expression.Assign(Xpr.H, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.SET_4_H:
                     yield return BitSetFromIndex(4);
                     yield return Expression.Assign(Xpr.H, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.SET_5_H:
                     yield return BitSetFromIndex(5);
                     yield return Expression.Assign(Xpr.H, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.SET_6_H:
                     yield return BitSetFromIndex(6);
                     yield return Expression.Assign(Xpr.H, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.SET_7_H:
                     yield return BitSetFromIndex(7);
                     yield return Expression.Assign(Xpr.H, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.SET_0_L:
                     yield return BitSetFromIndex(0);
                     yield return Expression.Assign(Xpr.L, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.SET_1_L:
                     yield return BitSetFromIndex(1);
                     yield return Expression.Assign(Xpr.L, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.SET_2_L:
                     yield return BitSetFromIndex(2);
                     yield return Expression.Assign(Xpr.L, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.SET_3_L:
                     yield return BitSetFromIndex(3);
                     yield return Expression.Assign(Xpr.L, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.SET_4_L:
                     yield return BitSetFromIndex(4);
                     yield return Expression.Assign(Xpr.L, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.SET_5_L:
                     yield return BitSetFromIndex(5);
                     yield return Expression.Assign(Xpr.L, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.SET_6_L:
                     yield return BitSetFromIndex(6);
                     yield return Expression.Assign(Xpr.L, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.SET_7_L:
                     yield return BitSetFromIndex(7);
                     yield return Expression.Assign(Xpr.L, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.SET_0_mHL:
                     yield return BitSetFromIndex(0);
@@ -680,284 +680,284 @@
                 case PrefixCbOpCode.SET_0_A:
                     yield return BitSetFromIndex(0);
                     yield return Expression.Assign(Xpr.A, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.SET_1_A:
                     yield return BitSetFromIndex(1);
                     yield return Expression.Assign(Xpr.A, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.SET_2_A:
                     yield return BitSetFromIndex(2);
                     yield return Expression.Assign(Xpr.A, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.SET_3_A:
                     yield return BitSetFromIndex(3);
                     yield return Expression.Assign(Xpr.A, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.SET_4_A:
                     yield return BitSetFromIndex(4);
                     yield return Expression.Assign(Xpr.A, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.SET_5_A:
                     yield return BitSetFromIndex(5);
                     yield return Expression.Assign(Xpr.A, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.SET_6_A:
                     yield return BitSetFromIndex(6);
                     yield return Expression.Assign(Xpr.A, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.SET_7_A:
                     yield return BitSetFromIndex(7);
                     yield return Expression.Assign(Xpr.A, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break;
 
                 // RES r
                 case PrefixCbOpCode.RES_0_B:
                     yield return BitResetFromIndex(0);
                     yield return Expression.Assign(Xpr.B, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.RES_1_B:
                     yield return BitResetFromIndex(1);
                     yield return Expression.Assign(Xpr.B, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.RES_2_B:
                     yield return BitResetFromIndex(2);
                     yield return Expression.Assign(Xpr.B, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.RES_3_B:
                     yield return BitResetFromIndex(3);
                     yield return Expression.Assign(Xpr.B, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.RES_4_B:
                     yield return BitResetFromIndex(4);
                     yield return Expression.Assign(Xpr.B, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.RES_5_B:
                     yield return BitResetFromIndex(5);
                     yield return Expression.Assign(Xpr.B, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.RES_6_B:
                     yield return BitResetFromIndex(6);
                     yield return Expression.Assign(Xpr.B, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.RES_7_B:
                     yield return BitResetFromIndex(7);
                     yield return Expression.Assign(Xpr.B, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.RES_0_C:
                     yield return BitResetFromIndex(0);
                     yield return Expression.Assign(Xpr.C, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.RES_1_C:
                     yield return BitResetFromIndex(1);
                     yield return Expression.Assign(Xpr.C, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.RES_2_C:
                     yield return BitResetFromIndex(2);
                     yield return Expression.Assign(Xpr.C, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.RES_3_C:
                     yield return BitResetFromIndex(3);
                     yield return Expression.Assign(Xpr.C, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.RES_4_C:
                     yield return BitResetFromIndex(4);
                     yield return Expression.Assign(Xpr.C, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.RES_5_C:
                     yield return BitResetFromIndex(5);
                     yield return Expression.Assign(Xpr.C, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.RES_6_C:
                     yield return BitResetFromIndex(6);
                     yield return Expression.Assign(Xpr.C, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.RES_7_C:
                     yield return BitResetFromIndex(7);
                     yield return Expression.Assign(Xpr.C, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.RES_0_D:
                     yield return BitResetFromIndex(0);
                     yield return Expression.Assign(Xpr.D, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.RES_1_D:
                     yield return BitResetFromIndex(1);
                     yield return Expression.Assign(Xpr.D, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.RES_2_D:
                     yield return BitResetFromIndex(2);
                     yield return Expression.Assign(Xpr.D, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.RES_3_D:
                     yield return BitResetFromIndex(3);
                     yield return Expression.Assign(Xpr.D, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.RES_4_D:
                     yield return BitResetFromIndex(4);
                     yield return Expression.Assign(Xpr.D, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.RES_5_D:
                     yield return BitResetFromIndex(5);
                     yield return Expression.Assign(Xpr.D, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.RES_6_D:
                     yield return BitResetFromIndex(6);
                     yield return Expression.Assign(Xpr.D, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.RES_7_D:
                     yield return BitResetFromIndex(7);
                     yield return Expression.Assign(Xpr.D, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.RES_0_E:
                     yield return BitResetFromIndex(0);
                     yield return Expression.Assign(Xpr.E, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.RES_1_E:
                     yield return BitResetFromIndex(1);
                     yield return Expression.Assign(Xpr.E, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.RES_2_E:
                     yield return BitResetFromIndex(2);
                     yield return Expression.Assign(Xpr.E, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.RES_3_E:
                     yield return BitResetFromIndex(3);
                     yield return Expression.Assign(Xpr.E, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.RES_4_E:
                     yield return BitResetFromIndex(4);
                     yield return Expression.Assign(Xpr.E, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.RES_5_E:
                     yield return BitResetFromIndex(5);
                     yield return Expression.Assign(Xpr.E, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.RES_6_E:
                     yield return BitResetFromIndex(6);
                     yield return Expression.Assign(Xpr.E, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.RES_7_E:
                     yield return BitResetFromIndex(7);
                     yield return Expression.Assign(Xpr.E, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.RES_0_H:
                     yield return BitResetFromIndex(0);
                     yield return Expression.Assign(Xpr.H, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.RES_1_H:
                     yield return BitResetFromIndex(1);
                     yield return Expression.Assign(Xpr.H, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.RES_2_H:
                     yield return BitResetFromIndex(2);
                     yield return Expression.Assign(Xpr.H, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.RES_3_H:
                     yield return BitResetFromIndex(3);
                     yield return Expression.Assign(Xpr.H, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.RES_4_H:
                     yield return BitResetFromIndex(4);
                     yield return Expression.Assign(Xpr.H, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.RES_5_H:
                     yield return BitResetFromIndex(5);
                     yield return Expression.Assign(Xpr.H, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.RES_6_H:
                     yield return BitResetFromIndex(6);
                     yield return Expression.Assign(Xpr.H, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.RES_7_H:
                     yield return BitResetFromIndex(7);
                     yield return Expression.Assign(Xpr.H, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.RES_0_L:
                     yield return BitResetFromIndex(0);
                     yield return Expression.Assign(Xpr.L, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.RES_1_L:
                     yield return BitResetFromIndex(1);
                     yield return Expression.Assign(Xpr.L, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.RES_2_L:
                     yield return BitResetFromIndex(2);
                     yield return Expression.Assign(Xpr.L, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.RES_3_L:
                     yield return BitResetFromIndex(3);
                     yield return Expression.Assign(Xpr.L, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.RES_4_L:
                     yield return BitResetFromIndex(4);
                     yield return Expression.Assign(Xpr.L, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.RES_5_L:
                     yield return BitResetFromIndex(5);
                     yield return Expression.Assign(Xpr.L, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.RES_6_L:
                     yield return BitResetFromIndex(6);
                     yield return Expression.Assign(Xpr.L, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.RES_7_L:
                     yield return BitResetFromIndex(7);
                     yield return Expression.Assign(Xpr.L, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.RES_0_mHL:
                     yield return BitResetFromIndex(0);
@@ -986,42 +986,42 @@
                 case PrefixCbOpCode.RES_0_A:
                     yield return BitResetFromIndex(0);
                     yield return Expression.Assign(Xpr.A, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.RES_1_A:
                     yield return BitResetFromIndex(1);
                     yield return Expression.Assign(Xpr.A, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.RES_2_A:
                     yield return BitResetFromIndex(2);
                     yield return Expression.Assign(Xpr.A, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.RES_3_A:
                     yield return BitResetFromIndex(3);
                     yield return Expression.Assign(Xpr.A, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.RES_4_A:
                     yield return BitResetFromIndex(4);
                     yield return Expression.Assign(Xpr.A, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.RES_5_A:
                     yield return BitResetFromIndex(5);
                     yield return Expression.Assign(Xpr.A, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.RES_6_A:
                     yield return BitResetFromIndex(6);
                     yield return Expression.Assign(Xpr.A, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                 case PrefixCbOpCode.RES_7_A:
                     yield return BitResetFromIndex(7);
                     yield return Expression.Assign(Xpr.A, index.ReadIndexedValue);
-                    timer.Add(4, 15);
+                    timingsBuilder.Add(4, 15);
                     break; 
                     
                 default:

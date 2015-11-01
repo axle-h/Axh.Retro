@@ -20,7 +20,7 @@
             using (var kernel = new StandardKernel(new Z80Module()))
             {
                 var core = kernel.Get<ICpuCore>();
-                core.StartCoreProcess();
+                core.StartCoreProcessAsync().Wait();
             }
         }
     }

@@ -8,9 +8,11 @@
     using Axh.Retro.CPU.X80.Contracts;
     using Axh.Retro.CPU.X80.Contracts.Config;
     using Axh.Retro.CPU.X80.Contracts.Core;
+    using Axh.Retro.CPU.X80.Contracts.Core.Timing;
     using Axh.Retro.CPU.X80.Contracts.IO;
     using Axh.Retro.CPU.X80.Contracts.Memory;
     using Axh.Retro.CPU.X80.Contracts.Registers;
+    using Axh.Retro.CPU.X80.Core.Timing;
     using Axh.Retro.CPU.X80.Util;
 
     using Xpr = DynaRecExpressions;
@@ -22,7 +24,7 @@
     internal partial class DynaRecBlockBuilder<TRegisters> where TRegisters : IRegisters
     {
         private readonly CpuMode cpuMode;
-        private readonly IInstructionTimer timer;
+        private readonly IInstructionTimingsBuilder timingsBuilder;
         private readonly IMmuCache mmuCache;
 
         private ConstantExpression NextByte => Expression.Constant(mmuCache.NextByte(), typeof(byte));
@@ -32,10 +34,10 @@
         private DecodeResult lastDecodeResult;
         private IndexRegisterExpressions index;
 
-        public DynaRecBlockBuilder(CpuMode cpuMode, IMmuCache mmuCache, IInstructionTimer timer)
+        public DynaRecBlockBuilder(CpuMode cpuMode, IMmuCache mmuCache, IInstructionTimingsBuilder timingsBuilder)
         {
             this.cpuMode = cpuMode;
-            this.timer = timer;
+            this.timingsBuilder = timingsBuilder;
             this.mmuCache = mmuCache;
         }
 
@@ -69,7 +71,7 @@
         private static IEnumerable<Expression> GetBlockInitExpressions()
         {
             // Create a new dynamic timer to record any timings calculated at runtime.
-            yield return Expression.Assign(Xpr.DynamicTimer, Expression.New(typeof(InstructionTimer)));
+            yield return Expression.Assign(Xpr.DynamicTimer, Expression.New(typeof(InstructionTimingsBuilder)));
         }
 
         private IEnumerable<Expression> GetBlockFinalExpressions()
@@ -86,7 +88,7 @@
 
             // Return the dynamic timings.
             var returnTarget = Expression.Label(typeof(InstructionTimings), "InstructionTimings_Return");
-            var getInstructionTimings = ExpressionHelpers.GetMethodInfo<IInstructionTimer>(dt => dt.GetInstructionTimings());
+            var getInstructionTimings = ExpressionHelpers.GetMethodInfo<IInstructionTimingsBuilder>(dt => dt.GetInstructionTimings());
             yield return Expression.Return(returnTarget, Expression.Call(Xpr.DynamicTimer, getInstructionTimings), typeof(InstructionTimings));
             yield return Expression.Label(returnTarget, Expression.Constant(default(InstructionTimings)));
         }

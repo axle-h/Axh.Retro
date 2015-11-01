@@ -48,8 +48,9 @@
     <Compile Include="Core\AccumulatorAndResult.cs" />
     <Compile Include="Core\IArithmeticLogicUnit.cs" />
     <Compile Include="Core\IInstructionBlock.cs" />
-    <Compile Include="Core\IInstructionTimer.cs" />
-    <Compile Include="Core\InstructionTimings.cs" />
+    <Compile Include="Core\Timing\IInstructionTimer.cs" />
+    <Compile Include="Core\Timing\IInstructionTimingsBuilder.cs" />
+    <Compile Include="Core\Timing\InstructionTimings.cs" />
     <Compile Include="Config\CpuMode.cs" />
     <Compile Include="Exceptions\MemoryConfigStateException.cs" />
     <Compile Include="Exceptions\MmuAddressSegmentGapException.cs" />
@@ -86,7 +87,9 @@
     <Compile Include="State\Z80RegisterState.cs" />
     <Compile Include="Core\IInstructionBlockDecoder.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Timing\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -4,12 +4,14 @@
     using Axh.Retro.CPU.X80.Contracts.Cache;
     using Axh.Retro.CPU.X80.Contracts.Config;
     using Axh.Retro.CPU.X80.Contracts.Core;
+    using Axh.Retro.CPU.X80.Contracts.Core.Timing;
     using Axh.Retro.CPU.X80.Contracts.Factories;
     using Axh.Retro.CPU.X80.Contracts.IO;
     using Axh.Retro.CPU.X80.Contracts.Registers;
     using Axh.Retro.CPU.X80.Contracts.State;
     using Axh.Retro.CPU.X80.Core;
     using Axh.Retro.CPU.X80.Core.DynaRec;
+    using Axh.Retro.CPU.X80.Core.Timing;
     using Axh.Retro.CPU.X80.Factories;
     using Axh.Retro.CPU.X80.IO;
     using Axh.Retro.Z80Console.Config;
@@ -23,6 +25,7 @@
             // Core
             this.Bind<ICpuCore>().To<CachingCpuCore<IZ80Registers>>();
             this.Bind<IInstructionBlockDecoder<IZ80Registers>>().To<DynaRecInstructionBlockDecoder<IZ80Registers>>();
+            this.Bind<IInstructionTimer>().To<MachineCycleTimer>().InSingletonScope();
 
             // Cache
             this.Bind<IInstructionBlockCache<IZ80Registers>>().To<NaiveInstructionBlockCache<IZ80Registers>>();
