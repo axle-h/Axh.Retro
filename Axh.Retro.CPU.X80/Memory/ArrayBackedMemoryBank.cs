@@ -13,6 +13,7 @@
         public ArrayBackedMemoryBank(IMemoryBankConfig memoryBankConfig)
         {
             this.memory = new byte[memoryBankConfig.Length];
+            this.Type = memoryBankConfig.Type;
             this.Address = memoryBankConfig.Address;
             this.Length = memoryBankConfig.Length;
 
@@ -27,6 +28,8 @@
             }
             Array.Copy(memoryBankConfig.State, 0, this.memory, 0, memoryBankConfig.State.Length);
         }
+
+        public MemoryBankType Type { get; }
 
         public ushort Address { get; private set; }
 

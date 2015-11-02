@@ -88,42 +88,56 @@
         
         public void WriteByte(ushort address, byte value)
         {
-            OnAddressWrite(address, 1);
-
             ushort segmentAddress;
-            var addressSegment = GetAddressSegmentForAddress(this.writeSegmentAddresses, this.writeSegments, address, out segmentAddress);
-            addressSegment.WriteByte(segmentAddress, value);
+            var segment = GetAddressSegmentForAddress(this.writeSegmentAddresses, this.writeSegments, address, out segmentAddress);
+            segment.WriteByte(segmentAddress, value);
+
+            if (TriggerWriteEventForMemoryBankType(segment.Type))
+            {
+                OnAddressWrite(address, 1);
+            }
         }
         
         public void WriteWord(ushort address, ushort word)
         {
-            OnAddressWrite(address, 2);
-
             ushort segmentAddress;
             int segmentIndex;
             IWriteableAddressSegment segment;
             if (TryGetSegmentIndexForAddress(this.writeSegmentAddresses, this.writeSegments, address, sizeof(ushort), out segment, out segmentIndex, out segmentAddress))
             {
                 segment.WriteWord(segmentAddress, word);
+                if (TriggerWriteEventForMemoryBankType(segment.Type))
+                {
+                    OnAddressWrite(address, 2);
+                }
                 return;
             }
 
             // Write one byte to the end of the returned segment index and another to the start of the next
             var bytes = BitConverter.GetBytes(word);
             segment.WriteByte(segmentAddress, bytes[0]);
-            this.writeSegments[(segmentIndex + 1) % this.writeSegments.Length].WriteByte(0, bytes[1]);
+            var nextSegment = this.writeSegments[(segmentIndex + 1) % this.writeSegments.Length];
+
+            if (TriggerWriteEventForMemoryBankType(segment.Type) || TriggerWriteEventForMemoryBankType(nextSegment.Type))
+            {
+                OnAddressWrite(address, 2);
+            }
+
+            nextSegment.WriteByte(0, bytes[1]);
         }
 
         public void WriteBytes(ushort address, byte[] bytes)
         {
-            OnAddressWrite(address, (ushort)bytes.Length);
-
             ushort segmentAddress;
             int segmentIndex;
             IWriteableAddressSegment segment;
             if (TryGetSegmentIndexForAddress(this.writeSegmentAddresses, this.writeSegments, address, bytes.Length, out segment, out segmentIndex, out segmentAddress))
             {
                 segment.WriteBytes(segmentAddress, bytes);
+                if (TriggerWriteEventForMemoryBankType(segment.Type))
+                {
+                    OnAddressWrite(address, (ushort)bytes.Length);
+                }
                 return;
             }
             
@@ -134,6 +148,8 @@
             segment.WriteBytes(segmentAddress, nextBytes);
             var nextIndex = segmentLength;
             var lengthRemaining = bytes.Length - segmentLength;
+
+            var triggerWriteEvent = TriggerWriteEventForMemoryBankType(segment.Type);
 
             // Write to consecutive segments until all bytes have been written.
             while (lengthRemaining > 0)
@@ -146,8 +162,15 @@
                 Array.Copy(bytes, nextIndex, nextBytes, 0, segmentLength);
                 segment.WriteBytes(0, nextBytes);
 
+                triggerWriteEvent |= TriggerWriteEventForMemoryBankType(segment.Type);
+
                 lengthRemaining -= segmentLength;
                 nextIndex += segmentLength;
+            }
+
+            if (triggerWriteEvent)
+            {
+                OnAddressWrite(address, (ushort)bytes.Length);
             }
         }
 
@@ -230,6 +253,11 @@
             {
                 throw new MmuAddressSegmentGapException(lastAddress, ushort.MaxValue);
             }
+        }
+
+        private static bool TriggerWriteEventForMemoryBankType(MemoryBankType type)
+        {
+            return type == MemoryBankType.RandomAccessMemory;
         }
     }
 }

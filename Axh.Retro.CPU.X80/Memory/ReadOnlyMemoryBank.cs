@@ -20,13 +20,16 @@
             this.memory = new byte[memoryBankConfig.Length];
             Array.Copy(memoryBankConfig.State, 0, this.memory, 0, memoryBankConfig.State.Length);
 
+            this.Type = memoryBankConfig.Type;
             this.Address = memoryBankConfig.Address;
             this.Length = memoryBankConfig.Length;
         }
 
-        public ushort Address { get; private set; }
+        public MemoryBankType Type { get; }
 
-        public ushort Length { get; private set; }
+        public ushort Address { get; }
+
+        public ushort Length { get; }
 
         public byte ReadByte(ushort address)
         {

@@ -2,12 +2,7 @@
 {
     using System;
 
-    public enum MemoryBankType
-    {
-        RandomAccessMemory,
-        ReadOnlyMemory,
-        Peripheral
-    }
+    using Axh.Retro.CPU.X80.Contracts.Memory;
 
     public interface IMmuBankConfig
     {

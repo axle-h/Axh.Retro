@@ -2,6 +2,8 @@
 {
     using System;
 
+    using Axh.Retro.CPU.X80.Contracts.Memory;
+
     public class SimpleMemoryBankConfig : SimpleMmuBankConfig, IMemoryBankConfig
     {
         public SimpleMemoryBankConfig(MemoryBankType type, int bankId, ushort address, ushort length)

@@ -65,6 +65,7 @@
     <Compile Include="Factories\IRegisterFactory.cs" />
     <Compile Include="Core\ICpuCore.cs" />
     <Compile Include="Factories\IPeripheralManagerFactory.cs" />
+    <Compile Include="Memory\MemoryBankType.cs" />
     <Compile Include="Peripherals\IIOPeripheral.cs" />
     <Compile Include="Peripherals\IMemoryMappedPeripheral.cs" />
     <Compile Include="Peripherals\IPeripheralManager.cs" />
