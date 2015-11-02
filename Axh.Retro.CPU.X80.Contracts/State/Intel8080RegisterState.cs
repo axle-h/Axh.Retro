@@ -4,8 +4,10 @@
 
     public struct Intel8080RegisterState
     {
-        public GeneralPurposeRegisterState PrimaryRegisterState { get; set; }
-        
+        public GeneralPurposeRegisterState GeneralPurposeRegisterState { get; set; }
+
+        public AccumulatorAndFlagsRegisterState AccumulatorAndFlagsRegisterState { get; set; }
+
         public ushort StackPointer { get; set; }
         public ushort ProgramCounter { get; set; }
 

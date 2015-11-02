@@ -57,6 +57,7 @@
     <Compile Include="Factories\AluFactory.cs" />
     <Compile Include="Factories\MmuFactory.cs" />
     <Compile Include="Factories\PeripheralManagerFactory.cs" />
+    <Compile Include="Factories\RegisterFactory.cs" />
     <Compile Include="Factories\Z80RegisterFactory.cs" />
     <Compile Include="Peripherals\AsciiSystemConsole.cs" />
     <Compile Include="Peripherals\SystemConsoleStatus.cs" />
@@ -65,7 +66,9 @@
     <Compile Include="Memory\MmuCache.cs" />
     <Compile Include="Memory\ReadOnlyMemoryBank.cs" />
     <Compile Include="Registers\AccumulatorAndFlagsRegisterSet.cs" />
-    <Compile Include="Registers\Z80FlagsRegister.cs" />
+    <Compile Include="Registers\GameBoyFlagsRegister.cs" />
+    <Compile Include="Registers\Intel8080Registers.cs" />
+    <Compile Include="Registers\Intel8080FlagsRegister.cs" />
     <Compile Include="Registers\GeneralPurposeRegisterSet.cs" />
     <Compile Include="Registers\Z80Registers.cs" />
     <Compile Include="Util\BitConverterHelpers.cs" />

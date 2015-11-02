@@ -13,7 +13,7 @@
         [TestFixtureSetUp]
         public void TestFixtureSetUp()
         {
-            flagsRegister = new Z80FlagsRegister();
+            flagsRegister = new Intel8080FlagsRegister();
             flagsRegister.ResetFlags();
         }
 

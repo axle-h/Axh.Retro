@@ -72,15 +72,15 @@
             }
         }
 
-        //IR Flags
+        // IR Flags
         public byte I { get; set; }
         public byte R { get; set; }
 
-        //Pointers
+        // Pointers
         public ushort StackPointer { get; set; }
         public ushort ProgramCounter { get; set; }
 
-        //Interrupt Flip-Flops
+        // Interrupt Flip-Flops
         public bool InterruptFlipFlop1 { get; set; }
         public bool InterruptFlipFlop2 { get; set; }
         public InterruptMode InterruptMode { get; set; }
@@ -164,23 +164,23 @@
         public Z80RegisterState GetRegisterState()
         {
             return new Z80RegisterState
-            {
-                AlternativeAccumulatorAndFlagsRegisterState = this.alternativeAccumulatorAndFlagsRegisterSet.GetRegisterState(),
-                AlternativeGeneralPurposeRegisterState = this.alternativeGeneralPurposeRegisterSet.GetRegisterState(),
-                I = this.I,
-                IX = this.IX,
-                IY = this.IY,
-                InterruptFlipFlop1 = this.InterruptFlipFlop1,
-                InterruptFlipFlop2 = this.InterruptFlipFlop2,
-                InterruptMode = this.InterruptMode,
-                IsAccumulatorAndFlagsAlternative = this.isAccumulatorAndFlagsAlternative,
-                IsGeneralPurposeAlternative = this.isGeneralPurposeAlternative,
-                PrimaryAccumulatorAndFlagsRegisterState = this.primaryAccumulatorAndFlagsRegisterSet.GetRegisterState(),
-                PrimaryGeneralPurposeRegisterState = this.primaryGeneralPurposeRegisterSet.GetRegisterState(),
-                ProgramCounter = this.ProgramCounter,
-                R = this.R,
-                StackPointer = this.StackPointer
-            };
+                   {
+                       AlternativeAccumulatorAndFlagsRegisterState = this.alternativeAccumulatorAndFlagsRegisterSet.GetRegisterState(),
+                       AlternativeGeneralPurposeRegisterState = this.alternativeGeneralPurposeRegisterSet.GetRegisterState(),
+                       I = this.I,
+                       IX = this.IX,
+                       IY = this.IY,
+                       InterruptFlipFlop1 = this.InterruptFlipFlop1,
+                       InterruptFlipFlop2 = this.InterruptFlipFlop2,
+                       InterruptMode = this.InterruptMode,
+                       IsAccumulatorAndFlagsAlternative = this.isAccumulatorAndFlagsAlternative,
+                       IsGeneralPurposeAlternative = this.isGeneralPurposeAlternative,
+                       PrimaryAccumulatorAndFlagsRegisterState = this.primaryAccumulatorAndFlagsRegisterSet.GetRegisterState(),
+                       PrimaryGeneralPurposeRegisterState = this.primaryGeneralPurposeRegisterSet.GetRegisterState(),
+                       ProgramCounter = this.ProgramCounter,
+                       R = this.R,
+                       StackPointer = this.StackPointer
+                   };
         }
     }
 }

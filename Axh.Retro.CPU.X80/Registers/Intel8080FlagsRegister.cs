@@ -3,7 +3,10 @@
     using Axh.Retro.CPU.X80.Contracts.Registers;
     using Axh.Retro.CPU.X80.Util;
 
-    public class Z80FlagsRegister : IFlagsRegister
+    /// <summary>
+    /// Flags register used by the Z80 & Intel 8080 (I think)
+    /// </summary>
+    public class Intel8080FlagsRegister : IFlagsRegister
     {
         private const byte SignMask = 1 << 7;
         private const byte ZeroMask = 1 << 6;
@@ -85,7 +88,7 @@
         public bool Subtract { get; set; }
         public bool Carry { get; set; }
 
-        public Z80FlagsRegister()
+        public Intel8080FlagsRegister()
         {
             ResetFlags();
         }

@@ -5,11 +5,5 @@
     public interface IRegisterFactory<out TRegisters> where TRegisters : IRegisters
     {
         TRegisters GetInitialRegisters();
-
-        IGeneralPurposeRegisterSet GetGeneralPurposeRegisterSet();
-
-        IAccumulatorAndFlagsRegisterSet GetAccumulatorAndFlagsRegisterSet();
-
-        IFlagsRegister GetFlagsRegister();
     }
 }
