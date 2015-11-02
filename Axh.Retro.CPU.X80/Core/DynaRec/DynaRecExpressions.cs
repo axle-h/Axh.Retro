@@ -7,7 +7,7 @@
 
     using Axh.Retro.CPU.X80.Contracts.Core;
     using Axh.Retro.CPU.X80.Contracts.Core.Timing;
-    using Axh.Retro.CPU.X80.Contracts.IO;
+    using Axh.Retro.CPU.X80.Contracts.Peripherals;
     using Axh.Retro.CPU.X80.Contracts.Memory;
     using Axh.Retro.CPU.X80.Contracts.Registers;
     using Axh.Retro.CPU.X80.Util;
@@ -207,7 +207,7 @@
             Registers = Expression.Parameter(typeof(IZ80Registers), "registers");
             Mmu = Expression.Parameter(typeof(IMmu), "mmu");
             Alu = Expression.Parameter(typeof(IArithmeticLogicUnit), "alu");
-            IO = Expression.Parameter(typeof(IInputOutputManager), "io");
+            IO = Expression.Parameter(typeof(IPeripheralManager), "io");
             LocalByte = Expression.Parameter(typeof(byte), "b");
             LocalWord = Expression.Parameter(typeof(ushort), "w");
             DynamicTimer = Expression.Parameter(typeof(IInstructionTimingsBuilder), "timer");
@@ -328,8 +328,8 @@
             AluBitReset = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, int, byte>((alu, a, bit) => alu.BitReset(a, bit));
 
             // IO Expressions
-            IoReadByte = ExpressionHelpers.GetMethodInfo<IInputOutputManager, byte, byte, byte>((io, port, addressMsb) => io.ReadByte(port, addressMsb));
-            IoWriteByte = ExpressionHelpers.GetMethodInfo<IInputOutputManager, byte, byte, byte>((io, port, addressMsb, value) => io.WriteByte(port, addressMsb, value));
+            IoReadByte = ExpressionHelpers.GetMethodInfo<IPeripheralManager, byte, byte, byte>((io, port, addressMsb) => io.ReadByteFromPort(port, addressMsb));
+            IoWriteByte = ExpressionHelpers.GetMethodInfo<IPeripheralManager, byte, byte, byte>((io, port, addressMsb, value) => io.WriteByteToPort(port, addressMsb, value));
 
             JumpToDisplacement = Expression.Assign(PC, Expression.Convert(Expression.Add(Expression.Convert(PC, typeof(int)), Expression.Convert(Expression.Convert(LocalByte, typeof(sbyte)), typeof(int))), typeof(ushort)));
 

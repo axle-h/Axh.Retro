@@ -1,7 +1,7 @@
 ﻿namespace Axh.Retro.Z80Console
 {
     using Axh.Retro.CPU.X80.Contracts.Core;
-    using Axh.Retro.CPU.X80.Contracts.IO;
+    using Axh.Retro.CPU.X80.Contracts.Peripherals;
     using Axh.Retro.Z80Console.Infrastructure;
 
     using Ninject;

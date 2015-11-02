@@ -9,7 +9,7 @@
     using Axh.Retro.CPU.X80.Contracts.Config;
     using Axh.Retro.CPU.X80.Contracts.Core;
     using Axh.Retro.CPU.X80.Contracts.Core.Timing;
-    using Axh.Retro.CPU.X80.Contracts.IO;
+    using Axh.Retro.CPU.X80.Contracts.Peripherals;
     using Axh.Retro.CPU.X80.Contracts.Memory;
     using Axh.Retro.CPU.X80.Contracts.Registers;
     using Axh.Retro.CPU.X80.Core.Timing;
@@ -42,7 +42,7 @@
 
         public DecodeResult LastDecodeResult { get; private set; }
 
-        public Expression<Func<TRegisters, IMmu, IArithmeticLogicUnit, IInputOutputManager, InstructionTimings>> DecodeNextBlock()
+        public Expression<Func<TRegisters, IMmu, IArithmeticLogicUnit, IPeripheralManager, InstructionTimings>> DecodeNextBlock()
         {
             var initExpressions = GetBlockInitExpressions();
             var blockExpressions = GetBlockExpressions();
@@ -51,7 +51,7 @@
             var expressions = initExpressions.Concat(blockExpressions).Concat(finalExpressions).ToArray();
 
             var expressionBlock = Expression.Block(GeParameterExpressions(), expressions);
-            var lambda = Expression.Lambda<Func<TRegisters, IMmu, IArithmeticLogicUnit, IInputOutputManager, InstructionTimings>>(expressionBlock, Xpr.Registers, Xpr.Mmu, Xpr.Alu, Xpr.IO);
+            var lambda = Expression.Lambda<Func<TRegisters, IMmu, IArithmeticLogicUnit, IPeripheralManager, InstructionTimings>>(expressionBlock, Xpr.Registers, Xpr.Mmu, Xpr.Alu, Xpr.IO);
 
             return lambda;
         }

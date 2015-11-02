@@ -60,10 +60,14 @@
     <Compile Include="Exceptions\PlatformConfigurationException.cs" />
     <Compile Include="Factories\IAluFactory.cs" />
     <Compile Include="Factories\IMmuFactory.cs" />
+    <Compile Include="Factories\IPeripheralFactory.cs" />
     <Compile Include="Factories\IRegisterFactory.cs" />
     <Compile Include="Core\ICpuCore.cs" />
-    <Compile Include="IO\IInputOutputManager.cs" />
-    <Compile Include="IO\IPeripheral.cs" />
+    <Compile Include="Factories\IPeripheralManagerFactory.cs" />
+    <Compile Include="Peripherals\IIOPeripheral.cs" />
+    <Compile Include="Peripherals\IMemoryMappedPeripheral.cs" />
+    <Compile Include="Peripherals\IPeripheralManager.cs" />
+    <Compile Include="Peripherals\IPeripheral.cs" />
     <Compile Include="Memory\AddressWriteEventArgs.cs" />
     <Compile Include="Memory\IMmu.cs" />
     <Compile Include="Memory\IAddressSegment.cs" />

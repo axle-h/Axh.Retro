@@ -1,13 +1,12 @@
-﻿namespace Axh.Retro.CPU.X80.Mmu
+﻿namespace Axh.Retro.CPU.X80.Memory
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Runtime.CompilerServices;
 
     using Axh.Retro.CPU.X80.Contracts.Exceptions;
     using Axh.Retro.CPU.X80.Contracts.Memory;
-    
+
     public class SegmentMmu : IMmu
     {
         private readonly ushort[] readSegmentAddresses;
@@ -25,7 +24,7 @@
 
             this.writeSegments = sortedSegments.OfType<IWriteableAddressSegment>().ToArray();
             this.writeSegmentAddresses = this.writeSegments.Select(x => x.Address).ToArray();
-
+            
             CheckSegments(this.readSegments);
             CheckSegments(this.writeSegments);
         }

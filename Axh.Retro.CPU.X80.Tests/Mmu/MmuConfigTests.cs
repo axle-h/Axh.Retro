@@ -2,7 +2,7 @@
 {
     using Axh.Retro.CPU.X80.Contracts.Exceptions;
     using Axh.Retro.CPU.X80.Contracts.Memory;
-    using Axh.Retro.CPU.X80.Mmu;
+    using Axh.Retro.CPU.X80.Memory;
 
     using Moq;
 

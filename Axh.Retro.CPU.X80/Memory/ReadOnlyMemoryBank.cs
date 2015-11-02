@@ -14,7 +14,7 @@
         {
             if (memoryBankConfig.State == null || memoryBankConfig.Length != memoryBankConfig.State.Length)
             {
-                throw new MemoryConfigStateException(memoryBankConfig.Address, memoryBankConfig.Length, memoryBankConfig.State == null ? 0 : memoryBankConfig.State.Length);
+                throw new MemoryConfigStateException(memoryBankConfig.Address, memoryBankConfig.Length, memoryBankConfig.State?.Length ?? 0);
             }
 
             this.memory = new byte[memoryBankConfig.Length];

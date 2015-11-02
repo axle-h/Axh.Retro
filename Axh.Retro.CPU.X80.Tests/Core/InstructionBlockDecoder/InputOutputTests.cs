@@ -19,11 +19,11 @@
 
             const byte Port = 0xac;
             const byte Value = 0x5e;
-            this.Io.Setup(x => x.ReadByte(Port, A)).Returns(Value);
+            this.Io.Setup(x => x.ReadByteFromPort(Port, A)).Returns(Value);
 
             RunWithHalt(3, 11, PrimaryOpCode.IN_A_n, Port);
 
-            this.Io.Verify(x => x.ReadByte(Port, A), Times.Once);
+            this.Io.Verify(x => x.ReadByteFromPort(Port, A), Times.Once);
             this.AfRegisters.VerifySet(x => x.A = Value, Times.Once);
         }
 
@@ -41,11 +41,11 @@
             this.ResetMocks();
             
             const byte Value = 0x5e;
-            this.Io.Setup(x => x.ReadByte(C, B)).Returns(Value);
+            this.Io.Setup(x => x.ReadByteFromPort(C, B)).Returns(Value);
 
             RunWithHalt(3, 12, PrimaryOpCode.Prefix_ED, opCode);
 
-            this.Io.Verify(x => x.ReadByte(C, B), Times.Once);
+            this.Io.Verify(x => x.ReadByteFromPort(C, B), Times.Once);
 
             switch (opCode)
             {
@@ -85,11 +85,11 @@
             this.ResetMocks();
             
             const byte Value = 0xb9;
-            this.Io.Setup(x => x.ReadByte(C, B)).Returns(Value);
+            this.Io.Setup(x => x.ReadByteFromPort(C, B)).Returns(Value);
 
             RunWithHalt(4, 16, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.INI);
 
-            this.Io.Verify(x => x.ReadByte(C, B), Times.Once);
+            this.Io.Verify(x => x.ReadByteFromPort(C, B), Times.Once);
             this.Mmu.Verify(x => x.WriteByte(HL, Value), Times.Once);
             this.GpRegisters.VerifySet(x => x.B = B - 1, Times.Once);
             this.GpRegisters.VerifySet(x => x.HL = HL + 1, Times.Once);
@@ -106,7 +106,7 @@
             this.ResetMocks();
 
             const byte Value = 0xb9;
-            this.Io.Setup(x => x.ReadByte(C, It.IsAny<byte>())).Returns(Value);
+            this.Io.Setup(x => x.ReadByteFromPort(C, It.IsAny<byte>())).Returns(Value);
 
             RunWithHalt((Length - 1) * 5 + 4, (Length - 1) * 21 + 16, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.INIR);
 
@@ -121,7 +121,7 @@
             for (var i = 0; i < Length; i++)
             {
                 var index = i;
-                this.Io.Verify(x => x.ReadByte(C, (byte)(B - index)), Times.Once);
+                this.Io.Verify(x => x.ReadByteFromPort(C, (byte)(B - index)), Times.Once);
                 this.Mmu.Verify(x => x.WriteByte((ushort)(HL + index), Value), Times.Once);
             }
 
@@ -135,11 +135,11 @@
             this.ResetMocks();
 
             const byte Value = 0xb9;
-            this.Io.Setup(x => x.ReadByte(C, B)).Returns(Value);
+            this.Io.Setup(x => x.ReadByteFromPort(C, B)).Returns(Value);
 
             RunWithHalt(4, 16, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.IND);
 
-            this.Io.Verify(x => x.ReadByte(C, B), Times.Once);
+            this.Io.Verify(x => x.ReadByteFromPort(C, B), Times.Once);
             this.Mmu.Verify(x => x.WriteByte(HL, Value), Times.Once);
             this.GpRegisters.VerifySet(x => x.B = B - 1, Times.Once);
             this.GpRegisters.VerifySet(x => x.HL = HL - 1, Times.Once);
@@ -156,7 +156,7 @@
             this.ResetMocks();
 
             const byte Value = 0xb9;
-            this.Io.Setup(x => x.ReadByte(C, It.IsAny<byte>())).Returns(Value);
+            this.Io.Setup(x => x.ReadByteFromPort(C, It.IsAny<byte>())).Returns(Value);
 
             RunWithHalt((Length - 1) * 5 + 4, (Length - 1) * 21 + 16, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.INDR);
 
@@ -171,7 +171,7 @@
             for (var i = 0; i < Length; i++)
             {
                 var index = i;
-                this.Io.Verify(x => x.ReadByte(C, (byte)(B - index)), Times.Once);
+                this.Io.Verify(x => x.ReadByteFromPort(C, (byte)(B - index)), Times.Once);
                 this.Mmu.Verify(x => x.WriteByte((ushort)(HL - index), Value), Times.Once);
             }
 
@@ -188,7 +188,7 @@
 
             RunWithHalt(3, 11, PrimaryOpCode.OUT_A_n, Port);
 
-            this.Io.Verify(x => x.WriteByte(Port, A, A), Times.Once);
+            this.Io.Verify(x => x.WriteByteToPort(Port, A, A), Times.Once);
         }
 
         [TestCase(PrefixEdOpCode.OUT_A_C)]
@@ -209,28 +209,28 @@
             switch (opCode)
             {
                 case PrefixEdOpCode.OUT_A_C:
-                    this.Io.Verify(x => x.WriteByte(C, B, A), Times.Once);
+                    this.Io.Verify(x => x.WriteByteToPort(C, B, A), Times.Once);
                     break;
                 case PrefixEdOpCode.OUT_B_C:
-                    this.Io.Verify(x => x.WriteByte(C, B, B), Times.Once);
+                    this.Io.Verify(x => x.WriteByteToPort(C, B, B), Times.Once);
                     break;
                 case PrefixEdOpCode.OUT_C_C:
-                    this.Io.Verify(x => x.WriteByte(C, B, C), Times.Once);
+                    this.Io.Verify(x => x.WriteByteToPort(C, B, C), Times.Once);
                     break;
                 case PrefixEdOpCode.OUT_D_C:
-                    this.Io.Verify(x => x.WriteByte(C, B, D), Times.Once);
+                    this.Io.Verify(x => x.WriteByteToPort(C, B, D), Times.Once);
                     break;
                 case PrefixEdOpCode.OUT_E_C:
-                    this.Io.Verify(x => x.WriteByte(C, B, E), Times.Once);
+                    this.Io.Verify(x => x.WriteByteToPort(C, B, E), Times.Once);
                     break;
                 case PrefixEdOpCode.OUT_F_C:
-                    this.Io.Verify(x => x.WriteByte(C, B, F), Times.Once);
+                    this.Io.Verify(x => x.WriteByteToPort(C, B, F), Times.Once);
                     break;
                 case PrefixEdOpCode.OUT_H_C:
-                    this.Io.Verify(x => x.WriteByte(C, B, H), Times.Once);
+                    this.Io.Verify(x => x.WriteByteToPort(C, B, H), Times.Once);
                     break;
                 case PrefixEdOpCode.OUT_L_C:
-                    this.Io.Verify(x => x.WriteByte(C, B, L), Times.Once);
+                    this.Io.Verify(x => x.WriteByteToPort(C, B, L), Times.Once);
                     break;
                 default:
                     throw new NotSupportedException();
@@ -249,7 +249,7 @@
             RunWithHalt(4, 16, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.OUTI);
 
             this.Mmu.Verify(x => x.ReadByte(HL), Times.Once);
-            this.Io.Verify(x => x.WriteByte(C, B, Value), Times.Once);
+            this.Io.Verify(x => x.WriteByteToPort(C, B, Value), Times.Once);
             this.GpRegisters.VerifySet(x => x.B = B - 1, Times.Once);
             this.GpRegisters.VerifySet(x => x.HL = HL + 1, Times.Once);
             this.FlagsRegister.Verify(x => x.SetResultFlags(B - 1), Times.Once);
@@ -281,7 +281,7 @@
             {
                 var index = i;
                 this.Mmu.Verify(x => x.ReadByte((ushort)(HL + index)), Times.Once);
-                this.Io.Verify(x => x.WriteByte(C, (byte)(B - index), Value), Times.Once);
+                this.Io.Verify(x => x.WriteByteToPort(C, (byte)(B - index), Value), Times.Once);
             }
 
             this.FlagsRegister.VerifySet(x => x.Subtract = true, Times.AtLeastOnce);
@@ -299,7 +299,7 @@
             RunWithHalt(4, 16, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.OUTD);
 
             this.Mmu.Verify(x => x.ReadByte(HL), Times.Once);
-            this.Io.Verify(x => x.WriteByte(C, B, Value), Times.Once);
+            this.Io.Verify(x => x.WriteByteToPort(C, B, Value), Times.Once);
             this.GpRegisters.VerifySet(x => x.B = B - 1, Times.Once);
             this.GpRegisters.VerifySet(x => x.HL = HL - 1, Times.Once);
             this.FlagsRegister.Verify(x => x.SetResultFlags(B - 1), Times.Once);
@@ -331,7 +331,7 @@
             {
                 var index = i;
                 this.Mmu.Verify(x => x.ReadByte((ushort)(HL - index)), Times.Once);
-                this.Io.Verify(x => x.WriteByte(C, (byte)(B - index), Value), Times.Once);
+                this.Io.Verify(x => x.WriteByteToPort(C, (byte)(B - index), Value), Times.Once);
             }
 
             this.FlagsRegister.VerifySet(x => x.Subtract = true, Times.AtLeastOnce);

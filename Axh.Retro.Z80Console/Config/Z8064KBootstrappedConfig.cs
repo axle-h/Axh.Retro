@@ -13,22 +13,24 @@
 
         public Z8064KBootstrappedConfig()
         {
-            var ramConfig = new SimpleMemoryBankConfig(0, MemoryStart, MemoryLength);
+            var ramConfig = new SimpleMemoryBankConfig(MemoryBankType.RandomAccessMemory, 0, MemoryStart, MemoryLength);
 
             // Bootstrap from Resources/code.bin
             // This is a simple hello world program that was built using sdcc
             var code = Resources.code;
             Array.Copy(code, 0, ramConfig.State, 0, code.Length);
 
-            this.RandomAccessMemoryBanks = new[] { ramConfig };
+            this.MemoryBanks = new[] { ramConfig };
         }
 
         public CpuMode CpuMode => CpuMode.Z80;
 
-        public IEnumerable<IMemoryBankConfig> RandomAccessMemoryBanks { get; }
+        public IEnumerable<IMmuBankConfig> MemoryBanks { get; }
 
         public double? MachineCycleSpeedMhz => null;
 
         public double? ThrottlingStateSpeedMhz => null;
+
+        public IEnumerable<byte> IOPorts => new byte[] { 0, 1 };
     }
 }

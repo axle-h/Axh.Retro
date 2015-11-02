@@ -6,10 +6,12 @@
     {
         CpuMode CpuMode { get; }
 
-        IEnumerable<IMemoryBankConfig> RandomAccessMemoryBanks { get; }
+        IEnumerable<IMmuBankConfig> MemoryBanks { get; }
         
         double? MachineCycleSpeedMhz { get; }
 
         double? ThrottlingStateSpeedMhz { get; }
+
+        IEnumerable<byte> IOPorts { get; }
     }
 }

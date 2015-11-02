@@ -1,8 +1,8 @@
 ﻿namespace Axh.Retro.GameBoy.Config
 {
     using System.Collections.Generic;
-
-    using Axh.Retro.CPU.X80.Contracts;
+    using System.Linq;
+    
     using Axh.Retro.CPU.X80.Contracts.Config;
 
     public class GameBoyPlatformConfig : IPlatformConfig
@@ -14,18 +14,23 @@
 
         public GameBoyPlatformConfig()
         {
-            var systemMemoryBank0Config = new SimpleMemoryBankConfig(0, SystemMemoryBank0Address, SystemMemoryBankLength);
-            var systemMemoryBank1Config = new SimpleMemoryBankConfig(1, SystemMemoryBank1Address, SystemMemoryBankLength);
+            var systemMemoryBank0Config = new SimpleMemoryBankConfig(MemoryBankType.RandomAccessMemory, 0, SystemMemoryBank0Address, SystemMemoryBankLength);
+            var systemMemoryBank1Config = new SimpleMemoryBankConfig(MemoryBankType.RandomAccessMemory, 1, SystemMemoryBank1Address, SystemMemoryBankLength);
 
-            this.RandomAccessMemoryBanks = new[] { systemMemoryBank0Config, systemMemoryBank1Config };
+            this.MemoryBanks = new[] { systemMemoryBank0Config, systemMemoryBank1Config };
         }
 
         public CpuMode CpuMode => CpuMode.GameBoy;
 
-        public IEnumerable<IMemoryBankConfig> RandomAccessMemoryBanks { get; }
+        public IEnumerable<IMmuBankConfig> MemoryBanks { get; }
 
         public double? MachineCycleSpeedMhz => CpuFrequency;
 
         public double? ThrottlingStateSpeedMhz => CpuFrequency / 4;
+
+        /// <summary>
+        /// GB has no IO ports
+        /// </summary>
+        public IEnumerable<byte> IOPorts => Enumerable.Empty<byte>();
     }
 }

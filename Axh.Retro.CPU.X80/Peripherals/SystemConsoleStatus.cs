@@ -1,10 +1,11 @@
-﻿namespace Axh.Retro.CPU.X80.IO
+﻿namespace Axh.Retro.CPU.X80.Peripherals
 {
     using System;
 
-    using Axh.Retro.CPU.X80.Contracts.IO;
+    using Axh.Retro.CPU.X80.Contracts.Memory;
+    using Axh.Retro.CPU.X80.Contracts.Peripherals;
 
-    public class SystemConsoleStatus : IPeripheral
+    public class SystemConsoleStatus : IIOPeripheral
     {
         public SystemConsoleStatus(byte port)
         {
@@ -31,6 +32,11 @@
         public void Resume()
         {
             // Don't listen.
+        }
+
+        public void RegisterMmuForDma(IMmu mmu)
+        {
+            // No DMA.
         }
     }
 }

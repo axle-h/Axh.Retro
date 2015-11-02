@@ -4,21 +4,21 @@
 
     using Axh.Retro.CPU.X80.Contracts.Core;
     using Axh.Retro.CPU.X80.Contracts.Core.Timing;
-    using Axh.Retro.CPU.X80.Contracts.IO;
+    using Axh.Retro.CPU.X80.Contracts.Peripherals;
     using Axh.Retro.CPU.X80.Contracts.Memory;
     using Axh.Retro.CPU.X80.Contracts.Registers;
 
     internal class DynaRecInstructionBlock<TRegisters> : IInstructionBlock<TRegisters>
         where TRegisters : IRegisters
     {
-        private readonly Func<TRegisters, IMmu, IArithmeticLogicUnit, IInputOutputManager, InstructionTimings> action;
+        private readonly Func<TRegisters, IMmu, IArithmeticLogicUnit, IPeripheralManager, InstructionTimings> action;
 
         /// <summary>
         /// Static instruction timings, known at compile time
         /// </summary>
         private readonly InstructionTimings staticTimings;
 
-        public DynaRecInstructionBlock(ushort address, ushort length, Func<TRegisters, IMmu, IArithmeticLogicUnit, IInputOutputManager, InstructionTimings> action, InstructionTimings staticTimings, DecodeResult lastDecodeResult)
+        public DynaRecInstructionBlock(ushort address, ushort length, Func<TRegisters, IMmu, IArithmeticLogicUnit, IPeripheralManager, InstructionTimings> action, InstructionTimings staticTimings, DecodeResult lastDecodeResult)
         {
             this.action = action;
             this.staticTimings = staticTimings;
@@ -36,9 +36,9 @@
 
         public bool HaltPeripherals { get; }
 
-        public InstructionTimings ExecuteInstructionBlock(TRegisters registers, IMmu mmu, IArithmeticLogicUnit alu, IInputOutputManager inputOutputManager)
+        public InstructionTimings ExecuteInstructionBlock(TRegisters registers, IMmu mmu, IArithmeticLogicUnit alu, IPeripheralManager peripheralManager)
         {
-            return action(registers, mmu, alu, inputOutputManager) + staticTimings;
+            return action(registers, mmu, alu, peripheralManager) + staticTimings;
         }
     }
 }

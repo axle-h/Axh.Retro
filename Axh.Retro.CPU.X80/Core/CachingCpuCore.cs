@@ -7,7 +7,7 @@
     using Axh.Retro.CPU.X80.Contracts.Core;
     using Axh.Retro.CPU.X80.Contracts.Core.Timing;
     using Axh.Retro.CPU.X80.Contracts.Factories;
-    using Axh.Retro.CPU.X80.Contracts.IO;
+    using Axh.Retro.CPU.X80.Contracts.Peripherals;
     using Axh.Retro.CPU.X80.Contracts.Memory;
     using Axh.Retro.CPU.X80.Contracts.Registers;
 
@@ -23,7 +23,7 @@
 
         private readonly IInstructionBlockCache<TRegisters> instructionBlockCache;
 
-        private readonly IInputOutputManager inputOutputManager;
+        private readonly IPeripheralManagerFactory peripheralManagerFactory;
 
         private readonly IInstructionTimer instructionTimer;
 
@@ -42,7 +42,7 @@
             IInstructionBlockDecoder<TRegisters> instructionBlockDecoder,
             IAluFactory aluFactory,
             IInstructionBlockCache<TRegisters> instructionBlockCache,
-            IInputOutputManager inputOutputManager,
+            IPeripheralManagerFactory peripheralManagerFactory,
             IInstructionTimer instructionTimer)
         {
             this.registerFactory = registerFactory;
@@ -50,7 +50,7 @@
             this.instructionBlockDecoder = instructionBlockDecoder;
             this.aluFactory = aluFactory;
             this.instructionBlockCache = instructionBlockCache;
-            this.inputOutputManager = inputOutputManager;
+            this.peripheralManagerFactory = peripheralManagerFactory;
             this.instructionTimer = instructionTimer;
 
             if (!this.instructionBlockDecoder.SupportsInstructionBlockCaching)
@@ -68,7 +68,8 @@
         {
             // Build components
             var registers = registerFactory.GetInitialRegisters();
-            var mmu = mmuFactory.GetMmu();
+            var peripheralManager = this.peripheralManagerFactory.GetPeripheralsManager();
+            var mmu = mmuFactory.GetMmu(peripheralManager);
             var alu = this.aluFactory.GetArithmeticLogicUnit(registers.AccumulatorAndFlagsRegisters.Flags);
 
             // Register the invalidate cache event with mmu AddressWrite event
@@ -79,11 +80,21 @@
             {
                 var address = interruptAddress ?? registers.ProgramCounter;
                 var instructionBlock = this.instructionBlockCache.GetOrSet(address, () => this.instructionBlockDecoder.DecodeNextBlock(address, mmu));
-                var timings = instructionBlock.ExecuteInstructionBlock(registers, mmu, alu, this.inputOutputManager);
+                var timings = instructionBlock.ExecuteInstructionBlock(registers, mmu, alu, peripheralManager);
 
                 if (instructionBlock.HaltCpu)
                 {
-                    Halt(instructionBlock.HaltPeripherals);
+                    Halt();
+                    if (instructionBlock.HaltPeripherals)
+                    {
+                        peripheralManager.Halt();
+                        this.interruptTask = this.interruptTask.ContinueWith(
+                            x =>
+                            {
+                                peripheralManager.Resume();
+                                return x.Result;
+                            });
+                    }
                 }
 
                 if (this.halt)
@@ -113,25 +124,11 @@
             }
         }
 
-        private void Halt(bool haltPeripherals)
+        private void Halt()
         {
             this.interruptTaskSource = new TaskCompletionSource<ushort>();
             this.halt = true;
-            
-            if (haltPeripherals)
-            {
-                this.inputOutputManager.Halt();
-                this.interruptTask = this.interruptTaskSource.Task.ContinueWith(
-                    x =>
-                    {
-                        this.inputOutputManager.Resume();
-                        return x.Result;
-                    });
-            }
-            else
-            {
-                this.interruptTask = this.interruptTaskSource.Task;
-            }
+            this.interruptTask = this.interruptTaskSource.Task;
         }
 
         public async Task Interrupt(ushort address)
@@ -154,7 +151,7 @@
             // Halt the CPU if not already halted
             if (!halt)
             {
-                Halt(false);
+                Halt();
             }
 
             // Wait for the halt to be confirmed
