@@ -12,7 +12,6 @@ Currently:
  
  
 TODO:
-* Write-aware DynaRec caching
 * Interrupts
 * Debugger
 * Interpreted core

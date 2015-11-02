@@ -46,7 +46,6 @@
                 this.cache.TryAdd(address, cacheItem);
             }
             
-            
             return cacheItem.InstructionBlock;
         }
 
@@ -115,8 +114,7 @@
             private readonly CancellationTokenSource cancellationTokenSource;
 
             private long? lastAccessed;
-
-
+            
             public InstructionBlockCacheItem(IInstructionBlock<TRegisters> instructionBlock)
             {
                 this.InstructionBlock = instructionBlock;
@@ -153,14 +151,14 @@
 
                 if (lastAccessed.HasValue)
                 {
-                    var ticks = TimeSpan.FromTicks(DateTime.UtcNow.Ticks - lastAccessed.Value);
-                    if (ticks >= slidingExpiration)
+                    var timeSinceLastAccessed = TimeSpan.FromTicks(DateTime.UtcNow.Ticks - lastAccessed.Value);
+                    if (timeSinceLastAccessed >= slidingExpiration)
                     {
                         this.removeTask();
                     }
                     else
                     {
-                        Task.Delay(slidingExpiration.Subtract(ticks), cancellationTokenSource.Token).ContinueWith(CheckSlidingExpiration, cancellationTokenSource.Token);
+                        Task.Delay(slidingExpiration.Subtract(timeSinceLastAccessed), cancellationTokenSource.Token).ContinueWith(CheckSlidingExpiration, cancellationTokenSource.Token);
                         this.lastAccessed = null;
                     }
                 }
