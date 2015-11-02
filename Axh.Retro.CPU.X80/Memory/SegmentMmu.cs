@@ -116,7 +116,7 @@
 
         public void WriteBytes(ushort address, byte[] bytes)
         {
-            OnAddressWrite(address, bytes.Length);
+            OnAddressWrite(address, (ushort)bytes.Length);
 
             ushort segmentAddress;
             int segmentIndex;
@@ -159,7 +159,7 @@
 
         public event EventHandler<AddressWriteEventArgs> AddressWrite;
         
-        protected void OnAddressWrite(ushort address, int length)
+        protected void OnAddressWrite(ushort address, ushort length)
         {
             AddressWrite?.Invoke(this, new AddressWriteEventArgs(address, length));
         }

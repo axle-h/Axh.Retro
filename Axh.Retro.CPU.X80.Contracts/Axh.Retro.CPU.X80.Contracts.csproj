@@ -44,6 +44,7 @@
     <Compile Include="Config\IInitialStateConfig.cs" />
     <Compile Include="Config\IMemoryBankConfig.cs" />
     <Compile Include="Config\IPlatformConfig.cs" />
+    <Compile Include="Config\IRuntimeConfig.cs" />
     <Compile Include="Config\SimpleMemoryBankConfig.cs" />
     <Compile Include="Core\AccumulatorAndResult.cs" />
     <Compile Include="Core\DecodeResult.cs" />

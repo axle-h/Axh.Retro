@@ -5,6 +5,7 @@
     using System.Runtime.CompilerServices;
 
     using Axh.Retro.CPU.X80.Contracts.Cache;
+    using Axh.Retro.CPU.X80.Contracts.Config;
     using Axh.Retro.CPU.X80.Contracts.Core;
     using Axh.Retro.CPU.X80.Contracts.Registers;
 
@@ -15,17 +16,20 @@
     /// <typeparam name="TRegisters"></typeparam>
     public class NaiveInstructionBlockCache<TRegisters> : IInstructionBlockCache<TRegisters> where TRegisters : IRegisters
     {
-        private static readonly TimeSpan SlidingExpiration = TimeSpan.FromMinutes(10);
+        private readonly bool slidingExpirationEnabled;
+        private readonly TimeSpan slidingExpiration;
 
         private readonly MemoryCache cache;
 
         private readonly CacheItemPolicy policy;
 
-        public NaiveInstructionBlockCache()
+        public NaiveInstructionBlockCache(IRuntimeConfig runtimeConfig)
         {
             this.CacheId = Guid.NewGuid();
             this.cache = new MemoryCache($"{this.GetType().FullName}({this.CacheId})");
-            this.policy = new CacheItemPolicy { AbsoluteExpiration = ObjectCache.InfiniteAbsoluteExpiration, SlidingExpiration = SlidingExpiration };
+            this.slidingExpirationEnabled = runtimeConfig.InstructionCacheSlidingExpiration.HasValue;
+            this.slidingExpiration = runtimeConfig.InstructionCacheSlidingExpiration.GetValueOrDefault();
+            this.policy = new CacheItemPolicy { AbsoluteExpiration = ObjectCache.InfiniteAbsoluteExpiration, SlidingExpiration = this.slidingExpiration };
         }
 
         public Guid CacheId { get; }
@@ -45,7 +49,7 @@
             return block;
         }
         
-        public void InvalidateCache(ushort address, int length)
+        public void InvalidateCache(ushort address, ushort length)
         {
             // Do nothing
             // It would be far too inefficient to parse all the cached keys

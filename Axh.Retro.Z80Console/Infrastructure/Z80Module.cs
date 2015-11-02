@@ -29,7 +29,7 @@
             this.Bind<IInstructionTimer>().To<MachineCycleTimer>();
 
             // Cache
-            this.Bind<IInstructionBlockCache<IZ80Registers>>().To<NaiveInstructionBlockCache<IZ80Registers>>();
+            this.Bind<IInstructionBlockCache<IZ80Registers>>().To<InstructionBlockCache<IZ80Registers>>();
             
             // Factories
             this.Bind<IRegisterFactory<IZ80Registers>>().To<Z80RegisterFactory>().InSingletonScope();
@@ -41,6 +41,7 @@
             // Config
             this.Bind<IInitialStateConfig<Z80RegisterState>>().To<Z80InitialStateConfig>().InSingletonScope();
             this.Bind<IPlatformConfig>().To<Z8064KBootstrappedConfig>().InSingletonScope();
+            this.Bind<IRuntimeConfig>().To<RuntimeConfig>().InSingletonScope();
         }
     }
 }

@@ -4,13 +4,13 @@
 
     public class AddressWriteEventArgs : EventArgs
     {
-        public AddressWriteEventArgs(ushort address, int length)
+        public AddressWriteEventArgs(ushort address, ushort length)
         {
             this.Address = address;
             this.Length = length;
         }
 
         public ushort Address { get; }
-        public int Length { get; }
+        public ushort Length { get; }
     }
 }
