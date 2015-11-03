@@ -12,202 +12,202 @@
     using Axh.Retro.CPU.X80.Contracts.Registers;
     using Axh.Retro.CPU.X80.Util;
 
-    internal static class DynaRecExpressions
+    internal class DynaRecExpressions<TRegisters> where TRegisters : IRegisters
     {
-        public static readonly ParameterExpression Registers;
-        public static readonly ParameterExpression Mmu;
-        public static readonly ParameterExpression Alu;
-        public static readonly ParameterExpression IO;
+        public readonly ParameterExpression Registers;
+        public readonly ParameterExpression Mmu;
+        public readonly ParameterExpression Alu;
+        public readonly ParameterExpression IO;
 
         /// <summary>
         /// Byte parameter 'b'
         /// </summary>
-        public static readonly ParameterExpression LocalByte;
+        public readonly ParameterExpression LocalByte;
 
         /// <summary>
         /// Word parameter 'w'
         /// </summary>
-        public static readonly ParameterExpression LocalWord;
+        public readonly ParameterExpression LocalWord;
 
         /// <summary>
         /// The dynamic instruction timer parameter 'timer'.
         /// This is required for instructions that don't have compile time known timings e.g. LDIR.
         /// </summary>
-        public static readonly ParameterExpression DynamicTimer;
-        public static readonly MethodInfo DynamicTimerAdd;
+        public readonly ParameterExpression DynamicTimer;
+        public readonly MethodInfo DynamicTimerAdd;
 
         /// <summary>
         /// AccumulatorAndResult parameter 'result'
         /// </summary>
-        public static readonly ParameterExpression AccumulatorAndResult;
-        public static readonly Expression AccumulatorAndResult_Accumulator;
-        public static readonly Expression AccumulatorAndResult_Result;
+        public readonly ParameterExpression AccumulatorAndResult;
+        public readonly Expression AccumulatorAndResult_Accumulator;
+        public readonly Expression AccumulatorAndResult_Result;
 
         // Register expressions
-        public static readonly Expression A;
-        public static readonly Expression B;
-        public static readonly Expression C;
-        public static readonly Expression D;
-        public static readonly Expression E;
-        public static readonly Expression F;
-        public static readonly Expression H;
-        public static readonly Expression L;
-        public static readonly Expression BC;
-        public static readonly Expression DE;
-        public static readonly Expression HL;
-        public static readonly Expression PC;
+        public readonly Expression A;
+        public readonly Expression B;
+        public readonly Expression C;
+        public readonly Expression D;
+        public readonly Expression E;
+        public readonly Expression F;
+        public readonly Expression H;
+        public readonly Expression L;
+        public readonly Expression BC;
+        public readonly Expression DE;
+        public readonly Expression HL;
+        public readonly Expression PC;
 
         // Stack pointer stuff
-        public static readonly Expression SP;
-        public static readonly Expression PushSP;
-        public static readonly Expression PushPushSP;
-        public static readonly Expression PopSP;
-        public static readonly Expression PopPopSP;
+        public readonly Expression SP;
+        public readonly Expression PushSP;
+        public readonly Expression PushPushSP;
+        public readonly Expression PopSP;
+        public readonly Expression PopPopSP;
         
         // Z80 specific register expressions
-        public static readonly Expression I;
-        public static readonly Expression R;
-        public static readonly Expression IX;
-        public static readonly Expression IY;
+        public readonly Expression I;
+        public readonly Expression R;
+        public readonly Expression IX;
+        public readonly Expression IY;
 
-        public static readonly Expression IXl;
-        public static readonly Expression IXh;
-        public static readonly Expression IYl;
-        public static readonly Expression IYh;
+        public readonly Expression IXl;
+        public readonly Expression IXh;
+        public readonly Expression IYl;
+        public readonly Expression IYh;
         
         // Z80 specific helpers
         /// <summary>
         /// IX + d
         /// d is read from LocalByte
         /// </summary>
-        public static readonly Expression IXd;
+        public readonly Expression IXd;
 
         /// <summary>
         /// IY + d
         /// d is read from LocalByte
         /// </summary>
-        public static readonly Expression IYd;
+        public readonly Expression IYd;
 
         /// <summary>
         /// Reads a byte from the mmu at the address at IX + b (using 2's compliant addition)
         /// </summary>
-        public static readonly Expression ReadByteAtIXd;
+        public readonly Expression ReadByteAtIXd;
 
         /// <summary>
         /// Reads a byte from the mmu at the address at IY + b (using 2's compliant addition)
         /// </summary>
-        public static readonly Expression ReadByteAtIYd;
+        public readonly Expression ReadByteAtIYd;
 
         // Z80 specific register methods
-        public static readonly Expression SwitchToAlternativeGeneralPurposeRegisters;
-        public static readonly Expression SwitchToAlternativeAccumulatorAndFlagsRegisters;
+        public readonly Expression SwitchToAlternativeGeneralPurposeRegisters;
+        public readonly Expression SwitchToAlternativeAccumulatorAndFlagsRegisters;
 
         // Interrupt stuff
-        public static readonly Expression IFF1;
-        public static readonly Expression IFF2;
-        public static readonly Expression IM;
+        public readonly Expression IFF1;
+        public readonly Expression IFF2;
+        public readonly Expression IM;
 
         // Flags
-        public static readonly Expression Flags;
-        public static readonly Expression Sign;
-        public static readonly Expression Zero;
-        public static readonly Expression Flag5;
-        public static readonly Expression HalfCarry;
-        public static readonly Expression Flag3;
-        public static readonly Expression ParityOverflow;
-        public static readonly Expression Subtract;
-        public static readonly Expression Carry;
-        public static readonly MethodInfo SetResultFlags;
-        public static readonly MethodInfo SetUndocumentedFlags;
+        public readonly Expression Flags;
+        public readonly Expression Sign;
+        public readonly Expression Zero;
+        public readonly Expression Flag5;
+        public readonly Expression HalfCarry;
+        public readonly Expression Flag3;
+        public readonly Expression ParityOverflow;
+        public readonly Expression Subtract;
+        public readonly Expression Carry;
+        public readonly MethodInfo SetResultFlags;
+        public readonly MethodInfo SetUndocumentedFlags;
 
         /// <summary>
         /// Reads a byte from the mmu at the address at LocalWord
         /// </summary>
-        public static readonly Expression ReadByteAtLocalWord;
+        public readonly Expression ReadByteAtLocalWord;
 
         /// <summary>
         /// Reads a byte from the mmu at the address in HL
         /// </summary>
-        public static readonly Expression ReadByteAtHL;
+        public readonly Expression ReadByteAtHL;
 
         /// <summary>
         /// Reads a byte from the mmu at the address in BC
         /// </summary>
-        public static readonly Expression ReadByteAtBC;
+        public readonly Expression ReadByteAtBC;
 
         /// <summary>
         /// Reads a byte from the mmu at the address in DE
         /// </summary>
-        public static readonly Expression ReadByteAtDE;
+        public readonly Expression ReadByteAtDE;
 
         /// <summary>
         /// Writes the PC to the mmu at the address in SP
         /// </summary>
-        public static readonly Expression WritePCToStack;
+        public readonly Expression WritePCToStack;
 
         /// <summary>
         /// Reads a word from the mmu at the address in SP and assigns it to PC
         /// </summary>
-        public static readonly Expression ReadPCFromStack;
+        public readonly Expression ReadPCFromStack;
 
         // MMU methods
-        public static readonly MethodInfo MmuReadByte;
-        public static readonly MethodInfo MmuReadWord;
-        public static readonly MethodInfo MmuWriteByte;
-        public static readonly MethodInfo MmuWriteWord;
-        public static readonly MethodInfo MmuTransferByte;
+        public readonly MethodInfo MmuReadByte;
+        public readonly MethodInfo MmuReadWord;
+        public readonly MethodInfo MmuWriteByte;
+        public readonly MethodInfo MmuWriteWord;
+        public readonly MethodInfo MmuTransferByte;
 
         // ALU methods
-        public static readonly MethodInfo AluIncrement;
-        public static readonly MethodInfo AluDecrement;
-        public static readonly MethodInfo AluAdd;
-        public static readonly MethodInfo AluAddWithCarry;
-        public static readonly MethodInfo AluAdd16;
-        public static readonly MethodInfo AluAdd16WithCarry;
-        public static readonly MethodInfo AluSubtract;
-        public static readonly MethodInfo AluSubtractWithCarry;
-        public static readonly MethodInfo AluSubtract16WithCarry;
-        public static readonly MethodInfo AluCompare;
-        public static readonly MethodInfo AluAnd;
-        public static readonly MethodInfo AluOr;
-        public static readonly MethodInfo AluXor;
-        public static readonly MethodInfo AluDecimalAdjust;
+        public readonly MethodInfo AluIncrement;
+        public readonly MethodInfo AluDecrement;
+        public readonly MethodInfo AluAdd;
+        public readonly MethodInfo AluAddWithCarry;
+        public readonly MethodInfo AluAdd16;
+        public readonly MethodInfo AluAdd16WithCarry;
+        public readonly MethodInfo AluSubtract;
+        public readonly MethodInfo AluSubtractWithCarry;
+        public readonly MethodInfo AluSubtract16WithCarry;
+        public readonly MethodInfo AluCompare;
+        public readonly MethodInfo AluAnd;
+        public readonly MethodInfo AluOr;
+        public readonly MethodInfo AluXor;
+        public readonly MethodInfo AluDecimalAdjust;
 
-        public static readonly MethodInfo AluRotateLeftWithCarry;
-        public static readonly MethodInfo AluRotateLeft;
-        public static readonly MethodInfo AluRotateRightWithCarry;
-        public static readonly MethodInfo AluRotateRight;
+        public readonly MethodInfo AluRotateLeftWithCarry;
+        public readonly MethodInfo AluRotateLeft;
+        public readonly MethodInfo AluRotateRightWithCarry;
+        public readonly MethodInfo AluRotateRight;
         
-        public static readonly MethodInfo AluShiftLeft;
-        public static readonly MethodInfo AluShiftLeftSet;
-        public static readonly MethodInfo AluShiftRight;
-        public static readonly MethodInfo AluShiftRightLogical;
+        public readonly MethodInfo AluShiftLeft;
+        public readonly MethodInfo AluShiftLeftSet;
+        public readonly MethodInfo AluShiftRight;
+        public readonly MethodInfo AluShiftRightLogical;
 
-        public static readonly MethodInfo AluRotateRightDigit;
-        public static readonly MethodInfo AluRotateLeftDigit;
+        public readonly MethodInfo AluRotateRightDigit;
+        public readonly MethodInfo AluRotateLeftDigit;
 
-        public static readonly MethodInfo AluBitTest;
-        public static readonly MethodInfo AluBitSet;
-        public static readonly MethodInfo AluBitReset;
+        public readonly MethodInfo AluBitTest;
+        public readonly MethodInfo AluBitSet;
+        public readonly MethodInfo AluBitReset;
 
-        public static readonly MethodInfo AluAddDisplacement;
-        public static readonly MethodInfo AluSwap;
+        public readonly MethodInfo AluAddDisplacement;
+        public readonly MethodInfo AluSwap;
 
         // IO Methods
-        public static readonly MethodInfo IoReadByte;
-        public static readonly MethodInfo IoWriteByte;
+        public readonly MethodInfo IoReadByte;
+        public readonly MethodInfo IoWriteByte;
 
         // General helpers
         /// <summary>
         /// Increment the program counter by a 2s complement displacement set in LocalByte
         /// </summary>
-        public static readonly Expression JumpToDisplacement;
+        public readonly Expression JumpToDisplacement;
 
-        public static readonly IDictionary<IndexRegister, IndexRegisterExpressions> IndexRegisterExpressions;
+        public readonly IDictionary<IndexRegister, IndexRegisterExpressions> IndexRegisterExpressions;
 
-        static DynaRecExpressions()
+        public DynaRecExpressions()
         {
-            Registers = Expression.Parameter(typeof(IZ80Registers), "registers");
+            Registers = Expression.Parameter(typeof(TRegisters), "registers");
             Mmu = Expression.Parameter(typeof(IMmu), "mmu");
             Alu = Expression.Parameter(typeof(IArithmeticLogicUnit), "alu");
             IO = Expression.Parameter(typeof(IPeripheralManager), "io");
@@ -239,25 +239,6 @@
             PushPushSP = Expression.SubtractAssign(SP, Expression.Constant((ushort)2));
             PopSP = Expression.PreIncrementAssign(SP);
             PopPopSP = Expression.AddAssign(SP, Expression.Constant((ushort)2));
-
-            // Z80 specific register expressions
-            I = Registers.GetPropertyExpression<IZ80Registers, byte>(r => r.I);
-            R = Registers.GetPropertyExpression<IZ80Registers, byte>(r => r.R);
-            IX = Registers.GetPropertyExpression<IZ80Registers, ushort>(r => r.IX);
-            IXl = Registers.GetPropertyExpression<IZ80Registers, byte>(r => r.IXl);
-            IXh = Registers.GetPropertyExpression<IZ80Registers, byte>(r => r.IXh);
-            IY = Registers.GetPropertyExpression<IZ80Registers, ushort>(r => r.IY);
-            IYl = Registers.GetPropertyExpression<IZ80Registers, byte>(r => r.IYl);
-            IYh = Registers.GetPropertyExpression<IZ80Registers, byte>(r => r.IYh);
-            
-            // Z80 specific Index register expressions i.e. IX+d and IY+d where d is LocalByte (expression local value, which must be initialised before running these)
-            IXd = Expression.Convert(Expression.Add(Expression.Convert(IX, typeof(int)), Expression.Convert(Expression.Convert(LocalByte, typeof(sbyte)), typeof(int))), typeof(ushort));
-            IYd = Expression.Convert(Expression.Add(Expression.Convert(IY, typeof(int)), Expression.Convert(Expression.Convert(LocalByte, typeof(sbyte)), typeof(int))), typeof(ushort));
-            
-            // Z80 specific register methods
-            SwitchToAlternativeGeneralPurposeRegisters = Expression.Call(Registers, ExpressionHelpers.GetMethodInfo<IZ80Registers>((registers) => registers.SwitchToAlternativeGeneralPurposeRegisters()));
-            SwitchToAlternativeAccumulatorAndFlagsRegisters = Expression.Call(Registers, ExpressionHelpers.GetMethodInfo<IZ80Registers>((registers) => registers.SwitchToAlternativeAccumulatorAndFlagsRegisters()));
-
 
             // Interrupt stuff
             IFF1 = Registers.GetPropertyExpression<IRegisters, bool>(r => r.InterruptFlipFlop1);
@@ -294,11 +275,7 @@
 
             ReadPCFromStack = Expression.Assign(PC, Expression.Call(Mmu, MmuReadWord, SP));
             WritePCToStack = Expression.Call(Mmu, MmuWriteWord, SP, PC);
-
-            // Z80 specific
-            ReadByteAtIXd = Expression.Call(Mmu, MmuReadByte, IXd);
-            ReadByteAtIYd = Expression.Call(Mmu, MmuReadByte, IYd);
-
+            
             // ALU expressions
             AluIncrement = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, byte>((alu, b) => alu.Increment(b));
             AluDecrement = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, byte>((alu, b) => alu.Decrement(b));
@@ -353,48 +330,74 @@
                                                    ReadIndexedValue = ReadByteAtHL,
                                                    UsesDisplacedIndexTimings = false
                                                }
-                                           },
-                                           {
-                                               IndexRegister.IX,
-                                               new IndexRegisterExpressions
-                                               {
-                                                   IndexRegister = IndexRegister.IX,
-                                                   Register = IX,
-                                                   RegisterLowOrder = IXl,
-                                                   RegisterHighOrder = IXh,
-                                                   IndexedAddress = IXd,
-                                                   ReadIndexedValue = ReadByteAtIXd,
-                                                   UsesDisplacedIndexTimings = true
-                                               }
-                                           },
-                                           {
-                                               IndexRegister.IY,
-                                               new IndexRegisterExpressions
-                                               {
-                                                   IndexRegister = IndexRegister.IY,
-                                                   Register = IY,
-                                                   RegisterLowOrder = IYl,
-                                                   RegisterHighOrder = IYh,
-                                                   IndexedAddress = IYd,
-                                                   ReadIndexedValue = ReadByteAtIYd,
-                                                   UsesDisplacedIndexTimings = true
-                                               }
                                            }
                                        };
+
+
+            if (typeof(TRegisters) == typeof(IZ80Registers))
+            {
+                // Z80 specific register expressions
+                I = Registers.GetPropertyExpression<IZ80Registers, byte>(r => r.I);
+                R = Registers.GetPropertyExpression<IZ80Registers, byte>(r => r.R);
+                IX = Registers.GetPropertyExpression<IZ80Registers, ushort>(r => r.IX);
+                IXl = Registers.GetPropertyExpression<IZ80Registers, byte>(r => r.IXl);
+                IXh = Registers.GetPropertyExpression<IZ80Registers, byte>(r => r.IXh);
+                IY = Registers.GetPropertyExpression<IZ80Registers, ushort>(r => r.IY);
+                IYl = Registers.GetPropertyExpression<IZ80Registers, byte>(r => r.IYl);
+                IYh = Registers.GetPropertyExpression<IZ80Registers, byte>(r => r.IYh);
+
+                // Z80 specific Index register expressions i.e. IX+d and IY+d where d is LocalByte (expression local value, which must be initialised before running these)
+                IXd = Expression.Convert(Expression.Add(Expression.Convert(IX, typeof(int)), Expression.Convert(Expression.Convert(LocalByte, typeof(sbyte)), typeof(int))), typeof(ushort));
+                IYd = Expression.Convert(Expression.Add(Expression.Convert(IY, typeof(int)), Expression.Convert(Expression.Convert(LocalByte, typeof(sbyte)), typeof(int))), typeof(ushort));
+
+                // Z80 specific register methods
+                SwitchToAlternativeGeneralPurposeRegisters = Expression.Call(Registers, ExpressionHelpers.GetMethodInfo<IZ80Registers>((registers) => registers.SwitchToAlternativeGeneralPurposeRegisters()));
+                SwitchToAlternativeAccumulatorAndFlagsRegisters = Expression.Call(Registers, ExpressionHelpers.GetMethodInfo<IZ80Registers>((registers) => registers.SwitchToAlternativeAccumulatorAndFlagsRegisters()));
+
+                ReadByteAtIXd = Expression.Call(Mmu, MmuReadByte, IXd);
+                ReadByteAtIYd = Expression.Call(Mmu, MmuReadByte, IYd);
+
+                IndexRegisterExpressions.Add(
+                    IndexRegister.IX,
+                    new IndexRegisterExpressions
+                    {
+                        IndexRegister = IndexRegister.IX,
+                        Register = IX,
+                        RegisterLowOrder = IXl,
+                        RegisterHighOrder = IXh,
+                        IndexedAddress = IXd,
+                        ReadIndexedValue = ReadByteAtIXd,
+                        UsesDisplacedIndexTimings = true
+                    });
+
+                IndexRegisterExpressions.Add(
+                    IndexRegister.IY,
+                    new IndexRegisterExpressions
+                    {
+                        IndexRegister = IndexRegister.IY,
+                        Register = IY,
+                        RegisterLowOrder = IYl,
+                        RegisterHighOrder = IYh,
+                        IndexedAddress = IYd,
+                        ReadIndexedValue = ReadByteAtIYd,
+                        UsesDisplacedIndexTimings = true
+                    });
+
+            }
         }
 
-        public static Expression GetDynamicTimings(int mCycles, int tStates)
+        public Expression GetDynamicTimings(int mCycles, int tStates)
         {
             return Expression.Call(DynamicTimer, DynamicTimerAdd, Expression.Constant(mCycles), Expression.Constant(tStates));
         }
 
-        public static Expression GetMemoryRefreshDeltaExpression(Expression deltaExpression)
+        public Expression GetMemoryRefreshDeltaExpression(Expression deltaExpression)
         {
             var increment7LsbR = Expression.And(Expression.Add(Expression.Convert(R, typeof(int)), deltaExpression), Expression.Constant(0x7f));
             return Expression.Assign(R, Expression.Convert(increment7LsbR, typeof(byte)));
         }
 
-        public static IEnumerable<Expression> GetLdExpressions(bool decrement = false)
+        public IEnumerable<Expression> GetLdExpressions(bool decrement = false)
         {
             yield return Expression.Call(Mmu, MmuTransferByte, HL, DE);
             yield return decrement ? Expression.PreDecrementAssign(HL) : Expression.PreIncrementAssign(HL);
@@ -405,7 +408,7 @@
             yield return Expression.Assign(Subtract, Expression.Constant(false));
         }
 
-        public static IEnumerable<Expression> GetLdrExpressions(bool decrement = false)
+        public IEnumerable<Expression> GetLdrExpressions(bool decrement = false)
         {
             var breakLabel = Expression.Label();
             yield return
@@ -425,14 +428,14 @@
             yield return Expression.Assign(Subtract, Expression.Constant(false));
         }
 
-        public static IEnumerable<Expression> GetCpExpressions(bool decrement = false)
+        public IEnumerable<Expression> GetCpExpressions(bool decrement = false)
         {
             yield return Expression.Call(Alu, AluCompare, A, Expression.Call(Mmu, MmuReadByte, HL));
             yield return decrement ? Expression.PreDecrementAssign(HL) : Expression.PreIncrementAssign(HL);
             yield return Expression.PreDecrementAssign(BC);
         }
 
-        public static Expression GetCprExpression(bool decrement = false)
+        public Expression GetCprExpression(bool decrement = false)
         {
             var breakLabel = Expression.Label();
             var expressions = GetCpExpressions(decrement);
@@ -444,7 +447,7 @@
             return Expression.Loop(Expression.Block(expressions.Concat(iterationExpressions).ToArray()), breakLabel);
         }
 
-        public static IEnumerable<Expression> GetInExpressions(bool decrement = false)
+        public IEnumerable<Expression> GetInExpressions(bool decrement = false)
         {
             yield return Expression.Call(Mmu, MmuWriteByte, HL, Expression.Call(IO, IoReadByte, C, B));
             yield return decrement ? Expression.PreDecrementAssign(HL) : Expression.PreIncrementAssign(HL);
@@ -453,7 +456,7 @@
             yield return Expression.Call(Flags, SetResultFlags, B);
         }
         
-        public static Expression GetInrExpression(bool decrement = false)
+        public Expression GetInrExpression(bool decrement = false)
         {
             var breakLabel = Expression.Label();
 
@@ -467,7 +470,7 @@
             return Expression.Loop(Expression.Block(expressions.Concat(iterationExpressions).ToArray()), breakLabel);
         }
 
-        public static IEnumerable<Expression> GetOutExpressions(bool decrement = false)
+        public IEnumerable<Expression> GetOutExpressions(bool decrement = false)
         {
             yield return Expression.Call(IO, IoWriteByte, C, B, ReadByteAtHL);
             yield return decrement ? Expression.PreDecrementAssign(HL) : Expression.PreIncrementAssign(HL);
@@ -476,7 +479,7 @@
             yield return Expression.Call(Flags, SetResultFlags, B);
         }
 
-        public static Expression GetOutrExpression(bool decrement = false)
+        public Expression GetOutrExpression(bool decrement = false)
         {
             var breakLabel = Expression.Label();
 

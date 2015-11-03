@@ -58,6 +58,7 @@
     <Compile Include="Core\InstructionBlockDecoder\Arithmetic16BitTests.cs" />
     <Compile Include="Core\InstructionBlockDecoder\BitTestSetResetTests.cs" />
     <Compile Include="Core\InstructionBlockDecoder\CallReturnResetTests.cs" />
+    <Compile Include="Core\InstructionBlockDecoder\GameBoySpecificOpCodesTests.cs" />
     <Compile Include="Core\InstructionBlockDecoder\InputOutputTests.cs" />
     <Compile Include="Core\InstructionBlockDecoder\JumpTests.cs" />
     <Compile Include="Core\InstructionBlockDecoder\Load16BitTests.cs" />

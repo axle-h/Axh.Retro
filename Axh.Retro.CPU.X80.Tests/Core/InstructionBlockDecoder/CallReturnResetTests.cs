@@ -3,6 +3,7 @@
     using System;
     using System.Linq.Expressions;
 
+    using Axh.Retro.CPU.X80.Contracts.Config;
     using Axh.Retro.CPU.X80.Contracts.OpCodes;
     using Axh.Retro.CPU.X80.Contracts.Registers;
 
@@ -11,8 +12,12 @@
     using NUnit.Framework;
 
     [TestFixture]
-    public class CallReturnResetTests: InstructionBlockDecoderTestsBase
+    public class CallReturnResetTests: InstructionBlockDecoderTestsBase<IZ80Registers>
     {
+        public CallReturnResetTests() : base(CpuMode.Z80)
+        {
+        }
+
         [Test]
         public void CALL()
         {

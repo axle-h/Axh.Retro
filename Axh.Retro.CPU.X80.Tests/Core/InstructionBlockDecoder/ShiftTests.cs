@@ -2,15 +2,21 @@
 {
     using System;
 
+    using Axh.Retro.CPU.X80.Contracts.Config;
     using Axh.Retro.CPU.X80.Contracts.OpCodes;
+    using Axh.Retro.CPU.X80.Contracts.Registers;
 
     using Moq;
 
     using NUnit.Framework;
 
     [TestFixture]
-    public class ShiftTests : InstructionBlockDecoderTestsBase
+    public class ShiftTests : InstructionBlockDecoderTestsBase<IZ80Registers>
     {
+        public ShiftTests() : base(CpuMode.Z80)
+        {
+        }
+
         [TestCase(PrefixCbOpCode.SLA_A)]
         [TestCase(PrefixCbOpCode.SLA_B)]
         [TestCase(PrefixCbOpCode.SLA_C)]

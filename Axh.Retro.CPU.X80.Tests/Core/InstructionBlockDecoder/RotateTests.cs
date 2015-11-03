@@ -3,16 +3,21 @@
     using System;
     using System.Linq.Expressions;
 
+    using Axh.Retro.CPU.X80.Contracts.Config;
     using Axh.Retro.CPU.X80.Contracts.Core;
     using Axh.Retro.CPU.X80.Contracts.OpCodes;
+    using Axh.Retro.CPU.X80.Contracts.Registers;
 
     using Moq;
 
     using NUnit.Framework;
 
     [TestFixture]
-    public class RotateTests : InstructionBlockDecoderTestsBase
+    public class RotateTests : InstructionBlockDecoderTestsBase<IZ80Registers>
     {
+        public RotateTests() : base(CpuMode.Z80)
+        {
+        }
 
         [Test]
         public void RLCA()

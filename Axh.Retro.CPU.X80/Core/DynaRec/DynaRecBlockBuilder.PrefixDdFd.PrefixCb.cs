@@ -6,9 +6,7 @@
 
     using Axh.Retro.CPU.X80.Contracts.OpCodes;
     using Axh.Retro.CPU.X80.Contracts.Registers;
-
-    using Xpr = DynaRecExpressions;
-
+    
     internal partial class DynaRecBlockBuilder<TRegisters> where TRegisters : IRegisters
     {
         /// <summary>

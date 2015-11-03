@@ -4,15 +4,21 @@
     using System.Collections.Generic;
     using System.Linq;
 
+    using Axh.Retro.CPU.X80.Contracts.Config;
     using Axh.Retro.CPU.X80.Contracts.OpCodes;
+    using Axh.Retro.CPU.X80.Contracts.Registers;
 
     using Moq;
 
     using NUnit.Framework;
 
     [TestFixture]
-    public class BitTestSetResetTests : InstructionBlockDecoderTestsBase
+    public class BitTestSetResetTests : InstructionBlockDecoderTestsBase<IZ80Registers>
     {
+        public BitTestSetResetTests() : base(CpuMode.Z80)
+        {
+        }
+
         [Test]
         public void BIT_n_r()
         {

@@ -2,15 +2,21 @@
 {
     using System;
 
+    using Axh.Retro.CPU.X80.Contracts.Config;
     using Axh.Retro.CPU.X80.Contracts.OpCodes;
+    using Axh.Retro.CPU.X80.Contracts.Registers;
 
     using Moq;
 
     using NUnit.Framework;
 
     [TestFixture]
-    public class Arithmetic8BitTests : InstructionBlockDecoderTestsBase
+    public class Arithmetic8BitTests : InstructionBlockDecoderTestsBase<IZ80Registers>
     {
+        public Arithmetic8BitTests() : base(CpuMode.Z80)
+        {
+        }
+
         [TestCase(PrimaryOpCode.ADD_A_A)]
         [TestCase(PrimaryOpCode.ADD_A_B)]
         [TestCase(PrimaryOpCode.ADD_A_C)]

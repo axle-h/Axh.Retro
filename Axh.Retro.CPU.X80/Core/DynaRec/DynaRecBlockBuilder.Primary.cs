@@ -10,9 +10,7 @@
     using Axh.Retro.CPU.X80.Contracts.OpCodes;
     using Axh.Retro.CPU.X80.Contracts.Registers;
     using Axh.Retro.CPU.X80.Util;
-
-    using Xpr = DynaRecExpressions;
-
+    
     internal partial class DynaRecBlockBuilder<TRegisters> where TRegisters : IRegisters
     {
         private IEnumerable<Expression> GetBlockExpressions()
@@ -609,7 +607,7 @@
                         {
                             // Runs as LD (nn),SP on GB
                             yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteWord, NextWord, Xpr.SP);
-                            timingsBuilder.Add(5, 16);
+                            timingsBuilder.Add(6, 20);
                         }
                         else
                         {

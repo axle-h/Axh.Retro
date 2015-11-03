@@ -4,6 +4,7 @@
     using System.Linq.Expressions;
     using System.Reflection;
 
+    using Axh.Retro.CPU.X80.Contracts.Config;
     using Axh.Retro.CPU.X80.Contracts.OpCodes;
     using Axh.Retro.CPU.X80.Contracts.Registers;
 
@@ -12,8 +13,12 @@
     using NUnit.Framework;
 
     [TestFixture]
-    public class JumpTests : InstructionBlockDecoderTestsBase
+    public class JumpTests : InstructionBlockDecoderTestsBase<IZ80Registers>
     {
+        public JumpTests() : base(CpuMode.Z80)
+        {
+        }
+        
         [Test]
         public void JP()
         {

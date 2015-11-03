@@ -1,14 +1,19 @@
 ﻿namespace Axh.Retro.CPU.X80.Tests.Core.InstructionBlockDecoder
 {
+    using Axh.Retro.CPU.X80.Contracts.Config;
     using Axh.Retro.CPU.X80.Contracts.OpCodes;
+    using Axh.Retro.CPU.X80.Contracts.Registers;
 
     using Moq;
 
     using NUnit.Framework;
 
     [TestFixture]
-    public class TransferTests : InstructionBlockDecoderTestsBase
+    public class TransferTests : InstructionBlockDecoderTestsBase<IZ80Registers>
     {
+        public TransferTests() : base(CpuMode.Z80)
+        {
+        }
 
         [Test]
         public void LDI()

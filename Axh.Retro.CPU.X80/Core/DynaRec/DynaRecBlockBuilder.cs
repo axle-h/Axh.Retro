@@ -15,8 +15,6 @@
     using Axh.Retro.CPU.X80.Core.Timing;
     using Axh.Retro.CPU.X80.Util;
 
-    using Xpr = DynaRecExpressions;
-
     /// <summary>
     /// Core opcode decoder & expression builder logic.
     /// This is not thread safe.
@@ -26,6 +24,8 @@
         private readonly CpuMode cpuMode;
         private readonly IInstructionTimingsBuilder timingsBuilder;
         private readonly IMmuCache mmuCache;
+
+        private static readonly DynaRecExpressions<TRegisters> Xpr;
 
         private ConstantExpression NextByte => Expression.Constant(mmuCache.NextByte(), typeof(byte));
         private ConstantExpression NextWord => Expression.Constant(mmuCache.NextWord(), typeof(ushort));
@@ -41,6 +41,11 @@
         }
 
         public DecodeResult LastDecodeResult { get; private set; }
+
+        static DynaRecBlockBuilder()
+        {
+            Xpr = new DynaRecExpressions<TRegisters>();
+        }
 
         public Expression<Func<TRegisters, IMmu, IArithmeticLogicUnit, IPeripheralManager, InstructionTimings>> DecodeNextBlock()
         {
@@ -84,7 +89,12 @@
 
             // Add the block length to the 7 lsb of memory refresh register.
             var blockLengthExpression = Expression.Constant(this.mmuCache.TotalBytesRead, typeof(int));
-            yield return Xpr.GetMemoryRefreshDeltaExpression(blockLengthExpression);
+
+            if (this.cpuMode == CpuMode.Z80)
+            {
+                // Update Z80 specific memory refresh register
+                yield return Xpr.GetMemoryRefreshDeltaExpression(blockLengthExpression);
+            }
 
             // Return the dynamic timings.
             var returnTarget = Expression.Label(typeof(InstructionTimings), "InstructionTimings_Return");

@@ -1,14 +1,20 @@
 ﻿namespace Axh.Retro.CPU.X80.Tests.Core.InstructionBlockDecoder
 {
+    using Axh.Retro.CPU.X80.Contracts.Config;
     using Axh.Retro.CPU.X80.Contracts.OpCodes;
+    using Axh.Retro.CPU.X80.Contracts.Registers;
 
     using Moq;
 
     using NUnit.Framework;
 
     [TestFixture]
-    public class GeneralTests : InstructionBlockDecoderTestsBase
+    public class GeneralTests : InstructionBlockDecoderTestsBase<IZ80Registers>
     {
+        public GeneralTests() : base(CpuMode.Z80)
+        {
+        }
+
         [Test]
         public void NopIncrentsProgramCounterAndMemoryRefreshRegisters()
         {

@@ -1,5 +1,6 @@
 ﻿namespace Axh.Retro.CPU.X80.Tests.Core.InstructionBlockDecoder
 {
+    using Axh.Retro.CPU.X80.Contracts.Config;
     using Axh.Retro.CPU.X80.Contracts.OpCodes;
     using Axh.Retro.CPU.X80.Contracts.Registers;
 
@@ -8,8 +9,12 @@
     using NUnit.Framework;
 
     [TestFixture]
-    public class ArithmeticGeneralPurposeTests : InstructionBlockDecoderTestsBase
+    public class ArithmeticGeneralPurposeTests : InstructionBlockDecoderTestsBase<IZ80Registers>
     {
+        public ArithmeticGeneralPurposeTests() : base(CpuMode.Z80)
+        {
+        }
+
         [Test]
         public void DAA()
         {

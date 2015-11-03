@@ -19,8 +19,15 @@
 
     using NUnit.Framework;
 
-    public abstract class InstructionBlockDecoderTestsBase
+    public abstract class InstructionBlockDecoderTestsBase<TRegisters> where TRegisters : class, IRegisters
     {
+        private readonly CpuMode cpuMode;
+
+        protected InstructionBlockDecoderTestsBase(CpuMode cpuMode)
+        {
+            this.cpuMode = cpuMode;
+        }
+
         protected const ushort Address = 0x0000;
 
         protected const byte A = 0xaa;
@@ -53,9 +60,9 @@
         protected const bool IFF1 = false;
         protected const bool IFF2 = true;
 
-        protected IInstructionBlockDecoder<IZ80Registers> DynaRecBlockDecoder;
+        protected IInstructionBlockDecoder<TRegisters> DynaRecBlockDecoder;
 
-        protected Mock<IZ80Registers> Registers;
+        protected Mock<TRegisters> Registers;
 
         protected Mock<IMmu> Mmu;
 
@@ -74,7 +81,7 @@
         [TestFixtureSetUp]
         public void TestFixtureSetUp()
         {
-            this.Registers = new Mock<IZ80Registers>();
+            this.Registers = new Mock<TRegisters>();
             this.GpRegisters = new Mock<IGeneralPurposeRegisterSet>();
             this.AfRegisters = new Mock<IAccumulatorAndFlagsRegisterSet>();
             this.FlagsRegister = new Mock<IFlagsRegister>();
@@ -95,9 +102,9 @@
             this.Io = new Mock<IPeripheralManager>();
 
             var platformConfig = new Mock<IPlatformConfig>();
-            platformConfig.Setup(x => x.CpuMode).Returns(CpuMode.Z80);
+            platformConfig.Setup(x => x.CpuMode).Returns(this.cpuMode);
 
-            this.DynaRecBlockDecoder = new DynaRecInstructionBlockDecoder<IZ80Registers>(platformConfig.Object, mmuFactory.Object);
+            this.DynaRecBlockDecoder = new DynaRecInstructionBlockDecoder<TRegisters>(platformConfig.Object, mmuFactory.Object);
         }
 
         protected void SetupRegisters(ushort? bc = null)
@@ -113,17 +120,6 @@
             this.GpRegisters.SetupProperty(x => x.DE, DE);
 
             this.GpRegisters.SetupProperty(x => x.HL, HL);
-            
-            this.Registers.SetupProperty(x => x.I, I);
-            this.Registers.SetupProperty(x => x.R, R);
-
-            this.Registers.SetupProperty(x => x.IX, IX);
-            this.Registers.SetupProperty(x => x.IY, IY);
-
-            this.Registers.SetupProperty(x => x.IXh, IXh);
-            this.Registers.SetupProperty(x => x.IXl, IXl);
-            this.Registers.SetupProperty(x => x.IYh, IYh);
-            this.Registers.SetupProperty(x => x.IYl, IYl);
 
             this.Registers.SetupProperty(x => x.InterruptFlipFlop1, IFF1);
             this.Registers.SetupProperty(x => x.InterruptFlipFlop2, IFF2);
@@ -132,7 +128,7 @@
             this.Registers.SetupProperty(x => x.StackPointer, SP);
 
             this.AfRegisters.SetupProperty(x => x.A, A);
-            
+
             this.FlagsRegister.SetupProperty(x => x.Register, F);
             this.FlagsRegister.SetupProperty(x => x.Sign, false);
             this.FlagsRegister.SetupProperty(x => x.Zero, false);
@@ -142,6 +138,20 @@
             this.FlagsRegister.SetupProperty(x => x.Flag3, false);
             this.FlagsRegister.SetupProperty(x => x.Subtract, false);
             this.FlagsRegister.SetupProperty(x => x.Carry, false);
+
+            // Z80 Specific
+            var z80Mock = this.Registers as Mock<IZ80Registers>;
+            if (z80Mock != null)
+            {
+                z80Mock.SetupProperty(x => x.I, I);
+                z80Mock.SetupProperty(x => x.R, R);
+                z80Mock.SetupProperty(x => x.IX, IX);
+                z80Mock.SetupProperty(x => x.IY, IY);
+                z80Mock.SetupProperty(x => x.IXh, IXh);
+                z80Mock.SetupProperty(x => x.IXl, IXl);
+                z80Mock.SetupProperty(x => x.IYh, IYh);
+                z80Mock.SetupProperty(x => x.IYl, IYl);
+            }
         }
 
         protected void ResetMocks()
@@ -185,7 +195,7 @@
             Assert.AreEqual(expectedThrottlingStates, timings.ThrottlingStates);
 
             // Make sure all bytes were read
-            this.Cache.Verify(x => x.NextByte(), Times.Exactly(bytes.Count(x => x is byte || x is PrimaryOpCode || x is PrefixEdOpCode || x is PrefixCbOpCode)));
+            this.Cache.Verify(x => x.NextByte(), Times.Exactly(bytes.Count(x => x is byte || x is PrimaryOpCode || x is PrefixEdOpCode || x is PrefixCbOpCode || x is GameBoySpecificOpCode)));
             this.Cache.Verify(x => x.NextWord(), Times.Exactly(bytes.Count(x => x is ushort)));
         }
         

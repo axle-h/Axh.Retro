@@ -1,14 +1,20 @@
 ﻿namespace Axh.Retro.CPU.X80.Tests.Core.InstructionBlockDecoder
 {
+    using Axh.Retro.CPU.X80.Contracts.Config;
     using Axh.Retro.CPU.X80.Contracts.OpCodes;
+    using Axh.Retro.CPU.X80.Contracts.Registers;
 
     using Moq;
 
     using NUnit.Framework;
 
     [TestFixture]
-    public class Arithmetic16BitTests : InstructionBlockDecoderTestsBase
+    public class Arithmetic16BitTests : InstructionBlockDecoderTestsBase<IZ80Registers>
     {
+        public Arithmetic16BitTests() : base(CpuMode.Z80)
+        {
+        }
+
         [TestCase(PrimaryOpCode.ADD_HL_BC)]
         [TestCase(PrimaryOpCode.ADD_HL_DE)]
         [TestCase(PrimaryOpCode.ADD_HL_HL)]
