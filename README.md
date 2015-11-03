@@ -12,8 +12,6 @@ Currently:
  
  
 TODO:
-* Interrupts
+* GameBoy GPU, controls & sound
 * Debugger
 * Interpreted core
-* GameBoy custom opcodes
-* GameBoy hardware
