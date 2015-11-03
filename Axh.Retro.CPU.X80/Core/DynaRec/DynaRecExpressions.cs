@@ -63,7 +63,7 @@
         public static readonly Expression PushPushSP;
         public static readonly Expression PopSP;
         public static readonly Expression PopPopSP;
-
+        
         // Z80 specific register expressions
         public static readonly Expression I;
         public static readonly Expression R;
@@ -74,7 +74,7 @@
         public static readonly Expression IXh;
         public static readonly Expression IYl;
         public static readonly Expression IYh;
-
+        
         // Z80 specific helpers
         /// <summary>
         /// IX + d
@@ -190,6 +190,9 @@
         public static readonly MethodInfo AluBitSet;
         public static readonly MethodInfo AluBitReset;
 
+        public static readonly MethodInfo AluAddDisplacement;
+        public static readonly MethodInfo AluSwap;
+
         // IO Methods
         public static readonly MethodInfo IoReadByte;
         public static readonly MethodInfo IoWriteByte;
@@ -246,7 +249,7 @@
             IY = Registers.GetPropertyExpression<IZ80Registers, ushort>(r => r.IY);
             IYl = Registers.GetPropertyExpression<IZ80Registers, byte>(r => r.IYl);
             IYh = Registers.GetPropertyExpression<IZ80Registers, byte>(r => r.IYh);
-
+            
             // Z80 specific Index register expressions i.e. IX+d and IY+d where d is LocalByte (expression local value, which must be initialised before running these)
             IXd = Expression.Convert(Expression.Add(Expression.Convert(IX, typeof(int)), Expression.Convert(Expression.Convert(LocalByte, typeof(sbyte)), typeof(int))), typeof(ushort));
             IYd = Expression.Convert(Expression.Add(Expression.Convert(IY, typeof(int)), Expression.Convert(Expression.Convert(LocalByte, typeof(sbyte)), typeof(int))), typeof(ushort));
@@ -326,6 +329,8 @@
             AluBitTest = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, int>((alu, a, bit) => alu.BitTest(a, bit));
             AluBitSet = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, int, byte>((alu, a, bit) => alu.BitSet(a, bit));
             AluBitReset = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, int, byte>((alu, a, bit) => alu.BitReset(a, bit));
+            AluAddDisplacement = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, ushort, sbyte, ushort>((alu, a, d) => alu.AddDisplacement(a, d));
+            AluSwap = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, byte>((alu, a) => alu.Swap(a));
 
             // IO Expressions
             IoReadByte = ExpressionHelpers.GetMethodInfo<IPeripheralManager, byte, byte, byte>((io, port, addressMsb) => io.ReadByteFromPort(port, addressMsb));

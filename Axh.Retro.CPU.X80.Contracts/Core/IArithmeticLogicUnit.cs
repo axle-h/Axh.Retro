@@ -124,5 +124,22 @@
         byte BitSet(byte a, int bit);
 
         byte BitReset(byte a, int bit);
+
+        /// <summary>
+        /// Add signed displacement to 16-bit register.
+        /// Specific to GB ALU.
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="d"></param>
+        /// <returns></returns>
+        ushort AddDisplacement(ushort a, sbyte d);
+
+        /// <summary>
+        /// Swap lower and upper nibbles.
+        /// Specific to GB ALU.
+        /// </summary>
+        /// <param name="a"></param>
+        /// <returns></returns>
+        byte Swap(byte a);
     }
 }

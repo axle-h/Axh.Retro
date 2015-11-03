@@ -427,8 +427,18 @@
 
                     // LD A, (nn)
                     case PrimaryOpCode.LD_A_mnn:
-                        yield return Expression.Assign(Xpr.A, Expression.Call(Xpr.Mmu, Xpr.MmuReadByte, NextWord));
-                        timingsBuilder.Add(4, 13);
+                        if (this.cpuMode == CpuMode.GameBoy)
+                        {
+                            // Runs as LDD  A, (HL) on GB
+                            yield return Expression.Assign(Xpr.A, Xpr.ReadByteAtHL);
+                            yield return Expression.PreDecrementAssign(Xpr.HL);
+                            timingsBuilder.Add(2, 8);
+                        }
+                        else
+                        {
+                            yield return Expression.Assign(Xpr.A, Expression.Call(Xpr.Mmu, Xpr.MmuReadByte, NextWord));
+                            timingsBuilder.Add(4, 13);
+                        }
                         break;
 
                     // LD (BC), A
@@ -445,8 +455,18 @@
 
                     // LD (nn), A
                     case PrimaryOpCode.LD_mnn_A:
-                        yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteByte, NextWord, Xpr.A);
-                        timingsBuilder.Add(2, 7);
+                        if (this.cpuMode == CpuMode.GameBoy)
+                        {
+                            // Runs as LDD  (HL), A on GB
+                            yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteByte, Xpr.HL, Xpr.A);
+                            yield return Expression.PreDecrementAssign(Xpr.HL);
+                            timingsBuilder.Add(2, 8);
+                        }
+                        else
+                        {
+                            yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteByte, NextWord, Xpr.A);
+                            timingsBuilder.Add(2, 7);
+                        }
                         break;
 
                     // ********* 16-bit load *********
@@ -470,14 +490,34 @@
 
                     // LD HL, (nn)
                     case PrimaryOpCode.LD_HL_mnn:
-                        yield return Expression.Assign(index.Register, Expression.Call(Xpr.Mmu, Xpr.MmuReadWord, NextWord));
-                        timingsBuilder.Add(5, 16);
+                        if (this.cpuMode == CpuMode.GameBoy)
+                        {
+                            // Runs as LDI  A, (HL) on GB
+                            yield return Expression.Assign(Xpr.A, Xpr.ReadByteAtHL);
+                            yield return Expression.PreIncrementAssign(Xpr.HL);
+                            timingsBuilder.Add(2, 8);
+                        }
+                        else
+                        {
+                            yield return Expression.Assign(index.Register, Expression.Call(Xpr.Mmu, Xpr.MmuReadWord, NextWord));
+                            timingsBuilder.Add(5, 16);
+                        }
                         break;
 
                     // LD (nn), HL
                     case PrimaryOpCode.LD_mnn_HL:
-                        yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteWord, NextWord, index.Register);
-                        timingsBuilder.Add(5, 16);
+                        if (this.cpuMode == CpuMode.GameBoy)
+                        {
+                            // Runs as LDI (HL), A on GB
+                            yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteByte, Xpr.HL, Xpr.A);
+                            yield return Expression.PreIncrementAssign(Xpr.HL);
+                            timingsBuilder.Add(2, 8);
+                        }
+                        else
+                        {
+                            yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteWord, NextWord, index.Register);
+                            timingsBuilder.Add(5, 16);
+                        }
                         break;
 
                     // LD SP, HL
@@ -549,11 +589,18 @@
                     // ********* Exchange *********
                     // EX DE, HL
                     case PrimaryOpCode.EX_DE_HL:
-                        // This affects HL register directly, always ignoring index register prefixes
-                        yield return Expression.Assign(Xpr.LocalWord, Xpr.DE);
-                        yield return Expression.Assign(Xpr.DE, Xpr.HL);
-                        yield return Expression.Assign(Xpr.HL, Xpr.LocalWord);
-                        timingsBuilder.Add(1, 4);
+                        if (this.cpuMode == CpuMode.GameBoy)
+                        {
+                            timingsBuilder.Add(1, 4);
+                        }
+                        else
+                        {
+                            // This affects HL register directly, always ignoring index register prefixes
+                            yield return Expression.Assign(Xpr.LocalWord, Xpr.DE);
+                            yield return Expression.Assign(Xpr.DE, Xpr.HL);
+                            yield return Expression.Assign(Xpr.HL, Xpr.LocalWord);
+                            timingsBuilder.Add(1, 4);
+                        }
                         break;
 
                     // EX AF, AF′
@@ -573,24 +620,43 @@
 
                     // EXX
                     case PrimaryOpCode.EXX:
-                        yield return Xpr.SwitchToAlternativeGeneralPurposeRegisters;
-                        timingsBuilder.Add(1, 4);
-                        break;
+                        if (this.cpuMode == CpuMode.GameBoy)
+                        {
+                            // Runs as RETI on GB
+                            yield return Xpr.ReadPCFromStack;
+                            yield return Xpr.PopPopSP;
+                            timingsBuilder.Add(4, 16);
+                            LastDecodeResult = DecodeResult.Finalize;
+                            yield break;
+                        }
+                        else
+                        {
+                            yield return Xpr.SwitchToAlternativeGeneralPurposeRegisters;
+                            timingsBuilder.Add(1, 4);
+                            break;
+                        }
 
                     // EX (SP), HL
                     case PrimaryOpCode.EX_mSP_HL:
-                        // Exchange L
-                        yield return Expression.Assign(Xpr.LocalByte, index.RegisterLowOrder);
-                        yield return Expression.Assign(index.RegisterLowOrder, Expression.Call(Xpr.Mmu, Xpr.MmuReadByte, Xpr.SP));
-                        yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteByte, Xpr.SP, Xpr.LocalByte);
+                        if (this.cpuMode == CpuMode.GameBoy)
+                        {
+                            timingsBuilder.Add(1, 4);
+                        }
+                        else
+                        {
+                            // Exchange L
+                            yield return Expression.Assign(Xpr.LocalByte, index.RegisterLowOrder);
+                            yield return Expression.Assign(index.RegisterLowOrder, Expression.Call(Xpr.Mmu, Xpr.MmuReadByte, Xpr.SP));
+                            yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteByte, Xpr.SP, Xpr.LocalByte);
 
-                        // Exchange H
-                        yield return Expression.Assign(Xpr.LocalByte, index.RegisterHighOrder);
-                        yield return Expression.Assign(Xpr.LocalWord, Expression.Increment(Xpr.SP));
-                        yield return Expression.Assign(index.RegisterHighOrder, Expression.Call(Xpr.Mmu, Xpr.MmuReadByte, Xpr.LocalWord));
-                        yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteByte, Xpr.LocalWord, Xpr.LocalByte);
+                            // Exchange H
+                            yield return Expression.Assign(Xpr.LocalByte, index.RegisterHighOrder);
+                            yield return Expression.Assign(Xpr.LocalWord, Expression.Increment(Xpr.SP));
+                            yield return Expression.Assign(index.RegisterHighOrder, Expression.Call(Xpr.Mmu, Xpr.MmuReadByte, Xpr.LocalWord));
+                            yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteByte, Xpr.LocalWord, Xpr.LocalByte);
 
-                        timingsBuilder.Add(5, 19);
+                            timingsBuilder.Add(5, 19);
+                        }
                         break;
 
                     // ********* 8-Bit Arithmetic *********
@@ -1174,6 +1240,14 @@
                         yield break;
 
                     case PrimaryOpCode.JP_PO:
+                        if (this.cpuMode == CpuMode.GameBoy)
+                        {
+                            // Runs as LD (FF00+C), A on GB
+                            yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteByte, Expression.Add(Expression.Convert(Xpr.C, typeof(ushort)), Expression.Constant((ushort)0xff00)), Xpr.A);
+                            timingsBuilder.Add(2, 8);
+                            break;
+                        }
+
                         yield return Expression.Assign(Xpr.LocalWord, NextWord);
                         yield return Expression.IfThenElse(Expression.Not(Xpr.ParityOverflow), Expression.Assign(Xpr.PC, Xpr.LocalWord), SyncProgramCounter);
                         timingsBuilder.Add(3, 10);
@@ -1181,13 +1255,29 @@
                         yield break;
 
                     case PrimaryOpCode.JP_PE:
+                        if (this.cpuMode == CpuMode.GameBoy)
+                        {
+                            // Runs as LD (nn), A on GB
+                            yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteByte, NextWord, Xpr.A);
+                            timingsBuilder.Add(2, 8);
+                            break;
+                        }
+
                         yield return Expression.Assign(Xpr.LocalWord, NextWord);
                         yield return Expression.IfThenElse(Xpr.ParityOverflow, Expression.Assign(Xpr.PC, Xpr.LocalWord), SyncProgramCounter);
                         timingsBuilder.Add(3, 10);
                         LastDecodeResult = DecodeResult.Finalize;
                         yield break;
-
+                        
                     case PrimaryOpCode.JP_P:
+                        if (this.cpuMode == CpuMode.GameBoy)
+                        {
+                            // Runs as LD A, (FF00+C) on GB
+                            yield return Expression.Assign(Xpr.A, Expression.Call(Xpr.Mmu, Xpr.MmuReadByte, Expression.Add(Expression.Convert(Xpr.C, typeof(ushort)), Expression.Constant((ushort)0xff00))));
+                            timingsBuilder.Add(2, 8);
+                            break;
+                        }
+
                         yield return Expression.Assign(Xpr.LocalWord, NextWord);
                         yield return Expression.IfThenElse(Expression.Not(Xpr.Sign), Expression.Assign(Xpr.PC, Xpr.LocalWord), SyncProgramCounter);
                         timingsBuilder.Add(3, 10);
@@ -1195,6 +1285,14 @@
                         yield break;
 
                     case PrimaryOpCode.JP_M:
+                        if (this.cpuMode == CpuMode.GameBoy)
+                        {
+                            // Runs as LD A, (nn) on GB
+                            yield return Expression.Assign(Xpr.A, Expression.Call(Xpr.Mmu, Xpr.MmuReadByte, NextWord));
+                            timingsBuilder.Add(4, 16);
+                            break;
+                        }
+
                         yield return Expression.Assign(Xpr.LocalWord, NextWord);
                         yield return Expression.IfThenElse(Xpr.Sign, Expression.Assign(Xpr.PC, Xpr.LocalWord), SyncProgramCounter);
                         timingsBuilder.Add(3, 10);
@@ -1305,6 +1403,12 @@
                         yield break;
                         
                     case PrimaryOpCode.CALL_PO:
+                        if (this.cpuMode == CpuMode.GameBoy)
+                        {
+                            timingsBuilder.Add(1, 4);
+                            break;
+                        }
+
                         yield return Expression.Assign(Xpr.LocalWord, NextWord);
                         yield return SyncProgramCounter;
                         yield return CallIf(Xpr.ParityOverflow, true);
@@ -1313,6 +1417,12 @@
                         yield break;
 
                     case PrimaryOpCode.CALL_PE:
+                        if (this.cpuMode == CpuMode.GameBoy)
+                        {
+                            timingsBuilder.Add(1, 4);
+                            break;
+                        }
+
                         yield return Expression.Assign(Xpr.LocalWord, NextWord);
                         yield return SyncProgramCounter;
                         yield return CallIf(Xpr.ParityOverflow);
@@ -1321,6 +1431,12 @@
                         yield break;
                         
                     case PrimaryOpCode.CALL_P:
+                        if (this.cpuMode == CpuMode.GameBoy)
+                        {
+                            timingsBuilder.Add(1, 4);
+                            break;
+                        }
+
                         yield return Expression.Assign(Xpr.LocalWord, NextWord);
                         yield return SyncProgramCounter;
                         yield return CallIf(Xpr.Sign, true);
@@ -1329,6 +1445,12 @@
                         yield break;
 
                     case PrimaryOpCode.CALL_M:
+                        if (this.cpuMode == CpuMode.GameBoy)
+                        {
+                            timingsBuilder.Add(1, 4);
+                            break;
+                        }
+
                         yield return Expression.Assign(Xpr.LocalWord, NextWord);
                         yield return SyncProgramCounter;
                         yield return CallIf(Xpr.Sign);
@@ -1373,6 +1495,14 @@
                         yield break;
 
                     case PrimaryOpCode.RET_PO:
+                        if (this.cpuMode == CpuMode.GameBoy)
+                        {
+                            // Runs as LD (FF00+n), A on GB
+                            yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteByte, Expression.Add(Expression.Convert(NextByte, typeof(ushort)), Expression.Constant((ushort)0xff00)), Xpr.A);
+                            timingsBuilder.Add(3, 12);
+                            break;
+                        }
+
                         yield return SyncProgramCounter;
                         yield return ReturnIf(Xpr.ParityOverflow, true);
                         timingsBuilder.Add(1, 5);
@@ -1380,6 +1510,13 @@
                         yield break;
 
                     case PrimaryOpCode.RET_PE:
+                        if (this.cpuMode == CpuMode.GameBoy)
+                        {
+                            // Runs as ADD SP, dd on GB
+                            yield return Expression.Assign(Xpr.SP, Expression.Call(Xpr.Alu, Xpr.AluAddDisplacement, Xpr.SP, Expression.Convert(NextByte, typeof(sbyte))));
+                            timingsBuilder.Add(4, 16);
+                            break;
+                        }
                         yield return SyncProgramCounter;
                         yield return ReturnIf(Xpr.ParityOverflow);
                         timingsBuilder.Add(1, 5);
@@ -1387,6 +1524,14 @@
                         yield break;
 
                     case PrimaryOpCode.RET_P:
+                        if (this.cpuMode == CpuMode.GameBoy)
+                        {
+                            // Runs as LD A, (FF00+n) on GB
+                            yield return Expression.Assign(Xpr.A, Expression.Call(Xpr.Mmu, Xpr.MmuReadByte, Expression.Add(Expression.Convert(NextByte, typeof(ushort)), Expression.Constant((ushort)0xff00))));
+                            timingsBuilder.Add(3, 12);
+                            break;
+                        }
+
                         yield return SyncProgramCounter;
                         yield return ReturnIf(Xpr.Sign, true);
                         timingsBuilder.Add(1, 5);
@@ -1394,6 +1539,14 @@
                         yield break;
 
                     case PrimaryOpCode.RET_M:
+                        if (this.cpuMode == CpuMode.GameBoy)
+                        {
+                            // Runs as LD HL, SP+dd on GB
+                            yield return Expression.Assign(Xpr.HL, Expression.Call(Xpr.Alu, Xpr.AluAddDisplacement, Xpr.SP, Expression.Convert(NextByte, typeof(sbyte))));
+                            timingsBuilder.Add(3, 12);
+                            break;
+                        }
+
                         yield return SyncProgramCounter;
                         yield return ReturnIf(Xpr.Sign);
                         timingsBuilder.Add(1, 5);
@@ -1476,14 +1629,30 @@
                     // ********* IO *********
                     // IN A, (n)
                     case PrimaryOpCode.IN_A_n:
-                        yield return Expression.Assign(Xpr.A, Expression.Call(Xpr.IO, Xpr.IoReadByte, NextByte, Xpr.A));
-                        timingsBuilder.Add(3, 11);
+                        if (this.cpuMode == CpuMode.GameBoy)
+                        {
+                            // No IO on GB
+                            timingsBuilder.Add(1, 4);
+                        }
+                        else
+                        {
+                            yield return Expression.Assign(Xpr.A, Expression.Call(Xpr.IO, Xpr.IoReadByte, NextByte, Xpr.A));
+                            timingsBuilder.Add(3, 11);
+                        }
                         break;
                     
                     // OUT A, (n)
                     case PrimaryOpCode.OUT_A_n:
-                        yield return Expression.Call(Xpr.IO, Xpr.IoWriteByte, NextByte, Xpr.A, Xpr.A);
-                        timingsBuilder.Add(3, 11);
+                        if (this.cpuMode == CpuMode.GameBoy)
+                        {
+                            // No IO on GB
+                            timingsBuilder.Add(1, 4);
+                        }
+                        else
+                        {
+                            yield return Expression.Call(Xpr.IO, Xpr.IoWriteByte, NextByte, Xpr.A, Xpr.A);
+                            timingsBuilder.Add(3, 11);
+                        }
                         break;
 
                     default:

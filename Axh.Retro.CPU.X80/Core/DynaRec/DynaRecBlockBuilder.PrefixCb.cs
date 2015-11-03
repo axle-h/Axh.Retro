@@ -3,6 +3,7 @@
     using System;
     using System.Linq.Expressions;
 
+    using Axh.Retro.CPU.X80.Contracts.Config;
     using Axh.Retro.CPU.X80.Contracts.OpCodes;
     using Axh.Retro.CPU.X80.Contracts.Registers;
 
@@ -114,21 +115,21 @@
 
                 // SLS r (undocumented)
                 case PrefixCbOpCode.SLS_A:
-                    return GetAluCallAssign(2, 8, Xpr.AluShiftLeftSet, Xpr.A);
+                    return GetAluCallAssign(2, 8, this.cpuMode == CpuMode.GameBoy ? Xpr.AluSwap : Xpr.AluShiftLeftSet, Xpr.A);
                 case PrefixCbOpCode.SLS_B:
-                    return GetAluCallAssign(2, 8, Xpr.AluShiftLeftSet, Xpr.B);
+                    return GetAluCallAssign(2, 8, this.cpuMode == CpuMode.GameBoy ? Xpr.AluSwap : Xpr.AluShiftLeftSet, Xpr.B);
                 case PrefixCbOpCode.SLS_C:
-                    return GetAluCallAssign(2, 8, Xpr.AluShiftLeftSet, Xpr.C);
+                    return GetAluCallAssign(2, 8, this.cpuMode == CpuMode.GameBoy ? Xpr.AluSwap : Xpr.AluShiftLeftSet, Xpr.C);
                 case PrefixCbOpCode.SLS_D:
-                    return GetAluCallAssign(2, 8, Xpr.AluShiftLeftSet, Xpr.D);
+                    return GetAluCallAssign(2, 8, this.cpuMode == CpuMode.GameBoy ? Xpr.AluSwap : Xpr.AluShiftLeftSet, Xpr.D);
                 case PrefixCbOpCode.SLS_E:
-                    return GetAluCallAssign(2, 8, Xpr.AluShiftLeftSet, Xpr.E);
+                    return GetAluCallAssign(2, 8, this.cpuMode == CpuMode.GameBoy ? Xpr.AluSwap : Xpr.AluShiftLeftSet, Xpr.E);
                 case PrefixCbOpCode.SLS_H:
-                    return GetAluCallAssign(2, 8, Xpr.AluShiftLeftSet, Xpr.H);
+                    return GetAluCallAssign(2, 8, this.cpuMode == CpuMode.GameBoy ? Xpr.AluSwap : Xpr.AluShiftLeftSet, Xpr.H);
                 case PrefixCbOpCode.SLS_L:
-                    return GetAluCallAssign(2, 8, Xpr.AluShiftLeftSet, Xpr.L);
+                    return GetAluCallAssign(2, 8, this.cpuMode == CpuMode.GameBoy ? Xpr.AluSwap : Xpr.AluShiftLeftSet, Xpr.L);
                 case PrefixCbOpCode.SLS_mHL:
-                    return GetAluCallWrite(4, 15, Xpr.AluShiftLeftSet);
+                    return GetAluCallWrite(4, 15, this.cpuMode == CpuMode.GameBoy ? Xpr.AluSwap : Xpr.AluShiftLeftSet);
 
                 // SRA r
                 case PrefixCbOpCode.SRA_A:

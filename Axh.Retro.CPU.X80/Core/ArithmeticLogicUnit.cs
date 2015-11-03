@@ -373,6 +373,37 @@
             return (byte)(a ^ (0x1 << bit));
         }
 
+        public ushort AddDisplacement(ushort a, sbyte d)
+        {
+            var result = a + d;
+            
+            if (d >= 0)
+            {
+                flags.Carry = (result & 0x100) == 0x100;
+                flags.HalfCarry = (((a & 0x0f) + (d & 0x0f)) & 0xf0) > 0;
+            }
+            else
+            {
+                flags.Carry = result < 0;
+                flags.HalfCarry = (a & 0x0f) < (d & 0x0f);
+            }
+
+            flags.Subtract = false;
+            flags.Zero = false;
+
+            return unchecked ((ushort)result);
+        }
+
+        public byte Swap(byte a)
+        {
+            var result = (byte)(((a & 0xf) << 4) | ((a & 0xf0) >> 4));
+            flags.Zero = result == 0;
+            flags.Subtract = false;
+            flags.HalfCarry = false;
+            flags.Carry = false;
+            return result;
+        }
+
         private byte Add(byte a, byte b, bool addCarry)
         {
             var carry = addCarry ? 1 : 0;
