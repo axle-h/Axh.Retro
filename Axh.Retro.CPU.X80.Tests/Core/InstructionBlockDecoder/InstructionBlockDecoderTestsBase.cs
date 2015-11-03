@@ -195,7 +195,9 @@
             Assert.AreEqual(expectedThrottlingStates, timings.ThrottlingStates);
 
             // Make sure all bytes were read
-            this.Cache.Verify(x => x.NextByte(), Times.Exactly(bytes.Count(x => x is byte || x is PrimaryOpCode || x is PrefixEdOpCode || x is PrefixCbOpCode || x is GameBoySpecificOpCode)));
+            this.Cache.Verify(
+                x => x.NextByte(),
+                Times.Exactly(bytes.Count(x => x is byte || x is PrimaryOpCode || x is PrefixEdOpCode || x is PrefixCbOpCode || x is GameBoyPrimaryOpCode || x is GameBoyPrefixCbOpCode)));
             this.Cache.Verify(x => x.NextWord(), Times.Exactly(bytes.Count(x => x is ushort)));
         }
         

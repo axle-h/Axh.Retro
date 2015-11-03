@@ -25,7 +25,7 @@
         private readonly IInstructionTimingsBuilder timingsBuilder;
         private readonly IMmuCache mmuCache;
 
-        private static readonly DynaRecExpressions<TRegisters> Xpr;
+        private static readonly DynaRecExpressions<TRegisters> Xpr = new DynaRecExpressions<TRegisters>();
 
         private ConstantExpression NextByte => Expression.Constant(mmuCache.NextByte(), typeof(byte));
         private ConstantExpression NextWord => Expression.Constant(mmuCache.NextWord(), typeof(ushort));
@@ -41,12 +41,7 @@
         }
 
         public DecodeResult LastDecodeResult { get; private set; }
-
-        static DynaRecBlockBuilder()
-        {
-            Xpr = new DynaRecExpressions<TRegisters>();
-        }
-
+        
         public Expression<Func<TRegisters, IMmu, IArithmeticLogicUnit, IPeripheralManager, InstructionTimings>> DecodeNextBlock()
         {
             var initExpressions = GetBlockInitExpressions();
@@ -87,11 +82,11 @@
                 yield return SyncProgramCounter;
             }
 
-            // Add the block length to the 7 lsb of memory refresh register.
-            var blockLengthExpression = Expression.Constant(this.mmuCache.TotalBytesRead, typeof(int));
-
             if (this.cpuMode == CpuMode.Z80)
             {
+                // Add the block length to the 7 lsb of memory refresh register.
+                var blockLengthExpression = Expression.Constant(this.mmuCache.TotalBytesRead, typeof(int));
+
                 // Update Z80 specific memory refresh register
                 yield return Xpr.GetMemoryRefreshDeltaExpression(blockLengthExpression);
             }
