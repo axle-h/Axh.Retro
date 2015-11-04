@@ -2,6 +2,7 @@
 {
     public enum MemoryBankType
     {
+        Unused,
         RandomAccessMemory,
         ReadOnlyMemory,
         Peripheral

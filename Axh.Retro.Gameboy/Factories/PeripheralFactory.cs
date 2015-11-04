@@ -26,12 +26,14 @@
 
         public IEnumerable<IMemoryMappedPeripheral> GetMemoryMappedPeripherals(IInterruptManager interruptManager)
         {
+            var interruptRegister = new InterruptRegister();
+
             var hardwareRegisters = new HardwareRegisters();
             var hardwareRegistersPeripheral = new HardwareRegistersPeripheral(hardwareRegisters);
 
             var renderhandler = this.renderHandlerFactory.GetIRenderHandler();
             var graphicsFrameBuffer = new GraphicsFrameBuffer(interruptManager, hardwareRegisters, renderhandler);
-            return new IMemoryMappedPeripheral[] { hardwareRegistersPeripheral, graphicsFrameBuffer };
+            return new IMemoryMappedPeripheral[] { hardwareRegistersPeripheral, graphicsFrameBuffer, interruptRegister };
         }
     }
 }

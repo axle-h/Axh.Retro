@@ -42,10 +42,25 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Config\IGameBoyConfig.cs" />
+    <Compile Include="GameBoyType.cs" />
+    <Compile Include="Media\CartridgeType.cs" />
+    <Compile Include="Media\DestinationCode.cs" />
+    <Compile Include="Media\ICartridge.cs" />
     <Compile Include="Factories\IRenderHandlerFactory.cs" />
+    <Compile Include="Media\ICartridgeHeader.cs" />
+    <Compile Include="Media\MediaExtensions.cs" />
+    <Compile Include="Media\CartridgeRamSize.cs" />
+    <Compile Include="Media\CartridgeRomSize.cs" />
     <Compile Include="Peripherals\IHardwareRegisters.cs" />
     <Compile Include="Peripherals\IRenderhandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Axh.Retro.CPU.Common.Contracts\Axh.Retro.CPU.Common.Contracts.csproj">
+      <Project>{5A958C82-D6EA-4BD1-9CC6-3727AFE1874C}</Project>
+      <Name>Axh.Retro.CPU.Common.Contracts</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
