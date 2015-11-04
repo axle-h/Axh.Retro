@@ -1,8 +1,8 @@
-﻿namespace Axh.Retro.GameBoy.Peripherals
+﻿namespace Axh.Retro.GameBoy.Devices
 {
     using System;
 
-    using Axh.Retro.GameBoy.Contracts.Peripherals;
+    using Axh.Retro.GameBoy.Contracts.Devices;
 
     public class JoyPad : IJoyPad
     {

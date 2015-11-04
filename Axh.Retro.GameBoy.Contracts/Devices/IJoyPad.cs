@@ -1,4 +1,4 @@
-﻿namespace Axh.Retro.GameBoy.Contracts.Peripherals
+﻿namespace Axh.Retro.GameBoy.Contracts.Devices
 {
     public interface IJoyPad
     {

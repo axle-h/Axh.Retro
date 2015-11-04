@@ -7,6 +7,7 @@
     using Axh.Retro.CPU.Z80.Contracts.Factories;
     using Axh.Retro.CPU.Z80.Contracts.Peripherals;
     using Axh.Retro.GameBoy.Contracts.Factories;
+    using Axh.Retro.GameBoy.Devices;
     using Axh.Retro.GameBoy.Peripherals;
 
     public class PeripheralFactory : IPeripheralFactory
