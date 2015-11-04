@@ -15,13 +15,13 @@
         {
             if (!platformConfig.MachineCycleSpeedMhz.HasValue && !platformConfig.ThrottlingStateSpeedMhz.HasValue)
             {
+                // Run ASAP
                 syncMode = SyncMode.Null;
                 syncMagnitude = 0;
             }
             else
             {
                 // Prefer syncing to t-states as should be more accurate
-                syncMode = platformConfig.ThrottlingStateSpeedMhz.HasValue ? SyncMode.ThrottlingStates : SyncMode.MachineCycles;
                 if (platformConfig.ThrottlingStateSpeedMhz.HasValue)
                 {
                     syncMode = SyncMode.ThrottlingStates;

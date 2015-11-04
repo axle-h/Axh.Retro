@@ -25,8 +25,11 @@
 
         public IEnumerable<IMmuBankConfig> MemoryBanks { get; }
 
+        /// <summary>
+        /// GB rounds all machine cycles to 4 throttling states. I.e. we need to run timing based on machine cycles.
+        /// </summary>
         public double? MachineCycleSpeedMhz => CpuFrequency;
 
-        public double? ThrottlingStateSpeedMhz => CpuFrequency / 4;    
+        public double? ThrottlingStateSpeedMhz => null;    
     }
 }
