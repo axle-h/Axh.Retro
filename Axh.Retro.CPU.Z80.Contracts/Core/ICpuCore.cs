@@ -2,8 +2,12 @@
 {
     using System.Threading.Tasks;
 
-    public interface ICpuCore
+    using Axh.Retro.CPU.Z80.Contracts.Registers;
+
+    public interface ICpuCore<TRegisters> where TRegisters : IRegisters
     {
-        Task StartCoreProcessAsync();
+        Task StartCoreProcessAsync(ICoreContext<TRegisters> context);
+
+        ICoreContext<TRegisters> GetContext();
     }
 }

@@ -64,9 +64,9 @@
             return memoryMappedPeripherals;
         }
 
-        public IEnumerable<TPeripheral> GetMemoryMappedPeripherals<TPeripheral>() where TPeripheral : IMemoryMappedPeripheral
+        public TPeripheral GetMemoryMappedPeripherals<TPeripheral>() where TPeripheral : IMemoryMappedPeripheral
         {
-            return memoryMappedPeripherals.OfType<TPeripheral>();
+            return memoryMappedPeripherals.OfType<TPeripheral>().FirstOrDefault();
         }
     }
 }

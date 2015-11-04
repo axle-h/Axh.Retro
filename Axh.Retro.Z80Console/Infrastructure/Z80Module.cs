@@ -22,7 +22,7 @@
         public override void Load()
         {
             // Core
-            this.Bind<ICpuCore>().To<CachingCpuCore<IZ80Registers>>();
+            this.Bind<ICpuCore<IZ80Registers>>().To<CachingCpuCore<IZ80Registers>>();
             this.Bind<IInstructionBlockDecoder<IZ80Registers>>().To<DynaRecInstructionBlockDecoder<IZ80Registers>>();
             this.Bind<IInstructionTimer>().To<MachineCycleTimer>();
 

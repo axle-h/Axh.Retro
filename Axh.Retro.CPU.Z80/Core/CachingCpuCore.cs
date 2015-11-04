@@ -10,7 +10,7 @@
     using Axh.Retro.CPU.Z80.Contracts.Factories;
     using Axh.Retro.CPU.Z80.Contracts.Registers;
 
-    public class CachingCpuCore<TRegisters> : ICpuCore where TRegisters : IRegisters
+    public class CachingCpuCore<TRegisters> : ICpuCore<TRegisters> where TRegisters : IRegisters
     {
         private readonly IRegisterFactory<TRegisters> registerFactory;
 
@@ -51,19 +51,26 @@
             {
                 throw new Exception("Instruction block decoder must support caching");
             }
-            
         }
 
-        public async Task StartCoreProcessAsync()
+        public ICoreContext<TRegisters> GetContext()
         {
-            // Build components
             var registers = registerFactory.GetInitialRegisters();
             var interruptManager = this.interruptManagerFactory.GetInterruptManager();
             var peripheralManager = this.peripheralManagerFactory.GetPeripheralsManager(interruptManager);
             var mmu = mmuFactory.GetMmu(peripheralManager);
+
+            return new CoreContext<TRegisters> { Registers = registers, InterruptManager = interruptManager, PeripheralManager = peripheralManager, Mmu = mmu };
+        }
+
+        public async Task StartCoreProcessAsync(ICoreContext<TRegisters> context)
+        {
+            var registers = context.Registers;
+            var interruptManager = context.InterruptManager as ICoreInterruptManager;
+            var peripheralManager = context.PeripheralManager;
+            var mmu = context.Mmu;
             var alu = this.aluFactory.GetArithmeticLogicUnit(registers.AccumulatorAndFlagsRegisters.Flags);
             
-
             // Register the invalidate cache event with mmu AddressWrite event
             mmu.AddressWrite += (sender, args) => this.instructionBlockCache.InvalidateCache(args.Address, args.Length);
             ushort? interruptAddress = null;

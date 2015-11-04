@@ -2,6 +2,7 @@
 {
     using Axh.Retro.CPU.Z80.Contracts.Core;
     using Axh.Retro.CPU.Z80.Contracts.Peripherals;
+    using Axh.Retro.CPU.Z80.Contracts.Registers;
     using Axh.Retro.Z80Console.Infrastructure;
 
     using Ninject;
@@ -19,8 +20,10 @@
         {
             using (var kernel = new StandardKernel(new Z80Module()))
             {
-                var core = kernel.Get<ICpuCore>();
-                core.StartCoreProcessAsync().Wait();
+                var core = kernel.Get<ICpuCore<IZ80Registers>>();
+
+                var context = core.GetContext();
+                core.StartCoreProcessAsync(context).Wait();
             }
         }
     }

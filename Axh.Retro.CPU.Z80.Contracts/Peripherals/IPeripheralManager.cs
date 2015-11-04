@@ -39,11 +39,11 @@
         void RegisterDmaForIOPeripherals(IMmu mmu);
 
         /// <summary>
-        /// Retrieve all peripherals of specified type.
+        /// Retrieve peripheral of specified type.
         /// </summary>
         /// <typeparam name="TPeripheral"></typeparam>
         /// <returns></returns>
-        IEnumerable<TPeripheral> GetMemoryMappedPeripherals<TPeripheral>() where TPeripheral : IMemoryMappedPeripheral;
+        TPeripheral GetMemoryMappedPeripherals<TPeripheral>() where TPeripheral : IMemoryMappedPeripheral;
 
         IEnumerable<IMemoryMappedPeripheral> GetAllMemoryMappedPeripherals();
     }

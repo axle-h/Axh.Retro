@@ -47,6 +47,7 @@
     <Compile Include="Core\AccumulatorAndResult.cs" />
     <Compile Include="Core\DecodeResult.cs" />
     <Compile Include="Core\IArithmeticLogicUnit.cs" />
+    <Compile Include="Core\ICoreContext.cs" />
     <Compile Include="Core\ICoreInterruptManager.cs" />
     <Compile Include="Core\IInstructionBlock.cs" />
     <Compile Include="Core\IInterruptManager.cs" />
