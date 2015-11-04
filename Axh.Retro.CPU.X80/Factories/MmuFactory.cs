@@ -3,12 +3,13 @@
     using System;
     using System.Linq;
 
+    using Axh.Retro.CPU.Common.Contracts.Config;
+    using Axh.Retro.CPU.Common.Contracts.Memory;
+    using Axh.Retro.CPU.Common.Memory;
     using Axh.Retro.CPU.X80.Contracts;
     using Axh.Retro.CPU.X80.Contracts.Config;
     using Axh.Retro.CPU.X80.Contracts.Factories;
-    using Axh.Retro.CPU.X80.Contracts.Memory;
     using Axh.Retro.CPU.X80.Contracts.Peripherals;
-    using Axh.Retro.CPU.X80.Memory;
 
     public class MmuFactory : IMmuFactory
     {

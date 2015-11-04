@@ -6,14 +6,12 @@
     using Axh.Retro.CPU.X80.Contracts.Core;
     using Axh.Retro.CPU.X80.Contracts.Core.Timing;
     using Axh.Retro.CPU.X80.Contracts.Factories;
-    using Axh.Retro.CPU.X80.Contracts.Peripherals;
     using Axh.Retro.CPU.X80.Contracts.Registers;
     using Axh.Retro.CPU.X80.Contracts.State;
     using Axh.Retro.CPU.X80.Core;
     using Axh.Retro.CPU.X80.Core.DynaRec;
     using Axh.Retro.CPU.X80.Core.Timing;
     using Axh.Retro.CPU.X80.Factories;
-    using Axh.Retro.CPU.X80.Peripherals;
     using Axh.Retro.Z80Console.Config;
     using Axh.Retro.Z80Console.Factories;
 

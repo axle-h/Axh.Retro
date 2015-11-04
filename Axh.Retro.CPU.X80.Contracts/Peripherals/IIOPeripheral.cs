@@ -1,6 +1,6 @@
 ﻿namespace Axh.Retro.CPU.X80.Contracts.Peripherals
 {
-    using Axh.Retro.CPU.X80.Contracts.Memory;
+    using Axh.Retro.CPU.Common.Contracts.Memory;
 
     public interface IIOPeripheral : IPeripheral
     {

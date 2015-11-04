@@ -4,25 +4,17 @@
     using Axh.Retro.CPU.X80.Contracts.Registers;
     using Axh.Retro.CPU.X80.Contracts.State;
 
-    public class GameBoyInitialStateConfig : IInitialStateConfig<Z80RegisterState>
+    public class GameBoyInitialStateConfig : IInitialStateConfig<Intel8080RegisterState>
     {
         private const ushort InitialStackPointer = 0x0;
         private const ushort InitialProgramCounter = 0x1000;
 
-        public Z80RegisterState GetInitialRegisterState()
+        public Intel8080RegisterState GetInitialRegisterState()
         {
-            var state = new Z80RegisterState
+            var state = new Intel8080RegisterState
                         {
-                            PrimaryGeneralPurposeRegisterState = GetInitialGeneralPurposeRegisterState(),
-                            AlternativeGeneralPurposeRegisterState = GetInitialGeneralPurposeRegisterState(),
-                            PrimaryAccumulatorAndFlagsRegisterState = GetInitialAccumulatorAndFlagsRegisterState(),
-                            AlternativeAccumulatorAndFlagsRegisterState =  GetInitialAccumulatorAndFlagsRegisterState(),
-                            IsAccumulatorAndFlagsAlternative = false,
-                            IsGeneralPurposeAlternative = false,
-                            IX = 0,
-                            IY = 0,
-                            I = 0,
-                            R = 0,
+                            GeneralPurposeRegisterState = GetInitialGeneralPurposeRegisterState(),
+                            AccumulatorAndFlagsRegisterState = GetInitialAccumulatorAndFlagsRegisterState(),
                             StackPointer = InitialStackPointer,
                             ProgramCounter = InitialProgramCounter,
                             InterruptFlipFlop1 = false,

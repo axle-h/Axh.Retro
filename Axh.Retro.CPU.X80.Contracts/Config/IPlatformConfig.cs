@@ -2,6 +2,8 @@
 {
     using System.Collections.Generic;
 
+    using Axh.Retro.CPU.Common.Contracts.Config;
+
     public interface IPlatformConfig
     {
         CpuMode CpuMode { get; }

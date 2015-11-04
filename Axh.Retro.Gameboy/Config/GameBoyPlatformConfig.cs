@@ -2,9 +2,11 @@
 {
     using System.Collections.Generic;
     using System.Linq;
-    
+
+    using Axh.Retro.CPU.Common.Config;
+    using Axh.Retro.CPU.Common.Contracts.Config;
+    using Axh.Retro.CPU.Common.Contracts.Memory;
     using Axh.Retro.CPU.X80.Contracts.Config;
-    using Axh.Retro.CPU.X80.Contracts.Memory;
 
     public class GameBoyPlatformConfig : IPlatformConfig
     {

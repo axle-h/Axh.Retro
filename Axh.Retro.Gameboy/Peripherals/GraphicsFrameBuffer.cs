@@ -2,13 +2,16 @@
 {
     using System.Collections.Generic;
 
+    using Axh.Retro.CPU.Common.Config;
+    using Axh.Retro.CPU.Common.Contracts.Config;
+    using Axh.Retro.CPU.Common.Contracts.Memory;
+    using Axh.Retro.CPU.Common.Memory;
     using Axh.Retro.CPU.X80.Contracts.Config;
     using Axh.Retro.CPU.X80.Contracts.Core;
-    using Axh.Retro.CPU.X80.Contracts.Memory;
     using Axh.Retro.CPU.X80.Contracts.Peripherals;
-    using Axh.Retro.CPU.X80.Memory;
+    using Axh.Retro.GameBoy.Contracts.Peripherals;
 
-    internal class GraphicsFrameBuffer : IMemoryMappedPeripheral
+    public class GraphicsFrameBuffer : IMemoryMappedPeripheral
     {
         private static readonly IMemoryBankConfig SpriteRamConfig = new SimpleMemoryBankConfig(MemoryBankType.Peripheral, null, 0xfe00, 0x9f);
         private static readonly IMemoryBankConfig MapRamConfig = new SimpleMemoryBankConfig(MemoryBankType.Peripheral, null, 0x8000, 0x1fff);
@@ -27,9 +30,15 @@
 
         private readonly IInterruptManager interruptManager;
 
-        public GraphicsFrameBuffer(IInterruptManager interruptManager)
+        private readonly IHardwareRegisters hardwareRegisters;
+
+        private readonly IRenderHandler renderhandler;
+
+        public GraphicsFrameBuffer(IInterruptManager interruptManager, IHardwareRegisters hardwareRegisters, IRenderHandler renderhandler)
         {
             this.interruptManager = interruptManager;
+            this.hardwareRegisters = hardwareRegisters;
+            this.renderhandler = renderhandler;
             this.spriteRam = new ArrayBackedMemoryBank(SpriteRamConfig);
             this.mapRam = new ArrayBackedMemoryBank(MapRamConfig);
         }

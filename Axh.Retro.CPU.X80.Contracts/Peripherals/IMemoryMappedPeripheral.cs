@@ -2,7 +2,7 @@
 {
     using System.Collections.Generic;
 
-    using Axh.Retro.CPU.X80.Contracts.Memory;
+    using Axh.Retro.CPU.Common.Contracts.Memory;
 
     public interface IMemoryMappedPeripheral : IPeripheral
     {

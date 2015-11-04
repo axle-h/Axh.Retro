@@ -3,8 +3,10 @@
     using System;
     using System.Collections.Generic;
 
+    using Axh.Retro.CPU.Common.Config;
+    using Axh.Retro.CPU.Common.Contracts.Config;
+    using Axh.Retro.CPU.Common.Contracts.Memory;
     using Axh.Retro.CPU.X80.Contracts.Config;
-    using Axh.Retro.CPU.X80.Contracts.Memory;
     using Axh.Retro.Z80Console.Properties;
 
     internal class Z8064KBootstrappedConfig : IPlatformConfig

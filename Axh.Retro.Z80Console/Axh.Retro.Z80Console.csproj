@@ -73,6 +73,14 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Axh.Retro.CPU.Common.Contracts\Axh.Retro.CPU.Common.Contracts.csproj">
+      <Project>{5a958c82-d6ea-4bd1-9cc6-3727afe1874c}</Project>
+      <Name>Axh.Retro.CPU.Common.Contracts</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Axh.Retro.CPU.Common\Axh.Retro.CPU.Common.csproj">
+      <Project>{7881740a-89de-438c-beb0-cbf3d7dfbd58}</Project>
+      <Name>Axh.Retro.CPU.Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Axh.Retro.CPU.X80.Contracts\Axh.Retro.CPU.X80.Contracts.csproj">
       <Project>{15e8bff0-aa13-420f-8527-9187a37f6360}</Project>
       <Name>Axh.Retro.CPU.X80.Contracts</Name>

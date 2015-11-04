@@ -6,10 +6,18 @@
     using Axh.Retro.CPU.X80.Contracts.Core;
     using Axh.Retro.CPU.X80.Contracts.Factories;
     using Axh.Retro.CPU.X80.Contracts.Peripherals;
+    using Axh.Retro.GameBoy.Contracts.Factories;
     using Axh.Retro.GameBoy.Peripherals;
 
-    internal class PeripheralFactory : IPeripheralFactory
+    public class PeripheralFactory : IPeripheralFactory
     {
+        private readonly IRenderHandlerFactory renderHandlerFactory;
+
+        public PeripheralFactory(IRenderHandlerFactory renderHandlerFactory)
+        {
+            this.renderHandlerFactory = renderHandlerFactory;
+        }
+
         public IEnumerable<IIOPeripheral> GetIOMappedPeripherals(IInterruptManager interruptManager)
         {
             // No IO mapped peripherals on GB
@@ -18,7 +26,12 @@
 
         public IEnumerable<IMemoryMappedPeripheral> GetMemoryMappedPeripherals(IInterruptManager interruptManager)
         {
-            return new IMemoryMappedPeripheral[] { new HardwareRegisters(), new GraphicsFrameBuffer(interruptManager) };
+            var hardwareRegisters = new HardwareRegisters();
+            var hardwareRegistersPeripheral = new HardwareRegistersPeripheral(hardwareRegisters);
+
+            var renderhandler = this.renderHandlerFactory.GetIRenderHandler();
+            var graphicsFrameBuffer = new GraphicsFrameBuffer(interruptManager, hardwareRegisters, renderhandler);
+            return new IMemoryMappedPeripheral[] { hardwareRegistersPeripheral, graphicsFrameBuffer };
         }
     }
 }

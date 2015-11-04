@@ -5,10 +5,10 @@
     using System.Linq.Expressions;
     using System.Reflection;
 
+    using Axh.Retro.CPU.Common.Contracts.Memory;
     using Axh.Retro.CPU.X80.Contracts.Core;
     using Axh.Retro.CPU.X80.Contracts.Core.Timing;
     using Axh.Retro.CPU.X80.Contracts.Peripherals;
-    using Axh.Retro.CPU.X80.Contracts.Memory;
     using Axh.Retro.CPU.X80.Contracts.Registers;
     using Axh.Retro.CPU.X80.Util;
 

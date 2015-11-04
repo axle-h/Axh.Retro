@@ -1,36 +1,48 @@
 ﻿namespace Axh.Retro.GameBoy.Peripherals
 {
-    using System.Collections.Generic;
-
+    using Axh.Retro.CPU.Common.Contracts.Memory;
     using Axh.Retro.CPU.X80.Contracts.Config;
-    using Axh.Retro.CPU.X80.Contracts.Memory;
-    using Axh.Retro.CPU.X80.Contracts.Peripherals;
-    using Axh.Retro.CPU.X80.Memory;
+    using Axh.Retro.GameBoy.Contracts.Peripherals;
 
-    public class HardwareRegisters : IMemoryMappedPeripheral
+    public class HardwareRegisters : IHardwareRegisters, IReadableAddressSegment, IWriteableAddressSegment
     {
-        private static readonly IMemoryBankConfig RegistersConfig = new SimpleMemoryBankConfig(MemoryBankType.Peripheral, null, 0xff00, 0x7f);
+        private const ushort Address = 0xff00;
+        private const ushort Length = 0x7f;
+        
+        public MemoryBankType Type => MemoryBankType.Peripheral;
 
-        /// <summary>
-        /// $FF00-$FF7F - Hardware I/O Registers
-        /// </summary>
-        private readonly ArrayBackedMemoryBank registers;
+        ushort IAddressSegment.Address => Address;
 
-        public HardwareRegisters()
+        ushort IAddressSegment.Length => Length;
+
+        public byte ReadByte(ushort address)
         {
-            this.registers = new ArrayBackedMemoryBank(RegistersConfig);
+            throw new System.NotImplementedException();
         }
 
-        public void Halt()
+        public ushort ReadWord(ushort address)
         {
-            // Do nothing
+            throw new System.NotImplementedException();
         }
 
-        public void Resume()
+        public byte[] ReadBytes(ushort address, int length)
         {
-            // Do nothing
+            throw new System.NotImplementedException();
         }
 
-        public IEnumerable<IAddressSegment> AddressSegments => new[] { registers };
+        public void WriteByte(ushort address, byte value)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public void WriteWord(ushort address, ushort word)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public void WriteBytes(ushort address, byte[] values)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

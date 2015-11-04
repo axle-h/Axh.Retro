@@ -42,10 +42,8 @@
   <ItemGroup>
     <Compile Include="Cache\IInstructionBlockCache.cs" />
     <Compile Include="Config\IInitialStateConfig.cs" />
-    <Compile Include="Config\IMemoryBankConfig.cs" />
     <Compile Include="Config\IPlatformConfig.cs" />
     <Compile Include="Config\IRuntimeConfig.cs" />
-    <Compile Include="Config\SimpleMemoryBankConfig.cs" />
     <Compile Include="Core\AccumulatorAndResult.cs" />
     <Compile Include="Core\DecodeResult.cs" />
     <Compile Include="Core\IArithmeticLogicUnit.cs" />
@@ -56,11 +54,6 @@
     <Compile Include="Core\Timing\IInstructionTimingsBuilder.cs" />
     <Compile Include="Core\Timing\InstructionTimings.cs" />
     <Compile Include="Config\CpuMode.cs" />
-    <Compile Include="Exceptions\MemoryConfigStateException.cs" />
-    <Compile Include="Exceptions\MmuAddressSegmentGapException.cs" />
-    <Compile Include="Exceptions\MmuAddressSegmentOverlapException.cs" />
-    <Compile Include="Exceptions\SegmentationFaultException.cs" />
-    <Compile Include="Exceptions\PlatformConfigurationException.cs" />
     <Compile Include="Factories\IAluFactory.cs" />
     <Compile Include="Factories\IInterruptManagerFactory.cs" />
     <Compile Include="Factories\IMmuFactory.cs" />
@@ -68,19 +61,12 @@
     <Compile Include="Factories\IRegisterFactory.cs" />
     <Compile Include="Core\ICpuCore.cs" />
     <Compile Include="Factories\IPeripheralManagerFactory.cs" />
-    <Compile Include="Memory\MemoryBankType.cs" />
     <Compile Include="OpCodes\GameBoyPrefixCbOpCode.cs" />
     <Compile Include="OpCodes\GameBoyPrimaryOpCode.cs" />
     <Compile Include="Peripherals\IIOPeripheral.cs" />
     <Compile Include="Peripherals\IMemoryMappedPeripheral.cs" />
     <Compile Include="Peripherals\IPeripheralManager.cs" />
     <Compile Include="Peripherals\IPeripheral.cs" />
-    <Compile Include="Memory\AddressWriteEventArgs.cs" />
-    <Compile Include="Memory\IMmu.cs" />
-    <Compile Include="Memory\IAddressSegment.cs" />
-    <Compile Include="Memory\IMmuCache.cs" />
-    <Compile Include="Memory\IReadableAddressSegment.cs" />
-    <Compile Include="Memory\IWriteableAddressSegment.cs" />
     <Compile Include="OpCodes\PrefixCbOpCode.cs" />
     <Compile Include="OpCodes\PrefixEdOpCode.cs" />
     <Compile Include="OpCodes\PrimaryOpCode.cs" />
@@ -101,6 +87,12 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Timing\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Axh.Retro.CPU.Common.Contracts\Axh.Retro.CPU.Common.Contracts.csproj">
+      <Project>{5a958c82-d6ea-4bd1-9cc6-3727afe1874c}</Project>
+      <Name>Axh.Retro.CPU.Common.Contracts</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

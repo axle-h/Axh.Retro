@@ -1,11 +1,11 @@
 ﻿namespace Axh.Retro.CPU.X80.Core.DynaRec
 {
+    using Axh.Retro.CPU.Common.Contracts.Memory;
     using Axh.Retro.CPU.X80.Contracts;
     using Axh.Retro.CPU.X80.Contracts.Config;
     using Axh.Retro.CPU.X80.Contracts.Core;
     using Axh.Retro.CPU.X80.Contracts.Factories;
     using Axh.Retro.CPU.X80.Contracts.Peripherals;
-    using Axh.Retro.CPU.X80.Contracts.Memory;
     using Axh.Retro.CPU.X80.Contracts.Registers;
     using Axh.Retro.CPU.X80.Core.Timing;
 
