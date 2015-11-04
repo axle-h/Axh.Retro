@@ -43,6 +43,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Config\IGameBoyConfig.cs" />
+    <Compile Include="Factories\ICartridgeFactory.cs" />
     <Compile Include="GameBoyType.cs" />
     <Compile Include="Media\CartridgeType.cs" />
     <Compile Include="Media\DestinationCode.cs" />
