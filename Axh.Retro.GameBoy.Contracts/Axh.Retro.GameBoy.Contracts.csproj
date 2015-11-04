@@ -54,6 +54,7 @@
     <Compile Include="Media\CartridgeRamSize.cs" />
     <Compile Include="Media\CartridgeRomSize.cs" />
     <Compile Include="Peripherals\IHardwareRegisters.cs" />
+    <Compile Include="Peripherals\IJoyPad.cs" />
     <Compile Include="Peripherals\IRenderhandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

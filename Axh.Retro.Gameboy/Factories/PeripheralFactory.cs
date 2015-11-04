@@ -28,7 +28,8 @@
         {
             var interruptRegister = new InterruptRegister();
 
-            var hardwareRegisters = new HardwareRegisters();
+            var joyPad = new JoyPad();
+            var hardwareRegisters = new HardwareRegisters(joyPad);
             var hardwareRegistersPeripheral = new HardwareRegistersPeripheral(hardwareRegisters);
 
             var renderhandler = this.renderHandlerFactory.GetIRenderHandler();

@@ -2,5 +2,6 @@
 {
     public interface IHardwareRegisters
     {
+        IJoyPad JoyPad { get; }
     }
 }

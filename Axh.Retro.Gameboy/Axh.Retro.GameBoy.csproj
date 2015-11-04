@@ -51,6 +51,7 @@
     <Compile Include="Peripherals\HardwareRegisters.cs" />
     <Compile Include="Peripherals\HardwareRegistersPeripheral.cs" />
     <Compile Include="Peripherals\InterruptRegister.cs" />
+    <Compile Include="Peripherals\JoyPad.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Util\StreamExtensions.cs" />
   </ItemGroup>
