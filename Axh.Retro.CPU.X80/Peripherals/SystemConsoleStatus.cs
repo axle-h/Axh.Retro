@@ -34,7 +34,7 @@
             // Don't listen.
         }
 
-        public void RegisterMmuForDma(IMmu mmu)
+        public void RegisterDma(IMmu mmu)
         {
             // No DMA.
         }

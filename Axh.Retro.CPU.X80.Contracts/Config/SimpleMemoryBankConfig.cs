@@ -6,7 +6,7 @@
 
     public class SimpleMemoryBankConfig : SimpleMmuBankConfig, IMemoryBankConfig
     {
-        public SimpleMemoryBankConfig(MemoryBankType type, int bankId, ushort address, ushort length)
+        public SimpleMemoryBankConfig(MemoryBankType type, byte? bankId, ushort address, ushort length)
             : base(type, bankId, address, length)
         {
             this.State = new byte[length];
@@ -15,20 +15,9 @@
         public byte[] State { get; }
     }
 
-    public class SimpleMemoryMappedPeripheralConfig : SimpleMmuBankConfig, IMemoryMappedPeripheralConfig
-    {
-        public SimpleMemoryMappedPeripheralConfig(MemoryBankType type, int bankId, ushort address, ushort length, Guid peripheralId)
-            : base(type, bankId, address, length)
-        {
-            PeripheralId = peripheralId;
-        }
-
-        public Guid PeripheralId { get; }
-    }
-
     public class SimpleMmuBankConfig : IMmuBankConfig
     {
-        public SimpleMmuBankConfig(MemoryBankType type, int bankId, ushort address, ushort length)
+        public SimpleMmuBankConfig(MemoryBankType type, byte? bankId, ushort address, ushort length)
         {
             Type = type;
             BankId = bankId;
@@ -38,7 +27,7 @@
 
         public MemoryBankType Type { get; }
 
-        public int BankId { get; }
+        public byte? BankId { get; }
 
         public ushort Address { get; }
 

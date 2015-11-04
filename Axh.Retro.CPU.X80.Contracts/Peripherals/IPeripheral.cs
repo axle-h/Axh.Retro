@@ -12,7 +12,5 @@
         void Halt();
 
         void Resume();
-
-        void RegisterMmuForDma(IMmu mmu);
     }
 }

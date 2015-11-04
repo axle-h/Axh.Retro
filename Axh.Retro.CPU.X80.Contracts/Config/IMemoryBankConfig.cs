@@ -8,7 +8,7 @@
     {
         MemoryBankType Type { get; }
 
-        int BankId { get; }
+        byte? BankId { get; }
 
         ushort Address { get; }
 
@@ -21,10 +21,5 @@
         /// Initial state of the memory bank.
         /// </summary>
         byte[] State { get; }
-    }
-
-    public interface IMemoryMappedPeripheralConfig : IMmuBankConfig
-    {
-        Guid PeripheralId { get; }
     }
 }

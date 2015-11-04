@@ -15,8 +15,8 @@
 
         public GameBoyPlatformConfig()
         {
-            var systemMemoryBank0Config = new SimpleMemoryBankConfig(MemoryBankType.RandomAccessMemory, 0, SystemMemoryBank0Address, SystemMemoryBankLength);
-            var systemMemoryBank1Config = new SimpleMemoryBankConfig(MemoryBankType.RandomAccessMemory, 1, SystemMemoryBank1Address, SystemMemoryBankLength);
+            var systemMemoryBank0Config = new SimpleMemoryBankConfig(MemoryBankType.RandomAccessMemory, null, SystemMemoryBank0Address, SystemMemoryBankLength);
+            var systemMemoryBank1Config = new SimpleMemoryBankConfig(MemoryBankType.RandomAccessMemory, null, SystemMemoryBank1Address, SystemMemoryBankLength);
 
             this.MemoryBanks = new[] { systemMemoryBank0Config, systemMemoryBank1Config };
         }
@@ -27,11 +27,6 @@
 
         public double? MachineCycleSpeedMhz => CpuFrequency;
 
-        public double? ThrottlingStateSpeedMhz => CpuFrequency / 4;
-
-        /// <summary>
-        /// GB has no IO ports
-        /// </summary>
-        public IEnumerable<byte> IOPorts => Enumerable.Empty<byte>();
+        public double? ThrottlingStateSpeedMhz => CpuFrequency / 4;    
     }
 }

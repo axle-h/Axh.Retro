@@ -11,7 +11,5 @@
         double? MachineCycleSpeedMhz { get; }
 
         double? ThrottlingStateSpeedMhz { get; }
-
-        IEnumerable<byte> IOPorts { get; }
     }
 }

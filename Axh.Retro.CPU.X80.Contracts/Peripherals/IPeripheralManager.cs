@@ -1,5 +1,7 @@
 ﻿namespace Axh.Retro.CPU.X80.Contracts.Peripherals
 {
+    using System.Collections.Generic;
+
     using Axh.Retro.CPU.X80.Contracts.Memory;
 
     public interface IPeripheralManager
@@ -29,17 +31,20 @@
         /// Resume all peripherals
         /// </summary>
         void Resume();
-
-        /// <summary>
-        /// Register a peripheral with this peripheral manager
-        /// </summary>
-        /// <param name="peripheral"></param>
-        void RegisterPeripheral(IPeripheral peripheral);
-
+        
         /// <summary>
         /// Register the an mmu for use in dma peripherals
         /// </summary>
         /// <param name="mmu"></param>
-        void RegisterMmuForDma(IMmu mmu);
+        void RegisterDmaForIOPeripherals(IMmu mmu);
+
+        /// <summary>
+        /// Retrieve all peripherals of specified type.
+        /// </summary>
+        /// <typeparam name="TPeripheral"></typeparam>
+        /// <returns></returns>
+        IEnumerable<TPeripheral> GetMemoryMappedPeripherals<TPeripheral>() where TPeripheral : IMemoryMappedPeripheral;
+
+        IEnumerable<IMemoryMappedPeripheral> GetAllMemoryMappedPeripherals();
     }
 }

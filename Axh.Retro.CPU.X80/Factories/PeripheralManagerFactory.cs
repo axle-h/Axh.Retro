@@ -4,6 +4,7 @@
     using System.Linq;
 
     using Axh.Retro.CPU.X80.Contracts.Config;
+    using Axh.Retro.CPU.X80.Contracts.Core;
     using Axh.Retro.CPU.X80.Contracts.Factories;
     using Axh.Retro.CPU.X80.Contracts.Peripherals;
     using Axh.Retro.CPU.X80.Peripherals;
@@ -12,18 +13,17 @@
     {
         private readonly IPeripheralFactory peripheralFactory;
 
-        private readonly IPlatformConfig platformConfig;
-
-        public PeripheralManagerFactory(IPeripheralFactory peripheralFactory, IPlatformConfig platformConfig)
+        public PeripheralManagerFactory(IPeripheralFactory peripheralFactory)
         {
             this.peripheralFactory = peripheralFactory;
-            this.platformConfig = platformConfig;
         }
 
-        public IPeripheralManager GetPeripheralsManager()
+        public IPeripheralManager GetPeripheralsManager(IInterruptManager interruptManager)
         {
-            var peripherals = this.platformConfig.IOPorts.Select(this.peripheralFactory.GetIoMappedPeripheral).ToArray();
-            return new PeripheralManager(peripherals);
+            var ioPeripherals = this.peripheralFactory.GetIOMappedPeripherals(interruptManager).ToArray();
+            var memorymappedPeripherals = this.peripheralFactory.GetMemoryMappedPeripherals(interruptManager);
+
+            return new PeripheralManager(ioPeripherals.Cast<IPeripheral>().Concat(memorymappedPeripherals));
         }
     }
 }

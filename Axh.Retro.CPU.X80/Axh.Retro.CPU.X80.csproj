@@ -48,6 +48,7 @@
     <Compile Include="Core\DynaRec\DynaRecInstructionBlock.cs" />
     <Compile Include="Core\IndexRegister.cs" />
     <Compile Include="Core\DynaRec\IndexRegisterExpressions.cs" />
+    <Compile Include="Core\InterruptManager.cs" />
     <Compile Include="Core\Timing\InstructionTimingsBuilder.cs" />
     <Compile Include="Core\DynaRec\DynaRecBlockBuilder.cs" />
     <Compile Include="Core\DynaRec\DynaRecBlockBuilder.PrefixEd.cs" />
@@ -56,6 +57,7 @@
     <Compile Include="Core\Interpreted\InterpretedInstructionBlockDecoder.cs" />
     <Compile Include="Core\Timing\MachineCycleTimer.cs" />
     <Compile Include="Factories\AluFactory.cs" />
+    <Compile Include="Factories\InterruptManagerFactory.cs" />
     <Compile Include="Factories\MmuFactory.cs" />
     <Compile Include="Factories\PeripheralManagerFactory.cs" />
     <Compile Include="Factories\RegisterFactory.cs" />

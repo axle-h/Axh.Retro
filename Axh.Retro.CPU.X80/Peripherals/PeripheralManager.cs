@@ -10,12 +10,14 @@
     {
         private readonly IDictionary<byte, IIOPeripheral> ioPeripherals;
 
-        private readonly IList<IPeripheral> peripherals;
+        private readonly IMemoryMappedPeripheral[] memoryMappedPeripherals;
 
-        public PeripheralManager(IEnumerable<IIOPeripheral> ioPeripherals)
+        public PeripheralManager(IEnumerable<IPeripheral> peripherals)
         {
-            this.ioPeripherals = ioPeripherals.ToDictionary(x => x.Port);
-            this.peripherals = new List<IPeripheral>();
+            var peripheralArray = peripherals as IPeripheral[] ?? peripherals.ToArray();
+
+            this.ioPeripherals = peripheralArray.OfType<IIOPeripheral>().ToDictionary(x => x.Port);
+            this.memoryMappedPeripherals = peripheralArray.OfType<IMemoryMappedPeripheral>().ToArray();
         }
 
         public byte ReadByteFromPort(byte port, byte addressMsb)
@@ -35,7 +37,7 @@
 
         public void Halt()
         {
-            foreach (var peripheral in this.ioPeripherals.Values.Concat(peripherals))
+            foreach (var peripheral in this.ioPeripherals.Values.Cast<IPeripheral>().Concat(memoryMappedPeripherals))
             {
                 peripheral.Halt();
             }
@@ -43,23 +45,28 @@
 
         public void Resume()
         {
-            foreach (var peripheral in this.ioPeripherals.Values.Concat(peripherals))
+            foreach (var peripheral in this.ioPeripherals.Values.Cast<IPeripheral>().Concat(memoryMappedPeripherals))
             {
                 peripheral.Resume();
             }
         }
 
-        public void RegisterPeripheral(IPeripheral peripheral)
+        public void RegisterDmaForIOPeripherals(IMmu mmu)
         {
-            this.peripherals.Add(peripheral);
+            foreach (var peripheral in this.ioPeripherals.Values)
+            {
+                peripheral.RegisterDma(mmu);
+            }
         }
 
-        public void RegisterMmuForDma(IMmu mmu)
+        public IEnumerable<IMemoryMappedPeripheral> GetAllMemoryMappedPeripherals()
         {
-            foreach (var peripheral in this.ioPeripherals.Values.Concat(peripherals))
-            {
-                peripheral.RegisterMmuForDma(mmu);
-            }
+            return memoryMappedPeripherals;
+        }
+
+        public IEnumerable<TPeripheral> GetMemoryMappedPeripherals<TPeripheral>() where TPeripheral : IMemoryMappedPeripheral
+        {
+            return memoryMappedPeripherals.OfType<TPeripheral>();
         }
     }
 }

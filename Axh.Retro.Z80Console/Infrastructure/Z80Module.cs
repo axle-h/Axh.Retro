@@ -35,8 +35,9 @@
             this.Bind<IRegisterFactory<IZ80Registers>>().To<Z80RegisterFactory>().InSingletonScope();
             this.Bind<IMmuFactory>().To<MmuFactory>().InSingletonScope();
             this.Bind<IAluFactory>().To<AluFactory>().InSingletonScope();
-            this.Bind<IPeripheralManagerFactory>().To<PeripheralManagerFactory>();
-            this.Bind<IPeripheralFactory>().To<PeripheralFactory>();
+            this.Bind<IPeripheralManagerFactory>().To<PeripheralManagerFactory>().InSingletonScope();
+            this.Bind<IPeripheralFactory>().To<PeripheralFactory>().InSingletonScope();
+            this.Bind<IInterruptManagerFactory>().To<InterruptManagerFactory>().InSingletonScope();
 
             // Config
             this.Bind<IInitialStateConfig<Z80RegisterState>>().To<Z80InitialStateConfig>().InSingletonScope();

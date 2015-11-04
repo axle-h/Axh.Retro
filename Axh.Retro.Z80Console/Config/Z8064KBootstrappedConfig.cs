@@ -14,7 +14,7 @@
 
         public Z8064KBootstrappedConfig()
         {
-            var ramConfig = new SimpleMemoryBankConfig(MemoryBankType.RandomAccessMemory, 0, MemoryStart, MemoryLength);
+            var ramConfig = new SimpleMemoryBankConfig(MemoryBankType.RandomAccessMemory, null, MemoryStart, MemoryLength);
 
             // Bootstrap from Resources/code.bin
             // This is a simple hello world program that was built using sdcc
@@ -31,7 +31,5 @@
         public double? MachineCycleSpeedMhz => null;
 
         public double? ThrottlingStateSpeedMhz => null;
-
-        public IEnumerable<byte> IOPorts => new byte[] { 0, 1 };
     }
 }

@@ -42,12 +42,19 @@
   <ItemGroup>
     <Compile Include="Config\GameBoyInitialStateConfig.cs" />
     <Compile Include="Config\GameBoyPlatformConfig.cs" />
+    <Compile Include="Factories\PeripheralFactory.cs" />
+    <Compile Include="Peripherals\GraphicsFrameBuffer.cs" />
+    <Compile Include="Peripherals\HardwareRegisters.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Axh.Retro.CPU.X80.Contracts\Axh.Retro.CPU.X80.Contracts.csproj">
       <Project>{15e8bff0-aa13-420f-8527-9187a37f6360}</Project>
       <Name>Axh.Retro.CPU.X80.Contracts</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Axh.Retro.CPU.X80\Axh.Retro.CPU.X80.csproj">
+      <Project>{71763A1A-F228-451C-BF71-5F8EEB905820}</Project>
+      <Name>Axh.Retro.CPU.X80</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -5,7 +5,5 @@
     public interface ICpuCore
     {
         Task StartCoreProcessAsync();
-
-        Task Interrupt(ushort address);
     }
 }

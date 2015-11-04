@@ -27,14 +27,7 @@
 
         private readonly IInstructionTimer instructionTimer;
 
-        private TaskCompletionSource<bool> haltTaskSource;
-        private bool halt;
-
-        private TaskCompletionSource<ushort> interruptTaskSource;
-        private Task<ushort> interruptTask;
-        private bool interrupted;
-
-        private readonly object interruptSyncContext;
+        private readonly IInterruptManagerFactory interruptManagerFactory;
 
         public CachingCpuCore(
             IRegisterFactory<TRegisters> registerFactory,
@@ -43,7 +36,8 @@
             IAluFactory aluFactory,
             IInstructionBlockCache<TRegisters> instructionBlockCache,
             IPeripheralManagerFactory peripheralManagerFactory,
-            IInstructionTimer instructionTimer)
+            IInstructionTimer instructionTimer,
+            IInterruptManagerFactory interruptManagerFactory)
         {
             this.registerFactory = registerFactory;
             this.mmuFactory = mmuFactory;
@@ -52,25 +46,24 @@
             this.instructionBlockCache = instructionBlockCache;
             this.peripheralManagerFactory = peripheralManagerFactory;
             this.instructionTimer = instructionTimer;
+            this.interruptManagerFactory = interruptManagerFactory;
 
             if (!this.instructionBlockDecoder.SupportsInstructionBlockCaching)
             {
                 throw new Exception("Instruction block decoder must support caching");
             }
             
-            this.haltTaskSource = new TaskCompletionSource<bool>();
-            this.halt = false;
-            this.interrupted = false;
-            this.interruptSyncContext = new object();
         }
 
         public async Task StartCoreProcessAsync()
         {
             // Build components
             var registers = registerFactory.GetInitialRegisters();
-            var peripheralManager = this.peripheralManagerFactory.GetPeripheralsManager();
+            var interruptManager = this.interruptManagerFactory.GetInterruptManager();
+            var peripheralManager = this.peripheralManagerFactory.GetPeripheralsManager(interruptManager);
             var mmu = mmuFactory.GetMmu(peripheralManager);
             var alu = this.aluFactory.GetArithmeticLogicUnit(registers.AccumulatorAndFlagsRegisters.Flags);
+            
 
             // Register the invalidate cache event with mmu AddressWrite event
             mmu.AddressWrite += (sender, args) => this.instructionBlockCache.InvalidateCache(args.Address, args.Length);
@@ -84,26 +77,21 @@
 
                 if (instructionBlock.HaltCpu)
                 {
-                    Halt();
+                    interruptManager.Halt();
                     if (instructionBlock.HaltPeripherals)
                     {
                         peripheralManager.Halt();
-                        this.interruptTask = this.interruptTask.ContinueWith(
-                            x =>
-                            {
-                                peripheralManager.Resume();
-                                return x.Result;
-                            });
+                        interruptManager.AddResumeTask(() => peripheralManager.Resume());
                     }
                 }
 
-                if (this.halt)
+                if (interruptManager.IsHalted)
                 {
                     if (registers.InterruptFlipFlop1)
                     {
                         // Notify halt success before halting
-                        this.haltTaskSource.TrySetResult(true);
-                        interruptAddress = await this.interruptTask;
+                        interruptManager.NotifyHalt();
+                        interruptAddress = await interruptManager.WaitForNextInterrupt();
 
                         // Push the program counter onto the stack
                         registers.StackPointer = unchecked((ushort)(registers.StackPointer - 2));
@@ -112,9 +100,9 @@
                     else
                     {
                         // Dummy halt so we don't block threads trigerring interrupts when disabled.
-                        this.haltTaskSource.TrySetResult(true);
+                        interruptManager.NotifyHalt();
                     }
-                    this.halt = false;
+                    interruptManager.NotifyResume();
                 }
                 else
                 {
@@ -123,44 +111,9 @@
                 }
             }
         }
+        
+        
 
-        private void Halt()
-        {
-            this.interruptTaskSource = new TaskCompletionSource<ushort>();
-            this.halt = true;
-            this.interruptTask = this.interruptTaskSource.Task;
-        }
-
-        public async Task Interrupt(ushort address)
-        {
-            if (interrupted)
-            {
-                // TODO: don't ignore these interrupts, interrupts trigerreed at the same time should be chosen by priority
-                return;
-            }
-
-            lock (this.interruptSyncContext)
-            {
-                if (interrupted)
-                {
-                    return;
-                }
-                this.interrupted = true;
-            }
-
-            // Halt the CPU if not already halted
-            if (!halt)
-            {
-                Halt();
-            }
-
-            // Wait for the halt to be confirmed
-            await this.haltTaskSource.Task;
-            this.haltTaskSource = new TaskCompletionSource<bool>();
-
-            // Resume the CPU with the program counter set to address
-            this.interruptTaskSource.TrySetResult(address);
-            this.interrupted = false;
-        }
+        
     }
 }
