@@ -52,13 +52,13 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Axh.Retro.CPU.X80.Contracts\Axh.Retro.CPU.X80.Contracts.csproj">
+    <ProjectReference Include="..\Axh.Retro.CPU.Z80.Contracts\Axh.Retro.CPU.Z80.Contracts.csproj">
       <Project>{15e8bff0-aa13-420f-8527-9187a37f6360}</Project>
-      <Name>Axh.Retro.CPU.X80.Contracts</Name>
+      <Name>Axh.Retro.CPU.Z80.Contracts</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Axh.Retro.CPU.X80\Axh.Retro.CPU.X80.csproj">
+    <ProjectReference Include="..\Axh.Retro.CPU.Z80\Axh.Retro.CPU.Z80.csproj">
       <Project>{71763a1a-f228-451c-bf71-5f8eeb905820}</Project>
-      <Name>Axh.Retro.CPU.X80</Name>
+      <Name>Axh.Retro.CPU.Z80</Name>
     </ProjectReference>
     <ProjectReference Include="..\Axh.Retro.GameBoy.Contracts\Axh.Retro.GameBoy.Contracts.csproj">
       <Project>{5bcb273c-063e-466f-b397-550a97547f2f}</Project>

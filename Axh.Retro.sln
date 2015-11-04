@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Axh.Retro.CPU.X80", "Axh.Retro.CPU.X80\Axh.Retro.CPU.X80.csproj", "{71763A1A-F228-451C-BF71-5F8EEB905820}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Axh.Retro.CPU.Z80", "Axh.Retro.CPU.Z80\Axh.Retro.CPU.Z80.csproj", "{71763A1A-F228-451C-BF71-5F8EEB905820}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Axh.Retro.CPU.X80.Contracts", "Axh.Retro.CPU.X80.Contracts\Axh.Retro.CPU.X80.Contracts.csproj", "{15E8BFF0-AA13-420F-8527-9187A37F6360}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Axh.Retro.CPU.Z80.Contracts", "Axh.Retro.CPU.Z80.Contracts\Axh.Retro.CPU.Z80.Contracts.csproj", "{15E8BFF0-AA13-420F-8527-9187A37F6360}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Axh.Retro.CPU.X80.Tests", "Axh.Retro.CPU.X80.Tests\Axh.Retro.CPU.X80.Tests.csproj", "{C3449D8C-B5A2-4186-A949-773DC3D26CDD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Axh.Retro.CPU.Z80.Tests", "Axh.Retro.CPU.Z80.Tests\Axh.Retro.CPU.Z80.Tests.csproj", "{C3449D8C-B5A2-4186-A949-773DC3D26CDD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Axh.Retro.GameBoy", "Axh.Retro.Gameboy\Axh.Retro.GameBoy.csproj", "{84D4DAC3-9B2E-4A9A-9C85-16A7E58DEEB8}"
 EndProject

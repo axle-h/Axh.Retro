@@ -1,14 +1,14 @@
 ﻿namespace Axh.Retro.Z80Console
 {
-    using Axh.Retro.CPU.X80.Contracts.Core;
-    using Axh.Retro.CPU.X80.Contracts.Peripherals;
+    using Axh.Retro.CPU.Z80.Contracts.Core;
+    using Axh.Retro.CPU.Z80.Contracts.Peripherals;
     using Axh.Retro.Z80Console.Infrastructure;
 
     using Ninject;
 
     /// <summary>
     /// Z80Console
-    /// Simple Z80 implementation of Axh.Retro.CPU.X80.
+    /// Simple implementation of Axh.Retro.CPU.Z80.
     /// Only has Console peripherals and a single bank of 64k RAM.
     /// Execution starts at 0x0000.
     /// See z80-hello for how to compile C hat will work on this emulator.

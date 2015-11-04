@@ -6,9 +6,9 @@
     using Axh.Retro.CPU.Common.Contracts.Config;
     using Axh.Retro.CPU.Common.Contracts.Memory;
     using Axh.Retro.CPU.Common.Memory;
-    using Axh.Retro.CPU.X80.Contracts.Config;
-    using Axh.Retro.CPU.X80.Contracts.Core;
-    using Axh.Retro.CPU.X80.Contracts.Peripherals;
+    using Axh.Retro.CPU.Z80.Contracts.Config;
+    using Axh.Retro.CPU.Z80.Contracts.Core;
+    using Axh.Retro.CPU.Z80.Contracts.Peripherals;
     using Axh.Retro.GameBoy.Contracts.Peripherals;
 
     public class GraphicsFrameBuffer : IMemoryMappedPeripheral

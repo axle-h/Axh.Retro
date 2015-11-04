@@ -6,7 +6,7 @@
     using Axh.Retro.CPU.Common.Config;
     using Axh.Retro.CPU.Common.Contracts.Config;
     using Axh.Retro.CPU.Common.Contracts.Memory;
-    using Axh.Retro.CPU.X80.Contracts.Config;
+    using Axh.Retro.CPU.Z80.Contracts.Config;
 
     public class GameBoyPlatformConfig : IPlatformConfig
     {

@@ -58,9 +58,9 @@
       <Project>{7881740a-89de-438c-beb0-cbf3d7dfbd58}</Project>
       <Name>Axh.Retro.CPU.Common</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Axh.Retro.CPU.X80.Contracts\Axh.Retro.CPU.X80.Contracts.csproj">
+    <ProjectReference Include="..\Axh.Retro.CPU.Z80.Contracts\Axh.Retro.CPU.Z80.Contracts.csproj">
       <Project>{15e8bff0-aa13-420f-8527-9187a37f6360}</Project>
-      <Name>Axh.Retro.CPU.X80.Contracts</Name>
+      <Name>Axh.Retro.CPU.Z80.Contracts</Name>
     </ProjectReference>
     <ProjectReference Include="..\Axh.Retro.GameBoy.Contracts\Axh.Retro.GameBoy.Contracts.csproj">
       <Project>{5bcb273c-063e-466f-b397-550a97547f2f}</Project>

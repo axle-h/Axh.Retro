@@ -4,10 +4,10 @@
     using System.Collections.Generic;
     using System.Linq;
 
-    using Axh.Retro.CPU.X80.Contracts.Core;
-    using Axh.Retro.CPU.X80.Contracts.Factories;
-    using Axh.Retro.CPU.X80.Contracts.Peripherals;
-    using Axh.Retro.CPU.X80.Peripherals;
+    using Axh.Retro.CPU.Z80.Contracts.Core;
+    using Axh.Retro.CPU.Z80.Contracts.Factories;
+    using Axh.Retro.CPU.Z80.Contracts.Peripherals;
+    using Axh.Retro.CPU.Z80.Peripherals;
 
     public class PeripheralFactory : IPeripheralFactory
     {

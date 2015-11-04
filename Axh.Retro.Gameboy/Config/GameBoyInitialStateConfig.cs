@@ -1,8 +1,8 @@
 ﻿namespace Axh.Retro.GameBoy.Config
 {
-    using Axh.Retro.CPU.X80.Contracts.Config;
-    using Axh.Retro.CPU.X80.Contracts.Registers;
-    using Axh.Retro.CPU.X80.Contracts.State;
+    using Axh.Retro.CPU.Z80.Contracts.Config;
+    using Axh.Retro.CPU.Z80.Contracts.Registers;
+    using Axh.Retro.CPU.Z80.Contracts.State;
 
     public class GameBoyInitialStateConfig : IInitialStateConfig<Intel8080RegisterState>
     {
