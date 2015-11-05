@@ -43,6 +43,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Config\IGameBoyConfig.cs" />
+    <Compile Include="Devices\IInterruptRegister.cs" />
     <Compile Include="Factories\ICartridgeFactory.cs" />
     <Compile Include="GameBoyType.cs" />
     <Compile Include="Media\CartridgeType.cs" />
@@ -53,9 +54,11 @@
     <Compile Include="Media\MediaExtensions.cs" />
     <Compile Include="Media\CartridgeRamSize.cs" />
     <Compile Include="Media\CartridgeRomSize.cs" />
-    <Compile Include="Peripherals\IHardwareRegisters.cs" />
+    <Compile Include="Peripherals\IGameBoyRegisters.cs" />
+    <Compile Include="Devices\IHardwareRegisters.cs" />
     <Compile Include="Devices\IJoyPad.cs" />
-    <Compile Include="Peripherals\IRenderhandler.cs" />
+    <Compile Include="Devices\IRenderhandler.cs" />
+    <Compile Include="Peripherals\IGraphicsFrameBuffer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -1,32 +1,14 @@
-﻿namespace Axh.Retro.GameBoy.Peripherals
+﻿namespace Axh.Retro.GameBoy.Devices
 {
     using System;
-    using System.Collections.Generic;
 
     using Axh.Retro.CPU.Common.Contracts.Memory;
-    using Axh.Retro.CPU.Z80.Contracts.Peripherals;
+    using Axh.Retro.GameBoy.Contracts.Devices;
 
-    public class InterruptRegister : IMemoryMappedPeripheral, IReadableAddressSegment, IWriteableAddressSegment
+    public class InterruptRegister : IInterruptRegister
     {
         private byte registerValue;
-
-        public InterruptRegister()
-        {
-            this.registerValue = 0;
-        }
-
-        public void Halt()
-        {
-            // Do nothing
-        }
-
-        public void Resume()
-        {
-            // Do nothing
-        }
-
-        public IEnumerable<IAddressSegment> AddressSegments => new[] { this };
-
+        
         public MemoryBankType Type => MemoryBankType.RandomAccessMemory;
 
         public ushort Address => 0xffff;

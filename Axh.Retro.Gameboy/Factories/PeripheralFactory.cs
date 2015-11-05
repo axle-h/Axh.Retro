@@ -27,15 +27,19 @@
 
         public IEnumerable<IMemoryMappedPeripheral> GetMemoryMappedPeripherals(IInterruptManager interruptManager)
         {
+            // Build devices
+            var joyPad = new JoyPad();
+            var renderhandler = this.renderHandlerFactory.GetRenderHandler();
+
+            // Build registers
+            var hardwareRegisters = new HardwareRegisters(joyPad);
             var interruptRegister = new InterruptRegister();
 
-            var joyPad = new JoyPad();
-            var hardwareRegisters = new HardwareRegisters(joyPad);
-            var hardwareRegistersPeripheral = new HardwareRegistersPeripheral(hardwareRegisters);
-
-            var renderhandler = this.renderHandlerFactory.GetIRenderHandler();
+            // Build peripherals
+            var hardwareRegistersPeripheral = new GameBoyRegisters(hardwareRegisters, interruptRegister);
             var graphicsFrameBuffer = new GraphicsFrameBuffer(interruptManager, hardwareRegisters, renderhandler);
-            return new IMemoryMappedPeripheral[] { hardwareRegistersPeripheral, graphicsFrameBuffer, interruptRegister };
+
+            return new IMemoryMappedPeripheral[] { hardwareRegistersPeripheral, graphicsFrameBuffer };
         }
     }
 }

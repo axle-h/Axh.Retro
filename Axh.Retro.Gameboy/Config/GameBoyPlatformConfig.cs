@@ -41,63 +41,87 @@
         /// $C000-$CFFF	Internal RAM - Bank 0 (fixed)
         /// </summary>
         private static readonly IMemoryBankConfig SystemMemoryBank0Config = new SimpleMemoryBankConfig(MemoryBankType.RandomAccessMemory, null, 0xc000, 0x1000);
-        
+
+        private readonly IGameBoyConfig gameBoyConfig;
+
+        private readonly ICartridgeFactory cartridgeFactory;
+
         public GameBoyPlatformConfig(IGameBoyConfig gameBoyConfig, ICartridgeFactory cartridgeFactory)
         {
-            var cartridge = cartridgeFactory.GetCartridge(gameBoyConfig.CartridgeData);
-            this.MemoryBanks = GetMemoryBankConfigs(cartridge, gameBoyConfig.GameBoyType).ToArray();
+            this.gameBoyConfig = gameBoyConfig;
+            this.cartridgeFactory = cartridgeFactory;
         }
+        
+        public CpuMode CpuMode => CpuMode.GameBoy;
 
-        private static IEnumerable<IMemoryBankConfig> GetMemoryBankConfigs(ICartridge cartridge, GameBoyType gameBoyType)
+        /// <summary>
+        /// Build the memory banks every time they are requested.
+        /// Means we can change stuff in IGameBoyConfig at runtime and get a different system state running.
+        /// </summary>
+        public IEnumerable<IMmuBankConfig> MemoryBanks
         {
-            // TODO: error checks
-            if (cartridge.RomBanks.Length < 2)
+            get
             {
-                throw new Exception("All cartridges must have 2 rom banks");
-            }
+                var gameBoyType = gameBoyConfig.GameBoyType;
+                var cartridge = cartridgeFactory.GetCartridge(gameBoyConfig.CartridgeData);
 
-            yield return new SimpleMemoryBankConfig(MemoryBankType.ReadOnlyMemory, null, CartridgeRomBank0Address, CartridgeRomBankLength, cartridge.RomBanks[0]);
-            for (byte i = 1; i < cartridge.RomBanks.Length; i++)
-            {
-                yield return new SimpleMemoryBankConfig(MemoryBankType.ReadOnlyMemory, i, CartridgeRomBank1Address, CartridgeRomBankLength, cartridge.RomBanks[i]);
-            }
-            
-            if (cartridge.RamBankLengths.Any())
-            {
-                var ramBanks = cartridge.RamBankLengths.Length > 1
-                    ? cartridge.RamBankLengths.SelectMany((length, id) => GetCartridgeRamBankConfig(id, length))
-                    : GetCartridgeRamBankConfig(null, cartridge.RamBankLengths.First());
-                
-                foreach (var bank in ramBanks)
+                // TODO: error checks
+                if (cartridge.RomBanks.Length < 2)
                 {
-                    yield return bank;
+                    throw new Exception("All cartridges must have 2 rom banks");
                 }
-            }
-            else
-            {
-                yield return new SimpleMemoryBankConfig(MemoryBankType.Unused, null, CartridgeRamAddress, CartridgeRamLength);
-            }
 
-            yield return SystemMemoryBank0Config;
+                yield return new SimpleMemoryBankConfig(MemoryBankType.ReadOnlyMemory, null, CartridgeRomBank0Address, CartridgeRomBankLength, cartridge.RomBanks[0]);
+                for (byte i = 1; i < cartridge.RomBanks.Length; i++)
+                {
+                    yield return new SimpleMemoryBankConfig(MemoryBankType.ReadOnlyMemory, i, CartridgeRomBank1Address, CartridgeRomBankLength, cartridge.RomBanks[i]);
+                }
 
-            switch (gameBoyType)
-            {
-                case GameBoyType.GameBoy:
-                    yield return new SimpleMemoryBankConfig(MemoryBankType.RandomAccessMemory, null, SystemMemoryBank1Address, SystemMemoryBank1Length);
-                    break;
-                case GameBoyType.GameBoyColour:
-                    for(byte i = 1; i < CgbSystemMemoryBanks; i++)
+                if (cartridge.RamBankLengths.Any())
+                {
+                    var ramBanks = cartridge.RamBankLengths.Length > 1
+                        ? cartridge.RamBankLengths.SelectMany((length, id) => GetCartridgeRamBankConfig(id, length))
+                        : GetCartridgeRamBankConfig(null, cartridge.RamBankLengths.First());
+
+                    foreach (var bank in ramBanks)
                     {
-                        yield return new SimpleMemoryBankConfig(MemoryBankType.RandomAccessMemory, i, SystemMemoryBank1Address, SystemMemoryBank1Length);
+                        yield return bank;
                     }
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(gameBoyType), gameBoyType, null);
-            }
+                }
+                else
+                {
+                    yield return new SimpleMemoryBankConfig(MemoryBankType.Unused, null, CartridgeRamAddress, CartridgeRamLength);
+                }
 
-            yield return UnusedConfig;
-            yield return ZeroPageConfig;
+                yield return SystemMemoryBank0Config;
+
+                switch (gameBoyType)
+                {
+                    case GameBoyType.GameBoy:
+                        yield return new SimpleMemoryBankConfig(MemoryBankType.RandomAccessMemory, null, SystemMemoryBank1Address, SystemMemoryBank1Length);
+                        break;
+                    case GameBoyType.GameBoyColour:
+                        for (byte i = 1; i < CgbSystemMemoryBanks; i++)
+                        {
+                            yield return new SimpleMemoryBankConfig(MemoryBankType.RandomAccessMemory, i, SystemMemoryBank1Address, SystemMemoryBank1Length);
+                        }
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(gameBoyType), gameBoyType, null);
+                }
+
+                yield return UnusedConfig;
+                yield return ZeroPageConfig;
+            }
         }
+
+        /// <summary>
+        /// GB rounds all machine cycles to 4 throttling states. I.e. we need to run timing based on machine cycles.
+        /// </summary>
+        public double? MachineCycleSpeedMhz => CpuFrequency;
+
+        public double? ThrottlingStateSpeedMhz => null;
+
 
         private static IEnumerable<IMemoryBankConfig> GetCartridgeRamBankConfig(int? bankId, ushort length)
         {
@@ -114,16 +138,5 @@
 
             yield return new SimpleMemoryBankConfig(MemoryBankType.Unused, null, (ushort)(CartridgeRamAddress + length), (ushort)(CartridgeRamLength - length));
         }
-
-        public CpuMode CpuMode => CpuMode.GameBoy;
-
-        public IEnumerable<IMmuBankConfig> MemoryBanks { get; }
-
-        /// <summary>
-        /// GB rounds all machine cycles to 4 throttling states. I.e. we need to run timing based on machine cycles.
-        /// </summary>
-        public double? MachineCycleSpeedMhz => CpuFrequency;
-
-        public double? ThrottlingStateSpeedMhz => null;
     }
 }

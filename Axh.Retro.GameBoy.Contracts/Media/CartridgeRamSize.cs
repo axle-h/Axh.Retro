@@ -18,7 +18,7 @@
         Fixed8kB = 0x02,
 
         /// <summary>
-        /// 3 - 256kBit = 32kB = 4 banks
+        /// 3 - 256kBit = 32kB = 4 banks
         /// </summary>
         Banked32kB = 0x03,
 

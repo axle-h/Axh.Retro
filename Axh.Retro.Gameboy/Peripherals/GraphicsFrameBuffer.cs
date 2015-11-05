@@ -6,12 +6,12 @@
     using Axh.Retro.CPU.Common.Contracts.Config;
     using Axh.Retro.CPU.Common.Contracts.Memory;
     using Axh.Retro.CPU.Common.Memory;
-    using Axh.Retro.CPU.Z80.Contracts.Config;
     using Axh.Retro.CPU.Z80.Contracts.Core;
     using Axh.Retro.CPU.Z80.Contracts.Peripherals;
+    using Axh.Retro.GameBoy.Contracts.Devices;
     using Axh.Retro.GameBoy.Contracts.Peripherals;
 
-    public class GraphicsFrameBuffer : IMemoryMappedPeripheral
+    public class GraphicsFrameBuffer : IGraphicsFrameBuffer, IMemoryMappedPeripheral
     {
         private static readonly IMemoryBankConfig SpriteRamConfig = new SimpleMemoryBankConfig(MemoryBankType.Peripheral, null, 0xfe00, 0xa0);
         private static readonly IMemoryBankConfig MapRamConfig = new SimpleMemoryBankConfig(MemoryBankType.Peripheral, null, 0x8000, 0x2000);

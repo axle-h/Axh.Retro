@@ -1,13 +1,12 @@
-﻿namespace Axh.Retro.GameBoy.Peripherals
+﻿namespace Axh.Retro.GameBoy.Devices
 {
     using System;
 
     using Axh.Retro.CPU.Common.Contracts.Memory;
-    using Axh.Retro.CPU.Z80.Contracts.Config;
     using Axh.Retro.GameBoy.Contracts.Devices;
     using Axh.Retro.GameBoy.Contracts.Peripherals;
 
-    public class HardwareRegisters : IHardwareRegisters, IReadableAddressSegment, IWriteableAddressSegment
+    public class HardwareRegisters : IHardwareRegisters
     {
         public HardwareRegisters(IJoyPad joyPad)
         {

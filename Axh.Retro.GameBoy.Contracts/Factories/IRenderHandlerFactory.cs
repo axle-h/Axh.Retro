@@ -1,9 +1,9 @@
 ﻿namespace Axh.Retro.GameBoy.Contracts.Factories
 {
-    using Axh.Retro.GameBoy.Contracts.Peripherals;
+    using Axh.Retro.GameBoy.Contracts.Devices;
 
     public interface IRenderHandlerFactory
     {
-        IRenderHandler GetIRenderHandler();
+        IRenderHandler GetRenderHandler();
     }
 }
