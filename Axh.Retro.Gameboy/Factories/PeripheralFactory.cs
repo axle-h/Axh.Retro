@@ -30,10 +30,11 @@
             // Build devices
             var joyPad = new JoyPad();
             var serialPort = new SyncSerialPort();
+            var dividerRegister = new DividerRegister();
             var renderhandler = this.renderHandlerFactory.GetRenderHandler();
 
             // Build registers
-            var hardwareRegisters = new HardwareRegisters(joyPad, serialPort);
+            var hardwareRegisters = new HardwareRegisters(joyPad, serialPort, dividerRegister);
             var interruptRegister = new InterruptRegister();
 
             // Build peripherals

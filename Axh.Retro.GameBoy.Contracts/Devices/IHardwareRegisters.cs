@@ -5,5 +5,7 @@
     public interface IHardwareRegisters : IReadableAddressSegment, IWriteableAddressSegment
     {
         IJoyPad JoyPad { get; }
+
+        ISerialPort SerialPort { get; }
     }
 }

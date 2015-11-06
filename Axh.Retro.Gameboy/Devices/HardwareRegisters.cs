@@ -11,11 +11,15 @@
         private const ushort P1 = 0xff00; // Register for reading joy pad info and determining system type. (R/W)
         private const ushort SB = 0xff01; // Serial transfer data (R/W)
         private const ushort SC = 0xff02; // SIO control (R/W)
+        private const ushort DIV = 0xff04; // Divider Register (R/W)
 
-        public HardwareRegisters(IJoyPad joyPad, ISerialPort serialPort)
+        private readonly IDividerRegister dividerRegister;
+
+        public HardwareRegisters(IJoyPad joyPad, ISerialPort serialPort, IDividerRegister dividerRegister)
         {
             JoyPad = joyPad;
             SerialPort = serialPort;
+            this.dividerRegister = dividerRegister;
         }
 
         private const ushort Address = 0xff00;
@@ -37,8 +41,11 @@
                     return this.SerialPort.SerialData;
                 case SC:
                     return this.SerialPort.ControlRegister;
+                case DIV:
+                    return this.dividerRegister.Register;
                 default:
-                    throw new NotImplementedException();
+                    // Unused register
+                    return 0x00;
             }
         }
 
@@ -71,8 +78,9 @@
                 case SC:
                     this.SerialPort.ControlRegister = value;
                     break;
-                default:
-                    throw new NotImplementedException();
+                case DIV:
+                    this.dividerRegister.Register = value;
+                    break;
             }
         }
 
