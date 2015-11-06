@@ -45,7 +45,6 @@
     <Compile Include="Config\GameBoyRuntimeConfig.cs" />
     <Compile Include="Factories\PeripheralFactory.cs" />
     <Compile Include="Media\Cartridge.cs" />
-    <Compile Include="Media\CartridgeHeader.cs" />
     <Compile Include="Factories\CartridgeFactory.cs" />
     <Compile Include="Peripherals\GraphicsFrameBuffer.cs" />
     <Compile Include="Devices\HardwareRegisters.cs" />

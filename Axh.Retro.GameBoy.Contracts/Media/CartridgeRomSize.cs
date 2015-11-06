@@ -1,6 +1,6 @@
 ﻿namespace Axh.Retro.GameBoy.Contracts.Media
 {
-    public enum CartridgeRomSize
+    public enum CartridgeRomSize : byte
     {
         /// <summary>
         /// 0 - 256Kbit = 32KByte = 2 banks

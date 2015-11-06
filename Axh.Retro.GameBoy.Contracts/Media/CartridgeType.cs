@@ -1,6 +1,6 @@
 ﻿namespace Axh.Retro.GameBoy.Contracts.Media
 {
-    public enum CartridgeType
+    public enum CartridgeType : byte
     {
         ROM = 0x00,
         MBC1 = 0x01,

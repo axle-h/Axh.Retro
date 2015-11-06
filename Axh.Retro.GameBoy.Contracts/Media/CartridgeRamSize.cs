@@ -1,6 +1,6 @@
 ﻿namespace Axh.Retro.GameBoy.Contracts.Media
 {
-    public enum CartridgeRamSize
+    public enum CartridgeRamSize : byte
     {
         /// <summary>
         /// 0 - No cartridge RAM
