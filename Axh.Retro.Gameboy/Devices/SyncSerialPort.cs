@@ -15,6 +15,9 @@
         private const byte TransferStartFlagMask = 0x80;
         private const byte IsFastModeMask = 0x02;
         private const byte IsInternalClockMask = 0x01;
+        private static readonly TimeSpan ExternalTransferTimeout = TimeSpan.FromSeconds(30); // Real GB doesn't have timeout but we can't lock this thread forever.
+
+        private readonly IGameBoyInterruptManager gameBoyInterruptManager;
 
         private bool isFastMode;
         private bool transferStartFlag;
@@ -22,9 +25,13 @@
         private ISerialPort connectedSerialPort;
 
         private TaskCompletionSource<bool> transferredTaskSource;
-        private static readonly TimeSpan ExternalTransferTimeout = TimeSpan.FromSeconds(30); // Real GB doesn't have timeout but we can't lock this thread forever.
-
+        
         private CancellationTokenSource transferredCancellationSource;
+        
+        public SyncSerialPort(IGameBoyInterruptManager gameBoyInterruptManager)
+        {
+            this.gameBoyInterruptManager = gameBoyInterruptManager;
+        }
 
         /// <summary>
         /// 8 Bits of data to be read/written
@@ -92,6 +99,7 @@
                     transferredTaskSource.Task.Wait(transferredCancellationSource.Token);
                 }
 
+                this.gameBoyInterruptManager.SerialLink();
                 Reset();
             }
         }

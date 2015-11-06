@@ -7,6 +7,8 @@
     using Axh.Retro.GameBoy.Contracts.Devices;
     using Axh.Retro.GameBoy.Devices;
 
+    using Moq;
+
     using NUnit.Framework;
 
     [TestFixture]
@@ -25,7 +27,8 @@
         [TestFixtureSetUp]
         public void TestFixtureSetUp()
         {
-            joyPad = new JoyPad();
+            var mockInterruptManager = new Mock<IGameBoyInterruptManager>();
+            joyPad = new JoyPad(mockInterruptManager.Object);
         }
 
         [Test]

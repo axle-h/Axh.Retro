@@ -27,9 +27,11 @@
 
         public IEnumerable<IMemoryMappedPeripheral> GetMemoryMappedPeripherals(IInterruptManager interruptManager)
         {
+            var gameBoyInterruptManager = new GameBoyInterruptManager(interruptManager);
+
             // Build devices
-            var joyPad = new JoyPad();
-            var serialPort = new SyncSerialPort();
+            var joyPad = new JoyPad(gameBoyInterruptManager);
+            var serialPort = new SyncSerialPort(gameBoyInterruptManager);
             var dividerRegister = new DividerRegister();
             var renderhandler = this.renderHandlerFactory.GetRenderHandler();
 

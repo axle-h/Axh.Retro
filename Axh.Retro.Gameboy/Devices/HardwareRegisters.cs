@@ -12,7 +12,10 @@
         private const ushort SB = 0xff01; // Serial transfer data (R/W)
         private const ushort SC = 0xff02; // SIO control (R/W)
         private const ushort DIV = 0xff04; // Divider Register (R/W)
-
+        private const ushort TIMA = 0xff05; // Timer counter (R/W)
+        private const ushort TMA = 0xff06; // Timer Modulo (R/W)
+        private const ushort TAC = 0xff07; // Timer Control (R/W)
+        
         private readonly IDividerRegister dividerRegister;
 
         public HardwareRegisters(IJoyPad joyPad, ISerialPort serialPort, IDividerRegister dividerRegister)

@@ -3,31 +3,131 @@
     using System;
 
     using Axh.Retro.GameBoy.Contracts.Devices;
-
+    
     public class JoyPad : IJoyPad
     {
+        private readonly IGameBoyInterruptManager gameBoyInterruptManager;
+
         private MatrixColumn matrixColumn;
 
-        public JoyPad()
+        private bool up;
+        private bool down;
+        private bool left;
+        private bool right;
+        private bool a;
+        private bool b;
+        private bool select;
+        private bool start;
+
+        public JoyPad(IGameBoyInterruptManager gameBoyInterruptManager)
         {
+            this.gameBoyInterruptManager = gameBoyInterruptManager;
             this.matrixColumn = MatrixColumn.None;
         }
 
-        public bool Up { get; set; }
+        public bool Up
+        {
+            get
+            {
+                return this.up;
+            }
+            set
+            {
+                this.up = value;
+                this.gameBoyInterruptManager.JoyPadPress();
+            }
+        }
 
-        public bool Down { get; set; }
+        public bool Down
+        {
+            get
+            {
+                return this.down;
+            }
+            set
+            {
+                this.down = value;
+                this.gameBoyInterruptManager.JoyPadPress();
+            }
+        }
 
-        public bool Left { get; set; }
+        public bool Left
+        {
+            get
+            {
+                return this.left;
+            }
+            set
+            {
+                this.left = value;
+                this.gameBoyInterruptManager.JoyPadPress();
+            }
+        }
 
-        public bool Right { get; set; }
+        public bool Right
+        {
+            get
+            {
+                return this.right;
+            }
+            set
+            {
+                this.right = value;
+                this.gameBoyInterruptManager.JoyPadPress();
+            }
+        }
 
-        public bool A { get; set; }
+        public bool A
+        {
+            get
+            {
+                return this.a;
+            }
+            set
+            {
+                this.a = value;
+                this.gameBoyInterruptManager.JoyPadPress();
+            }
+        }
 
-        public bool B { get; set; }
+        public bool B
+        {
+            get
+            {
+                return this.b;
+            }
+            set
+            {
+                this.b = value;
+                this.gameBoyInterruptManager.JoyPadPress();
+            }
+        }
 
-        public bool Select { get; set; }
+        public bool Select
+        {
+            get
+            {
+                return this.select;
+            }
+            set
+            {
+                this.select = value;
+                this.gameBoyInterruptManager.JoyPadPress();
+            }
+        }
 
-        public bool Start { get; set; }
+        public bool Start
+        {
+            get
+            {
+                return this.start;
+            }
+            set
+            {
+                this.start = value;
+                this.gameBoyInterruptManager.JoyPadPress();
+            }
+        }
 
         /// <summary>
         ///  Bit 7 - Not used
