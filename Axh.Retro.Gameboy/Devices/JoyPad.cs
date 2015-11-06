@@ -73,13 +73,13 @@
             {
                 // Check which matrix column is set.
                 // No idea what happens when both are set...
-                if ((value | 0x10) > 0)
+                if ((value & 0x10) > 0)
                 {
                     this.matrixColumn = MatrixColumn.P14;
                     return;
                 }
 
-                if ((value | 0x20) > 0)
+                if ((value & 0x20) > 0)
                 {
                     this.matrixColumn = MatrixColumn.P15;
                     return;
@@ -94,22 +94,22 @@
             var value = 0xf0;
             if (p13)
             {
-                value |= 0x1;
+                value |= 0x8;
             }
 
             if (p12)
             {
-                value |= 0x2;
+                value |= 0x4;
             }
 
             if (p11)
             {
-                value |= 0x4;
+                value |= 0x2;
             }
 
             if (p10)
             {
-                value |= 0x8;
+                value |= 0x1;
             }
 
             return (byte)~value;
