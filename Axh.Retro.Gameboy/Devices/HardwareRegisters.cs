@@ -8,9 +8,14 @@
 
     public class HardwareRegisters : IHardwareRegisters
     {
-        public HardwareRegisters(IJoyPad joyPad)
+        private const ushort P1 = 0xff00; // Register for reading joy pad info and determining system type. (R/W)
+        private const ushort SB = 0xff01; // Serial transfer data (R/W)
+        private const ushort SC = 0xff02; // SIO control (R/W)
+
+        public HardwareRegisters(IJoyPad joyPad, ISerialPort serialPort)
         {
             JoyPad = joyPad;
+            SerialPort = serialPort;
         }
 
         private const ushort Address = 0xff00;
@@ -26,8 +31,12 @@
         {
             switch (address)
             {
-                case 0xff00:
+                case P1:
                     return this.JoyPad.Register;
+                case SB:
+                    return this.SerialPort.SerialData;
+                case SC:
+                    return this.SerialPort.ControlRegister;
                 default:
                     throw new NotImplementedException();
             }
@@ -53,8 +62,14 @@
         {
             switch (address)
             {
-                case 0xff00:
+                case P1:
                     this.JoyPad.Register = value;
+                    break;
+                case SB:
+                    this.SerialPort.SerialData = value;
+                    break;
+                case SC:
+                    this.SerialPort.ControlRegister = value;
                     break;
                 default:
                     throw new NotImplementedException();
@@ -76,5 +91,7 @@
         }
 
         public IJoyPad JoyPad { get; }
+
+        public ISerialPort SerialPort { get; }
     }
 }

@@ -43,6 +43,7 @@
     <Compile Include="Config\GameBoyInitialStateConfig.cs" />
     <Compile Include="Config\GameBoyPlatformConfig.cs" />
     <Compile Include="Config\GameBoyRuntimeConfig.cs" />
+    <Compile Include="Devices\SyncSerialPort.cs" />
     <Compile Include="Factories\PeripheralFactory.cs" />
     <Compile Include="Media\Cartridge.cs" />
     <Compile Include="Factories\CartridgeFactory.cs" />

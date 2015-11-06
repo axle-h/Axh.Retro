@@ -44,6 +44,7 @@
   <ItemGroup>
     <Compile Include="Config\IGameBoyConfig.cs" />
     <Compile Include="Devices\IInterruptRegister.cs" />
+    <Compile Include="Devices\ISerialPort.cs" />
     <Compile Include="Factories\ICartridgeFactory.cs" />
     <Compile Include="GameBoyType.cs" />
     <Compile Include="Media\CartridgeType.cs" />
