@@ -2,19 +2,21 @@
 {
     using System;
 
+    using Axh.Retro.CPU.Z80.Contracts.Config;
     using Axh.Retro.GameBoy.Contracts.Devices;
 
     /// <summary>
+    /// Lazy i.e. will calcualte the value of the register on read. As opposed to tracking teh timings in real time.
     /// TODO: implemented SGB & CGB increment speeds.
     /// </summary>
-    public class DividerRegister : IDividerRegister
+    public class LazyDividerRegister : IDividerRegister
     {
         private const int RegisterIncrementRate = 16384;
 
         private byte registerValue;
 
         private DateTime dateLastSet;
-
+        
         /// <summary>
         /// This register is incremented 16384 (~16779 on SGB) times a second.
         /// Writing any value sets it to $00.

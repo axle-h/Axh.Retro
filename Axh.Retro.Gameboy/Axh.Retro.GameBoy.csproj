@@ -43,7 +43,7 @@
     <Compile Include="Config\GameBoyInitialStateConfig.cs" />
     <Compile Include="Config\GameBoyPlatformConfig.cs" />
     <Compile Include="Config\GameBoyRuntimeConfig.cs" />
-    <Compile Include="Devices\DividerRegister.cs" />
+    <Compile Include="Devices\LazyDividerRegister.cs" />
     <Compile Include="Devices\GameBoyInterruptManager.cs" />
     <Compile Include="Devices\SyncSerialPort.cs" />
     <Compile Include="Factories\PeripheralFactory.cs" />

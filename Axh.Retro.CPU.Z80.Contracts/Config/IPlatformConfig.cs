@@ -10,8 +10,8 @@
 
         IEnumerable<IMmuBankConfig> MemoryBanks { get; }
         
-        double? MachineCycleSpeedMhz { get; }
+        double MachineCycleSpeedMhz { get; }
 
-        double? ThrottlingStateSpeedMhz { get; }
+        InstructionTimingSyncMode InstructionTimingSyncMode { get; }
     }
 }

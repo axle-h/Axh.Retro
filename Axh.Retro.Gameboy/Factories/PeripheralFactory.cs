@@ -32,7 +32,7 @@
             // Build devices
             var joyPad = new JoyPad(gameBoyInterruptManager);
             var serialPort = new SyncSerialPort(gameBoyInterruptManager);
-            var dividerRegister = new DividerRegister();
+            var dividerRegister = new LazyDividerRegister();
             var renderhandler = this.renderHandlerFactory.GetRenderHandler();
 
             // Build registers

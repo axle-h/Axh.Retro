@@ -115,12 +115,12 @@
             }
         }
 
+        double IPlatformConfig.MachineCycleSpeedMhz => CpuFrequency;
+
         /// <summary>
         /// GB rounds all machine cycles to 4 throttling states. I.e. we need to run timing based on machine cycles.
         /// </summary>
-        public double? MachineCycleSpeedMhz => CpuFrequency;
-
-        public double? ThrottlingStateSpeedMhz => null;
+        public InstructionTimingSyncMode InstructionTimingSyncMode => InstructionTimingSyncMode.MachineCycles;
 
 
         private static IEnumerable<IMemoryBankConfig> GetCartridgeRamBankConfig(int? bankId, ushort length)

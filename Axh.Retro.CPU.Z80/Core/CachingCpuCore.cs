@@ -75,7 +75,7 @@
 
                 if (interruptManager.IsHalted)
                 {
-                    if (registers.InterruptFlipFlop1)
+                    if (registers.InterruptFlipFlop1 || !interruptManager.IsInterrupted)
                     {
                         // Notify halt success before halting
                         interruptManager.NotifyHalt();
@@ -90,6 +90,7 @@
                         // Dummy halt so we don't block threads trigerring interrupts when disabled.
                         interruptManager.NotifyHalt();
                     }
+                    
                     interruptManager.NotifyResume();
                 }
                 else

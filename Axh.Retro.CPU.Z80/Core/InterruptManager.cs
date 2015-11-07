@@ -11,7 +11,6 @@
 
         private TaskCompletionSource<ushort> interruptTaskSource;
         private Task<ushort> interruptTask;
-        private bool interrupted;
 
         private readonly object interruptSyncContext;
 
@@ -19,13 +18,13 @@
         {
             this.haltTaskSource = new TaskCompletionSource<bool>();
             this.IsHalted = false;
-            this.interrupted = false;
+            this.IsInterrupted = false;
             this.interruptSyncContext = new object();
         }
 
         public async Task Interrupt(ushort address)
         {
-            if (interrupted)
+            if (IsInterrupted)
             {
                 // TODO: don't ignore these interrupts, interrupts trigerreed at the same time should be chosen by priority
                 return;
@@ -33,11 +32,11 @@
 
             lock (this.interruptSyncContext)
             {
-                if (interrupted)
+                if (IsInterrupted)
                 {
                     return;
                 }
-                this.interrupted = true;
+                this.IsInterrupted = true;
             }
 
             // Halt the CPU if not already halted
@@ -52,7 +51,7 @@
 
             // Resume the CPU with the program counter set to address
             this.interruptTaskSource.TrySetResult(address);
-            this.interrupted = false;
+            this.IsInterrupted = false;
         }
 
         public void Halt()
@@ -63,6 +62,8 @@
         }
 
         public bool IsHalted { get; private set; }
+
+        public bool IsInterrupted { get; private set; }
 
         public void AddResumeTask(Action task)
         {

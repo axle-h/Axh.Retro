@@ -14,6 +14,8 @@
         Task<ushort> WaitForNextInterrupt();
 
         bool IsHalted { get; }
+
+        bool IsInterrupted { get; }
     }
 
     public interface IInterruptManager

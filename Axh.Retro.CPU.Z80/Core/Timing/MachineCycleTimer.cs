@@ -8,30 +8,28 @@
 
     public class MachineCycleTimer : ICoreInstructionTimer
     {
-        private readonly SyncMode syncMode;
+        private readonly InstructionTimingSyncMode syncMode;
         private readonly double syncMagnitude;
 
         public MachineCycleTimer(IPlatformConfig platformConfig)
         {
-            if (!platformConfig.MachineCycleSpeedMhz.HasValue && !platformConfig.ThrottlingStateSpeedMhz.HasValue)
+            this.syncMode = platformConfig.InstructionTimingSyncMode;
+
+            switch (syncMode)
             {
-                // Run ASAP
-                syncMode = SyncMode.Null;
-                syncMagnitude = 0;
-            }
-            else
-            {
-                // Prefer syncing to t-states as should be more accurate
-                if (platformConfig.ThrottlingStateSpeedMhz.HasValue)
-                {
-                    syncMode = SyncMode.ThrottlingStates;
-                    syncMagnitude = 1 / platformConfig.ThrottlingStateSpeedMhz.Value / 1000000;
-                }
-                else
-                {
-                    syncMode = SyncMode.MachineCycles;
-                    syncMagnitude = 1 / platformConfig.MachineCycleSpeedMhz.Value / 1000000;
-                }
+                case InstructionTimingSyncMode.Null:
+                    // Run ASAP
+                    syncMagnitude = 0;
+                    break;
+                case InstructionTimingSyncMode.MachineCycles:
+                    syncMagnitude = 1 / platformConfig.MachineCycleSpeedMhz / 1000000;
+                    break;
+                case InstructionTimingSyncMode.ThrottlingStates:
+                    // Throttling state clock runs 1/4 of machine cycles
+                    syncMagnitude = 1 / platformConfig.MachineCycleSpeedMhz / 1000000 / 4;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
         }
 
@@ -41,33 +39,15 @@
 
             switch (syncMode)
             {
-                case SyncMode.Null:
+                case InstructionTimingSyncMode.Null:
                     return Task.CompletedTask;
-                case SyncMode.MachineCycles:
+                case InstructionTimingSyncMode.MachineCycles:
                     return Task.Delay(TimeSpan.FromSeconds(syncMagnitude * timings.MachineCycles));
-                case SyncMode.ThrottlingStates:
+                case InstructionTimingSyncMode.ThrottlingStates:
                     return Task.Delay(TimeSpan.FromSeconds(syncMagnitude * timings.ThrottlingStates));
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-        }
-
-        private enum SyncMode
-        {
-            /// <summary>
-            /// Do no timing sync, simulation will run as fast as possible
-            /// </summary>
-            Null,
-
-            /// <summary>
-            /// Sync to machine cycles
-            /// </summary>
-            MachineCycles,
-
-            /// <summary>
-            /// Sync to throttling states
-            /// </summary>
-            ThrottlingStates,
         }
 
         public event EventHandler<TimingSyncEventArgs> TimingSync;
