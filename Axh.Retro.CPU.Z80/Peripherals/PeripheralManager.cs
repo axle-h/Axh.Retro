@@ -51,7 +51,7 @@
             }
         }
 
-        public void RegisterDmaForIOPeripherals(IMmu mmu)
+        public void RegisterDma(IMmu mmu)
         {
             foreach (var peripheral in this.ioPeripherals.Values)
             {

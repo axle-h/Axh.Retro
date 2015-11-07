@@ -18,7 +18,7 @@
             // Read the displacement as the next byte
             yield return Expression.Assign(Xpr.LocalByte, NextByte);
 
-            var opCode = (PrefixCbOpCode)mmuCache.NextByte();
+            var opCode = (PrefixCbOpCode)prefetchQueue.NextByte();
             
             switch (opCode)
             {

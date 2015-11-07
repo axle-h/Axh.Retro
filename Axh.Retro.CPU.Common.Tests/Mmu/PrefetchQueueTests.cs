@@ -11,7 +11,7 @@
     using NUnit.Framework;
 
     [TestFixture]
-    public class MmuCacheTests
+    public class PrefetchQueueTests
     {
         private const int Address = 0x1000;
         
@@ -21,7 +21,7 @@
 
         private static readonly ushort[] Words;
 
-        static MmuCacheTests()
+        static PrefetchQueueTests()
         {
             Bytes = new byte[ushort.MaxValue];
             var random = new Random();
@@ -47,7 +47,7 @@
         [Test]
         public void NextByte()
         {
-            var cache = new MmuCache(mmu.Object, Address);
+            var cache = new PrefetchQueue(mmu.Object, Address);
 
             // Read 1k bytes
             var bytes = Enumerable.Range(0, 1000).Select(i => cache.NextByte()).ToArray();
@@ -60,7 +60,7 @@
         [Test]
         public void NextBytes()
         {
-            var cache = new MmuCache(mmu.Object, Address);
+            var cache = new PrefetchQueue(mmu.Object, Address);
 
             // Read 1k bytes
             var bytes = cache.NextBytes(1000);
@@ -73,7 +73,7 @@
         [Test]
         public void NextBytesThenNextByte()
         {
-            var cache = new MmuCache(mmu.Object, Address);
+            var cache = new PrefetchQueue(mmu.Object, Address);
 
             // Read 1k bytes
             var bytes = cache.NextBytes(1000);
@@ -94,7 +94,7 @@
         [Test]
         public void NextWord()
         {
-            var cache = new MmuCache(mmu.Object, Address);
+            var cache = new PrefetchQueue(mmu.Object, Address);
 
             // Read 1k words
             var words = Enumerable.Range(0, 1000).Select(i => cache.NextWord()).ToArray();

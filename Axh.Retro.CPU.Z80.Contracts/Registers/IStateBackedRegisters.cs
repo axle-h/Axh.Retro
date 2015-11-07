@@ -1,6 +1,6 @@
 ﻿namespace Axh.Retro.CPU.Z80.Contracts.Registers
 {
-    public interface IStateBackedRegisters<TRegisterState> where TRegisterState : struct
+    public interface IStateBackedRegisters<TRegisterState> : IRegisters where TRegisterState : struct
     {
         void Reset();
 

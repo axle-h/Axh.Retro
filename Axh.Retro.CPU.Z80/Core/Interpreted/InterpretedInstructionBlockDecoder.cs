@@ -9,6 +9,11 @@
     {
         public bool SupportsInstructionBlockCaching => false;
 
+        public IInstructionBlock<Z80Registers> DecodeNextBlock(ushort address, IPrefetchQueue prefetchQueue)
+        {
+            throw new System.NotImplementedException();
+        }
+
         public IInstructionBlock<Z80Registers> DecodeNextBlock(ushort address, IMmu mmu)
         {
             throw new System.NotImplementedException();

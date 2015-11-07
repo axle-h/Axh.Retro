@@ -22,20 +22,12 @@
         public override void Load()
         {
             // Core
-            this.Bind<ICpuCore<IIntel8080Registers>>().To<CachingCpuCore<IIntel8080Registers>>();
+            this.Bind<ICpuCore<IIntel8080Registers, Intel8080RegisterState>>().To<CachingCpuCore<IIntel8080Registers, Intel8080RegisterState>>();
             this.Bind<IInstructionBlockDecoder<IIntel8080Registers>>().To<DynaRecInstructionBlockDecoder<IIntel8080Registers>>();
-            this.Bind<IInstructionTimer>().To<MachineCycleTimer>();
-
-            // Cache
-            this.Bind<IInstructionBlockCache<IIntel8080Registers>>().To<InstructionBlockCache<IIntel8080Registers>>();
-
+            
             // Factories
-            this.Bind<IRegisterFactory<IIntel8080Registers>>().To<RegisterFactory>().InSingletonScope();
-            this.Bind<IMmuFactory>().To<MmuFactory>().InSingletonScope();
-            this.Bind<IAluFactory>().To<AluFactory>().InSingletonScope();
-            this.Bind<IPeripheralManagerFactory>().To<PeripheralManagerFactory>().InSingletonScope();
             this.Bind<IPeripheralFactory>().To<PeripheralFactory>().InSingletonScope();
-            this.Bind<IInterruptManagerFactory>().To<InterruptManagerFactory>().InSingletonScope();
+            this.Bind<ICoreContextFactory<IIntel8080Registers, Intel8080RegisterState>>().To<Intel8080ContextFactory>().InSingletonScope();
 
             // Config
             this.Bind<IInitialStateConfig<Intel8080RegisterState>>().To<GameBoyInitialStateConfig>().InSingletonScope();

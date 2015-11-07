@@ -3,6 +3,7 @@
     using Axh.Retro.CPU.Z80.Contracts.Core;
     using Axh.Retro.CPU.Z80.Contracts.Peripherals;
     using Axh.Retro.CPU.Z80.Contracts.Registers;
+    using Axh.Retro.CPU.Z80.Contracts.State;
     using Axh.Retro.Z80Console.Infrastructure;
 
     using Ninject;
@@ -20,7 +21,7 @@
         {
             using (var kernel = new StandardKernel(new Z80Module()))
             {
-                var core = kernel.Get<ICpuCore<IZ80Registers>>();
+                var core = kernel.Get<ICpuCore<IZ80Registers, Z80RegisterState>>();
 
                 var context = core.GetContext();
                 core.StartCoreProcessAsync(context).Wait();

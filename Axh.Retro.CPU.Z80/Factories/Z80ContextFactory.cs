@@ -6,16 +6,14 @@
     using Axh.Retro.CPU.Z80.Contracts.State;
     using Axh.Retro.CPU.Z80.Registers;
 
-    public class Z80RegisterFactory : IRegisterFactory<IZ80Registers>
+    public class Z80ContextFactory : CoreContextFactoryBase<IZ80Registers, Z80RegisterState>
     {
-        private readonly IInitialStateConfig<Z80RegisterState> initialStateConfig;
-
-        public Z80RegisterFactory(IInitialStateConfig<Z80RegisterState> initialStateConfig)
+        public Z80ContextFactory(IPlatformConfig platformConfig, IRuntimeConfig runtimeConfig, IPeripheralFactory peripheralFactory, IInitialStateConfig<Z80RegisterState> initialStateConfig)
+            : base(platformConfig, runtimeConfig, peripheralFactory, initialStateConfig)
         {
-            this.initialStateConfig = initialStateConfig;
         }
 
-        public IZ80Registers GetInitialRegisters()
+        protected override IZ80Registers GetInitialRegisters()
         {
             var primaryRegisterSet = new GeneralPurposeRegisterSet();
             var alternativeRegisterSet = new GeneralPurposeRegisterSet();
@@ -23,12 +21,7 @@
             var primaryAccumulatorAndFlagsRegisterSet = new AccumulatorAndFlagsRegisterSet(new Intel8080FlagsRegister());
             var alternativeAccumulatorAndFlagsRegisterSet = new AccumulatorAndFlagsRegisterSet(new Intel8080FlagsRegister());
 
-            var registers = new Z80Registers(primaryRegisterSet, alternativeRegisterSet, primaryAccumulatorAndFlagsRegisterSet, alternativeAccumulatorAndFlagsRegisterSet);
-
-            var initialRegisterState = this.initialStateConfig.GetInitialRegisterState();
-            registers.ResetToState(initialRegisterState);
-
-            return registers;
+            return new Z80Registers(primaryRegisterSet, alternativeRegisterSet, primaryAccumulatorAndFlagsRegisterSet, alternativeAccumulatorAndFlagsRegisterSet);
         }
     }
 }

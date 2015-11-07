@@ -23,26 +23,26 @@
     {
         private readonly CpuMode cpuMode;
         private readonly IInstructionTimingsBuilder timingsBuilder;
-        private readonly IMmuCache mmuCache;
+        private readonly IPrefetchQueue prefetchQueue;
 
         private static readonly DynaRecExpressions<TRegisters> Xpr = new DynaRecExpressions<TRegisters>();
 
-        private ConstantExpression NextByte => Expression.Constant(mmuCache.NextByte(), typeof(byte));
-        private ConstantExpression NextWord => Expression.Constant(mmuCache.NextWord(), typeof(ushort));
-        private Expression SyncProgramCounter => Expression.Assign(Xpr.PC, Expression.Convert(Expression.Add(Expression.Convert(Xpr.PC, typeof(int)), Expression.Constant(this.mmuCache.TotalBytesRead)), typeof(ushort)));
+        private ConstantExpression NextByte => Expression.Constant(prefetchQueue.NextByte(), typeof(byte));
+        private ConstantExpression NextWord => Expression.Constant(prefetchQueue.NextWord(), typeof(ushort));
+        private Expression SyncProgramCounter => Expression.Assign(Xpr.PC, Expression.Convert(Expression.Add(Expression.Convert(Xpr.PC, typeof(int)), Expression.Constant(this.prefetchQueue.TotalBytesRead)), typeof(ushort)));
 
         private IndexRegisterExpressions index;
 
-        public DynaRecBlockBuilder(CpuMode cpuMode, IMmuCache mmuCache, IInstructionTimingsBuilder timingsBuilder)
+        public DynaRecBlockBuilder(CpuMode cpuMode, IPrefetchQueue prefetchQueue, IInstructionTimingsBuilder timingsBuilder)
         {
             this.cpuMode = cpuMode;
             this.timingsBuilder = timingsBuilder;
-            this.mmuCache = mmuCache;
+            this.prefetchQueue = prefetchQueue;
         }
 
         public DecodeResult LastDecodeResult { get; private set; }
         
-        public Expression<Func<TRegisters, IMmu, IArithmeticLogicUnit, IPeripheralManager, InstructionTimings>> DecodeNextBlock()
+        public Expression<Func<TRegisters, IMmu, IAlu, IPeripheralManager, InstructionTimings>> DecodeNextBlock()
         {
             var initExpressions = GetBlockInitExpressions();
             var blockExpressions = GetBlockExpressions();
@@ -51,7 +51,7 @@
             var expressions = initExpressions.Concat(blockExpressions).Concat(finalExpressions).ToArray();
 
             var expressionBlock = Expression.Block(GeParameterExpressions(), expressions);
-            var lambda = Expression.Lambda<Func<TRegisters, IMmu, IArithmeticLogicUnit, IPeripheralManager, InstructionTimings>>(expressionBlock, Xpr.Registers, Xpr.Mmu, Xpr.Alu, Xpr.IO);
+            var lambda = Expression.Lambda<Func<TRegisters, IMmu, IAlu, IPeripheralManager, InstructionTimings>>(expressionBlock, Xpr.Registers, Xpr.Mmu, Xpr.Alu, Xpr.IO);
 
             return lambda;
         }
@@ -85,7 +85,7 @@
             if (this.cpuMode == CpuMode.Z80)
             {
                 // Add the block length to the 7 lsb of memory refresh register.
-                var blockLengthExpression = Expression.Constant(this.mmuCache.TotalBytesRead, typeof(int));
+                var blockLengthExpression = Expression.Constant(this.prefetchQueue.TotalBytesRead, typeof(int));
 
                 // Update Z80 specific memory refresh register
                 yield return Xpr.GetMemoryRefreshDeltaExpression(blockLengthExpression);

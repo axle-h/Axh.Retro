@@ -66,7 +66,7 @@
 
         protected Mock<IMmu> Mmu;
 
-        protected Mock<IArithmeticLogicUnit> Alu;
+        protected Mock<IAlu> Alu;
 
         protected Mock<IPeripheralManager> Io;
 
@@ -76,7 +76,7 @@
 
         protected Mock<IFlagsRegister> FlagsRegister;
 
-        protected Mock<IMmuCache> Cache;
+        protected Mock<IPrefetchQueue> Cache;
 
         [TestFixtureSetUp]
         public void TestFixtureSetUp()
@@ -92,19 +92,16 @@
 
             this.Mmu = new Mock<IMmu>();
 
-            this.Cache = new Mock<IMmuCache>();
+            this.Cache = new Mock<IPrefetchQueue>();
             
-            var mmuFactory = new Mock<IMmuFactory>();
-            mmuFactory.Setup(x => x.GetMmuCache(this.Mmu.Object, Address)).Returns(this.Cache.Object);
-
-            this.Alu = new Mock<IArithmeticLogicUnit>();
+            this.Alu = new Mock<IAlu>();
 
             this.Io = new Mock<IPeripheralManager>();
 
             var platformConfig = new Mock<IPlatformConfig>();
             platformConfig.Setup(x => x.CpuMode).Returns(this.cpuMode);
 
-            this.DynaRecBlockDecoder = new DynaRecInstructionBlockDecoder<TRegisters>(platformConfig.Object, mmuFactory.Object);
+            this.DynaRecBlockDecoder = new DynaRecInstructionBlockDecoder<TRegisters>(platformConfig.Object);
         }
 
         protected void SetupRegisters(ushort? bc = null)
@@ -186,7 +183,7 @@
 
             this.Cache.Setup(x => x.TotalBytesRead).Returns(() => length);
 
-            var block = this.DynaRecBlockDecoder.DecodeNextBlock(Address, this.Mmu.Object);
+            var block = this.DynaRecBlockDecoder.DecodeNextBlock(Address, this.Cache.Object);
             Assert.IsNotNull(block);
 
             var timings = block.ExecuteInstructionBlock(this.Registers.Object, this.Mmu.Object, this.Alu.Object, this.Io.Object);

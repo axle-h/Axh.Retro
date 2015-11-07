@@ -17,13 +17,13 @@
     {
         private Mock<IFlagsRegister> flags;
 
-        private ArithmeticLogicUnit alu;
+        private Alu alu;
 
         [TestFixtureSetUp]
         public void TestFixtureSetUp()
         {
             flags = new Mock<IFlagsRegister>();
-            alu = new ArithmeticLogicUnit(flags.Object);
+            alu = new Alu(flags.Object);
         }
 
         private void Reset(bool carry = false)

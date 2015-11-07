@@ -46,22 +46,18 @@
     <Compile Include="Config\IRuntimeConfig.cs" />
     <Compile Include="Core\AccumulatorAndResult.cs" />
     <Compile Include="Core\DecodeResult.cs" />
-    <Compile Include="Core\IArithmeticLogicUnit.cs" />
+    <Compile Include="Core\IAlu.cs" />
     <Compile Include="Core\ICoreContext.cs" />
-    <Compile Include="Core\ICoreInterruptManager.cs" />
     <Compile Include="Core\IInstructionBlock.cs" />
     <Compile Include="Core\IInterruptManager.cs" />
     <Compile Include="Core\Timing\IInstructionTimer.cs" />
     <Compile Include="Core\Timing\IInstructionTimingsBuilder.cs" />
     <Compile Include="Core\Timing\InstructionTimings.cs" />
     <Compile Include="Config\CpuMode.cs" />
-    <Compile Include="Factories\IAluFactory.cs" />
-    <Compile Include="Factories\IInterruptManagerFactory.cs" />
-    <Compile Include="Factories\IMmuFactory.cs" />
+    <Compile Include="Core\Timing\TimingSyncEventArgs.cs" />
+    <Compile Include="Factories\ICoreContextFactory.cs" />
     <Compile Include="Factories\IPeripheralFactory.cs" />
-    <Compile Include="Factories\IRegisterFactory.cs" />
     <Compile Include="Core\ICpuCore.cs" />
-    <Compile Include="Factories\IPeripheralManagerFactory.cs" />
     <Compile Include="OpCodes\GameBoyPrefixCbOpCode.cs" />
     <Compile Include="OpCodes\GameBoyPrimaryOpCode.cs" />
     <Compile Include="Peripherals\IIOPeripheral.cs" />
@@ -86,9 +82,7 @@
     <Compile Include="State\Z80RegisterState.cs" />
     <Compile Include="Core\IInstructionBlockDecoder.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Timing\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <ProjectReference Include="..\Axh.Retro.CPU.Common.Contracts\Axh.Retro.CPU.Common.Contracts.csproj">
       <Project>{5a958c82-d6ea-4bd1-9cc6-3727afe1874c}</Project>

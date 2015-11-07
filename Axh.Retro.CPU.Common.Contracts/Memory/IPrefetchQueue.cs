@@ -1,6 +1,6 @@
 ﻿namespace Axh.Retro.CPU.Common.Contracts.Memory
 {
-    public interface IMmuCache
+    public interface IPrefetchQueue
     {
         byte NextByte();
 

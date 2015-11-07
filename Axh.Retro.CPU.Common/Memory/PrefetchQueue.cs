@@ -7,7 +7,7 @@
     /// <summary>
     /// Should speed up sequential access to the MMU e.g. reading op-codes
     /// </summary>
-    public class MmuCache : IMmuCache
+    public class PrefetchQueue : IPrefetchQueue
     {
         private const int CacheSize = 64;
 
@@ -19,7 +19,7 @@
 
         private ushort address;
 
-        public MmuCache(IMmu mmu, ushort address)
+        public PrefetchQueue(IMmu mmu, ushort address)
         {
             this.mmu = mmu;
 
@@ -86,10 +86,10 @@
 
         public void ReBuildCache(ushort newAddress)
         {
-            this.TotalBytesRead = 0;
             this.cachePointer = 0;
             this.address = newAddress;
             this.cache = this.mmu.ReadBytes(this.address, CacheSize);
+            this.TotalBytesRead = 0;
         }
 
         public int TotalBytesRead { get; private set; }

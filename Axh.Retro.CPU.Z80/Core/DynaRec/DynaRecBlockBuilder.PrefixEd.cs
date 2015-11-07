@@ -12,7 +12,7 @@
     {
         private IEnumerable<Expression> TryDecodeNextEdPrefixOperation()
         {
-            var opCode = (PrefixEdOpCode)mmuCache.NextByte();
+            var opCode = (PrefixEdOpCode)prefetchQueue.NextByte();
 
             switch (opCode)
             {

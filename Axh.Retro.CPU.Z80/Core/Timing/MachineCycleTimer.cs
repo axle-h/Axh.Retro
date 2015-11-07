@@ -6,7 +6,7 @@
     using Axh.Retro.CPU.Z80.Contracts.Config;
     using Axh.Retro.CPU.Z80.Contracts.Core.Timing;
 
-    public class MachineCycleTimer : IInstructionTimer
+    public class MachineCycleTimer : ICoreInstructionTimer
     {
         private readonly SyncMode syncMode;
         private readonly double syncMagnitude;
@@ -37,6 +37,8 @@
 
         public Task SyncToTimings(InstructionTimings timings)
         {
+            TimingSync?.Invoke(this, new TimingSyncEventArgs(timings));
+
             switch (syncMode)
             {
                 case SyncMode.Null:
@@ -67,5 +69,7 @@
             /// </summary>
             ThrottlingStates,
         }
+
+        public event EventHandler<TimingSyncEventArgs> TimingSync;
     }
 }

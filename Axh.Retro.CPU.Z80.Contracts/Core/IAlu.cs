@@ -1,6 +1,6 @@
 ﻿namespace Axh.Retro.CPU.Z80.Contracts.Core
 {
-    public interface IArithmeticLogicUnit
+    public interface IAlu
     {
         byte Increment(byte b);
 

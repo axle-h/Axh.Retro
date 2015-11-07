@@ -5,21 +5,20 @@
     using Axh.Retro.CPU.Z80.Contracts.Config;
     using Axh.Retro.CPU.Z80.Contracts.Factories;
     using Axh.Retro.CPU.Z80.Contracts.Registers;
+    using Axh.Retro.CPU.Z80.Contracts.State;
     using Axh.Retro.CPU.Z80.Registers;
 
-    public class RegisterFactory : IRegisterFactory<IIntel8080Registers>
+    public class Intel8080ContextFactory : CoreContextFactoryBase<IIntel8080Registers, Intel8080RegisterState>
     {
-        private readonly IPlatformConfig platformConfig;
-
-        public RegisterFactory(IPlatformConfig platformConfig)
+        public Intel8080ContextFactory(IPlatformConfig platformConfig, IRuntimeConfig runtimeConfig, IPeripheralFactory peripheralFactory, IInitialStateConfig<Intel8080RegisterState> initialStateConfig)
+            : base(platformConfig, runtimeConfig, peripheralFactory, initialStateConfig)
         {
-            this.platformConfig = platformConfig;
         }
 
-        public IIntel8080Registers GetInitialRegisters()
+        protected override IIntel8080Registers GetInitialRegisters()
         {
             var registerSet = new GeneralPurposeRegisterSet();
-            var accumulatorAndFlagsRegisterSet = new AccumulatorAndFlagsRegisterSet(GetFlagsRegister(this.platformConfig.CpuMode));
+            var accumulatorAndFlagsRegisterSet = new AccumulatorAndFlagsRegisterSet(GetFlagsRegister(this.PlatformConfig.CpuMode));
 
             return new Intel8080Registers(registerSet, accumulatorAndFlagsRegisterSet);
         }

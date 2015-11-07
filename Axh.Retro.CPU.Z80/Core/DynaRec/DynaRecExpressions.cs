@@ -209,7 +209,7 @@
         {
             Registers = Expression.Parameter(typeof(TRegisters), "registers");
             Mmu = Expression.Parameter(typeof(IMmu), "mmu");
-            Alu = Expression.Parameter(typeof(IArithmeticLogicUnit), "alu");
+            Alu = Expression.Parameter(typeof(IAlu), "alu");
             IO = Expression.Parameter(typeof(IPeripheralManager), "io");
             LocalByte = Expression.Parameter(typeof(byte), "b");
             LocalWord = Expression.Parameter(typeof(ushort), "w");
@@ -277,37 +277,37 @@
             WritePCToStack = Expression.Call(Mmu, MmuWriteWord, SP, PC);
             
             // ALU expressions
-            AluIncrement = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, byte>((alu, b) => alu.Increment(b));
-            AluDecrement = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, byte>((alu, b) => alu.Decrement(b));
-            AluAdd = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, byte, byte>((alu, a, b) => alu.Add(a, b));
-            AluAddWithCarry = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, byte, byte>((alu, a, b) => alu.AddWithCarry(a, b));
-            AluAdd16 = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, ushort, ushort, ushort>((alu, a, b) => alu.Add(a, b));
-            AluAdd16WithCarry = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, ushort, ushort, ushort>((alu, a, b) => alu.AddWithCarry(a, b));
-            AluSubtract = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, byte, byte>((alu, a, b) => alu.Subtract(a, b));
-            AluSubtractWithCarry = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, byte, byte>((alu, a, b) => alu.SubtractWithCarry(a, b));
-            AluSubtract16WithCarry = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, ushort, ushort, ushort>((alu, a, b) => alu.SubtractWithCarry(a, b));
-            AluCompare = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, byte>((alu, a, b) => alu.Compare(a, b));
-            AluAnd = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, byte>((alu, a, b) => alu.And(a, b));
-            AluOr = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, byte>((alu, a, b) => alu.Or(a, b));
-            AluXor = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, byte>((alu, a, b) => alu.Xor(a, b));
-            AluDecimalAdjust = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, byte>((alu, a) => alu.DecimalAdjust(a));
-            AluRotateLeftWithCarry = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, byte>((alu, a) => alu.RotateLeftWithCarry(a));
-            AluRotateLeft = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, byte>((alu, a) => alu.RotateLeft(a));
-            AluRotateRightWithCarry = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, byte>((alu, a) => alu.RotateRightWithCarry(a));
-            AluRotateRight = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, byte>((alu, a) => alu.RotateRight(a));
-            AluShiftLeft = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, byte>((alu, a) => alu.ShiftLeft(a));
-            AluShiftLeftSet = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, byte>((alu, a) => alu.ShiftLeftSet(a));
-            AluShiftRight = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, byte>((alu, a) => alu.ShiftRight(a));
-            AluShiftRightLogical = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, byte>((alu, a) => alu.ShiftRightLogical(a));
+            AluIncrement = ExpressionHelpers.GetMethodInfo<IAlu, byte, byte>((alu, b) => alu.Increment(b));
+            AluDecrement = ExpressionHelpers.GetMethodInfo<IAlu, byte, byte>((alu, b) => alu.Decrement(b));
+            AluAdd = ExpressionHelpers.GetMethodInfo<IAlu, byte, byte, byte>((alu, a, b) => alu.Add(a, b));
+            AluAddWithCarry = ExpressionHelpers.GetMethodInfo<IAlu, byte, byte, byte>((alu, a, b) => alu.AddWithCarry(a, b));
+            AluAdd16 = ExpressionHelpers.GetMethodInfo<IAlu, ushort, ushort, ushort>((alu, a, b) => alu.Add(a, b));
+            AluAdd16WithCarry = ExpressionHelpers.GetMethodInfo<IAlu, ushort, ushort, ushort>((alu, a, b) => alu.AddWithCarry(a, b));
+            AluSubtract = ExpressionHelpers.GetMethodInfo<IAlu, byte, byte, byte>((alu, a, b) => alu.Subtract(a, b));
+            AluSubtractWithCarry = ExpressionHelpers.GetMethodInfo<IAlu, byte, byte, byte>((alu, a, b) => alu.SubtractWithCarry(a, b));
+            AluSubtract16WithCarry = ExpressionHelpers.GetMethodInfo<IAlu, ushort, ushort, ushort>((alu, a, b) => alu.SubtractWithCarry(a, b));
+            AluCompare = ExpressionHelpers.GetMethodInfo<IAlu, byte, byte>((alu, a, b) => alu.Compare(a, b));
+            AluAnd = ExpressionHelpers.GetMethodInfo<IAlu, byte, byte>((alu, a, b) => alu.And(a, b));
+            AluOr = ExpressionHelpers.GetMethodInfo<IAlu, byte, byte>((alu, a, b) => alu.Or(a, b));
+            AluXor = ExpressionHelpers.GetMethodInfo<IAlu, byte, byte>((alu, a, b) => alu.Xor(a, b));
+            AluDecimalAdjust = ExpressionHelpers.GetMethodInfo<IAlu, byte, byte>((alu, a) => alu.DecimalAdjust(a));
+            AluRotateLeftWithCarry = ExpressionHelpers.GetMethodInfo<IAlu, byte, byte>((alu, a) => alu.RotateLeftWithCarry(a));
+            AluRotateLeft = ExpressionHelpers.GetMethodInfo<IAlu, byte, byte>((alu, a) => alu.RotateLeft(a));
+            AluRotateRightWithCarry = ExpressionHelpers.GetMethodInfo<IAlu, byte, byte>((alu, a) => alu.RotateRightWithCarry(a));
+            AluRotateRight = ExpressionHelpers.GetMethodInfo<IAlu, byte, byte>((alu, a) => alu.RotateRight(a));
+            AluShiftLeft = ExpressionHelpers.GetMethodInfo<IAlu, byte, byte>((alu, a) => alu.ShiftLeft(a));
+            AluShiftLeftSet = ExpressionHelpers.GetMethodInfo<IAlu, byte, byte>((alu, a) => alu.ShiftLeftSet(a));
+            AluShiftRight = ExpressionHelpers.GetMethodInfo<IAlu, byte, byte>((alu, a) => alu.ShiftRight(a));
+            AluShiftRightLogical = ExpressionHelpers.GetMethodInfo<IAlu, byte, byte>((alu, a) => alu.ShiftRightLogical(a));
 
-            AluRotateRightDigit = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, byte, AccumulatorAndResult>((alu, a, b) => alu.RotateRightDigit(a, b));
-            AluRotateLeftDigit = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, byte, AccumulatorAndResult>((alu, a, b) => alu.RotateLeftDigit(a, b));
+            AluRotateRightDigit = ExpressionHelpers.GetMethodInfo<IAlu, byte, byte, AccumulatorAndResult>((alu, a, b) => alu.RotateRightDigit(a, b));
+            AluRotateLeftDigit = ExpressionHelpers.GetMethodInfo<IAlu, byte, byte, AccumulatorAndResult>((alu, a, b) => alu.RotateLeftDigit(a, b));
 
-            AluBitTest = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, int>((alu, a, bit) => alu.BitTest(a, bit));
-            AluBitSet = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, int, byte>((alu, a, bit) => alu.BitSet(a, bit));
-            AluBitReset = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, int, byte>((alu, a, bit) => alu.BitReset(a, bit));
-            AluAddDisplacement = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, ushort, sbyte, ushort>((alu, a, d) => alu.AddDisplacement(a, d));
-            AluSwap = ExpressionHelpers.GetMethodInfo<IArithmeticLogicUnit, byte, byte>((alu, a) => alu.Swap(a));
+            AluBitTest = ExpressionHelpers.GetMethodInfo<IAlu, byte, int>((alu, a, bit) => alu.BitTest(a, bit));
+            AluBitSet = ExpressionHelpers.GetMethodInfo<IAlu, byte, int, byte>((alu, a, bit) => alu.BitSet(a, bit));
+            AluBitReset = ExpressionHelpers.GetMethodInfo<IAlu, byte, int, byte>((alu, a, bit) => alu.BitReset(a, bit));
+            AluAddDisplacement = ExpressionHelpers.GetMethodInfo<IAlu, ushort, sbyte, ushort>((alu, a, d) => alu.AddDisplacement(a, d));
+            AluSwap = ExpressionHelpers.GetMethodInfo<IAlu, byte, byte>((alu, a) => alu.Swap(a));
 
             // IO Expressions
             IoReadByte = ExpressionHelpers.GetMethodInfo<IPeripheralManager, byte, byte, byte>((io, port, addressMsb) => io.ReadByteFromPort(port, addressMsb));

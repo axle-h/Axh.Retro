@@ -2,50 +2,23 @@
 {
     using System;
     using System.Threading.Tasks;
-
-    using Axh.Retro.CPU.Z80.Contracts.Peripherals;
-    using Axh.Retro.CPU.Z80.Contracts.Cache;
+    
     using Axh.Retro.CPU.Z80.Contracts.Core;
     using Axh.Retro.CPU.Z80.Contracts.Core.Timing;
     using Axh.Retro.CPU.Z80.Contracts.Factories;
     using Axh.Retro.CPU.Z80.Contracts.Registers;
 
-    public class CachingCpuCore<TRegisters> : ICpuCore<TRegisters> where TRegisters : IRegisters
+    public class CachingCpuCore<TRegisters, TRegisterState> : ICpuCore<TRegisters, TRegisterState>
+        where TRegisters : IStateBackedRegisters<TRegisterState>
+        where TRegisterState : struct
     {
-        private readonly IRegisterFactory<TRegisters> registerFactory;
-
-        private readonly IMmuFactory mmuFactory;
-
-        private readonly IAluFactory aluFactory;
-
         private readonly IInstructionBlockDecoder<TRegisters> instructionBlockDecoder;
+        private readonly ICoreContextFactory<TRegisters, TRegisterState> coreContextFactory;
 
-        private readonly IInstructionBlockCache<TRegisters> instructionBlockCache;
-
-        private readonly IPeripheralManagerFactory peripheralManagerFactory;
-
-        private readonly IInstructionTimer instructionTimer;
-
-        private readonly IInterruptManagerFactory interruptManagerFactory;
-
-        public CachingCpuCore(
-            IRegisterFactory<TRegisters> registerFactory,
-            IMmuFactory mmuFactory,
-            IInstructionBlockDecoder<TRegisters> instructionBlockDecoder,
-            IAluFactory aluFactory,
-            IInstructionBlockCache<TRegisters> instructionBlockCache,
-            IPeripheralManagerFactory peripheralManagerFactory,
-            IInstructionTimer instructionTimer,
-            IInterruptManagerFactory interruptManagerFactory)
+        public CachingCpuCore(IInstructionBlockDecoder<TRegisters> instructionBlockDecoder, ICoreContextFactory<TRegisters, TRegisterState> coreContextFactory)
         {
-            this.registerFactory = registerFactory;
-            this.mmuFactory = mmuFactory;
             this.instructionBlockDecoder = instructionBlockDecoder;
-            this.aluFactory = aluFactory;
-            this.instructionBlockCache = instructionBlockCache;
-            this.peripheralManagerFactory = peripheralManagerFactory;
-            this.instructionTimer = instructionTimer;
-            this.interruptManagerFactory = interruptManagerFactory;
+            this.coreContextFactory = coreContextFactory;
 
             if (!this.instructionBlockDecoder.SupportsInstructionBlockCaching)
             {
@@ -53,41 +26,50 @@
             }
         }
 
-        public ICoreContext<TRegisters> GetContext()
+        public ICoreContext<TRegisters, TRegisterState> GetContext()
         {
-            var registers = registerFactory.GetInitialRegisters();
-            var interruptManager = this.interruptManagerFactory.GetInterruptManager();
-            var peripheralManager = this.peripheralManagerFactory.GetPeripheralsManager(interruptManager);
-            var mmu = mmuFactory.GetMmu(peripheralManager);
-
-            return new CoreContext<TRegisters> { Registers = registers, InterruptManager = interruptManager, PeripheralManager = peripheralManager, Mmu = mmu };
+            return this.coreContextFactory.GetContext();
         }
 
-        public async Task StartCoreProcessAsync(ICoreContext<TRegisters> context)
+        public async Task StartCoreProcessAsync(ICoreContext<TRegisters, TRegisterState> context)
         {
-            var registers = context.Registers;
             var interruptManager = context.InterruptManager as ICoreInterruptManager;
-            var peripheralManager = context.PeripheralManager;
+            if (interruptManager == null)
+            {
+                throw new ArgumentException("interruptManager");
+            }
+
+            var timer = context.InstructionTimer as ICoreInstructionTimer;
+            if (timer == null)
+            {
+                throw new ArgumentException("timer");
+            }
+
+            // Flatten the context so we aren't calling the properties in the core.
+            var registers = context.Registers;
+            var peripherals = context.PeripheralManager;
             var mmu = context.Mmu;
-            var alu = this.aluFactory.GetArithmeticLogicUnit(registers.AccumulatorAndFlagsRegisters.Flags);
-            
+            var alu = context.Alu;
+            var prefetch = context.PrefetchQueue;
+            var cache = context.InstructionBlockCache;
+
             // Register the invalidate cache event with mmu AddressWrite event
-            mmu.AddressWrite += (sender, args) => this.instructionBlockCache.InvalidateCache(args.Address, args.Length);
+            mmu.AddressWrite += (sender, args) => cache.InvalidateCache(args.Address, args.Length);
             ushort? interruptAddress = null;
 
             while (true)
             {
                 var address = interruptAddress ?? registers.ProgramCounter;
-                var instructionBlock = this.instructionBlockCache.GetOrSet(address, () => this.instructionBlockDecoder.DecodeNextBlock(address, mmu));
-                var timings = instructionBlock.ExecuteInstructionBlock(registers, mmu, alu, peripheralManager);
+                var instructionBlock = cache.GetOrSet(address, () => this.instructionBlockDecoder.DecodeNextBlock(address, prefetch));
+                var timings = instructionBlock.ExecuteInstructionBlock(registers, mmu, alu, peripherals);
 
                 if (instructionBlock.HaltCpu)
                 {
                     interruptManager.Halt();
                     if (instructionBlock.HaltPeripherals)
                     {
-                        peripheralManager.Halt();
-                        interruptManager.AddResumeTask(() => peripheralManager.Resume());
+                        peripherals.Halt();
+                        interruptManager.AddResumeTask(() => peripherals.Resume());
                     }
                 }
 
@@ -113,13 +95,10 @@
                 else
                 {
                     interruptAddress = null;
-                    await this.instructionTimer.SyncToTimings(timings);
                 }
+                
+                await timer.SyncToTimings(timings);
             }
         }
-        
-        
-
-        
     }
 }

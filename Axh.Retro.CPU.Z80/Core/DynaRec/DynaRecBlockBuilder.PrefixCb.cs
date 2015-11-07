@@ -15,7 +15,7 @@
         /// <returns></returns>
         private Expression TryDecodeNextCbPrefixOperation()
         {
-            var opCode = (PrefixCbOpCode)mmuCache.NextByte();
+            var opCode = (PrefixCbOpCode)prefetchQueue.NextByte();
 
             switch (opCode)
             {

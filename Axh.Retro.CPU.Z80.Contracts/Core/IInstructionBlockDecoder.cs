@@ -8,6 +8,6 @@ namespace Axh.Retro.CPU.Z80.Contracts.Core
     {
         bool SupportsInstructionBlockCaching { get; }
 
-        IInstructionBlock<TRegisters> DecodeNextBlock(ushort address, IMmu mmu);
+        IInstructionBlock<TRegisters> DecodeNextBlock(ushort address, IPrefetchQueue prefetchQueue);
     }
 }

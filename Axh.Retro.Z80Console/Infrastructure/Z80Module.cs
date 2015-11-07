@@ -22,20 +22,12 @@
         public override void Load()
         {
             // Core
-            this.Bind<ICpuCore<IZ80Registers>>().To<CachingCpuCore<IZ80Registers>>();
+            this.Bind<ICpuCore<IZ80Registers, Z80RegisterState>>().To<CachingCpuCore<IZ80Registers, Z80RegisterState>>();
             this.Bind<IInstructionBlockDecoder<IZ80Registers>>().To<DynaRecInstructionBlockDecoder<IZ80Registers>>();
-            this.Bind<IInstructionTimer>().To<MachineCycleTimer>();
-
-            // Cache
-            this.Bind<IInstructionBlockCache<IZ80Registers>>().To<InstructionBlockCache<IZ80Registers>>();
             
             // Factories
-            this.Bind<IRegisterFactory<IZ80Registers>>().To<Z80RegisterFactory>().InSingletonScope();
-            this.Bind<IMmuFactory>().To<MmuFactory>().InSingletonScope();
-            this.Bind<IAluFactory>().To<AluFactory>().InSingletonScope();
-            this.Bind<IPeripheralManagerFactory>().To<PeripheralManagerFactory>().InSingletonScope();
             this.Bind<IPeripheralFactory>().To<PeripheralFactory>().InSingletonScope();
-            this.Bind<IInterruptManagerFactory>().To<InterruptManagerFactory>().InSingletonScope();
+            this.Bind<ICoreContextFactory<IZ80Registers, Z80RegisterState>>().To<Z80ContextFactory>().InSingletonScope();
 
             // Config
             this.Bind<IInitialStateConfig<Z80RegisterState>>().To<Z80InitialStateConfig>().InSingletonScope();

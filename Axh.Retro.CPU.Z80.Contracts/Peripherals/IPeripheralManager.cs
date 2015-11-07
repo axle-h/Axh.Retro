@@ -4,7 +4,7 @@
 
     using Axh.Retro.CPU.Common.Contracts.Memory;
 
-    public interface IPeripheralManager
+    public interface ICorePeripheralManager
     {
         /// <summary>
         /// Read the next byte from the peripheral at IO port
@@ -31,13 +31,16 @@
         /// Resume all peripherals
         /// </summary>
         void Resume();
-        
+
         /// <summary>
         /// Register the an mmu for use in dma peripherals
         /// </summary>
         /// <param name="mmu"></param>
-        void RegisterDmaForIOPeripherals(IMmu mmu);
+        void RegisterDma(IMmu mmu);
+    }
 
+    public interface IPeripheralManager : ICorePeripheralManager
+    {
         /// <summary>
         /// Retrieve peripheral of specified type.
         /// </summary>

@@ -20,13 +20,13 @@
 
             while (this.LastDecodeResult == DecodeResult.Continue)
             {
-                if (mmuCache.TotalBytesRead == ushort.MaxValue)
+                if (prefetchQueue.TotalBytesRead == ushort.MaxValue)
                 {
                     LastDecodeResult = DecodeResult.FinalizeAndSync;
                     yield break;
                 }
 
-                var opCode = (PrimaryOpCode)this.mmuCache.NextByte();
+                var opCode = (PrimaryOpCode)this.prefetchQueue.NextByte();
 
                 if (index.UsesDisplacedIndexTimings && OpCodeUsesDisplacedIndex(opCode))
                 {

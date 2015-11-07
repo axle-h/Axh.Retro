@@ -4,11 +4,11 @@
     using Axh.Retro.CPU.Z80.Contracts.Core;
     using Axh.Retro.CPU.Z80.Contracts.Registers;
 
-    public class ArithmeticLogicUnit : IArithmeticLogicUnit
+    public class Alu : IAlu
     {
         private readonly IFlagsRegister flags;
 
-        public ArithmeticLogicUnit(IFlagsRegister flags)
+        public Alu(IFlagsRegister flags)
         {
             this.flags = flags;
         }

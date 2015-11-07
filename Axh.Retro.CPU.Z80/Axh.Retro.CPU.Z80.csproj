@@ -42,8 +42,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Cache\InstructionBlockCache.cs" />
-    <Compile Include="Cache\NaiveInstructionBlockCache.cs" />
-    <Compile Include="Core\ArithmeticLogicUnit.cs" />
+    <Compile Include="Core\Alu.cs" />
     <Compile Include="Core\CachingCpuCore.cs" />
     <Compile Include="Core\CoreContext.cs" />
     <Compile Include="Core\DynaRec\DynaRecInstructionBlock.cs" />
@@ -57,12 +56,9 @@
     <Compile Include="Core\DynaRec\DynaRecExpressions.cs" />
     <Compile Include="Core\Interpreted\InterpretedInstructionBlockDecoder.cs" />
     <Compile Include="Core\Timing\MachineCycleTimer.cs" />
-    <Compile Include="Factories\AluFactory.cs" />
-    <Compile Include="Factories\InterruptManagerFactory.cs" />
-    <Compile Include="Factories\MmuFactory.cs" />
-    <Compile Include="Factories\PeripheralManagerFactory.cs" />
-    <Compile Include="Factories\RegisterFactory.cs" />
-    <Compile Include="Factories\Z80RegisterFactory.cs" />
+    <Compile Include="Factories\CoreContextFactoryBase.cs" />
+    <Compile Include="Factories\Intel8080ContextFactory.cs" />
+    <Compile Include="Factories\Z80ContextFactory.cs" />
     <Compile Include="Peripherals\AsciiSystemConsole.cs" />
     <Compile Include="Peripherals\SystemConsoleStatus.cs" />
     <Compile Include="Peripherals\PeripheralManager.cs" />

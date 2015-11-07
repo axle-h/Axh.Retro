@@ -1,8 +1,6 @@
 ﻿namespace Axh.Retro.CPU.Z80.Core.DynaRec
 {
     using Axh.Retro.CPU.Common.Contracts.Memory;
-    using Axh.Retro.CPU.Z80.Contracts;
-    using Axh.Retro.CPU.Z80.Contracts.Peripherals;
     using Axh.Retro.CPU.Z80.Contracts.Config;
     using Axh.Retro.CPU.Z80.Contracts.Core;
     using Axh.Retro.CPU.Z80.Contracts.Factories;
@@ -11,26 +9,23 @@
 
     public class DynaRecInstructionBlockDecoder<TRegisters> : IInstructionBlockDecoder<TRegisters> where TRegisters : IRegisters
     {
-        private readonly IMmuFactory mmuFactory;
-        
         private readonly CpuMode cpuMode;
 
-        public DynaRecInstructionBlockDecoder(IPlatformConfig platformConfig, IMmuFactory mmuFactory)
+        public DynaRecInstructionBlockDecoder(IPlatformConfig platformConfig)
         {
             this.cpuMode = platformConfig.CpuMode;
-            this.mmuFactory = mmuFactory;
         }
 
         public bool SupportsInstructionBlockCaching => true;
 
-        public IInstructionBlock<TRegisters> DecodeNextBlock(ushort address, IMmu mmu)
+        public IInstructionBlock<TRegisters> DecodeNextBlock(ushort address, IPrefetchQueue prefetchQueue)
         {
-            var mmuCache = this.mmuFactory.GetMmuCache(mmu, address);
+            prefetchQueue.ReBuildCache(address);
             var timer = new InstructionTimingsBuilder();
-            var expressionBuilder = new DynaRecBlockBuilder<TRegisters>(cpuMode, mmuCache, timer);
+            var expressionBuilder = new DynaRecBlockBuilder<TRegisters>(cpuMode, prefetchQueue, timer);
             var lambda = expressionBuilder.DecodeNextBlock();
 
-            return new DynaRecInstructionBlock<TRegisters>(address, (ushort)mmuCache.TotalBytesRead, lambda.Compile(), timer.GetInstructionTimings(), expressionBuilder.LastDecodeResult);
+            return new DynaRecInstructionBlock<TRegisters>(address, (ushort)prefetchQueue.TotalBytesRead, lambda.Compile(), timer.GetInstructionTimings(), expressionBuilder.LastDecodeResult);
         }
         
     }
