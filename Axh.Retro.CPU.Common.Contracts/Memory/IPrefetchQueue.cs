@@ -1,5 +1,7 @@
 ﻿namespace Axh.Retro.CPU.Common.Contracts.Memory
 {
+    using System.IO;
+
     public interface IPrefetchQueue
     {
         byte NextByte();
@@ -11,5 +13,7 @@
         void ReBuildCache(ushort newAddress);
 
         int TotalBytesRead { get; }
+
+        Stream GetDebugStream();
     }
 }

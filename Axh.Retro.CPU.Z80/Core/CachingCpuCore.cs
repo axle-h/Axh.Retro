@@ -12,18 +12,11 @@
         where TRegisters : IStateBackedRegisters<TRegisterState>
         where TRegisterState : struct
     {
-        private readonly IInstructionBlockDecoder<TRegisters> instructionBlockDecoder;
         private readonly ICoreContextFactory<TRegisters, TRegisterState> coreContextFactory;
 
-        public CachingCpuCore(IInstructionBlockDecoder<TRegisters> instructionBlockDecoder, ICoreContextFactory<TRegisters, TRegisterState> coreContextFactory)
+        public CachingCpuCore(ICoreContextFactory<TRegisters, TRegisterState> coreContextFactory)
         {
-            this.instructionBlockDecoder = instructionBlockDecoder;
             this.coreContextFactory = coreContextFactory;
-
-            if (!this.instructionBlockDecoder.SupportsInstructionBlockCaching)
-            {
-                throw new Exception("Instruction block decoder must support caching");
-            }
         }
 
         public ICoreContext<TRegisters, TRegisterState> GetContext()
@@ -50,8 +43,13 @@
             var peripherals = context.PeripheralManager;
             var mmu = context.Mmu;
             var alu = context.Alu;
-            var prefetch = context.PrefetchQueue;
             var cache = context.InstructionBlockCache;
+            var instructionBlockDecoder = context.InstructionBlockDecoder;
+
+            if (!instructionBlockDecoder.SupportsInstructionBlockCaching)
+            {
+                throw new Exception("Instruction block decoder must support caching");
+            }
 
             // Register the invalidate cache event with mmu AddressWrite event
             mmu.AddressWrite += (sender, args) => cache.InvalidateCache(args.Address, args.Length);
@@ -60,7 +58,7 @@
             while (true)
             {
                 var address = interruptAddress ?? registers.ProgramCounter;
-                var instructionBlock = cache.GetOrSet(address, () => this.instructionBlockDecoder.DecodeNextBlock(address, prefetch));
+                var instructionBlock = cache.GetOrSet(address, () => instructionBlockDecoder.DecodeNextBlock(address));
                 var timings = instructionBlock.ExecuteInstructionBlock(registers, mmu, alu, peripherals);
 
                 if (instructionBlock.HaltCpu)

@@ -16,7 +16,7 @@
         private Expression TryDecodeNextCbPrefixOperation()
         {
             var opCode = (PrefixCbOpCode)prefetchQueue.NextByte();
-
+            
             switch (opCode)
             {
                 // ********* Rotate *********

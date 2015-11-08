@@ -45,9 +45,12 @@
     <Compile Include="Core\Alu.cs" />
     <Compile Include="Core\CachingCpuCore.cs" />
     <Compile Include="Core\CoreContext.cs" />
+    <Compile Include="Core\Debug\DebugBuilder.cs" />
+    <Compile Include="Core\Debug\DebugBuilder.Primary.cs" />
     <Compile Include="Core\DynaRec\DynaRecInstructionBlock.cs" />
     <Compile Include="Core\IndexRegister.cs" />
     <Compile Include="Core\DynaRec\IndexRegisterExpressions.cs" />
+    <Compile Include="Core\Debug\InstructionDecodeDebugInfo.cs" />
     <Compile Include="Core\InterruptManager.cs" />
     <Compile Include="Core\Timing\InstructionTimingsBuilder.cs" />
     <Compile Include="Core\DynaRec\DynaRecBlockBuilder.cs" />

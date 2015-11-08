@@ -101,7 +101,9 @@
             var platformConfig = new Mock<IPlatformConfig>();
             platformConfig.Setup(x => x.CpuMode).Returns(this.cpuMode);
 
-            this.DynaRecBlockDecoder = new DynaRecInstructionBlockDecoder<TRegisters>(platformConfig.Object);
+            var runtimeConfig = new Mock<IRuntimeConfig>();
+            runtimeConfig.Setup(x => x.DebugMode).Returns(true);
+            this.DynaRecBlockDecoder = new DynaRecInstructionBlockDecoder<TRegisters>(platformConfig.Object, runtimeConfig.Object, this.Cache.Object);
         }
 
         protected void SetupRegisters(ushort? bc = null)
@@ -183,7 +185,7 @@
 
             this.Cache.Setup(x => x.TotalBytesRead).Returns(() => length);
 
-            var block = this.DynaRecBlockDecoder.DecodeNextBlock(Address, this.Cache.Object);
+            var block = this.DynaRecBlockDecoder.DecodeNextBlock(Address);
             Assert.IsNotNull(block);
 
             var timings = block.ExecuteInstructionBlock(this.Registers.Object, this.Mmu.Object, this.Alu.Object, this.Io.Object);

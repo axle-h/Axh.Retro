@@ -1,6 +1,7 @@
 ﻿namespace Axh.Retro.CPU.Common.Memory
 {
     using System;
+    using System.IO;
 
     using Axh.Retro.CPU.Common.Contracts.Memory;
 
@@ -22,11 +23,11 @@
         public PrefetchQueue(IMmu mmu, ushort address)
         {
             this.mmu = mmu;
-
-            this.ReBuildCache(address);
+            this.address = 0x000;
+            this.Init();
         }
 
-        public byte NextByte()
+        public virtual byte NextByte()
         {
             var value = this.cache[this.cachePointer];
             
@@ -39,7 +40,7 @@
             return value;
         }
 
-        public byte[] NextBytes(int length)
+        public virtual byte[] NextBytes(int length)
         {
             var bytes = new byte[length];
             var bytesRead = 0;
@@ -84,21 +85,33 @@
             return value;
         }
 
-        public void ReBuildCache(ushort newAddress)
+        public virtual void ReBuildCache(ushort newAddress)
+        {
+            this.address = newAddress;
+            Init();
+        }
+
+        public int TotalBytesRead { get; private set; }
+
+        public virtual Stream GetDebugStream()
+        {
+            // Not keeping track of any debug bytes. See DebugPrefetchQueue
+            return null;
+        }
+
+        private void Init()
         {
             this.cachePointer = 0;
-            this.address = newAddress;
             this.cache = this.mmu.ReadBytes(this.address, CacheSize);
             this.TotalBytesRead = 0;
         }
 
-        public int TotalBytesRead { get; private set; }
-        
         private void NudgeCache()
         {
             this.address = unchecked((ushort)(this.address + CacheSize));
             this.cachePointer = 0;
             this.cache = this.mmu.ReadBytes(this.address, CacheSize);
         }
+
     }
 }

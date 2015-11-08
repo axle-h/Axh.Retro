@@ -41,6 +41,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Cache\IInstructionBlockCache.cs" />
+    <Compile Include="Config\CoreMode.cs" />
     <Compile Include="Config\IInitialStateConfig.cs" />
     <Compile Include="Config\InstructionTimingSyncMode.cs" />
     <Compile Include="Config\IPlatformConfig.cs" />
@@ -49,6 +50,7 @@
     <Compile Include="Core\DecodeResult.cs" />
     <Compile Include="Core\IAlu.cs" />
     <Compile Include="Core\ICoreContext.cs" />
+    <Compile Include="Core\Debug\IInstructionDecodeDebugInfo.cs" />
     <Compile Include="Core\IInstructionBlock.cs" />
     <Compile Include="Core\IInterruptManager.cs" />
     <Compile Include="Core\Timing\IInstructionTimer.cs" />

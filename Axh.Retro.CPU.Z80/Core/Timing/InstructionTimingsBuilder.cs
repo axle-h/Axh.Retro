@@ -9,8 +9,7 @@
     {
         public InstructionTimingsBuilder()
         {
-            MachineCycles = 0;
-            ThrottlingStates = 0;
+            Reset();
         }
 
         public int MachineCycles { get; private set; }
@@ -25,6 +24,12 @@
         public InstructionTimings GetInstructionTimings()
         {
             return new InstructionTimings { MachineCycles = MachineCycles, ThrottlingStates = ThrottlingStates };
+        }
+
+        public void Reset()
+        {
+            MachineCycles = 0;
+            ThrottlingStates = 0;
         }
     }
 }

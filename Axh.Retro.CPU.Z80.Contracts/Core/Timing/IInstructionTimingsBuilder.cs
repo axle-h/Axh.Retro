@@ -9,5 +9,7 @@
         void Add(int mCycles, int tStates);
 
         InstructionTimings GetInstructionTimings();
+
+        void Reset();
     }
 }

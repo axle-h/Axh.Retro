@@ -1,5 +1,7 @@
 ﻿namespace Axh.Retro.CPU.Z80.Core
 {
+    using System;
+
     using Axh.Retro.CPU.Common.Contracts.Memory;
     using Axh.Retro.CPU.Z80.Contracts.Cache;
     using Axh.Retro.CPU.Z80.Contracts.Core;
@@ -11,7 +13,18 @@
         where TRegisters : IStateBackedRegisters<TRegisterState>
         where TRegisterState : struct
     {
-        public CoreContext(TRegisters registers, IInterruptManager interruptManager, IPeripheralManager peripheralManager, IMmu mmu, IInstructionTimer instructionTimer, IAlu alu, IPrefetchQueue prefetchQueue, IInstructionBlockCache<TRegisters> instructionBlockCache)
+        private readonly Action disposeAction;
+
+        public CoreContext(
+            TRegisters registers,
+            IInterruptManager interruptManager,
+            IPeripheralManager peripheralManager,
+            IMmu mmu,
+            IInstructionTimer instructionTimer,
+            IAlu alu,
+            IInstructionBlockCache<TRegisters> instructionBlockCache,
+            IInstructionBlockDecoder<TRegisters> instructionBlockDecoder, 
+            Action disposeAction = null)
         {
             Registers = registers;
             InterruptManager = interruptManager;
@@ -19,8 +32,9 @@
             Mmu = mmu;
             InstructionTimer = instructionTimer;
             Alu = alu;
-            PrefetchQueue = prefetchQueue;
             InstructionBlockCache = instructionBlockCache;
+            InstructionBlockDecoder = instructionBlockDecoder;
+            this.disposeAction = disposeAction;
         }
 
         public TRegisters Registers { get; }
@@ -35,8 +49,16 @@
 
         public IAlu Alu { get; }
 
-        public IPrefetchQueue PrefetchQueue { get; }
-
         public IInstructionBlockCache<TRegisters> InstructionBlockCache { get; }
+
+        public IInstructionBlockDecoder<TRegisters> InstructionBlockDecoder { get; }
+
+        public void Dispose()
+        {
+            if (this.disposeAction != null)
+            {
+                disposeAction();
+            }
+        }
     }
 }

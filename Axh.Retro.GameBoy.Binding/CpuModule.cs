@@ -23,7 +23,6 @@
         {
             // Core
             this.Bind<ICpuCore<IIntel8080Registers, Intel8080RegisterState>>().To<CachingCpuCore<IIntel8080Registers, Intel8080RegisterState>>();
-            this.Bind<IInstructionBlockDecoder<IIntel8080Registers>>().To<DynaRecInstructionBlockDecoder<IIntel8080Registers>>();
             
             // Factories
             this.Bind<IPeripheralFactory>().To<PeripheralFactory>().InSingletonScope();

@@ -7,6 +7,7 @@
 
     /// <summary>
     /// Lazy i.e. will calcualte the value of the register on read. As opposed to tracking teh timings in real time.
+    /// It also assumes the CPU is running real time.
     /// TODO: implemented SGB & CGB increment speeds.
     /// </summary>
     public class LazyDividerRegister : IDividerRegister

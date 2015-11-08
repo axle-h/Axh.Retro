@@ -13,6 +13,7 @@
     using Axh.Retro.CPU.Z80.Contracts.Peripherals;
     using Axh.Retro.CPU.Z80.Contracts.Registers;
     using Axh.Retro.CPU.Z80.Core;
+    using Axh.Retro.CPU.Z80.Core.DynaRec;
     using Axh.Retro.CPU.Z80.Core.Timing;
     using Axh.Retro.CPU.Z80.Peripherals;
 
@@ -52,14 +53,28 @@
             var timer = new MachineCycleTimer(PlatformConfig);
             var alu = new Alu(registers.AccumulatorAndFlagsRegisters.Flags);
 
-            var prefetchQueue = new PrefetchQueue(mmu, registers.ProgramCounter);
-
             var cache = new InstructionBlockCache<TRegisters>(this.RuntimeConfig);
 
-            return new CoreContext<TRegisters, TRegisterState>(registers, interruptManager, peripheralManager, mmu, timer, alu, prefetchQueue, cache);
+            var prefetchQueue = RuntimeConfig.DebugMode ? new PrefetchQueue(mmu, registers.ProgramCounter) : new DebugPrefetchQueue(mmu, registers.ProgramCounter);
+            var instructionBlockDecoder = this.GetInstructionBlockDecoder(prefetchQueue);
+
+            return new CoreContext<TRegisters, TRegisterState>(registers, interruptManager, peripheralManager, mmu, timer, alu, cache, instructionBlockDecoder);
         }
         
         protected abstract TRegisters GetInitialRegisters();
+
+        private IInstructionBlockDecoder<TRegisters> GetInstructionBlockDecoder(IPrefetchQueue prefetchQueue)
+        {
+            switch (this.RuntimeConfig.CoreMode)
+            {
+                case CoreMode.Interpreted:
+                    throw new NotImplementedException(this.RuntimeConfig.CoreMode.ToString());
+                case CoreMode.DynaRec:
+                    return new DynaRecInstructionBlockDecoder<TRegisters>(this.PlatformConfig, this.RuntimeConfig, prefetchQueue);
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(this.RuntimeConfig.CoreMode), this.RuntimeConfig.CoreMode, null);
+            }
+        }
 
         private static IAddressSegment GetAddressSegment(IMemoryBankConfig config)
         {

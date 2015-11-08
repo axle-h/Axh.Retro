@@ -30,7 +30,7 @@
 
         public IEnumerable<IMmuBankConfig> MemoryBanks { get; }
 
-        public double MachineCycleSpeedMhz => 1;
+        public double MachineCycleSpeedMhz => 4;
 
         public InstructionTimingSyncMode InstructionTimingSyncMode => InstructionTimingSyncMode.ThrottlingStates;
     }

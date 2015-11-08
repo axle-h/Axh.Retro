@@ -6,7 +6,6 @@
     using System.Linq.Expressions;
 
     using Axh.Retro.CPU.Common.Contracts.Memory;
-    using Axh.Retro.CPU.Z80.Contracts;
     using Axh.Retro.CPU.Z80.Contracts.Config;
     using Axh.Retro.CPU.Z80.Contracts.Core;
     using Axh.Retro.CPU.Z80.Contracts.Core.Timing;
@@ -22,21 +21,23 @@
     internal partial class DynaRecBlockBuilder<TRegisters> where TRegisters : IRegisters
     {
         private readonly CpuMode cpuMode;
-        private readonly IInstructionTimingsBuilder timingsBuilder;
+        private readonly IInstructionTimingsBuilder timings;
         private readonly IPrefetchQueue prefetchQueue;
 
         private static readonly DynaRecExpressions<TRegisters> Xpr = new DynaRecExpressions<TRegisters>();
-
+        
         private ConstantExpression NextByte => Expression.Constant(prefetchQueue.NextByte(), typeof(byte));
         private ConstantExpression NextWord => Expression.Constant(prefetchQueue.NextWord(), typeof(ushort));
         private Expression SyncProgramCounter => Expression.Assign(Xpr.PC, Expression.Convert(Expression.Add(Expression.Convert(Xpr.PC, typeof(int)), Expression.Constant(this.prefetchQueue.TotalBytesRead)), typeof(ushort)));
 
         private IndexRegisterExpressions index;
 
-        public DynaRecBlockBuilder(CpuMode cpuMode, IPrefetchQueue prefetchQueue, IInstructionTimingsBuilder timingsBuilder)
+        private bool usesDynamicTimings;
+
+        public DynaRecBlockBuilder(CpuMode cpuMode, IPrefetchQueue prefetchQueue, IInstructionTimingsBuilder timings)
         {
             this.cpuMode = cpuMode;
-            this.timingsBuilder = timingsBuilder;
+            this.timings = timings;
             this.prefetchQueue = prefetchQueue;
         }
 
@@ -44,15 +45,18 @@
         
         public Expression<Func<TRegisters, IMmu, IAlu, IPeripheralManager, InstructionTimings>> DecodeNextBlock()
         {
+            this.timings.Reset();
+
+            // Run this first so we know what iinit & final expressions to add.
+            var blockExpressions = GetBlockExpressions().ToArray();
             var initExpressions = GetBlockInitExpressions();
-            var blockExpressions = GetBlockExpressions();
             var finalExpressions = GetBlockFinalExpressions();
 
             var expressions = initExpressions.Concat(blockExpressions).Concat(finalExpressions).ToArray();
 
             var expressionBlock = Expression.Block(GeParameterExpressions(), expressions);
-            var lambda = Expression.Lambda<Func<TRegisters, IMmu, IAlu, IPeripheralManager, InstructionTimings>>(expressionBlock, Xpr.Registers, Xpr.Mmu, Xpr.Alu, Xpr.IO);
 
+            var lambda = Expression.Lambda<Func<TRegisters, IMmu, IAlu, IPeripheralManager, InstructionTimings>>(expressionBlock, Xpr.Registers, Xpr.Mmu, Xpr.Alu, Xpr.IO);
             return lambda;
         }
 
@@ -60,18 +64,25 @@
         {
             yield return Xpr.LocalByte;
             yield return Xpr.LocalWord;
-            yield return Xpr.DynamicTimer;
 
+            if (usesDynamicTimings)
+            {
+                yield return Xpr.DynamicTimer;
+            }
+            
             if (this.CpuSupportsAccummulatorAndResultOperations())
             {
                 yield return Xpr.AccumulatorAndResult;
             }
         }
 
-        private static IEnumerable<Expression> GetBlockInitExpressions()
+        private IEnumerable<Expression> GetBlockInitExpressions()
         {
-            // Create a new dynamic timer to record any timings calculated at runtime.
-            yield return Expression.Assign(Xpr.DynamicTimer, Expression.New(typeof(InstructionTimingsBuilder)));
+            if (usesDynamicTimings)
+            {
+                // Create a new dynamic timer to record any timings calculated at runtime.
+                yield return Expression.Assign(Xpr.DynamicTimer, Expression.New(typeof(InstructionTimingsBuilder)));
+            }
         }
 
         private IEnumerable<Expression> GetBlockFinalExpressions()
@@ -91,10 +102,15 @@
                 yield return Xpr.GetMemoryRefreshDeltaExpression(blockLengthExpression);
             }
 
-            // Return the dynamic timings.
             var returnTarget = Expression.Label(typeof(InstructionTimings), "InstructionTimings_Return");
-            var getInstructionTimings = ExpressionHelpers.GetMethodInfo<IInstructionTimingsBuilder>(dt => dt.GetInstructionTimings());
-            yield return Expression.Return(returnTarget, Expression.Call(Xpr.DynamicTimer, getInstructionTimings), typeof(InstructionTimings));
+
+            // Return the dynamic timings.
+            if (usesDynamicTimings)
+            {
+                var getInstructionTimings = ExpressionHelpers.GetMethodInfo<IInstructionTimingsBuilder>(dt => dt.GetInstructionTimings());
+                yield return Expression.Return(returnTarget, Expression.Call(Xpr.DynamicTimer, getInstructionTimings), typeof(InstructionTimings));
+            }
+            
             yield return Expression.Label(returnTarget, Expression.Constant(default(InstructionTimings)));
         }
     }
