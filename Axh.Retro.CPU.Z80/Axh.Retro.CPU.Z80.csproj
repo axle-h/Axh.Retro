@@ -47,6 +47,11 @@
     <Compile Include="Core\CoreContext.cs" />
     <Compile Include="Core\Debug\DebugBuilder.cs" />
     <Compile Include="Core\Debug\DebugBuilder.Primary.cs" />
+    <Compile Include="Core\Decode\DecodeResult.cs" />
+    <Compile Include="Core\Decode\FlagTest.cs" />
+    <Compile Include="Core\Decode\Opcode.cs" />
+    <Compile Include="Core\Decode\Operand.cs" />
+    <Compile Include="Core\Decode\OpCodeDecoder.cs" />
     <Compile Include="Core\DynaRec\DynaRecInstructionBlock.cs" />
     <Compile Include="Core\IndexRegister.cs" />
     <Compile Include="Core\DynaRec\IndexRegisterExpressions.cs" />
