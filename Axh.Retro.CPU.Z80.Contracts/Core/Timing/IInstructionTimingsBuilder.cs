@@ -11,5 +11,13 @@
         InstructionTimings GetInstructionTimings();
 
         void Reset();
+
+        IInstructionTimingsBuilder Nop();
+
+        IInstructionTimingsBuilder Prefetch();
+
+        IInstructionTimingsBuilder Index(bool isDisplaced);
+
+        IInstructionTimingsBuilder IndexAndPrefetch(bool isDisplaced);
     }
 }

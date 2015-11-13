@@ -32,5 +32,15 @@
         nn,
         n,
         d,
+
+        // Z80 indexes
+        IX,
+        mIXd,
+        IXl,
+        IXh,
+        IY,
+        mIYd,
+        IYl,
+        IYh
     }
 }

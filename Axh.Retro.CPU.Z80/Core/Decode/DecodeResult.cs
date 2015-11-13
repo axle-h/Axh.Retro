@@ -1,67 +1,47 @@
 ﻿namespace Axh.Retro.CPU.Z80.Core.Decode
 {
-    internal struct DecodeResult
+    internal class DecodeResult
     {
-        public DecodeResult(Opcode opcode) : this()
+        public DecodeResult(Opcode opcode)
         {
             Opcode = opcode;
         }
 
-        public DecodeResult(Opcode opcode, Operand operand1) : this()
-        {
-            Opcode = opcode;
-            Operand1 = operand1;
-        }
-
-        public DecodeResult(Opcode opcode, Operand operand1, ushort literal) : this()
+        public DecodeResult(Opcode opcode, Operand operand1)
         {
             Opcode = opcode;
             Operand1 = operand1;
-            WordLiteral = literal;
         }
-
-        public DecodeResult(Opcode opcode, FlagTest flagTest) : this()
-        {
-            Opcode = opcode;
-            FlagTest = flagTest;
-        }
-
-        public DecodeResult(Opcode opcode, Operand operand1, FlagTest flagTest) : this()
-        {
-            Opcode = opcode;
-            Operand1 = operand1;
-            FlagTest = flagTest;
-        }
-
-        public DecodeResult(Opcode opcode, Operand operand1, FlagTest flagTest, ushort literal) : this()
-        {
-            Opcode = opcode;
-            Operand1 = operand1;
-            FlagTest = flagTest;
-            WordLiteral = literal;
-        }
-
-        public DecodeResult(Opcode opcode, Operand operand1, Operand operand2) : this()
+        
+        public DecodeResult(Opcode opcode, Operand operand1, Operand operand2)
         {
             Opcode = opcode;
             Operand1 = operand1;
             Operand2 = operand2;
         }
 
-        public DecodeResult(Opcode opcode, Operand operand1, Operand operand2, byte literal) : this()
+        public DecodeResult AddFlagTest(FlagTest flagTest)
         {
-            Opcode = opcode;
-            Operand1 = operand1;
-            Operand2 = operand2;
-            ByteLiteral = literal;
+            this.FlagTest = flagTest;
+            return this;
         }
 
-        public DecodeResult(Opcode opcode, Operand operand1, Operand operand2, ushort literal) : this()
+        public DecodeResult AddLiteral(byte literal)
         {
-            Opcode = opcode;
-            Operand1 = operand1;
-            Operand2 = operand2;
-            WordLiteral = literal;
+            this.ByteLiteral = literal;
+            return this;
+        }
+
+        public DecodeResult AddLiteral(ushort literal)
+        {
+            this.WordLiteral = literal;
+            return this;
+        }
+
+        public DecodeResult AddDisplacement(byte displacement)
+        {
+            this.Displacement = (sbyte)displacement;
+            return this;
         }
 
         public Opcode Opcode { get; }
@@ -70,10 +50,12 @@
 
         public Operand Operand2 { get; }
 
-        public FlagTest FlagTest { get; }
+        public FlagTest FlagTest { get; private set; }
 
-        public byte ByteLiteral { get; }
+        public byte ByteLiteral { get; private set; }
 
-        public ushort WordLiteral { get; }
+        public ushort WordLiteral { get; private set; }
+
+        public sbyte Displacement { get; private set; }
     }
 }
