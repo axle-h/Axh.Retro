@@ -14,10 +14,18 @@
 
         IInstructionTimingsBuilder Nop();
 
-        IInstructionTimingsBuilder Prefetch();
+        IInstructionTimingsBuilder MmuByte();
 
         IInstructionTimingsBuilder Index(bool isDisplaced);
 
         IInstructionTimingsBuilder IndexAndPrefetch(bool isDisplaced);
+
+        IInstructionTimingsBuilder MmuWord();
+
+        IInstructionTimingsBuilder IndexAndPrefetchWord();
+
+        IInstructionTimingsBuilder Extend(int tStates);
+
+        IInstructionTimingsBuilder Arithmetic16();
     }
 }

@@ -466,7 +466,7 @@
                         else
                         {
                             yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteByte, NextWord, Xpr.A);
-                            timings.Add(2, 7);
+                            timings.Add(3, 13);
                         }
                         break;
 
@@ -474,19 +474,19 @@
                     // LD dd, nn
                     case PrimaryOpCode.LD_BC_nn:
                         yield return Expression.Assign(Xpr.BC, NextWord);
-                        timings.Add(2, 10);
+                        timings.Add(3, 10);
                         break;
                     case PrimaryOpCode.LD_DE_nn:
                         yield return Expression.Assign(Xpr.DE, NextWord);
-                        timings.Add(2, 10);
+                        timings.Add(3, 10);
                         break;
                     case PrimaryOpCode.LD_HL_nn:
                         yield return Expression.Assign(index.Register, NextWord);
-                        timings.Add(index.UsesDisplacedIndexTimings ? 3 : 2, 10);
+                        timings.Add(3, 10);
                         break;
                     case PrimaryOpCode.LD_SP_nn:
                         yield return Expression.Assign(Xpr.SP, NextWord);
-                        timings.Add(2, 10);
+                        timings.Add(3, 10);
                         break;
 
                     // LD HL, (nn)

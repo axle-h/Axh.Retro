@@ -13,11 +13,17 @@
         private const int PrefetchMachineCycles = 1;
         private const int PretetchThrottlingStates = 3;
 
-        private const int IndexMachineCycles = 2;
-        private const int IndexThrottlingStates = 7;
+        private const int PrefetchWordMachineCycles = 2;
+        private const int PretetchWordThrottlingStates = 6;
 
-        private const int DisplaceedIndexMachineCycles = 4;
-        private const int DisplaceedIndexThrottlingStates = 15;
+        private const int IndexMachineCycles = 1;
+        private const int IndexThrottlingStates = 3;
+
+        private const int DisplacedIndexMachineCycles = 3;
+        private const int DisplacedIndexThrottlingStates = 11;
+
+        private const int Arithmetic16MachineCycles = 2;
+        private const int Arithmetic16ThrottlingStates = 7;
 
         public InstructionTimingsBuilder()
         {
@@ -40,25 +46,53 @@
             return this;
         }
 
-        public IInstructionTimingsBuilder Prefetch()
+        public IInstructionTimingsBuilder MmuByte()
         {
             MachineCycles += PrefetchMachineCycles;
             ThrottlingStates += PretetchThrottlingStates;
             return this;
         }
 
+        public IInstructionTimingsBuilder MmuWord()
+        {
+            MachineCycles += PrefetchWordMachineCycles;
+            ThrottlingStates += PretetchWordThrottlingStates;
+            return this;
+        }
+
         public IInstructionTimingsBuilder Index(bool isDisplaced)
         {
-            MachineCycles += isDisplaced ? DisplaceedIndexMachineCycles : IndexMachineCycles;
-            ThrottlingStates += isDisplaced ? DisplaceedIndexThrottlingStates : IndexThrottlingStates;
+            MachineCycles += isDisplaced ? DisplacedIndexMachineCycles : IndexMachineCycles;
+            ThrottlingStates += isDisplaced ? DisplacedIndexThrottlingStates : IndexThrottlingStates;
             return this;
         }
 
         public IInstructionTimingsBuilder IndexAndPrefetch(bool isDisplaced)
         {
             // Only add on prefetch timings when not an indexed register
-            MachineCycles += isDisplaced ? DisplaceedIndexMachineCycles : IndexMachineCycles + PrefetchMachineCycles;
-            ThrottlingStates += isDisplaced ? DisplaceedIndexThrottlingStates : IndexThrottlingStates + PretetchThrottlingStates;
+            MachineCycles += isDisplaced ? DisplacedIndexMachineCycles : IndexMachineCycles + PrefetchMachineCycles;
+            ThrottlingStates += isDisplaced ? DisplacedIndexThrottlingStates : IndexThrottlingStates + PretetchThrottlingStates;
+            return this;
+        }
+
+        public IInstructionTimingsBuilder IndexAndPrefetchWord()
+        {
+            // Only add on prefetch timings when not an indexed register
+            MachineCycles += 2 * IndexMachineCycles + PrefetchWordMachineCycles;
+            ThrottlingStates += 2 * IndexThrottlingStates + PretetchWordThrottlingStates;
+            return this;
+        }
+
+        public IInstructionTimingsBuilder Extend(int tStates)
+        {
+            ThrottlingStates += tStates;
+            return this;
+        }
+
+        public IInstructionTimingsBuilder Arithmetic16()
+        {
+            MachineCycles += Arithmetic16MachineCycles;
+            ThrottlingStates += Arithmetic16ThrottlingStates;
             return this;
         }
 
