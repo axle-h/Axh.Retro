@@ -4,7 +4,6 @@
 
     using Axh.Retro.CPU.Common.Contracts.Memory;
     using Axh.Retro.CPU.Z80.Contracts.Core;
-    using Axh.Retro.CPU.Z80.Contracts.Core.Debug;
     using Axh.Retro.CPU.Z80.Contracts.Core.Timing;
     using Axh.Retro.CPU.Z80.Contracts.Peripherals;
     using Axh.Retro.CPU.Z80.Contracts.Registers;
@@ -19,11 +18,10 @@
         /// </summary>
         private readonly InstructionTimings staticTimings;
 
-        public DynaRecInstructionBlock(ushort address, ushort length, Func<TRegisters, IMmu, IAlu, IPeripheralManager, InstructionTimings> action, InstructionTimings staticTimings, DecodeResult lastDecodeResult, IInstructionDecodeDebugInfo debugInfo)
+        public DynaRecInstructionBlock(ushort address, ushort length, Func<TRegisters, IMmu, IAlu, IPeripheralManager, InstructionTimings> action, InstructionTimings staticTimings, DecodeResult lastDecodeResult)
         {
             this.action = action;
             this.staticTimings = staticTimings;
-            this.DebugInfo = debugInfo;
             this.Address = address;
             this.Length = length;
             this.HaltCpu = lastDecodeResult == DecodeResult.Halt;
@@ -37,8 +35,6 @@
         public bool HaltCpu { get; }
 
         public bool HaltPeripherals { get; }
-
-        public IInstructionDecodeDebugInfo DebugInfo { get; }
 
         public InstructionTimings ExecuteInstructionBlock(TRegisters registers, IMmu mmu, IAlu alu, IPeripheralManager peripheralManager)
         {

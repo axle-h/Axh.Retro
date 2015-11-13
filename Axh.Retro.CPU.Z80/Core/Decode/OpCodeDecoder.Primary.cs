@@ -8,7 +8,6 @@
 
     internal partial class OpCodeDecoder
     {
-
         public IEnumerable<DecodeResult> GetDecodeResult()
         {
             index = indexRegisterOperands[IndexRegister.HL];

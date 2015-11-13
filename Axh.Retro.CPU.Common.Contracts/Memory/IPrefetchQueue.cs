@@ -13,7 +13,5 @@
         void ReBuildCache(ushort newAddress);
 
         int TotalBytesRead { get; }
-
-        Stream GetDebugStream();
     }
 }

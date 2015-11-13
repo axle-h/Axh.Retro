@@ -50,7 +50,6 @@
     <Compile Include="Core\DecodeResult.cs" />
     <Compile Include="Core\IAlu.cs" />
     <Compile Include="Core\ICoreContext.cs" />
-    <Compile Include="Core\Debug\IInstructionDecodeDebugInfo.cs" />
     <Compile Include="Core\IInstructionBlock.cs" />
     <Compile Include="Core\IInterruptManager.cs" />
     <Compile Include="Core\Timing\IInstructionTimer.cs" />

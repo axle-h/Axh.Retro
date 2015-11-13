@@ -55,7 +55,7 @@
 
             var cache = new InstructionBlockCache<TRegisters>(this.RuntimeConfig);
 
-            var prefetchQueue = RuntimeConfig.DebugMode ? new PrefetchQueue(mmu, registers.ProgramCounter) : new DebugPrefetchQueue(mmu, registers.ProgramCounter);
+            var prefetchQueue = new PrefetchQueue(mmu, registers.ProgramCounter);
             var instructionBlockDecoder = this.GetInstructionBlockDecoder(prefetchQueue);
 
             return new CoreContext<TRegisters, TRegisterState>(registers, interruptManager, peripheralManager, mmu, timer, alu, cache, instructionBlockDecoder);

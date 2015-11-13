@@ -92,13 +92,7 @@
         }
 
         public int TotalBytesRead { get; private set; }
-
-        public virtual Stream GetDebugStream()
-        {
-            // Not keeping track of any debug bytes. See DebugPrefetchQueue
-            return null;
-        }
-
+        
         private void Init()
         {
             this.cachePointer = 0;
