@@ -29,7 +29,7 @@
             return result;
         }
 
-        private DecodeResult GetPrefixCb()
+        private DecodeResult DecodePrefixCb()
         {
             var code = (PrefixCbOpCode)prefetch.NextByte();
 

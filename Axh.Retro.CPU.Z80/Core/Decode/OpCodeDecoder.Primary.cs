@@ -32,11 +32,11 @@
                         if (index.IsDisplaced)
                         {
                             var displacement = prefetch.NextByte();
-                            result = FixPrefixDdFdPrefixCbResult(GetPrefixCb().AddDisplacement(displacement));
+                            result = FixPrefixDdFdPrefixCbResult(DecodePrefixCb().AddDisplacement(displacement));
                         }
                         else
                         {
-                            result = GetPrefixCb();
+                            result = DecodePrefixCb();
                         }
                         break;
                     case PrimaryOpCode.Prefix_DD:
@@ -46,7 +46,7 @@
                         }
                         continue;
                     case PrimaryOpCode.Prefix_ED:
-                        // Prefix ED
+                        result = DecodePrefixEd();
                         break;
                     case PrimaryOpCode.Prefix_FD:
                         if (cpuMode == CpuMode.Z80)
@@ -796,140 +796,183 @@
                         break;
 
                     case PrimaryOpCode.JP:
+                        timer.MmuWord();
                         result = new DecodeResult(Opcode.JP, Operand.nn).WithWordLiteral().EndBlock();
                         break;
                     case PrimaryOpCode.JP_NZ:
+                        timer.MmuWord();
                         result = new DecodeResult(Opcode.JP, Operand.nn).WithFlag(FlagTest.NZ).WithWordLiteral().EndBlock();
                         break;
                     case PrimaryOpCode.JP_Z:
+                        timer.MmuWord();
                         result = new DecodeResult(Opcode.JP, Operand.nn).WithFlag(FlagTest.Z).WithWordLiteral().EndBlock();
                         break;
                     case PrimaryOpCode.JP_NC:
+                        timer.MmuWord();
                         result = new DecodeResult(Opcode.JP, Operand.nn).WithFlag(FlagTest.NC).WithWordLiteral().EndBlock();
                         break;
                     case PrimaryOpCode.JP_C:
+                        timer.MmuWord();
                         result = new DecodeResult(Opcode.JP, Operand.nn).WithFlag(FlagTest.C).WithWordLiteral().EndBlock();
                         break;
                     case PrimaryOpCode.JP_PO:
+                        timer.MmuWord();
                         result = new DecodeResult(Opcode.JP, Operand.nn).WithFlag(FlagTest.PO).WithWordLiteral().EndBlock();
                         break;
                     case PrimaryOpCode.JP_PE:
+                        timer.MmuWord();
                         result = new DecodeResult(Opcode.JP, Operand.nn).WithFlag(FlagTest.PE).WithWordLiteral().EndBlock();
                         break;
                     case PrimaryOpCode.JP_P:
+                        timer.MmuWord();
                         result = new DecodeResult(Opcode.JP, Operand.nn).WithFlag(FlagTest.P).WithWordLiteral().EndBlock();
                         break;
                     case PrimaryOpCode.JP_M:
+                        timer.MmuWord();
                         result = new DecodeResult(Opcode.JP, Operand.nn).WithFlag(FlagTest.M).WithWordLiteral().EndBlock();
                         break;
                     case PrimaryOpCode.JR:
+                        timer.MmuByte().ApplyDisplacement();
                         result = new DecodeResult(Opcode.JR, Operand.d).WithByteLiteral().EndBlock();
                         break;
                     case PrimaryOpCode.JR_C:
+                        timer.MmuByte();
                         result = new DecodeResult(Opcode.JR, Operand.d).WithFlag(FlagTest.C).WithByteLiteral().EndBlock();
                         break;
                     case PrimaryOpCode.JR_NC:
+                        timer.MmuByte();
                         result = new DecodeResult(Opcode.JR, Operand.d).WithFlag(FlagTest.NC).WithByteLiteral().EndBlock();
                         break;
                     case PrimaryOpCode.JR_Z:
+                        timer.MmuByte();
                         result = new DecodeResult(Opcode.JR, Operand.d).WithFlag(FlagTest.Z).WithByteLiteral().EndBlock();
                         break;
                     case PrimaryOpCode.JR_NZ:
+                        timer.MmuByte();
                         result = new DecodeResult(Opcode.JR, Operand.d).WithFlag(FlagTest.NZ).WithByteLiteral().EndBlock();
                         break;
                     case PrimaryOpCode.JP_mHL:
-                        result = new DecodeResult(Opcode.JP, Operand.HL).EndBlock();
+                        result = new DecodeResult(Opcode.JP, index.Register).EndBlock();
                         break;
 
                     case PrimaryOpCode.DJNZ:
+                        timer.Extend(1).MmuByte();
                         result = new DecodeResult(Opcode.DJNZ, Operand.d).WithByteLiteral().EndBlock();
                         break;
 
                     case PrimaryOpCode.CALL:
+                        timer.MmuWord().Extend(1).MmuWord();
                         result = new DecodeResult(Opcode.CALL, Operand.nn).WithWordLiteral().EndBlock();
                         break;
                     case PrimaryOpCode.CALL_NZ:
+                        timer.MmuWord();
                         result = new DecodeResult(Opcode.CALL, Operand.nn).WithFlag(FlagTest.NZ).WithWordLiteral().EndBlock();
                         break;
                     case PrimaryOpCode.CALL_Z:
+                        timer.MmuWord();
                         result = new DecodeResult(Opcode.CALL, Operand.nn).WithFlag(FlagTest.Z).WithWordLiteral().EndBlock();
                         break;
                     case PrimaryOpCode.CALL_NC:
+                        timer.MmuWord();
                         result = new DecodeResult(Opcode.CALL, Operand.nn).WithFlag(FlagTest.NC).WithWordLiteral().EndBlock();
                         break;
                     case PrimaryOpCode.CALL_C:
+                        timer.MmuWord();
                         result = new DecodeResult(Opcode.CALL, Operand.nn).WithFlag(FlagTest.C).WithWordLiteral().EndBlock();
                         break;
                     case PrimaryOpCode.CALL_PO:
+                        timer.MmuWord();
                         result = new DecodeResult(Opcode.CALL, Operand.nn).WithFlag(FlagTest.PO).WithWordLiteral().EndBlock();
                         break;
                     case PrimaryOpCode.CALL_PE:
+                        timer.MmuWord();
                         result = new DecodeResult(Opcode.CALL, Operand.nn).WithFlag(FlagTest.PE).WithWordLiteral().EndBlock();
                         break;
                     case PrimaryOpCode.CALL_P:
+                        timer.MmuWord();
                         result = new DecodeResult(Opcode.CALL, Operand.nn).WithFlag(FlagTest.P).WithWordLiteral().EndBlock();
                         break;
                     case PrimaryOpCode.CALL_M:
+                        timer.MmuWord();
                         result = new DecodeResult(Opcode.CALL, Operand.nn).WithFlag(FlagTest.M).WithWordLiteral().EndBlock();
                         break;
 
                     case PrimaryOpCode.RET:
+                        timer.MmuWord();
                         result = new DecodeResult(Opcode.RET).EndBlock();
                         break;
                     case PrimaryOpCode.RET_NZ:
+                        timer.Extend(1);
                         result = new DecodeResult(Opcode.RET).WithFlag(FlagTest.NZ).EndBlock();
                         break;
                     case PrimaryOpCode.RET_Z:
+                        timer.Extend(1);
                         result = new DecodeResult(Opcode.RET).WithFlag(FlagTest.Z).EndBlock();
                         break;
                     case PrimaryOpCode.RET_NC:
+                        timer.Extend(1);
                         result = new DecodeResult(Opcode.RET).WithFlag(FlagTest.NC).EndBlock();
                         break;
                     case PrimaryOpCode.RET_C:
+                        timer.Extend(1);
                         result = new DecodeResult(Opcode.RET).WithFlag(FlagTest.C).EndBlock();
                         break;
                     case PrimaryOpCode.RET_PO:
+                        timer.Extend(1);
                         result = new DecodeResult(Opcode.RET).WithFlag(FlagTest.PO).EndBlock();
                         break;
                     case PrimaryOpCode.RET_PE:
+                        timer.Extend(1);
                         result = new DecodeResult(Opcode.RET).WithFlag(FlagTest.PE).EndBlock();
                         break;
                     case PrimaryOpCode.RET_P:
+                        timer.Extend(1);
                         result = new DecodeResult(Opcode.RET).WithFlag(FlagTest.P).EndBlock();
                         break;
                     case PrimaryOpCode.RET_M:
+                        timer.Extend(1);
                         result = new DecodeResult(Opcode.RET).WithFlag(FlagTest.M).EndBlock();
                         break;
 
                     case PrimaryOpCode.RST_00:
+                        timer.Extend(1).MmuWord();
                         result = new DecodeResult(Opcode.RET, Operand.nn).AddLiteral((ushort)0x0000).EndBlock();
                         break;
                     case PrimaryOpCode.RST_08:
+                        timer.Extend(1).MmuWord();
                         result = new DecodeResult(Opcode.RET, Operand.nn).AddLiteral(0x0008).EndBlock();
                         break;
                     case PrimaryOpCode.RST_10:
+                        timer.Extend(1).MmuWord();
                         result = new DecodeResult(Opcode.RET, Operand.nn).AddLiteral(0x0010).EndBlock();
                         break;
                     case PrimaryOpCode.RST_18:
+                        timer.Extend(1).MmuWord();
                         result = new DecodeResult(Opcode.RET, Operand.nn).AddLiteral(0x0018).EndBlock();
                         break;
                     case PrimaryOpCode.RST_20:
+                        timer.Extend(1).MmuWord();
                         result = new DecodeResult(Opcode.RET, Operand.nn).AddLiteral(0x0020).EndBlock();
                         break;
                     case PrimaryOpCode.RST_28:
+                        timer.Extend(1).MmuWord();
                         result = new DecodeResult(Opcode.RET, Operand.nn).AddLiteral(0x0028).EndBlock();
                         break;
                     case PrimaryOpCode.RST_30:
+                        timer.Extend(1).MmuWord();
                         result = new DecodeResult(Opcode.RET, Operand.nn).AddLiteral(0x0030).EndBlock();
                         break;
                     case PrimaryOpCode.RST_38:
+                        timer.Extend(1).MmuWord();
                         result = new DecodeResult(Opcode.RET, Operand.nn).AddLiteral(0x0038).EndBlock();
                         break;
 
                     case PrimaryOpCode.IN_A_n:
+                        timer.MmuByte().Io();
                         result = new DecodeResult(Opcode.IN, Operand.A, Operand.n).WithByteLiteral();
                         break;
                     case PrimaryOpCode.OUT_A_n:
+                        timer.MmuByte().Io();
                         result = new DecodeResult(Opcode.OUT, Operand.A, Operand.n).WithByteLiteral();
                         break;
                     default:

@@ -29,5 +29,9 @@
         IInstructionTimingsBuilder Arithmetic16();
 
         IInstructionTimingsBuilder AutoCopy();
+
+        IInstructionTimingsBuilder Io();
+
+        IInstructionTimingsBuilder ApplyDisplacement();
     }
 }

@@ -25,6 +25,12 @@
         private const int Arithmetic16MachineCycles = 2;
         private const int Arithmetic16ThrottlingStates = 7;
 
+        private const int IoMachineCycles = 1;
+        private const int IoThrottlingStates = 4;
+
+        private const int ApplyDisplacementMachineCycles = 1;
+        private const int ApplyDisplacementThrottlingStates = 5;
+
         public InstructionTimingsBuilder()
         {
             Reset();
@@ -102,6 +108,22 @@
             ThrottlingStates += DisplacedIndexThrottlingStates;
             return this;
         }
+
+        public IInstructionTimingsBuilder Io()
+        {
+            MachineCycles += IoMachineCycles;
+            ThrottlingStates += IoThrottlingStates;
+            return this;
+        }
+
+        public IInstructionTimingsBuilder ApplyDisplacement()
+        {
+            MachineCycles += ApplyDisplacementMachineCycles;
+            ThrottlingStates += ApplyDisplacementThrottlingStates;
+            return this;
+        }
+
+
 
         public InstructionTimings GetInstructionTimings()
         {
