@@ -8,7 +8,7 @@
 
     internal partial class OpCodeDecoder
     {
-        public IEnumerable<DecodeResult> GetDecodeResult()
+        public IEnumerable<DecodeResult> DecodePrimary()
         {
             index = indexRegisterOperands[IndexRegister.HL];
 
@@ -29,7 +29,15 @@
                         result = new DecodeResult(Opcode.HALT).EndBlock();
                         break;
                     case PrimaryOpCode.Prefix_CB:
-                        // Prefix CB
+                        if (index.IsDisplaced)
+                        {
+                            var displacement = prefetch.NextByte();
+                            result = FixPrefixDdFdPrefixCbResult(GetPrefixCb().AddDisplacement(displacement));
+                        }
+                        else
+                        {
+                            result = GetPrefixCb();
+                        }
                         break;
                     case PrimaryOpCode.Prefix_DD:
                         if (cpuMode == CpuMode.Z80)
@@ -288,7 +296,7 @@
 
                     // LD (HL), n
                     case PrimaryOpCode.LD_mHL_n:
-                        timer.IndexAndPrefetch(index.IsDisplaced);
+                        timer.IndexAndMmuByte(index.IsDisplaced);
                         result = new DecodeResult(Opcode.LD, index.Index, Operand.n).WithDisplacement().WithByteLiteral();
                         break;
 
@@ -348,13 +356,13 @@
 
                     // LD HL, (nn)
                     case PrimaryOpCode.LD_HL_mnn:
-                        timer.IndexAndPrefetchWord();
+                        timer.IndexAndMmuWord();
                         result = new DecodeResult(Opcode.LD16, index.Register, Operand.mnn).WithWordLiteral();
                         break;
 
                     // LD (nn), HL
                     case PrimaryOpCode.LD_mnn_HL:
-                        timer.IndexAndPrefetchWord();
+                        timer.IndexAndMmuWord();
                         result = new DecodeResult(Opcode.LD16, Operand.mnn, index.Register).WithWordLiteral();
                         break;
 

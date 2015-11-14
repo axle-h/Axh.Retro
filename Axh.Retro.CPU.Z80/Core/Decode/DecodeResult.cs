@@ -70,11 +70,16 @@
             return this;
         }
 
+        public void AutoCopy()
+        {
+            this.OpCodeMeta |= OpCodeMeta.AutoCopy;
+        }
+        
         public Opcode Opcode { get; }
 
-        public Operand Operand1 { get; }
+        public Operand Operand1 { get; set; }
 
-        public Operand Operand2 { get; }
+        public Operand Operand2 { get; set; }
 
         public FlagTest FlagTest { get; private set; }
 
@@ -94,6 +99,7 @@
         ByteLiteral,
         WordLiteral,
         Displacement,
-        EndBlock
+        EndBlock,
+        AutoCopy
     }
 }

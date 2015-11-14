@@ -50,6 +50,27 @@
 
         IN,
 
-        OUT
+        OUT,
+
+        // Rotate
+        RLC,
+        RL,
+        RRC,
+        RR,
+
+        // Shift
+        SLA,
+        SLS,
+        SRL,
+        SRA,
+
+        // GB Specific
+        SWAP,
+
+        // Bit test, set & reset
+        BIT,
+        SET,
+        RES
+
     }
 }

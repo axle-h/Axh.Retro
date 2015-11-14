@@ -18,14 +18,16 @@
 
         IInstructionTimingsBuilder Index(bool isDisplaced);
 
-        IInstructionTimingsBuilder IndexAndPrefetch(bool isDisplaced);
+        IInstructionTimingsBuilder IndexAndMmuByte(bool isDisplaced);
 
         IInstructionTimingsBuilder MmuWord();
 
-        IInstructionTimingsBuilder IndexAndPrefetchWord();
+        IInstructionTimingsBuilder IndexAndMmuWord();
 
         IInstructionTimingsBuilder Extend(int tStates);
 
         IInstructionTimingsBuilder Arithmetic16();
+
+        IInstructionTimingsBuilder AutoCopy();
     }
 }

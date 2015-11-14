@@ -67,7 +67,7 @@
             return this;
         }
 
-        public IInstructionTimingsBuilder IndexAndPrefetch(bool isDisplaced)
+        public IInstructionTimingsBuilder IndexAndMmuByte(bool isDisplaced)
         {
             // Only add on prefetch timings when not an indexed register
             MachineCycles += isDisplaced ? DisplacedIndexMachineCycles : IndexMachineCycles + PrefetchMachineCycles;
@@ -75,7 +75,7 @@
             return this;
         }
 
-        public IInstructionTimingsBuilder IndexAndPrefetchWord()
+        public IInstructionTimingsBuilder IndexAndMmuWord()
         {
             // Only add on prefetch timings when not an indexed register
             MachineCycles += 2 * IndexMachineCycles + PrefetchWordMachineCycles;
@@ -93,6 +93,13 @@
         {
             MachineCycles += Arithmetic16MachineCycles;
             ThrottlingStates += Arithmetic16ThrottlingStates;
+            return this;
+        }
+
+        public IInstructionTimingsBuilder AutoCopy()
+        {
+            MachineCycles += DisplacedIndexMachineCycles;
+            ThrottlingStates += DisplacedIndexThrottlingStates;
             return this;
         }
 

@@ -48,6 +48,7 @@
     <Compile Include="Core\Decode\DecodeResult.cs" />
     <Compile Include="Core\Decode\FlagTest.cs" />
     <Compile Include="Core\Decode\Opcode.cs" />
+    <Compile Include="Core\Decode\OpCodeDecoder.PrefixCb.cs" />
     <Compile Include="Core\Decode\OpCodeDecoder.Primary.cs" />
     <Compile Include="Core\Decode\Operand.cs" />
     <Compile Include="Core\Decode\OpCodeDecoder.cs" />
