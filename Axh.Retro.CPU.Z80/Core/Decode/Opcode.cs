@@ -44,12 +44,13 @@
         JumpRelative,
         DecrementJumpRelativeIfNonZero,
 
-        // Call/Return
+        // Call/Return/Reset
         Call,
         Return,
         ReturnFromInterrupt,
         ReturnFromNonmaskableInterrupt,
-        
+        Reset,
+
         // IO
         Input,
         Output,
@@ -109,7 +110,7 @@
         Swap,
         LoadIncrement,
         LoadDecrement,
-        Stop
+        Stop,
     }
 
     internal static class OpcodeExtensions
@@ -165,6 +166,7 @@
                 case Opcode.ReturnFromInterrupt: return "RETI";
                 case Opcode.ReturnFromNonmaskableInterrupt: return "RETN";
                 case Opcode.Return: return "RET";
+                case Opcode.Reset: return "RST";
                 case Opcode.Input: return "IN";
                 case Opcode.Output: return "OUT";
                 case Opcode.RotateLeftWithCarry: return "RLC";

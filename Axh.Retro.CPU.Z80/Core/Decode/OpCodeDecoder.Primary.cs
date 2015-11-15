@@ -578,41 +578,41 @@
 
                 // INC r
                 case PrimaryOpCode.INC_A:
-                    return new Operation(Opcode.Increment, Operand.A, Operand.A);
+                    return new Operation(Opcode.Increment, Operand.A);
                 case PrimaryOpCode.INC_B:
-                    return new Operation(Opcode.Increment, Operand.B, Operand.B);
+                    return new Operation(Opcode.Increment, Operand.B);
                 case PrimaryOpCode.INC_C:
-                    return new Operation(Opcode.Increment, Operand.C, Operand.C);
+                    return new Operation(Opcode.Increment, Operand.C);
                 case PrimaryOpCode.INC_D:
-                    return new Operation(Opcode.Increment, Operand.D, Operand.D);
+                    return new Operation(Opcode.Increment, Operand.D);
                 case PrimaryOpCode.INC_E:
-                    return new Operation(Opcode.Increment, Operand.E, Operand.E);
+                    return new Operation(Opcode.Increment, Operand.E);
                 case PrimaryOpCode.INC_H:
-                    return new Operation(Opcode.Increment, index.HighRegister, index.HighRegister);
+                    return new Operation(Opcode.Increment, index.HighRegister);
                 case PrimaryOpCode.INC_L:
-                    return new Operation(Opcode.Increment, index.LowRegister, index.LowRegister);
+                    return new Operation(Opcode.Increment, index.LowRegister);
                 case PrimaryOpCode.INC_mHL:
                     timer.Index(index.IsDisplaced).MmuByte().Extend(1);
-                    return new Operation(Opcode.Increment, index.Index, index.Index).WithDisplacement();
+                    return new Operation(Opcode.Increment, index.Index).WithDisplacement();
 
                 // DEC r
                 case PrimaryOpCode.DEC_A:
-                    return new Operation(Opcode.Decrement, Operand.A, Operand.A);
+                    return new Operation(Opcode.Decrement, Operand.A);
                 case PrimaryOpCode.DEC_B:
-                    return new Operation(Opcode.Decrement, Operand.B, Operand.B);
+                    return new Operation(Opcode.Decrement, Operand.B);
                 case PrimaryOpCode.DEC_C:
-                    return new Operation(Opcode.Decrement, Operand.C, Operand.C);
+                    return new Operation(Opcode.Decrement, Operand.C);
                 case PrimaryOpCode.DEC_D:
-                    return new Operation(Opcode.Decrement, Operand.D, Operand.D);
+                    return new Operation(Opcode.Decrement, Operand.D);
                 case PrimaryOpCode.DEC_E:
-                    return new Operation(Opcode.Decrement, Operand.E, Operand.E);
+                    return new Operation(Opcode.Decrement, Operand.E);
                 case PrimaryOpCode.DEC_H:
-                    return new Operation(Opcode.Decrement, index.HighRegister, index.HighRegister);
+                    return new Operation(Opcode.Decrement, index.HighRegister);
                 case PrimaryOpCode.DEC_L:
-                    return new Operation(Opcode.Decrement, index.LowRegister, index.LowRegister);
+                    return new Operation(Opcode.Decrement, index.LowRegister);
                 case PrimaryOpCode.DEC_mHL:
                     timer.Index(index.IsDisplaced).MmuByte().Extend(1);
-                    return new Operation(Opcode.Decrement, index.Index, index.Index).WithDisplacement();
+                    return new Operation(Opcode.Decrement, index.Index).WithDisplacement();
 
                 // ********* 16-Bit Arithmetic *********
                 // ADD HL, ss
@@ -753,19 +753,19 @@
                     return new Operation(Opcode.Jump, Operand.nn).WithFlag(FlagTest.Negative).WithWordLiteral().EndBlock();
                 case PrimaryOpCode.JR:
                     timer.MmuByte().ApplyDisplacement();
-                    return new Operation(Opcode.JumpRelative, Operand.n).WithByteLiteral().EndBlock();
+                    return new Operation(Opcode.JumpRelative, Operand.d).WithByteLiteral().EndBlock();
                 case PrimaryOpCode.JR_C:
                     timer.MmuByte();
-                    return new Operation(Opcode.JumpRelative, Operand.n).WithFlag(FlagTest.Carry).WithByteLiteral().EndBlock();
+                    return new Operation(Opcode.JumpRelative, Operand.d).WithFlag(FlagTest.Carry).WithByteLiteral().EndBlock();
                 case PrimaryOpCode.JR_NC:
                     timer.MmuByte();
-                    return new Operation(Opcode.JumpRelative, Operand.n).WithFlag(FlagTest.NotCarry).WithByteLiteral().EndBlock();
+                    return new Operation(Opcode.JumpRelative, Operand.d).WithFlag(FlagTest.NotCarry).WithByteLiteral().EndBlock();
                 case PrimaryOpCode.JR_Z:
                     timer.MmuByte();
-                    return new Operation(Opcode.JumpRelative, Operand.n).WithFlag(FlagTest.Zero).WithByteLiteral().EndBlock();
+                    return new Operation(Opcode.JumpRelative, Operand.d).WithFlag(FlagTest.Zero).WithByteLiteral().EndBlock();
                 case PrimaryOpCode.JR_NZ:
                     timer.MmuByte();
-                    return new Operation(Opcode.JumpRelative, Operand.n).WithFlag(FlagTest.NotZero).WithByteLiteral().EndBlock();
+                    return new Operation(Opcode.JumpRelative, Operand.d).WithFlag(FlagTest.NotZero).WithByteLiteral().EndBlock();
                 case PrimaryOpCode.JP_mHL:
                     return new Operation(Opcode.Jump, index.Register).EndBlock();
                 case PrimaryOpCode.DJNZ:
@@ -776,7 +776,7 @@
                     }
 
                     timer.Extend(1).MmuByte();
-                    return new Operation(Opcode.DecrementJumpRelativeIfNonZero, Operand.n).WithByteLiteral().EndBlock();
+                    return new Operation(Opcode.DecrementJumpRelativeIfNonZero, Operand.d).WithByteLiteral().EndBlock();
 
                 // ********* Call *********
                 case PrimaryOpCode.CALL:
@@ -887,28 +887,28 @@
                 // ********* Reset *********
                 case PrimaryOpCode.RST_00:
                     timer.Extend(1).MmuWord();
-                    return new Operation(Opcode.Return, Operand.nn).AddLiteral((ushort)0x0000).EndBlock();
+                    return new Operation(Opcode.Reset, Operand.nn).AddLiteral((ushort)0x0000).EndBlock();
                 case PrimaryOpCode.RST_08:
                     timer.Extend(1).MmuWord();
-                    return new Operation(Opcode.Return, Operand.nn).AddLiteral(0x0008).EndBlock();
+                    return new Operation(Opcode.Reset, Operand.nn).AddLiteral((ushort)0x0008).EndBlock();
                 case PrimaryOpCode.RST_10:
                     timer.Extend(1).MmuWord();
-                    return new Operation(Opcode.Return, Operand.nn).AddLiteral(0x0010).EndBlock();
+                    return new Operation(Opcode.Reset, Operand.nn).AddLiteral((ushort)0x0010).EndBlock();
                 case PrimaryOpCode.RST_18:
                     timer.Extend(1).MmuWord();
-                    return new Operation(Opcode.Return, Operand.nn).AddLiteral(0x0018).EndBlock();
+                    return new Operation(Opcode.Reset, Operand.nn).AddLiteral((ushort)0x0018).EndBlock();
                 case PrimaryOpCode.RST_20:
                     timer.Extend(1).MmuWord();
-                    return new Operation(Opcode.Return, Operand.nn).AddLiteral(0x0020).EndBlock();
+                    return new Operation(Opcode.Reset, Operand.nn).AddLiteral((ushort)0x0020).EndBlock();
                 case PrimaryOpCode.RST_28:
                     timer.Extend(1).MmuWord();
-                    return new Operation(Opcode.Return, Operand.nn).AddLiteral(0x0028).EndBlock();
+                    return new Operation(Opcode.Reset, Operand.nn).AddLiteral((ushort)0x0028).EndBlock();
                 case PrimaryOpCode.RST_30:
                     timer.Extend(1).MmuWord();
-                    return new Operation(Opcode.Return, Operand.nn).AddLiteral(0x0030).EndBlock();
+                    return new Operation(Opcode.Reset, Operand.nn).AddLiteral((ushort)0x0030).EndBlock();
                 case PrimaryOpCode.RST_38:
                     timer.Extend(1).MmuWord();
-                    return new Operation(Opcode.Return, Operand.nn).AddLiteral(0x0038).EndBlock();
+                    return new Operation(Opcode.Reset, Operand.nn).AddLiteral((ushort)0x0038).EndBlock();
 
                 // ********* IO *********
                 case PrimaryOpCode.IN_A_n:

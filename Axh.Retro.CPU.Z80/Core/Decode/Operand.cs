@@ -33,6 +33,7 @@
         mnn,
         nn,
         n,
+        d,
 
         // Z80 indexes
         IX,
@@ -62,6 +63,6 @@
         /// <summary>
         /// SP + signed byte literal
         /// </summary>
-        SPd
+        SPd,
     }
 }

@@ -42,9 +42,19 @@
             }
         }
 
-        private Expression Read(Operation operation, bool is16Bit = false)
+        private Expression ReadOperand1(Operation operation, bool is16Bit = false)
         {
-            switch (operation.Operand2)
+            return ReadOperand(operation, operation.Operand1, is16Bit);
+        }
+
+        private Expression ReadOperand2(Operation operation, bool is16Bit = false)
+        {
+            return ReadOperand(operation, operation.Operand2, is16Bit);
+        }
+
+        private Expression ReadOperand(Operation operation, Operand operand, bool is16Bit)
+        {
+            switch (operand)
             {
                 case Operand.A:
                     return Xpr.A;
@@ -76,12 +86,16 @@
                     return Expression.Call(Xpr.Mmu, is16Bit ? Xpr.MmuReadWord : Xpr.MmuReadByte, Xpr.BC);
                 case Operand.mDE:
                     return Expression.Call(Xpr.Mmu, is16Bit ? Xpr.MmuReadWord : Xpr.MmuReadByte, Xpr.DE);
+                case Operand.mSP:
+                    return Expression.Call(Xpr.Mmu, is16Bit ? Xpr.MmuReadWord : Xpr.MmuReadByte, Xpr.SP);
                 case Operand.mnn:
                     return Expression.Call(Xpr.Mmu, is16Bit ? Xpr.MmuReadWord : Xpr.MmuReadByte, Expression.Constant(operation.WordLiteral));
                 case Operand.nn:
                     return Expression.Constant(operation.WordLiteral);
                 case Operand.n:
                     return Expression.Constant(operation.ByteLiteral);
+                case Operand.d:
+                    return Expression.Convert(Expression.Constant((sbyte)operation.ByteLiteral), typeof(int));
                 case Operand.IX:
                     return Xpr.IX;
                 case Operand.mIXd:
@@ -119,9 +133,19 @@
             }
         }
 
-        private Expression Write(Operation operation, Expression value, bool is16Bit = false)
+        private Expression WriteOperand1(Operation operation, Expression value, bool is16Bit = false)
         {
-            switch (operation.Operand1)
+            return WriteOperand(operation, value, operation.Operand1, is16Bit);
+        }
+
+        private Expression WriteOperand2(Operation operation, Expression value, bool is16Bit = false)
+        {
+            return WriteOperand(operation, value, operation.Operand2, is16Bit);
+        }
+
+        private Expression WriteOperand(Operation operation, Expression value, Operand operand, bool is16Bit)
+        {
+            switch (operand)
             {
                 case Operand.A:
                     return Expression.Assign(Xpr.A, value);
@@ -153,6 +177,8 @@
                     return Expression.Call(Xpr.Mmu, is16Bit ? Xpr.MmuWriteWord : Xpr.MmuWriteByte, Xpr.BC, value);
                 case Operand.mDE:
                     return Expression.Call(Xpr.Mmu, is16Bit ? Xpr.MmuWriteWord : Xpr.MmuWriteByte, Xpr.DE, value);
+                case Operand.mSP:
+                    return Expression.Call(Xpr.Mmu, is16Bit ? Xpr.MmuWriteWord : Xpr.MmuWriteByte, Xpr.SP, value);
                 case Operand.mnn:
                     return Expression.Call(Xpr.Mmu, is16Bit ? Xpr.MmuWriteWord : Xpr.MmuWriteByte, Expression.Constant(operation.WordLiteral), value);
                 case Operand.IX:
@@ -191,6 +217,36 @@
                     throw new ArgumentOutOfRangeException(nameof(operation.Operand1), operation.Operand1, null);
             }
         }
-        
+
+        private Expression GetFlagTestExpression(FlagTest flagTest)
+        {
+            switch (flagTest)
+            {
+                case FlagTest.NotZero:
+                    return Expression.Not(Xpr.Zero);
+                case FlagTest.Zero:
+                    return Xpr.Zero;
+                case FlagTest.NotCarry:
+                    return Expression.Not(Xpr.Carry);
+                case FlagTest.Carry:
+                    return Xpr.Carry;
+                case FlagTest.ParityOdd:
+                    return Expression.Not(Xpr.ParityOverflow);
+                case FlagTest.ParityEven:
+                    return Xpr.ParityOverflow;
+                case FlagTest.Possitive:
+                    return Expression.Not(Xpr.Sign);
+                case FlagTest.Negative:
+                    return Xpr.Sign;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(flagTest), flagTest, null);
+            }
+        }
+
+        private Expression JumpToDisplacement(Operation operation)
+        {
+            return Expression.Assign(Xpr.PC, Expression.Convert(Expression.Add(Expression.Convert(Xpr.PC, typeof(int)), ReadOperand1(operation, true)), typeof(ushort)));
+        }
+
     }
 }
