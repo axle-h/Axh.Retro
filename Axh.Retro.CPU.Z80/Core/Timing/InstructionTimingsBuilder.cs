@@ -102,13 +102,6 @@
             return this;
         }
 
-        public IInstructionTimingsBuilder AutoCopy()
-        {
-            MachineCycles += DisplacedIndexMachineCycles;
-            ThrottlingStates += DisplacedIndexThrottlingStates;
-            return this;
-        }
-
         public IInstructionTimingsBuilder Io()
         {
             MachineCycles += IoMachineCycles;

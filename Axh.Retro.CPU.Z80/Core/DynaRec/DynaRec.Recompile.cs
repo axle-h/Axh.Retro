@@ -233,17 +233,59 @@
                     break;
 
                 case Opcode.RotateLeftWithCarry:
+                    yield return WriteOperand1(operation, Expression.Call(Xpr.Alu, Xpr.AluRotateLeftWithCarry, ReadOperand1(operation)));
+                    if (operation.OpCodeMeta.HasFlag(OpCodeMeta.AutoCopy))
+                    {
+                        // Autocopy for DD/FD prefix
+                        yield return WriteOperand2(operation, ReadOperand1(operation));
+                    }
                     break;
+
                 case Opcode.RotateLeft:
+                    yield return WriteOperand1(operation, Expression.Call(Xpr.Alu, Xpr.AluRotateLeft, ReadOperand1(operation)));
+                    if (operation.OpCodeMeta.HasFlag(OpCodeMeta.AutoCopy))
+                    {
+                        // Autocopy for DD/FD prefix
+                        yield return WriteOperand2(operation, ReadOperand1(operation));
+                    }
                     break;
+
                 case Opcode.RotateRightWithCarry:
+                    yield return WriteOperand1(operation, Expression.Call(Xpr.Alu, Xpr.AluRotateRightWithCarry, ReadOperand1(operation)));
+                    if (operation.OpCodeMeta.HasFlag(OpCodeMeta.AutoCopy))
+                    {
+                        // Autocopy for DD/FD prefix
+                        yield return WriteOperand2(operation, ReadOperand1(operation));
+                    }
                     break;
+
                 case Opcode.RotateRight:
+                    yield return WriteOperand1(operation, Expression.Call(Xpr.Alu, Xpr.AluRotateRight, ReadOperand1(operation)));
+                    if (operation.OpCodeMeta.HasFlag(OpCodeMeta.AutoCopy))
+                    {
+                        // Autocopy for DD/FD prefix
+                        yield return WriteOperand2(operation, ReadOperand1(operation));
+                    }
                     break;
+
                 case Opcode.RotateLeftDigit:
+                    yield return WriteOperand1(operation, Expression.Call(Xpr.Alu, Xpr.AluRotateLeftDigit, ReadOperand1(operation)));
+                    if (operation.OpCodeMeta.HasFlag(OpCodeMeta.AutoCopy))
+                    {
+                        // Autocopy for DD/FD prefix
+                        yield return WriteOperand2(operation, ReadOperand1(operation));
+                    }
                     break;
+
                 case Opcode.RotateRightDigit:
+                    yield return WriteOperand1(operation, Expression.Call(Xpr.Alu, Xpr.AluRotateRightDigit, ReadOperand1(operation)));
+                    if (operation.OpCodeMeta.HasFlag(OpCodeMeta.AutoCopy))
+                    {
+                        // Autocopy for DD/FD prefix
+                        yield return WriteOperand2(operation, ReadOperand1(operation));
+                    }
                     break;
+
                 case Opcode.ShiftLeft:
                     break;
                 case Opcode.ShiftLeftSet:
