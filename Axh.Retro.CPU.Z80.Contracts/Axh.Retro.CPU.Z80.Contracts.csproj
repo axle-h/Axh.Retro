@@ -47,7 +47,6 @@
     <Compile Include="Config\IPlatformConfig.cs" />
     <Compile Include="Config\IRuntimeConfig.cs" />
     <Compile Include="Core\AccumulatorAndResult.cs" />
-    <Compile Include="Core\DecodeResult.cs" />
     <Compile Include="Core\IAlu.cs" />
     <Compile Include="Core\ICoreContext.cs" />
     <Compile Include="Core\IInstructionBlock.cs" />

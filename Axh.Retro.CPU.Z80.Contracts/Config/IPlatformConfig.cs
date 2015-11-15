@@ -13,5 +13,7 @@
         double MachineCycleSpeedMhz { get; }
 
         InstructionTimingSyncMode InstructionTimingSyncMode { get; }
+
+        bool LockOnUndefinedInstruction { get; }
     }
 }

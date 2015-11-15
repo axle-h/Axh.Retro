@@ -1,13 +1,10 @@
 ﻿namespace Axh.Retro.CPU.Z80.Core.Decode
 {
-    using System;
     using System.Collections.Generic;
 
     using Axh.Retro.CPU.Common.Contracts.Memory;
     using Axh.Retro.CPU.Z80.Contracts.Config;
     using Axh.Retro.CPU.Z80.Contracts.Core.Timing;
-    using Axh.Retro.CPU.Z80.Contracts.OpCodes;
-    using Axh.Retro.CPU.Z80.Core.Timing;
 
     internal partial class OpCodeDecoder
     {
@@ -15,17 +12,20 @@
 
         private readonly CpuMode cpuMode;
 
+        private readonly Opcode undefinedInstruction;
+
         private readonly IInstructionTimingsBuilder timer;
 
         private readonly IPrefetchQueue prefetch;
 
         private IndexRegisterOperands index;
 
-        public OpCodeDecoder(CpuMode cpuMode, IPrefetchQueue prefetch)
+        public OpCodeDecoder(IPlatformConfig platformConfig, IPrefetchQueue prefetch, IInstructionTimingsBuilder timer)
         {
-            this.timer = new InstructionTimingsBuilder();
-            this.cpuMode = cpuMode;
+            this.cpuMode = platformConfig.CpuMode;
+            this.undefinedInstruction = platformConfig.LockOnUndefinedInstruction ? Opcode.Halt : Opcode.NoOperation;
             this.prefetch = prefetch;
+            this.timer = timer;
             this.indexRegisterOperands = new Dictionary<IndexRegister, IndexRegisterOperands> { { IndexRegister.HL, new IndexRegisterOperands(Operand.HL, Operand.mHL, Operand.L, Operand.H, false) } };
 
             if (cpuMode == CpuMode.Z80)
@@ -35,6 +35,46 @@
             }
         }
 
+        public IEnumerable<Operation> DecodeNextBlock()
+        {
+            timer.Reset();
+            index = indexRegisterOperands[IndexRegister.HL];
+
+            while (true)
+            {
+                var result = DecodePrimary();
+
+                if (result == null)
+                {
+                    continue;
+                }
+
+                if (result.OpCodeMeta.HasFlag(OpCodeMeta.Displacement) && index.IsDisplaced)
+                {
+                    result.AddDisplacement(prefetch.NextByte());
+                }
+
+                if (result.OpCodeMeta.HasFlag(OpCodeMeta.ByteLiteral))
+                {
+                    result.AddLiteral(prefetch.NextByte());
+                }
+
+                if (result.OpCodeMeta.HasFlag(OpCodeMeta.WordLiteral))
+                {
+                    result.AddLiteral(prefetch.NextWord());
+                }
+
+                yield return result;
+
+                if (result.OpCodeMeta.HasFlag(OpCodeMeta.EndBlock))
+                {
+                    yield break;
+                }
+
+                index = this.indexRegisterOperands[IndexRegister.HL];
+            }
+        }
+        
         private struct IndexRegisterOperands
         {
             public IndexRegisterOperands(Operand register, Operand index, Operand lowRegister, Operand highRegister, bool isDisplaced) : this()
@@ -56,7 +96,5 @@
 
             public bool IsDisplaced { get; }
         }
-
-
     }
 }

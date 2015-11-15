@@ -28,7 +28,7 @@
 
             const ushort Value = 0x9178;
 
-            RunWithHalt(2, 10, opcode, Value);
+            RunWithHalt(3, 10, opcode, Value);
 
             switch (opcode)
             {

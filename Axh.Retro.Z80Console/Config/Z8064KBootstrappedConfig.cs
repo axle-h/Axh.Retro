@@ -33,5 +33,7 @@
         public double MachineCycleSpeedMhz => 4;
 
         public InstructionTimingSyncMode InstructionTimingSyncMode => InstructionTimingSyncMode.ThrottlingStates;
+
+        public bool LockOnUndefinedInstruction => false;
     }
 }

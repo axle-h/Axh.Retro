@@ -1,4 +1,4 @@
-﻿namespace Axh.Retro.CPU.Z80.Contracts.Core
+﻿namespace Axh.Retro.CPU.Z80.Core.DynaRec
 {
     public enum DecodeResult
     {

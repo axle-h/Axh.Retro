@@ -122,6 +122,7 @@
         /// </summary>
         public InstructionTimingSyncMode InstructionTimingSyncMode => InstructionTimingSyncMode.MachineCycles;
 
+        public bool LockOnUndefinedInstruction => false;
 
         private static IEnumerable<IMemoryBankConfig> GetCartridgeRamBankConfig(int? bankId, ushort length)
         {

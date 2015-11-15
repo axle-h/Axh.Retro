@@ -1,70 +1,68 @@
 ﻿namespace Axh.Retro.CPU.Z80.Core.Decode
 {
-    using System;
-
-    internal class DecodeResult
+    internal class Operation
     {
-        public DecodeResult(Opcode opcode)
+        public Operation(Opcode opcode)
         {
             Opcode = opcode;
         }
 
-        public DecodeResult(Opcode opcode, Operand operand1)
+        public Operation(Opcode opcode, Operand operand1)
         {
             Opcode = opcode;
             Operand1 = operand1;
         }
         
-        public DecodeResult(Opcode opcode, Operand operand1, Operand operand2)
+        public Operation(Opcode opcode, Operand operand1, Operand operand2)
         {
             Opcode = opcode;
             Operand1 = operand1;
             Operand2 = operand2;
         }
 
-        public DecodeResult WithFlag(FlagTest flagTest)
+        public Operation WithFlag(FlagTest flagTest)
         {
             this.FlagTest = flagTest;
             return this;
         }
 
-        public DecodeResult AddLiteral(byte literal)
+        public Operation AddLiteral(byte literal)
         {
             this.ByteLiteral = literal;
             return this;
         }
 
-        public DecodeResult WithByteLiteral()
+        public Operation WithByteLiteral()
         {
             this.OpCodeMeta |= OpCodeMeta.ByteLiteral;
             return this;
         }
 
-        public DecodeResult AddLiteral(ushort literal)
+        public Operation AddLiteral(ushort literal)
         {
             this.WordLiteral = literal;
             return this;
         }
 
-        public DecodeResult WithWordLiteral()
+        public Operation WithWordLiteral()
         {
             this.OpCodeMeta |= OpCodeMeta.WordLiteral;
             return this;
         }
 
-        public DecodeResult AddDisplacement(byte displacement)
+        public Operation AddDisplacement(byte displacement)
         {
             this.Displacement = (sbyte)displacement;
             return this;
         }
 
-        public DecodeResult WithDisplacement()
+        public Operation WithDisplacement()
         {
             this.OpCodeMeta |= OpCodeMeta.Displacement;
             return this;
         }
 
-        public DecodeResult EndBlock()
+        public Operation EndBlock()
         {
             this.OpCodeMeta |= OpCodeMeta.EndBlock;
             return this;
@@ -90,16 +88,5 @@
         public sbyte Displacement { get; private set; }
 
         public OpCodeMeta OpCodeMeta { get; private set; }
-    }
-
-    [Flags]
-    internal enum OpCodeMeta
-    {
-        None = 0,
-        ByteLiteral,
-        WordLiteral,
-        Displacement,
-        EndBlock,
-        AutoCopy
     }
 }

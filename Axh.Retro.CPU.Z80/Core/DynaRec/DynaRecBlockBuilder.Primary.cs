@@ -466,7 +466,7 @@
                         else
                         {
                             yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteByte, NextWord, Xpr.A);
-                            timings.Add(3, 13);
+                            timings.Add(4, 13);
                         }
                         break;
 
@@ -1011,27 +1011,27 @@
                         timings.Add(1, 4);
                         break;
                     case PrimaryOpCode.INC_B:
-                        yield return Expression.Assign(Xpr.A, Expression.Call(Xpr.Alu, Xpr.AluIncrement, Xpr.B));
+                        yield return Expression.Assign(Xpr.B, Expression.Call(Xpr.Alu, Xpr.AluIncrement, Xpr.B));
                         timings.Add(1, 4);
                         break;
                     case PrimaryOpCode.INC_C:
-                        yield return Expression.Assign(Xpr.A, Expression.Call(Xpr.Alu, Xpr.AluIncrement, Xpr.C));
+                        yield return Expression.Assign(Xpr.C, Expression.Call(Xpr.Alu, Xpr.AluIncrement, Xpr.C));
                         timings.Add(1, 4);
                         break;
                     case PrimaryOpCode.INC_D:
-                        yield return Expression.Assign(Xpr.A, Expression.Call(Xpr.Alu, Xpr.AluIncrement, Xpr.D));
+                        yield return Expression.Assign(Xpr.D, Expression.Call(Xpr.Alu, Xpr.AluIncrement, Xpr.D));
                         timings.Add(1, 4);
                         break;
                     case PrimaryOpCode.INC_E:
-                        yield return Expression.Assign(Xpr.A, Expression.Call(Xpr.Alu, Xpr.AluIncrement, Xpr.E));
+                        yield return Expression.Assign(Xpr.E, Expression.Call(Xpr.Alu, Xpr.AluIncrement, Xpr.E));
                         timings.Add(1, 4);
                         break;
                     case PrimaryOpCode.INC_H:
-                        yield return Expression.Assign(Xpr.A, Expression.Call(Xpr.Alu, Xpr.AluIncrement, index.RegisterHighOrder));
+                        yield return Expression.Assign(index.RegisterHighOrder, Expression.Call(Xpr.Alu, Xpr.AluIncrement, index.RegisterHighOrder));
                         timings.Add(1, 4);
                         break;
                     case PrimaryOpCode.INC_L:
-                        yield return Expression.Assign(Xpr.A, Expression.Call(Xpr.Alu, Xpr.AluIncrement, index.RegisterLowOrder));
+                        yield return Expression.Assign(index.RegisterLowOrder, Expression.Call(Xpr.Alu, Xpr.AluIncrement, index.RegisterLowOrder));
                         timings.Add(1, 4);
                         break;
 
@@ -1048,27 +1048,27 @@
                         timings.Add(1, 4);
                         break;
                     case PrimaryOpCode.DEC_B:
-                        yield return Expression.Assign(Xpr.A, Expression.Call(Xpr.Alu, Xpr.AluDecrement, Xpr.B));
+                        yield return Expression.Assign(Xpr.B, Expression.Call(Xpr.Alu, Xpr.AluDecrement, Xpr.B));
                         timings.Add(1, 4);
                         break;
                     case PrimaryOpCode.DEC_C:
-                        yield return Expression.Assign(Xpr.A, Expression.Call(Xpr.Alu, Xpr.AluDecrement, Xpr.C));
+                        yield return Expression.Assign(Xpr.C, Expression.Call(Xpr.Alu, Xpr.AluDecrement, Xpr.C));
                         timings.Add(1, 4);
                         break;
                     case PrimaryOpCode.DEC_D:
-                        yield return Expression.Assign(Xpr.A, Expression.Call(Xpr.Alu, Xpr.AluDecrement, Xpr.D));
+                        yield return Expression.Assign(Xpr.D, Expression.Call(Xpr.Alu, Xpr.AluDecrement, Xpr.D));
                         timings.Add(1, 4);
                         break;
                     case PrimaryOpCode.DEC_E:
-                        yield return Expression.Assign(Xpr.A, Expression.Call(Xpr.Alu, Xpr.AluDecrement, Xpr.E));
+                        yield return Expression.Assign(Xpr.E, Expression.Call(Xpr.Alu, Xpr.AluDecrement, Xpr.E));
                         timings.Add(1, 4);
                         break;
                     case PrimaryOpCode.DEC_H:
-                        yield return Expression.Assign(Xpr.A, Expression.Call(Xpr.Alu, Xpr.AluDecrement, index.RegisterHighOrder));
+                        yield return Expression.Assign(index.RegisterHighOrder, Expression.Call(Xpr.Alu, Xpr.AluDecrement, index.RegisterHighOrder));
                         timings.Add(1, 4);
                         break;
                     case PrimaryOpCode.DEC_L:
-                        yield return Expression.Assign(Xpr.A, Expression.Call(Xpr.Alu, Xpr.AluDecrement, index.RegisterLowOrder));
+                        yield return Expression.Assign(index.RegisterLowOrder, Expression.Call(Xpr.Alu, Xpr.AluDecrement, index.RegisterLowOrder));
                         timings.Add(1, 4);
                         break;
 

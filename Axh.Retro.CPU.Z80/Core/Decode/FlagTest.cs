@@ -3,13 +3,13 @@
     internal enum FlagTest
     {
         None = 0,
-        NZ,
-        Z,
-        NC,
-        C,
-        PO,
-        PE,
-        P,
-        M
+        NotZero,
+        Zero,
+        NotCarry,
+        Carry,
+        ParityOdd,
+        ParityEven,
+        Possitive,
+        Negative
     }
 }

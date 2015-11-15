@@ -23,7 +23,7 @@
         public PrefetchQueue(IMmu mmu, ushort address)
         {
             this.mmu = mmu;
-            this.address = 0x000;
+            this.address = address;
             this.Init();
         }
 
@@ -87,6 +87,8 @@
 
         public virtual void ReBuildCache(ushort newAddress)
         {
+            // TODO: check if we can re-use this cache, make sure TotalBytesRead is still reset
+
             this.address = newAddress;
             Init();
         }

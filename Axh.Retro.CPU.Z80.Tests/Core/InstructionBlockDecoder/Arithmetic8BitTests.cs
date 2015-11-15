@@ -873,28 +873,33 @@
             {
                 case PrimaryOpCode.INC_A:
                     this.Alu.Verify(x => x.Increment(A), Times.Once);
+                    this.AfRegisters.VerifySet(x => x.A = Expected, Times.Once);
                     break;
                 case PrimaryOpCode.INC_B:
                     this.Alu.Verify(x => x.Increment(B), Times.Once);
+                    this.GpRegisters.VerifySet(x => x.B = Expected, Times.Once);
                     break;
                 case PrimaryOpCode.INC_C:
                     this.Alu.Verify(x => x.Increment(C), Times.Once);
+                    this.GpRegisters.VerifySet(x => x.C = Expected, Times.Once);
                     break;
                 case PrimaryOpCode.INC_D:
                     this.Alu.Verify(x => x.Increment(D), Times.Once);
+                    this.GpRegisters.VerifySet(x => x.D = Expected, Times.Once);
                     break;
                 case PrimaryOpCode.INC_E:
                     this.Alu.Verify(x => x.Increment(E), Times.Once);
+                    this.GpRegisters.VerifySet(x => x.E = Expected, Times.Once);
                     break;
                 case PrimaryOpCode.INC_H:
                     this.Alu.Verify(x => x.Increment(H), Times.Once);
+                    this.GpRegisters.VerifySet(x => x.H = Expected, Times.Once);
                     break;
                 case PrimaryOpCode.INC_L:
                     this.Alu.Verify(x => x.Increment(L), Times.Once);
+                    this.GpRegisters.VerifySet(x => x.L = Expected, Times.Once);
                     break;
             }
-
-            this.AfRegisters.VerifySet(x => x.A = Expected, Times.Once);
         }
 
         [Test]
@@ -960,28 +965,33 @@
             {
                 case PrimaryOpCode.DEC_A:
                     this.Alu.Verify(x => x.Decrement(A), Times.Once);
+                    this.AfRegisters.VerifySet(x => x.A = Expected, Times.Once);
                     break;
                 case PrimaryOpCode.DEC_B:
                     this.Alu.Verify(x => x.Decrement(B), Times.Once);
+                    this.GpRegisters.VerifySet(x => x.B = Expected, Times.Once);
                     break;
                 case PrimaryOpCode.DEC_C:
                     this.Alu.Verify(x => x.Decrement(C), Times.Once);
+                    this.GpRegisters.VerifySet(x => x.C = Expected, Times.Once);
                     break;
                 case PrimaryOpCode.DEC_D:
                     this.Alu.Verify(x => x.Decrement(D), Times.Once);
+                    this.GpRegisters.VerifySet(x => x.D = Expected, Times.Once);
                     break;
                 case PrimaryOpCode.DEC_E:
                     this.Alu.Verify(x => x.Decrement(E), Times.Once);
+                    this.GpRegisters.VerifySet(x => x.E = Expected, Times.Once);
                     break;
                 case PrimaryOpCode.DEC_H:
                     this.Alu.Verify(x => x.Decrement(H), Times.Once);
+                    this.GpRegisters.VerifySet(x => x.H = Expected, Times.Once);
                     break;
                 case PrimaryOpCode.DEC_L:
                     this.Alu.Verify(x => x.Decrement(L), Times.Once);
+                    this.GpRegisters.VerifySet(x => x.L = Expected, Times.Once);
                     break;
             }
-
-            this.AfRegisters.VerifySet(x => x.A = Expected, Times.Once);
         }
 
         [Test]

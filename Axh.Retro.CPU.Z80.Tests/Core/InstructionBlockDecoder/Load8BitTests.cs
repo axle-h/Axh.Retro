@@ -1082,7 +1082,7 @@
             this.ResetMocks();
             const ushort N = 0x613b;
 
-            RunWithHalt(2, 7, PrimaryOpCode.LD_mnn_A, N);
+            RunWithHalt(4, 13, PrimaryOpCode.LD_mnn_A, N);
 
             this.Mmu.Verify(x => x.WriteByte(N, A), Times.Once);
             this.AfRegisters.VerifyGet(x => x.A, Times.Once);
