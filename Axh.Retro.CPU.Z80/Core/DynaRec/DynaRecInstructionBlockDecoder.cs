@@ -9,6 +9,7 @@
     using Axh.Retro.CPU.Z80.Contracts.Registers;
     using Axh.Retro.CPU.Z80.Core.Decode;
     using Axh.Retro.CPU.Z80.Core.Timing;
+    using Axh.Retro.CPU.Z80.Util;
 
     public class DynaRecInstructionBlockDecoder<TRegisters> : IInstructionBlockDecoder<TRegisters> where TRegisters : IRegisters
     {
@@ -27,7 +28,6 @@
             this.prefetchQueue = prefetchQueue;
 
             this.timer = new InstructionTimingsBuilder();
-            //this.blockBuilder = new DynaRecBlockBuilder<TRegisters>(platformConfig.CpuMode, prefetchQueue, instructionTimingsBuilder);
 
             this.decoder = new OpCodeDecoder(platformConfig, prefetchQueue, timer);
             this.dynarec = new DynaRec<TRegisters>(platformConfig, prefetchQueue);
@@ -45,9 +45,7 @@
             var block = new DynaRecInstructionBlock<TRegisters>(address, (ushort)prefetchQueue.TotalBytesRead, lambda.Compile(), timer.GetInstructionTimings(), dynarec.LastDecodeResult);
             if (this.debugInfo)
             {
-                // TODO: Expression.ToString() is rubbish. The DebugView ExpressionVisitor is also internal to System.Linq.Expressions.
-                // TODO: Re-implement System.Linq.Expressions.DebugViewWriter http://referencesource.microsoft.com/#System.Core/Microsoft/Scripting/Ast/DebugViewWriter.cs
-                block.DebugInfo = $"{string.Join("\n", operations.Select(x => x.ToString()))}\n\n{lambda}";
+                block.DebugInfo = $"{string.Join("\n", operations.Select(x => x.ToString()))}\n\n{lambda.DebugView()}";
             }
 
             return block;

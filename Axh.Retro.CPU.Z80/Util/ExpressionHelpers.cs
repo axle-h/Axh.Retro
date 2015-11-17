@@ -2,6 +2,8 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
+    using System.IO;
     using System.Linq.Expressions;
     using System.Reflection;
 
@@ -102,6 +104,15 @@
             }
 
             return outermostExpression.Method;
+        }
+
+        public static string DebugView(this Expression expression)
+        {
+            using (var writer = new StringWriter(CultureInfo.CurrentCulture))
+            {
+                DebugViewWriter.WriteTo(expression, writer);
+                return writer.ToString();
+            }
         }
     }
 }

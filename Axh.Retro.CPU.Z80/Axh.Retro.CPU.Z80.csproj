@@ -82,6 +82,7 @@
     <Compile Include="Util\ByteExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Core\DynaRec\DynaRecInstructionBlockDecoder.cs" />
+    <Compile Include="Util\DebugViewWriter.cs" />
     <Compile Include="Util\ExpressionHelpers.cs" />
   </ItemGroup>
   <ItemGroup />

@@ -39,7 +39,9 @@
         {
             timer.Reset();
             index = indexRegisterOperands[IndexRegister.HL];
-            
+            this.prefetch.ReBuildCache(address);
+            var totalBytesRead = 0;
+
             while (true)
             {
                 var result = DecodePrimary();
@@ -72,8 +74,11 @@
                     yield break;
                 }
 
+                
                 index = this.indexRegisterOperands[IndexRegister.HL];
-                address += (ushort)(prefetch.TotalBytesRead - address);
+                var opBytes = prefetch.TotalBytesRead - totalBytesRead;
+                address += (ushort)(opBytes);
+                totalBytesRead += opBytes;
             }
         }
         
