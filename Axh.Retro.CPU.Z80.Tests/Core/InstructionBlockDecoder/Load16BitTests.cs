@@ -292,33 +292,28 @@
             this.ResetMocks();
 
             RunWithHalt(3, 11, opCode);
-
-            const ushort SP1 = unchecked((ushort)(SP - 1));
-            const ushort SP2 = unchecked((ushort)(SP1 - 1));
+            
+            const ushort SP2 = unchecked((ushort)(SP - 2));
             
             switch (opCode)
             {
                 case PrimaryOpCode.PUSH_BC:
-                    this.Mmu.Verify(x => x.WriteByte(SP1, B), Times.Once);
-                    this.Mmu.Verify(x => x.WriteByte(SP2, C), Times.Once);
+                    this.Mmu.Verify(x => x.WriteWord(SP2, BC), Times.Once);
                     break;
                 case PrimaryOpCode.PUSH_DE:
-                    this.Mmu.Verify(x => x.WriteByte(SP1, D), Times.Once);
-                    this.Mmu.Verify(x => x.WriteByte(SP2, E), Times.Once);
+                    this.Mmu.Verify(x => x.WriteWord(SP2, DE), Times.Once);
                     break;
                 case PrimaryOpCode.PUSH_HL:
-                    this.Mmu.Verify(x => x.WriteByte(SP1, H), Times.Once);
-                    this.Mmu.Verify(x => x.WriteByte(SP2, L), Times.Once);
+                    this.Mmu.Verify(x => x.WriteWord(SP2, HL), Times.Once);
                     break;
                 case PrimaryOpCode.PUSH_AF:
-                    this.Mmu.Verify(x => x.WriteByte(SP1, A), Times.Once);
-                    this.Mmu.Verify(x => x.WriteByte(SP2, F), Times.Once);
+                    this.Mmu.Verify(x => x.WriteWord(SP2, AF), Times.Once);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(opCode));
             }
             
-            this.Registers.VerifySet(x => x.StackPointer = It.Is<ushort>(y => y == SP2), Times.Once);
+            this.Registers.VerifySet(x => x.StackPointer = SP2, Times.Once);
             Assert.AreEqual(SP2, this.Registers.Object.StackPointer);
         }
 
@@ -327,16 +322,14 @@
         {
             this.SetupRegisters();
             this.ResetMocks();
-
-            const ushort SP1 = unchecked((ushort)(SP - 1));
-            const ushort SP2 = unchecked((ushort)(SP1 - 1));
+            
+            const ushort SP2 = unchecked((ushort)(SP - 2));
 
             RunWithHalt(4, 15, PrimaryOpCode.Prefix_DD, PrimaryOpCode.PUSH_HL);
-
-            this.Mmu.Verify(x => x.WriteByte(SP1, IXh), Times.Once);
-            this.Mmu.Verify(x => x.WriteByte(SP2, IXl), Times.Once);
             
-            this.Registers.VerifySet(x => x.StackPointer = It.Is<ushort>(y => y == SP2), Times.Once);
+            this.Mmu.Verify(x => x.WriteWord(SP2, IX), Times.Once);
+            
+            this.Registers.VerifySet(x => x.StackPointer = SP2, Times.Once);
             Assert.AreEqual(SP2, this.Registers.Object.StackPointer);
         }
 
@@ -346,15 +339,13 @@
             this.SetupRegisters();
             this.ResetMocks();
 
-            const ushort SP1 = unchecked((ushort)(SP - 1));
-            const ushort SP2 = unchecked((ushort)(SP1 - 1));
+            const ushort SP2 = unchecked((ushort)(SP - 2));
 
             RunWithHalt(4, 15, PrimaryOpCode.Prefix_FD, PrimaryOpCode.PUSH_HL);
 
-            this.Mmu.Verify(x => x.WriteByte(SP1, IYh), Times.Once);
-            this.Mmu.Verify(x => x.WriteByte(SP2, IYl), Times.Once);
+            this.Mmu.Verify(x => x.WriteWord(SP2, IY), Times.Once);
 
-            this.Registers.VerifySet(x => x.StackPointer = It.Is<ushort>(y => y == SP2), Times.Once);
+            this.Registers.VerifySet(x => x.StackPointer = SP2, Times.Once);
             Assert.AreEqual(SP2, this.Registers.Object.StackPointer);
         }
 
@@ -366,44 +357,36 @@
         {
             this.SetupRegisters();
             this.ResetMocks();
+            
+            const ushort SP2 = unchecked((ushort)(SP + 2));
 
-            const ushort SP1 = unchecked((ushort)(SP + 1));
-            const ushort SP2 = unchecked((ushort)(SP1 + 1));
+            const ushort Value = 0x1234;
 
-            const byte Value1 = 0x12;
-            const byte Value2 = 0x34;
-
-            this.Mmu.Setup(x => x.ReadByte(SP)).Returns(Value1);
-            this.Mmu.Setup(x => x.ReadByte(SP1)).Returns(Value2);
+            this.Mmu.Setup(x => x.ReadWord(SP)).Returns(Value);
 
             RunWithHalt(3, 10, opCode);
 
-            this.Mmu.Verify(x => x.ReadByte(SP), Times.Once);
-            this.Mmu.Verify(x => x.ReadByte(SP1), Times.Once);
+            this.Mmu.Verify(x => x.ReadWord(SP), Times.Once);
 
             switch (opCode)
             {
                 case PrimaryOpCode.POP_BC:
-                    this.GpRegisters.VerifySet(x => x.B = It.Is<byte>(y => y == Value2), Times.Once);
-                    this.GpRegisters.VerifySet(x => x.C = It.Is<byte>(y => y == Value1), Times.Once);
+                    this.GpRegisters.VerifySet(x => x.BC = Value, Times.Once);
                     break;
                 case PrimaryOpCode.POP_DE:
-                    this.GpRegisters.VerifySet(x => x.D = It.Is<byte>(y => y == Value2), Times.Once);
-                    this.GpRegisters.VerifySet(x => x.E = It.Is<byte>(y => y == Value1), Times.Once);
+                    this.GpRegisters.VerifySet(x => x.DE = Value, Times.Once);
                     break;
                 case PrimaryOpCode.POP_HL:
-                    this.GpRegisters.VerifySet(x => x.H = It.Is<byte>(y => y == Value2), Times.Once);
-                    this.GpRegisters.VerifySet(x => x.L = It.Is<byte>(y => y == Value1), Times.Once);
+                    this.GpRegisters.VerifySet(x => x.HL = Value, Times.Once);
                     break;
                 case PrimaryOpCode.POP_AF:
-                    this.AfRegisters.VerifySet(x => x.A = It.Is<byte>(y => y == Value2), Times.Once);
-                    this.FlagsRegister.VerifySet(x => x.Register = It.Is<byte>(y => y == Value1), Times.Once);
+                    this.AfRegisters.VerifySet(x => x.AF = Value, Times.Once);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(opCode));
             }
 
-            this.Registers.VerifySet(x => x.StackPointer = It.Is<ushort>(y => y == SP2), Times.Once);
+            this.Registers.VerifySet(x => x.StackPointer = SP2, Times.Once);
             Assert.AreEqual(SP2, this.Registers.Object.StackPointer);
         }
 
@@ -414,7 +397,6 @@
             this.ResetMocks();
             
             const ushort SP2 = unchecked((ushort)(SP + 2));
-
             const ushort Value = 0x1234;
 
             this.Mmu.Setup(x => x.ReadWord(SP)).Returns(Value);
@@ -436,24 +418,18 @@
             this.SetupRegisters();
             this.ResetMocks();
 
-            const ushort SP1 = unchecked((ushort)(SP + 1));
-            const ushort SP2 = unchecked((ushort)(SP1 + 1));
+            const ushort SP2 = unchecked((ushort)(SP + 2));
+            const ushort Value = 0x1234;
 
-            const byte Value1 = 0x12;
-            const byte Value2 = 0x34;
-
-            this.Mmu.Setup(x => x.ReadByte(SP)).Returns(Value1);
-            this.Mmu.Setup(x => x.ReadByte(SP1)).Returns(Value2);
+            this.Mmu.Setup(x => x.ReadWord(SP)).Returns(Value);
 
             RunWithHalt(4, 14, PrimaryOpCode.Prefix_FD, PrimaryOpCode.POP_HL);
 
-            this.Mmu.Verify(x => x.ReadByte(SP), Times.Once);
-            this.Mmu.Verify(x => x.ReadByte(SP1), Times.Once);
+            this.Mmu.Verify(x => x.ReadWord(SP), Times.Once);
 
-            this.Registers.VerifySet(x => x.IYh = It.Is<byte>(y => y == Value2), Times.Once);
-            this.Registers.VerifySet(x => x.IYl = It.Is<byte>(y => y == Value1), Times.Once);
+            this.Registers.VerifySet(x => x.IY = Value, Times.Once);
 
-            this.Registers.VerifySet(x => x.StackPointer = It.Is<ushort>(y => y == SP2), Times.Once);
+            this.Registers.VerifySet(x => x.StackPointer = SP2, Times.Once);
             Assert.AreEqual(SP2, this.Registers.Object.StackPointer);
         }
     }

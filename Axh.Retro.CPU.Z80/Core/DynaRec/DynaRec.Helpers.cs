@@ -59,6 +59,8 @@
                     return Xpr.BC;
                 case Operand.DE:
                     return Xpr.DE;
+                case Operand.AF:
+                    return Xpr.AF;
                 case Operand.SP:
                     return Xpr.SP;
                 case Operand.mHL:
@@ -152,6 +154,8 @@
                     return Expression.Assign(Xpr.DE, value);
                 case Operand.SP:
                     return Expression.Assign(Xpr.SP, value);
+                case Operand.AF:
+                    return Expression.Assign(Xpr.AF, value);
                 case Operand.mHL:
                     return Expression.Call(Xpr.Mmu, is16Bit ? Xpr.MmuWriteWord : Xpr.MmuWriteByte, Xpr.HL, value);
                 case Operand.mBC:

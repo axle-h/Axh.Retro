@@ -50,6 +50,7 @@
         public readonly Expression BC;
         public readonly Expression DE;
         public readonly Expression HL;
+        public readonly Expression AF;
         public readonly Expression PC;
 
         // Stack pointer stuff
@@ -194,6 +195,7 @@
             A = accumulatorAndFlagsRegisters.GetPropertyExpression<IAccumulatorAndFlagsRegisterSet, byte>(r => r.A);
             Flags = accumulatorAndFlagsRegisters.GetPropertyExpression<IAccumulatorAndFlagsRegisterSet, IFlagsRegister>(r => r.Flags);
             F = Flags.GetPropertyExpression<IFlagsRegister, byte>(r => r.Register);
+            AF = accumulatorAndFlagsRegisters.GetPropertyExpression<IAccumulatorAndFlagsRegisterSet, ushort>(r => r.AF);
             Sign = Flags.GetPropertyExpression<IFlagsRegister, bool>(r => r.Sign);
             Zero = Flags.GetPropertyExpression<IFlagsRegister, bool>(r => r.Zero);
             Flag5 = Flags.GetPropertyExpression<IFlagsRegister, bool>(r => r.Flag5);

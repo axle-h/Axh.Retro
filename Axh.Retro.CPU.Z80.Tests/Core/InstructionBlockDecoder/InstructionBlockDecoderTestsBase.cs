@@ -43,6 +43,7 @@
         protected const ushort DE = 0xddee;
         protected const ushort HL = 0x4477;
         protected const ushort SP = 0xf000;
+        protected const ushort AF = 0xaaff;
 
         protected const ushort PC = 0x0480;
 
@@ -127,6 +128,7 @@
             this.Registers.SetupProperty(x => x.StackPointer, SP);
 
             this.AfRegisters.SetupProperty(x => x.A, A);
+            this.AfRegisters.SetupProperty(x => x.AF, AF);
 
             this.FlagsRegister.SetupProperty(x => x.Register, F);
             this.FlagsRegister.SetupProperty(x => x.Sign, false);
