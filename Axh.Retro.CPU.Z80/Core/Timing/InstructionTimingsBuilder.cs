@@ -115,9 +115,7 @@
             ThrottlingStates += ApplyDisplacementThrottlingStates;
             return this;
         }
-
-
-
+        
         public InstructionTimings GetInstructionTimings()
         {
             return new InstructionTimings { MachineCycles = MachineCycles, ThrottlingStates = ThrottlingStates };

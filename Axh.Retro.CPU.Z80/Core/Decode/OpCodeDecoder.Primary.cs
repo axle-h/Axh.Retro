@@ -372,7 +372,7 @@
                     {
                         // Runs as LD (nn),SP on GB
                         timer.IndexAndMmuWord();
-                        return new Operation(Opcode.Load, Operand.mnn, Operand.SP).WithWordLiteral();
+                        return new Operation(Opcode.Load16, Operand.mnn, Operand.SP).WithWordLiteral();
                     }
 
                     return new Operation(Opcode.ExchangeAccumulatorAndFlags);
@@ -772,7 +772,7 @@
                     if (this.cpuMode == CpuMode.GameBoy)
                     {
                         // Runs as STOP on GB
-                        return new Operation(Opcode.Stop);
+                        return new Operation(Opcode.Stop).EndBlock();
                     }
 
                     timer.Extend(1).MmuByte();
@@ -856,9 +856,9 @@
                 case PrimaryOpCode.RET_PE:
                     if (this.cpuMode == CpuMode.GameBoy)
                     {
-                        // Runs as ADD SP, dd on GB
+                        // Runs as LD SP, SP+d on GB
                         timer.MmuByte().Arithmetic16();
-                        return new Operation(Opcode.Add16, Operand.SP, Operand.SPd).WithByteLiteral();
+                        return new Operation(Opcode.Load16, Operand.SP, Operand.SPd).WithByteLiteral();
                     }
 
                     timer.Extend(1);

@@ -24,10 +24,11 @@
                 // Only BIT has no autocopy
                 // Add autocopy timings
                 result.AutoCopy();
-                timer.IndexAndMmuByte(true).MmuWord().Extend(1);
+                timer.IndexAndMmuByte(true);
             }
 
-            timer.IndexAndMmuByte(false).Extend(2);
+
+            timer.ApplyDisplacement().MmuByte();
             return result;
         }
 
@@ -604,8 +605,12 @@
             return new Operation(Opcode.BitReset, index.Index).AddLiteral((byte)bit);
         }
 
-        private static Operation BitReset(Operand register, int bit)
+        private Operation BitReset(Operand register, int bit)
         {
+            if (index.IsDisplaced)
+            {
+                timer.MmuWord().Extend(1);
+            }
             return new Operation(Opcode.BitReset, register).AddLiteral((byte)bit);
         }
 
@@ -616,8 +621,12 @@
             return new Operation(Opcode.BitSet, index.Index).AddLiteral((byte)bit);
         }
 
-        private static Operation BitSet(Operand register, int bit)
+        private Operation BitSet(Operand register, int bit)
         {
+            if (index.IsDisplaced)
+            {
+                timer.MmuWord().Extend(1);
+            }
             return new Operation(Opcode.BitSet, register).AddLiteral((byte)bit);
         }
 
@@ -625,7 +634,7 @@
         {
             if (index.IsDisplaced)
             {
-                timer.MmuWord().Extend(2);
+                timer.ApplyDisplacement().MmuByte();
             }
             else
             {

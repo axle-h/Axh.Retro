@@ -165,7 +165,7 @@
             this.Io.ResetCalls();
         }
 
-        protected void Run(int expectedMachineCycles, int expectedThrottlingStates, params object[] bytes)
+        protected void Run(int expectedMachineCycles, int? expectedThrottlingStates, params object[] bytes)
         {
             var length = 0;
             var queue = new Queue(bytes);
@@ -191,7 +191,11 @@
             var timings = block.ExecuteInstructionBlock(this.Registers.Object, this.Mmu.Object, this.Alu.Object, this.Io.Object);
 
             Assert.AreEqual(expectedMachineCycles, timings.MachineCycles);
-            Assert.AreEqual(expectedThrottlingStates, timings.ThrottlingStates);
+
+            if (expectedThrottlingStates.HasValue)
+            {
+                Assert.AreEqual(expectedThrottlingStates.Value, timings.ThrottlingStates);
+            }
 
             // Make sure all bytes were read
             this.Cache.Verify(
@@ -200,7 +204,7 @@
             this.Cache.Verify(x => x.NextWord(), Times.Exactly(bytes.Count(x => x is ushort)));
         }
         
-        protected void RunWithHalt(int expectedMachineCycles, int expectedThrottlingStates, params object[] bytes)
+        protected void RunWithHalt(int expectedMachineCycles, int? expectedThrottlingStates, params object[] bytes)
         {
             // Add halt
             var opcodes = new object[bytes.Length + 1];

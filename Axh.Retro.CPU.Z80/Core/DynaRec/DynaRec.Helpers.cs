@@ -1,6 +1,8 @@
 ﻿namespace Axh.Retro.CPU.Z80.Core.DynaRec
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
 
@@ -20,28 +22,7 @@
             public Expression High { get; }
             public Expression Low { get; }
         }
-
-        private HighLowExpressionPair ToHighLowExpressionPair(Operand operand)
-        {
-            switch (operand)
-            {
-                case Operand.HL:
-                    return new HighLowExpressionPair(Xpr.H, Xpr.L);
-                case Operand.BC:
-                    return new HighLowExpressionPair(Xpr.B, Xpr.C);
-                case Operand.DE:
-                    return new HighLowExpressionPair(Xpr.D, Xpr.E);
-                case Operand.AF:
-                    return new HighLowExpressionPair(Xpr.A, Xpr.F);
-                case Operand.IX:
-                    return new HighLowExpressionPair(Xpr.IXh, Xpr.IXl);
-                case Operand.IY:
-                    return new HighLowExpressionPair(Xpr.IYh, Xpr.IYl);
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(operand), operand, null);
-            }
-        }
-
+        
         private Expression ReadOperand1(Operation operation, bool is16Bit = false)
         {
             return ReadOperand(operation, operation.Operand1, is16Bit);
@@ -243,10 +224,116 @@
             }
         }
 
+        public Expression GetDynamicTimings(int mCycles, int tStates)
+        {
+            return Expression.Call(Xpr.DynamicTimer, Xpr.DynamicTimerAdd, Expression.Constant(mCycles), Expression.Constant(tStates));
+        }
+
+        public Expression GetMemoryRefreshDeltaExpression(Expression deltaExpression)
+        {
+            var increment7LsbR = Expression.And(Expression.Add(Expression.Convert(Xpr.R, typeof(int)), deltaExpression), Expression.Constant(0x7f));
+            return Expression.Assign(Xpr.R, Expression.Convert(increment7LsbR, typeof(byte)));
+        }
+
         private Expression JumpToDisplacement(Operation operation)
         {
             return Expression.Assign(Xpr.PC, Expression.Convert(Expression.Add(Expression.Convert(Xpr.PC, typeof(int)), ReadOperand1(operation, true)), typeof(ushort)));
         }
 
+        private IEnumerable<Expression> GetLdExpressions(bool decrement = false)
+        {
+            yield return Expression.Call(Xpr.Mmu, Xpr.MmuTransferByte, Xpr.HL, Xpr.DE);
+            yield return decrement ? Expression.PreDecrementAssign(Xpr.HL) : Expression.PreIncrementAssign(Xpr.HL);
+            yield return decrement ? Expression.PreDecrementAssign(Xpr.DE) : Expression.PreIncrementAssign(Xpr.DE);
+            yield return Expression.PreDecrementAssign(Xpr.BC);
+            yield return Expression.Assign(Xpr.HalfCarry, Expression.Constant(false));
+            yield return Expression.Assign(Xpr.ParityOverflow, Expression.NotEqual(Xpr.BC, Expression.Constant((ushort)0)));
+            yield return Expression.Assign(Xpr.Subtract, Expression.Constant(false));
+        }
+
+        private IEnumerable<Expression> GetLdrExpressions(bool decrement = false)
+        {
+            var breakLabel = Expression.Label();
+            yield return
+                Expression.Loop(
+                    Expression.Block(
+                        Expression.Call(Xpr.Mmu, Xpr.MmuTransferByte, Xpr.HL, Xpr.DE),
+                        decrement ? Expression.PreDecrementAssign(Xpr.HL) : Expression.PreIncrementAssign(Xpr.HL),
+                        decrement ? Expression.PreDecrementAssign(Xpr.DE) : Expression.PreIncrementAssign(Xpr.DE),
+                        Expression.PreDecrementAssign(Xpr.BC),
+                        Expression.IfThen(Expression.Equal(Xpr.BC, Expression.Constant((ushort)0)), Expression.Break(breakLabel)),
+                        GetDynamicTimings(5, 21),
+                        GetMemoryRefreshDeltaExpression(Expression.Constant(2))), // This function actually decreases the PC by two for each 'loop' hence need more refresh cycles.
+                    breakLabel);
+
+            yield return Expression.Assign(Xpr.HalfCarry, Expression.Constant(false));
+            yield return Expression.Assign(Xpr.ParityOverflow, Expression.Constant(false));
+            yield return Expression.Assign(Xpr.Subtract, Expression.Constant(false));
+        }
+
+        public IEnumerable<Expression> GetCpExpressions(bool decrement = false)
+        {
+            yield return Expression.Call(Xpr.Alu, Xpr.AluCompare, Xpr.A, Expression.Call(Xpr.Mmu, Xpr.MmuReadByte, Xpr.HL));
+            yield return decrement ? Expression.PreDecrementAssign(Xpr.HL) : Expression.PreIncrementAssign(Xpr.HL);
+            yield return Expression.PreDecrementAssign(Xpr.BC);
+        }
+
+        public Expression GetCprExpression(bool decrement = false)
+        {
+            var breakLabel = Expression.Label();
+            var expressions = GetCpExpressions(decrement);
+            var iterationExpressions = new[]
+                                       {
+                                           Expression.IfThen(Expression.OrElse(Expression.Equal(Xpr.BC, Expression.Constant((ushort)0)), Xpr.Zero), Expression.Break(breakLabel)), GetDynamicTimings(5, 21),
+                                           GetMemoryRefreshDeltaExpression(Expression.Constant(2))
+                                       };
+            return Expression.Loop(Expression.Block(expressions.Concat(iterationExpressions).ToArray()), breakLabel);
+        }
+
+        public IEnumerable<Expression> GetInExpressions(bool decrement = false)
+        {
+            yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteByte, Xpr.HL, Expression.Call(Xpr.IO, Xpr.IoReadByte, Xpr.C, Xpr.B));
+            yield return decrement ? Expression.PreDecrementAssign(Xpr.HL) : Expression.PreIncrementAssign(Xpr.HL);
+            yield return Expression.Assign(Xpr.B, Expression.Convert(Expression.Subtract(Expression.Convert(Xpr.B, typeof(int)), Expression.Constant(1)), typeof(byte)));
+            yield return Expression.Assign(Xpr.Subtract, Expression.Constant(true));
+            yield return Expression.Call(Xpr.Flags, Xpr.SetResultFlags, Xpr.B);
+        }
+
+        public Expression GetInrExpression(bool decrement = false)
+        {
+            var breakLabel = Expression.Label();
+
+            var expressions = GetInExpressions(decrement);
+            var iterationExpressions = new[]
+                                       {
+                                           Expression.IfThen(Expression.Equal(Xpr.B, Expression.Constant((byte)0)), Expression.Break(breakLabel)), GetDynamicTimings(5, 21),
+                                           GetMemoryRefreshDeltaExpression(Expression.Constant(2))
+                                       };
+
+            return Expression.Loop(Expression.Block(expressions.Concat(iterationExpressions).ToArray()), breakLabel);
+        }
+
+        public IEnumerable<Expression> GetOutExpressions(bool decrement = false)
+        {
+            yield return Expression.Call(Xpr.IO, Xpr.IoWriteByte, Xpr.C, Xpr.B, Xpr.ReadByteAtHL);
+            yield return decrement ? Expression.PreDecrementAssign(Xpr.HL) : Expression.PreIncrementAssign(Xpr.HL);
+            yield return Expression.Assign(Xpr.B, Expression.Convert(Expression.Subtract(Expression.Convert(Xpr.B, typeof(int)), Expression.Constant(1)), typeof(byte)));
+            yield return Expression.Assign(Xpr.Subtract, Expression.Constant(true));
+            yield return Expression.Call(Xpr.Flags, Xpr.SetResultFlags, Xpr.B);
+        }
+
+        public Expression GetOutrExpression(bool decrement = false)
+        {
+            var breakLabel = Expression.Label();
+
+            var expressions = GetOutExpressions(decrement);
+            var iterationExpressions = new[]
+                                       {
+                                           Expression.IfThen(Expression.Equal(Xpr.B, Expression.Constant((byte)0)), Expression.Break(breakLabel)), GetDynamicTimings(5, 21),
+                                           GetMemoryRefreshDeltaExpression(Expression.Constant(2))
+                                       };
+
+            return Expression.Loop(Expression.Block(expressions.Concat(iterationExpressions).ToArray()), breakLabel);
+        }
     }
 }

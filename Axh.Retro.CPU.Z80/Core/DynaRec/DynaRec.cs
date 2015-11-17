@@ -25,6 +25,10 @@
 
         private bool usesDynamicTimings;
 
+        private bool usesLocalWord;
+
+        private bool usesAccumulatorAndResult;
+
         private Expression SyncProgramCounter => Expression.Assign(Xpr.PC, Expression.Convert(Expression.Add(Expression.Convert(Xpr.PC, typeof(int)), Expression.Constant(this.prefetch.TotalBytesRead)), typeof(ushort)));
 
         public DynaRec(IPlatformConfig platformConfig, IPrefetchQueue prefetch)
@@ -38,6 +42,10 @@
 
         public Expression<Func<TRegisters, IMmu, IAlu, IPeripheralManager, InstructionTimings>> BuildExpressionTree(IEnumerable<Operation> operations)
         {
+            this.usesDynamicTimings = false;
+            this.usesLocalWord = false;
+            this.usesAccumulatorAndResult = false;
+
             // Run this first so we know what iinit & final expressions to add.
             var blockExpressions = operations.SelectMany(Recompile).ToArray();
             var initExpressions = GetBlockInitExpressions();
@@ -53,15 +61,17 @@
         
         private IEnumerable<ParameterExpression> GeParameterExpressions()
         {
-            yield return Xpr.LocalByte;
-            yield return Xpr.LocalWord;
+            if (this.usesLocalWord)
+            {
+                yield return Xpr.LocalWord;
+            }
 
             if (usesDynamicTimings)
             {
                 yield return Xpr.DynamicTimer;
             }
 
-            if (cpuMode == CpuMode.Z80)
+            if (this.usesAccumulatorAndResult)
             {
                 // Z80 supports some opcodes that manipulate the accumulator and a result in memory at the same time.
                 yield return Xpr.AccumulatorAndResult;
@@ -91,7 +101,7 @@
                 var blockLengthExpression = Expression.Constant(prefetch.TotalBytesRead, typeof(int));
 
                 // Update Z80 specific memory refresh register
-                yield return Xpr.GetMemoryRefreshDeltaExpression(blockLengthExpression);
+                yield return GetMemoryRefreshDeltaExpression(blockLengthExpression);
             }
 
             var returnTarget = Expression.Label(typeof(InstructionTimings), "InstructionTimings_Return");

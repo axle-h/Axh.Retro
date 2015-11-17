@@ -63,9 +63,6 @@
     <Compile Include="Core\DynaRec\IndexRegisterExpressions.cs" />
     <Compile Include="Core\InterruptManager.cs" />
     <Compile Include="Core\Timing\InstructionTimingsBuilder.cs" />
-    <Compile Include="Core\DynaRec\DynaRecBlockBuilder.cs" />
-    <Compile Include="Core\DynaRec\DynaRecBlockBuilder.PrefixEd.cs" />
-    <Compile Include="Core\DynaRec\DynaRecBlockBuilder.Primary.cs" />
     <Compile Include="Core\DynaRec\DynaRecExpressions.cs" />
     <Compile Include="Core\Interpreted\InterpretedInstructionBlockDecoder.cs" />
     <Compile Include="Core\Timing\MachineCycleTimer.cs" />
@@ -101,15 +98,6 @@
       <Project>{15e8bff0-aa13-420f-8527-9187a37f6360}</Project>
       <Name>Axh.Retro.CPU.Z80.Contracts</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Core\DynaRec\DynaRecBlockBuilder.PrefixCb.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Core\DynaRec\DynaRecBlockBuilder.PrefixDdFd.PrefixCb.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Core\DynaRec\DynaRecBlockBuilder.Helpers.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

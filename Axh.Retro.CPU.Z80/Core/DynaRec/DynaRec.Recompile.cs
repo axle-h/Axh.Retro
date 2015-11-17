@@ -42,23 +42,13 @@
                     break;
 
                 case Opcode.Push:
-                    {
-                        var pair = ToHighLowExpressionPair(operation.Operand1);
-                        yield return Xpr.PushSP;
-                        yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteByte, Xpr.SP, pair.High);
-                        yield return Xpr.PushSP;
-                        yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteByte, Xpr.SP, pair.Low);
-                    }
+                    yield return Xpr.PushSP;
+                    yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteWord, Xpr.SP, ReadOperand1(operation, true));
                     break;
 
                 case Opcode.Pop:
-                    {
-                        var pair = ToHighLowExpressionPair(operation.Operand1);
-                        yield return Expression.Assign(pair.Low, Expression.Call(Xpr.Mmu, Xpr.MmuReadByte, Xpr.SP));
-                        yield return Xpr.PopSP;
-                        yield return Expression.Assign(pair.High, Expression.Call(Xpr.Mmu, Xpr.MmuReadByte, Xpr.SP));
-                        yield return Xpr.PopSP;
-                    }
+                    yield return WriteOperand1(operation, Expression.Call(Xpr.Mmu, Xpr.MmuReadWord, Xpr.SP), true);
+                    yield return Xpr.PopSP;
                     break;
 
                 case Opcode.Add:
@@ -124,6 +114,7 @@
                     break;
 
                 case Opcode.Exchange:
+                    this.usesLocalWord = true;
                     yield return Expression.Assign(Xpr.LocalWord, ReadOperand2(operation, true));
                     yield return WriteOperand2(operation, ReadOperand1(operation, true), true);
                     yield return WriteOperand1(operation, Xpr.LocalWord, true);
@@ -157,7 +148,7 @@
                     else
                     {
                         this.usesDynamicTimings = true;
-                        yield return Expression.IfThen(GetFlagTestExpression(operation.FlagTest), Expression.Block(JumpToDisplacement(operation), Xpr.GetDynamicTimings(1, 5)));
+                        yield return Expression.IfThen(GetFlagTestExpression(operation.FlagTest), Expression.Block(JumpToDisplacement(operation), GetDynamicTimings(1, 5)));
                     }
                     LastDecodeResult = DecodeResult.FinalizeAndSync;
                     break;
@@ -165,7 +156,7 @@
                 case Opcode.DecrementJumpRelativeIfNonZero:
                     this.usesDynamicTimings = true;
                     yield return Expression.Assign(Xpr.B, Expression.Convert(Expression.Decrement(Expression.Convert(Xpr.B, typeof(int))), typeof(byte)));
-                    yield return Expression.IfThen(Expression.NotEqual(Xpr.B, Expression.Constant((byte)0)), Expression.Block(JumpToDisplacement(operation), Xpr.GetDynamicTimings(1, 5)));
+                    yield return Expression.IfThen(Expression.NotEqual(Xpr.B, Expression.Constant((byte)0)), Expression.Block(JumpToDisplacement(operation), GetDynamicTimings(1, 5)));
                     LastDecodeResult = DecodeResult.FinalizeAndSync;
                     break;
 
@@ -174,7 +165,7 @@
 
                     if (operation.FlagTest == FlagTest.None)
                     {
-                        yield return Xpr.PushPushSP;
+                        yield return Xpr.PushSP;
                         yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteWord, Xpr.SP, Xpr.PC);
                         yield return Expression.Assign(Xpr.PC, ReadOperand1(operation));
                     }
@@ -184,7 +175,7 @@
                         yield return
                             Expression.IfThen(
                                 GetFlagTestExpression(operation.FlagTest),
-                                Expression.Block(Xpr.PushPushSP, Xpr.WritePCToStack, Expression.Assign(Xpr.PC, ReadOperand1(operation)), Xpr.GetDynamicTimings(2, 7)));
+                                Expression.Block(Xpr.PushSP, Xpr.WritePCToStack, Expression.Assign(Xpr.PC, ReadOperand1(operation)), GetDynamicTimings(2, 7)));
                     }
                     LastDecodeResult = DecodeResult.Finalize;
                     break;
@@ -193,32 +184,32 @@
                     if (operation.FlagTest == FlagTest.None)
                     {
                         yield return Xpr.ReadPCFromStack;
-                        yield return Xpr.PopPopSP;
+                        yield return Xpr.PopSP;
                     }
                     else
                     {
                         this.usesDynamicTimings = true;
-                        yield return Expression.IfThenElse(GetFlagTestExpression(operation.FlagTest), Expression.Block(Xpr.ReadPCFromStack, Xpr.PopPopSP, Xpr.GetDynamicTimings(2, 6)), SyncProgramCounter);
+                        yield return Expression.IfThenElse(GetFlagTestExpression(operation.FlagTest), Expression.Block(Xpr.ReadPCFromStack, Xpr.PopSP, GetDynamicTimings(2, 6)), SyncProgramCounter);
                     }
                     LastDecodeResult = DecodeResult.Finalize;
                     break;
 
                 case Opcode.ReturnFromInterrupt:
                     yield return Xpr.ReadPCFromStack;
-                    yield return Xpr.PopPopSP;
+                    yield return Xpr.PopSP;
                     LastDecodeResult = DecodeResult.Finalize;
                     break;
 
                 case Opcode.ReturnFromNonmaskableInterrupt:
                     yield return Xpr.ReadPCFromStack;
-                    yield return Xpr.PopPopSP;
+                    yield return Xpr.PopSP;
                     yield return Expression.Assign(Xpr.IFF1, Xpr.IFF2);
                     LastDecodeResult = DecodeResult.Finalize;
                     break;
 
                 case Opcode.Reset:
                     yield return SyncProgramCounter;
-                    yield return Xpr.PushPushSP;
+                    yield return Xpr.PushSP;
                     yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteWord, Xpr.SP, Xpr.PC);
                     yield return Expression.Assign(Xpr.PC, ReadOperand1(operation, true));
                     LastDecodeResult = DecodeResult.Finalize;
@@ -249,12 +240,14 @@
                     break;
 
                 case Opcode.RotateLeftDigit:
+                    this.usesAccumulatorAndResult = true;
                     yield return Expression.Assign(Xpr.AccumulatorAndResult, Expression.Call(Xpr.Alu, Xpr.AluRotateLeftDigit, Xpr.A, Xpr.ReadByteAtHL));
                     yield return Expression.Assign(Xpr.A, Xpr.AccumulatorAndResult_Accumulator);
                     yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteByte, Xpr.HL, Xpr.AccumulatorAndResult_Result);
                     break;
 
                 case Opcode.RotateRightDigit:
+                    this.usesAccumulatorAndResult = true;
                     yield return Expression.Assign(Xpr.AccumulatorAndResult, Expression.Call(Xpr.Alu, Xpr.AluRotateRightDigit, Xpr.A, Xpr.ReadByteAtHL));
                     yield return Expression.Assign(Xpr.A, Xpr.AccumulatorAndResult_Accumulator);
                     yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteByte, Xpr.HL, Xpr.AccumulatorAndResult_Result);
@@ -289,65 +282,144 @@
                     break;
 
                 case Opcode.TransferIncrement:
+                    yield return Expression.Block(GetLdExpressions());
                     break;
+
                 case Opcode.TransferIncrementRepeat:
+                    this.usesDynamicTimings = true;
+                    yield return Expression.Block(GetLdrExpressions());
                     break;
+
                 case Opcode.TransferDecrement:
+                    yield return Expression.Block(GetLdExpressions(true));
                     break;
+
                 case Opcode.TransferDecrementRepeat:
+                    this.usesDynamicTimings = true;
+                    yield return Expression.Block(GetLdrExpressions(true));
                     break;
+
                 case Opcode.SearchIncrement:
+                    yield return Expression.Block(GetCpExpressions());
                     break;
+
                 case Opcode.SearchIncrementRepeat:
+                    this.usesDynamicTimings = true;
+                    yield return GetCprExpression();
                     break;
+
                 case Opcode.SearchDecrement:
+                    yield return Expression.Block(GetCpExpressions(true));
                     break;
+
                 case Opcode.SearchDecrementRepeat:
+                    this.usesDynamicTimings = true;
+                    yield return GetCprExpression(true);
                     break;
+
                 case Opcode.InputTransferIncrement:
+                    yield return Expression.Block(GetInExpressions());
                     break;
+
                 case Opcode.InputTransferIncrementRepeat:
+                    this.usesDynamicTimings = true;
+                    yield return GetInrExpression();
                     break;
+
                 case Opcode.InputTransferDecrement:
+                    yield return Expression.Block(GetInExpressions(true));
                     break;
+
                 case Opcode.InputTransferDecrementRepeat:
+                    this.usesDynamicTimings = true;
+                    yield return GetInrExpression(true);
                     break;
+
                 case Opcode.OutputTransferIncrement:
+                    yield return Expression.Block(GetOutExpressions());
                     break;
+
                 case Opcode.OutputTransferIncrementRepeat:
+                    this.usesDynamicTimings = true;
+                    yield return GetOutrExpression();
                     break;
+
                 case Opcode.OutputTransferDecrement:
+                    yield return Expression.Block(GetOutExpressions(true));
                     break;
+
                 case Opcode.OutputTransferDecrementRepeat:
+                    this.usesDynamicTimings = true;
+                    yield return GetOutrExpression(true);
                     break;
+
                 case Opcode.DecimalArithmeticAdjust:
+                    yield return Expression.Assign(Xpr.A, Expression.Call(Xpr.Alu, Xpr.AluDecimalAdjust, Xpr.A));
                     break;
+
                 case Opcode.NegateOnesComplement:
+                    yield return Expression.Assign(Xpr.A, Expression.Not(Xpr.A));
+                    yield return Expression.Call(Xpr.Flags, Xpr.SetUndocumentedFlags, Xpr.A);
+                    yield return Expression.Assign(Xpr.HalfCarry, Expression.Constant(true));
+                    yield return Expression.Assign(Xpr.Subtract, Expression.Constant(true));
                     break;
+
                 case Opcode.NegateTwosComplement:
+                    yield return Expression.Assign(Xpr.A, Expression.Call(Xpr.Alu, Xpr.AluSubtract, Expression.Constant((byte)0), Xpr.A));
                     break;
+
                 case Opcode.InvertCarryFlag:
+                    yield return Expression.Assign(Xpr.HalfCarry, Xpr.Carry);
+                    yield return Expression.Assign(Xpr.Subtract, Expression.Constant(false));
+                    yield return Expression.Assign(Xpr.Carry, Expression.Not(Xpr.Carry));
                     break;
+
                 case Opcode.SetCarryFlag:
+                    yield return Expression.Assign(Xpr.HalfCarry, Expression.Constant(false));
+                    yield return Expression.Assign(Xpr.Subtract, Expression.Constant(false));
+                    yield return Expression.Assign(Xpr.Carry, Expression.Constant(true));
                     break;
+
                 case Opcode.DisableInterrupts:
+                    yield return Expression.Assign(Xpr.IFF1, Expression.Constant(false));
+                    yield return Expression.Assign(Xpr.IFF2, Expression.Constant(false));
                     break;
+
                 case Opcode.EnableInterrupts:
+                    yield return Expression.Assign(Xpr.IFF1, Expression.Constant(true));
+                    yield return Expression.Assign(Xpr.IFF2, Expression.Constant(true));
                     break;
+
                 case Opcode.InterruptMode0:
+                    yield return Expression.Assign(Xpr.IM, Expression.Constant(InterruptMode.InterruptMode0));
                     break;
+
                 case Opcode.InterruptMode1:
+                    yield return Expression.Assign(Xpr.IM, Expression.Constant(InterruptMode.InterruptMode1));
                     break;
+
                 case Opcode.InterruptMode2:
+                    yield return Expression.Assign(Xpr.IM, Expression.Constant(InterruptMode.InterruptMode2));
                     break;
+
                 case Opcode.Swap:
+                    yield return WriteOperand1(operation, Expression.Call(Xpr.Alu, Xpr.AluSwap, ReadOperand1(operation)));
                     break;
+
                 case Opcode.LoadIncrement:
+                    yield return WriteOperand1(operation, ReadOperand2(operation));
+                    yield return Expression.PreIncrementAssign(Xpr.HL); // No support for indexes but GB doesnt have them
                     break;
+
                 case Opcode.LoadDecrement:
+                    yield return WriteOperand1(operation, ReadOperand2(operation));
+                    yield return Expression.PreDecrementAssign(Xpr.HL); // No support for indexes but GB doesnt have them
                     break;
+
                 case Opcode.Stop:
+                    LastDecodeResult = DecodeResult.Stop;
                     break;
+
                 default:
                     throw new ArgumentOutOfRangeException();
             }
