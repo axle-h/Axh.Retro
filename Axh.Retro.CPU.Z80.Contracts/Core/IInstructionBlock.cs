@@ -15,6 +15,8 @@ namespace Axh.Retro.CPU.Z80.Contracts.Core
 
         bool HaltPeripherals { get; }
 
+        string DebugInfo { get; }
+
         InstructionTimings ExecuteInstructionBlock(TRegisters registers, IMmu mmu, IAlu alu, IPeripheralManager peripheralManager);
     }
 }

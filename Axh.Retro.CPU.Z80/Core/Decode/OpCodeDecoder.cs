@@ -12,7 +12,7 @@
 
         private readonly CpuMode cpuMode;
 
-        private readonly Opcode undefinedInstruction;
+        private readonly OpCode undefinedInstruction;
 
         private readonly IInstructionTimingsBuilder timer;
 
@@ -23,7 +23,7 @@
         public OpCodeDecoder(IPlatformConfig platformConfig, IPrefetchQueue prefetch, IInstructionTimingsBuilder timer)
         {
             this.cpuMode = platformConfig.CpuMode;
-            this.undefinedInstruction = platformConfig.LockOnUndefinedInstruction ? Opcode.Halt : Opcode.NoOperation;
+            this.undefinedInstruction = platformConfig.LockOnUndefinedInstruction ? OpCode.Halt : OpCode.NoOperation;
             this.prefetch = prefetch;
             this.timer = timer;
             this.indexRegisterOperands = new Dictionary<IndexRegister, IndexRegisterOperands> { { IndexRegister.HL, new IndexRegisterOperands(Operand.HL, Operand.mHL, Operand.L, Operand.H, false) } };
@@ -35,11 +35,11 @@
             }
         }
 
-        public IEnumerable<Operation> DecodeNextBlock()
+        public IEnumerable<Operation> DecodeNextBlock(ushort address)
         {
             timer.Reset();
             index = indexRegisterOperands[IndexRegister.HL];
-
+            
             while (true)
             {
                 var result = DecodePrimary();
@@ -64,6 +64,7 @@
                     result.AddLiteral(prefetch.NextWord());
                 }
 
+                result.Address = address;
                 yield return result;
 
                 if (result.OpCodeMeta.HasFlag(OpCodeMeta.EndBlock))
@@ -72,6 +73,7 @@
                 }
 
                 index = this.indexRegisterOperands[IndexRegister.HL];
+                address += (ushort)(prefetch.TotalBytesRead - address);
             }
         }
         

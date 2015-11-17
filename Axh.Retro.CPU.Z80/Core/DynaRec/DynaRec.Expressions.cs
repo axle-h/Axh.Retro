@@ -12,148 +12,146 @@
     using Axh.Retro.CPU.Z80.Contracts.Registers;
     using Axh.Retro.CPU.Z80.Util;
 
-    internal class DynaRecExpressions<TRegisters> where TRegisters : IRegisters
+    internal partial class DynaRec<TRegisters> where TRegisters : IRegisters
     {
-        public readonly ParameterExpression Registers;
-        public readonly ParameterExpression Mmu;
-        public readonly ParameterExpression Alu;
-        public readonly ParameterExpression IO;
+        private readonly ParameterExpression Registers;
+        private readonly ParameterExpression Mmu;
+        private readonly ParameterExpression Alu;
+        private readonly ParameterExpression IO;
         
         /// <summary>
         /// Word parameter 'w'
         /// </summary>
-        public readonly ParameterExpression LocalWord;
+        private readonly ParameterExpression LocalWord;
 
         /// <summary>
         /// The dynamic instruction timer parameter 'timer'.
         /// This is required for instructions that don't have compile time known timings e.g. LDIR.
         /// </summary>
-        public readonly ParameterExpression DynamicTimer;
-        public readonly MethodInfo DynamicTimerAdd;
+        private readonly ParameterExpression DynamicTimer;
+        private readonly MethodInfo DynamicTimerAdd;
 
         /// <summary>
         /// AccumulatorAndResult parameter 'result'
         /// </summary>
-        public readonly ParameterExpression AccumulatorAndResult;
-        public readonly Expression AccumulatorAndResult_Accumulator;
-        public readonly Expression AccumulatorAndResult_Result;
+        private readonly ParameterExpression AccumulatorAndResult;
+        private readonly Expression AccumulatorAndResult_Accumulator;
+        private readonly Expression AccumulatorAndResult_Result;
 
         // Register expressions
-        public readonly Expression A;
-        public readonly Expression B;
-        public readonly Expression C;
-        public readonly Expression D;
-        public readonly Expression E;
-        public readonly Expression F;
-        public readonly Expression H;
-        public readonly Expression L;
-        public readonly Expression BC;
-        public readonly Expression DE;
-        public readonly Expression HL;
-        public readonly Expression AF;
-        public readonly Expression PC;
+        private readonly Expression A;
+        private readonly Expression B;
+        private readonly Expression C;
+        private readonly Expression D;
+        private readonly Expression E;
+        private readonly Expression F;
+        private readonly Expression H;
+        private readonly Expression L;
+        private readonly Expression BC;
+        private readonly Expression DE;
+        private readonly Expression HL;
+        private readonly Expression AF;
+        private readonly Expression PC;
 
         // Stack pointer stuff
-        public readonly Expression SP;
-        public readonly Expression PushSP;
-        public readonly Expression PopSP;
+        private readonly Expression SP;
+        private readonly Expression PushSP;
+        private readonly Expression PopSP;
         
         // Z80 specific register expressions
-        public readonly Expression I;
-        public readonly Expression R;
-        public readonly Expression IX;
-        public readonly Expression IY;
+        private readonly Expression I;
+        private readonly Expression R;
+        private readonly Expression IX;
+        private readonly Expression IY;
 
-        public readonly Expression IXl;
-        public readonly Expression IXh;
-        public readonly Expression IYl;
-        public readonly Expression IYh;
+        private readonly Expression IXl;
+        private readonly Expression IXh;
+        private readonly Expression IYl;
+        private readonly Expression IYh;
         
         // Z80 specific register methods
-        public readonly Expression SwitchToAlternativeGeneralPurposeRegisters;
-        public readonly Expression SwitchToAlternativeAccumulatorAndFlagsRegisters;
+        private readonly Expression SwitchToAlternativeGeneralPurposeRegisters;
+        private readonly Expression SwitchToAlternativeAccumulatorAndFlagsRegisters;
 
         // Interrupt stuff
-        public readonly Expression IFF1;
-        public readonly Expression IFF2;
-        public readonly Expression IM;
+        private readonly Expression IFF1;
+        private readonly Expression IFF2;
+        private readonly Expression IM;
 
         // Flags
-        public readonly Expression Flags;
-        public readonly Expression Sign;
-        public readonly Expression Zero;
-        public readonly Expression Flag5;
-        public readonly Expression HalfCarry;
-        public readonly Expression Flag3;
-        public readonly Expression ParityOverflow;
-        public readonly Expression Subtract;
-        public readonly Expression Carry;
-        public readonly MethodInfo SetResultFlags;
-        public readonly MethodInfo SetUndocumentedFlags;
+        private readonly Expression Flags;
+        private readonly Expression Sign;
+        private readonly Expression Zero;
+        private readonly Expression HalfCarry;
+        private readonly Expression ParityOverflow;
+        private readonly Expression Subtract;
+        private readonly Expression Carry;
+        private readonly MethodInfo SetResultFlags;
+        private readonly MethodInfo SetUndocumentedFlags;
         
         /// <summary>
         /// Reads a byte from the mmu at the address in HL
         /// </summary>
-        public readonly Expression ReadByteAtHL;
+        private readonly Expression ReadByteAtHL;
         
         /// <summary>
         /// Writes the PC to the mmu at the address in SP
         /// </summary>
-        public readonly Expression WritePCToStack;
+        private readonly Expression WritePCToStack;
 
         /// <summary>
         /// Reads a word from the mmu at the address in SP and assigns it to PC
         /// </summary>
-        public readonly Expression ReadPCFromStack;
+        private readonly Expression ReadPCFromStack;
 
         // MMU methods
-        public readonly MethodInfo MmuReadByte;
-        public readonly MethodInfo MmuReadWord;
-        public readonly MethodInfo MmuWriteByte;
-        public readonly MethodInfo MmuWriteWord;
-        public readonly MethodInfo MmuTransferByte;
+        private readonly MethodInfo MmuReadByte;
+        private readonly MethodInfo MmuReadWord;
+        private readonly MethodInfo MmuWriteByte;
+        private readonly MethodInfo MmuWriteWord;
+        private readonly MethodInfo MmuTransferByte;
 
         // ALU methods
-        public readonly MethodInfo AluIncrement;
-        public readonly MethodInfo AluDecrement;
-        public readonly MethodInfo AluAdd;
-        public readonly MethodInfo AluAddWithCarry;
-        public readonly MethodInfo AluAdd16;
-        public readonly MethodInfo AluAdd16WithCarry;
-        public readonly MethodInfo AluSubtract;
-        public readonly MethodInfo AluSubtractWithCarry;
-        public readonly MethodInfo AluSubtract16WithCarry;
-        public readonly MethodInfo AluCompare;
-        public readonly MethodInfo AluAnd;
-        public readonly MethodInfo AluOr;
-        public readonly MethodInfo AluXor;
-        public readonly MethodInfo AluDecimalAdjust;
+        private readonly MethodInfo AluIncrement;
+        private readonly MethodInfo AluDecrement;
+        private readonly MethodInfo AluAdd;
+        private readonly MethodInfo AluAddWithCarry;
+        private readonly MethodInfo AluAdd16;
+        private readonly MethodInfo AluAdd16WithCarry;
+        private readonly MethodInfo AluSubtract;
+        private readonly MethodInfo AluSubtractWithCarry;
+        private readonly MethodInfo AluSubtract16WithCarry;
+        private readonly MethodInfo AluCompare;
+        private readonly MethodInfo AluAnd;
+        private readonly MethodInfo AluOr;
+        private readonly MethodInfo AluXor;
+        private readonly MethodInfo AluDecimalAdjust;
 
-        public readonly MethodInfo AluRotateLeftWithCarry;
-        public readonly MethodInfo AluRotateLeft;
-        public readonly MethodInfo AluRotateRightWithCarry;
-        public readonly MethodInfo AluRotateRight;
+        private readonly MethodInfo AluRotateLeftWithCarry;
+        private readonly MethodInfo AluRotateLeft;
+        private readonly MethodInfo AluRotateRightWithCarry;
+        private readonly MethodInfo AluRotateRight;
         
-        public readonly MethodInfo AluShiftLeft;
-        public readonly MethodInfo AluShiftLeftSet;
-        public readonly MethodInfo AluShiftRight;
-        public readonly MethodInfo AluShiftRightLogical;
+        private readonly MethodInfo AluShiftLeft;
+        private readonly MethodInfo AluShiftLeftSet;
+        private readonly MethodInfo AluShiftRight;
+        private readonly MethodInfo AluShiftRightLogical;
 
-        public readonly MethodInfo AluRotateRightDigit;
-        public readonly MethodInfo AluRotateLeftDigit;
+        private readonly MethodInfo AluRotateRightDigit;
+        private readonly MethodInfo AluRotateLeftDigit;
 
-        public readonly MethodInfo AluBitTest;
-        public readonly MethodInfo AluBitSet;
-        public readonly MethodInfo AluBitReset;
+        private readonly MethodInfo AluBitTest;
+        private readonly MethodInfo AluBitSet;
+        private readonly MethodInfo AluBitReset;
 
-        public readonly MethodInfo AluAddDisplacement;
-        public readonly MethodInfo AluSwap;
+        private readonly MethodInfo AluAddDisplacement;
+        private readonly MethodInfo AluSwap;
 
         // IO Methods
-        public readonly MethodInfo IoReadByte;
-        public readonly MethodInfo IoWriteByte;
+        private readonly MethodInfo IoReadByte;
+        private readonly MethodInfo IoWriteByte;
 
-        public DynaRecExpressions()
+        private DynaRec()
         {
             Registers = Expression.Parameter(typeof(TRegisters), "registers");
             Mmu = Expression.Parameter(typeof(IMmu), "mmu");
@@ -198,9 +196,9 @@
             AF = accumulatorAndFlagsRegisters.GetPropertyExpression<IAccumulatorAndFlagsRegisterSet, ushort>(r => r.AF);
             Sign = Flags.GetPropertyExpression<IFlagsRegister, bool>(r => r.Sign);
             Zero = Flags.GetPropertyExpression<IFlagsRegister, bool>(r => r.Zero);
-            Flag5 = Flags.GetPropertyExpression<IFlagsRegister, bool>(r => r.Flag5);
+            Flags.GetPropertyExpression<IFlagsRegister, bool>(r => r.Flag5);
             HalfCarry = Flags.GetPropertyExpression<IFlagsRegister, bool>(r => r.HalfCarry);
-            Flag3 = Flags.GetPropertyExpression<IFlagsRegister, bool>(r => r.Flag3);
+            Flags.GetPropertyExpression<IFlagsRegister, bool>(r => r.Flag3);
             ParityOverflow = Flags.GetPropertyExpression<IFlagsRegister, bool>(r => r.ParityOverflow);
             Subtract = Flags.GetPropertyExpression<IFlagsRegister, bool>(r => r.Subtract);
             Carry = Flags.GetPropertyExpression<IFlagsRegister, bool>(r => r.Carry);

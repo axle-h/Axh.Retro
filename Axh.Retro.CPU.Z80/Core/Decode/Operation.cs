@@ -1,21 +1,24 @@
 ﻿namespace Axh.Retro.CPU.Z80.Core.Decode
 {
+    using System;
+    using System.Text;
+
     internal class Operation
     {
-        public Operation(Opcode opcode)
+        public Operation(OpCode opCode)
         {
-            Opcode = opcode;
+            OpCode = opCode;
         }
 
-        public Operation(Opcode opcode, Operand operand1)
+        public Operation(OpCode opCode, Operand operand1)
         {
-            Opcode = opcode;
+            OpCode = opCode;
             Operand1 = operand1;
         }
         
-        public Operation(Opcode opcode, Operand operand1, Operand operand2)
+        public Operation(OpCode opCode, Operand operand1, Operand operand2)
         {
-            Opcode = opcode;
+            OpCode = opCode;
             Operand1 = operand1;
             Operand2 = operand2;
         }
@@ -72,8 +75,10 @@
         {
             this.OpCodeMeta |= OpCodeMeta.AutoCopy;
         }
+
+        public ushort Address { get; set; }
         
-        public Opcode Opcode { get; }
+        public OpCode OpCode { get; }
 
         public Operand Operand1 { get; set; }
 
@@ -88,5 +93,79 @@
         public sbyte Displacement { get; private set; }
 
         public OpCodeMeta OpCodeMeta { get; private set; }
+
+        public override string ToString()
+        {
+            var sb = new StringBuilder().AppendFormat("0x{0}   {1}", this.Address.ToString("x4"), OpCode.GetMnemonic());
+            if (Operand1 != Operand.None)
+            {
+                sb.AppendFormat(" {0}", GetOperandString(Operand1));
+            }
+
+            if (Operand2 == Operand.None)
+            {
+                return sb.ToString();
+            }
+
+            return sb.AppendFormat(", {0}", GetOperandString(Operand2)).ToString();
+        }
+
+        private string GetOperandString(Operand operand)
+        {
+            switch (operand)
+            {
+                case Operand.A:
+                case Operand.B:
+                case Operand.C:
+                case Operand.D:
+                case Operand.E:
+                case Operand.F:
+                case Operand.H:
+                case Operand.L:
+                case Operand.HL:
+                case Operand.BC:
+                case Operand.DE:
+                case Operand.AF:
+                case Operand.SP:
+                case Operand.IX:
+                case Operand.IXl:
+                case Operand.IXh:
+                case Operand.IY:
+                case Operand.IYl:
+                case Operand.IYh:
+                case Operand.I:
+                case Operand.R:
+                    return operand.ToString();
+                case Operand.mHL:
+                    return "(HL)";
+                case Operand.mBC:
+                    return "(BC)";
+                case Operand.mDE:
+                    return "(DE)";
+                case Operand.mSP:
+                    return "(SP)";
+                case Operand.mnn:
+                    return $"(0x{this.WordLiteral.ToString("x4")})";
+                case Operand.nn:
+                    return $"0x{this.WordLiteral.ToString("x4")}";
+                case Operand.n:
+                    return $"(0x{this.ByteLiteral.ToString("x2")})";
+                case Operand.d:
+                    return ((sbyte)this.ByteLiteral).ToString();
+                case Operand.mIXd:
+                    return this.Displacement > 0 ? $"(IX+{this.Displacement})" : $"(IX{this.Displacement})";
+                case Operand.mIYd:
+                    return this.Displacement > 0 ? $"(IY+{this.Displacement})" : $"(IY{this.Displacement})";
+                case Operand.mCl:
+                    return "(0xff00 + C)";
+                case Operand.mnl:
+                    return $"(0xff00 + 0x{this.ByteLiteral})";
+                case Operand.SPd:
+                    var d = (sbyte)this.ByteLiteral;
+                    return d > 0 ? $"SP+{d}" : $"SP{d}";
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(operand), operand, null);
+            }
+        }
     }
 }

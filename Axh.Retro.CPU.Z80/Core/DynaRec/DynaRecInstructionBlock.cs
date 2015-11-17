@@ -27,7 +27,7 @@
             this.HaltCpu = lastDecodeResult == DecodeResult.Halt;
             this.HaltPeripherals = lastDecodeResult == DecodeResult.Stop;
         }
-
+        
         public ushort Address { get; }
 
         public ushort Length { get; }
@@ -35,6 +35,8 @@
         public bool HaltCpu { get; }
 
         public bool HaltPeripherals { get; }
+
+        public string DebugInfo { get; internal set; }
 
         public InstructionTimings ExecuteInstructionBlock(TRegisters registers, IMmu mmu, IAlu alu, IPeripheralManager peripheralManager)
         {

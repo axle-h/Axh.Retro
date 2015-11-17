@@ -11,18 +11,6 @@
 
     internal partial class DynaRec<TRegisters> where TRegisters : IRegisters
     {
-        private struct HighLowExpressionPair
-        {
-            public HighLowExpressionPair(Expression high, Expression low) : this()
-            {
-                High = high;
-                Low = low;
-            }
-
-            public Expression High { get; }
-            public Expression Low { get; }
-        }
-        
         private Expression ReadOperand1(Operation operation, bool is16Bit = false)
         {
             return ReadOperand(operation, operation.Operand1, is16Bit);
@@ -38,41 +26,41 @@
             switch (operand)
             {
                 case Operand.A:
-                    return Xpr.A;
+                    return A;
                 case Operand.B:
-                    return Xpr.B;
+                    return B;
                 case Operand.C:
-                    return Xpr.C;
+                    return C;
                 case Operand.D:
-                    return Xpr.D;
+                    return D;
                 case Operand.E:
-                    return Xpr.E;
+                    return E;
                 case Operand.F:
-                    return Xpr.F;
+                    return F;
                 case Operand.H:
-                    return Xpr.H;
+                    return H;
                 case Operand.L:
-                    return Xpr.L;
+                    return L;
                 case Operand.HL:
-                    return Xpr.HL;
+                    return HL;
                 case Operand.BC:
-                    return Xpr.BC;
+                    return BC;
                 case Operand.DE:
-                    return Xpr.DE;
+                    return DE;
                 case Operand.AF:
-                    return Xpr.AF;
+                    return AF;
                 case Operand.SP:
-                    return Xpr.SP;
+                    return SP;
                 case Operand.mHL:
-                    return Expression.Call(Xpr.Mmu, is16Bit ? Xpr.MmuReadWord : Xpr.MmuReadByte, Xpr.HL);
+                    return Expression.Call(Mmu, is16Bit ? MmuReadWord : MmuReadByte, HL);
                 case Operand.mBC:
-                    return Expression.Call(Xpr.Mmu, is16Bit ? Xpr.MmuReadWord : Xpr.MmuReadByte, Xpr.BC);
+                    return Expression.Call(Mmu, is16Bit ? MmuReadWord : MmuReadByte, BC);
                 case Operand.mDE:
-                    return Expression.Call(Xpr.Mmu, is16Bit ? Xpr.MmuReadWord : Xpr.MmuReadByte, Xpr.DE);
+                    return Expression.Call(Mmu, is16Bit ? MmuReadWord : MmuReadByte, DE);
                 case Operand.mSP:
-                    return Expression.Call(Xpr.Mmu, is16Bit ? Xpr.MmuReadWord : Xpr.MmuReadByte, Xpr.SP);
+                    return Expression.Call(Mmu, is16Bit ? MmuReadWord : MmuReadByte, SP);
                 case Operand.mnn:
-                    return Expression.Call(Xpr.Mmu, is16Bit ? Xpr.MmuReadWord : Xpr.MmuReadByte, Expression.Constant(operation.WordLiteral));
+                    return Expression.Call(Mmu, is16Bit ? MmuReadWord : MmuReadByte, Expression.Constant(operation.WordLiteral));
                 case Operand.nn:
                     return Expression.Constant(operation.WordLiteral);
                 case Operand.n:
@@ -80,37 +68,37 @@
                 case Operand.d:
                     return Expression.Convert(Expression.Constant((sbyte)operation.ByteLiteral), typeof(int));
                 case Operand.IX:
-                    return Xpr.IX;
+                    return IX;
                 case Operand.mIXd:
                     return Expression.Call(
-                        Xpr.Mmu,
-                        is16Bit ? Xpr.MmuReadWord : Xpr.MmuReadByte,
-                        Expression.Convert(Expression.Add(Expression.Convert(Xpr.IX, typeof(int)), Expression.Constant((int)operation.Displacement)), typeof(ushort)));
+                        Mmu,
+                        is16Bit ? MmuReadWord : MmuReadByte,
+                        Expression.Convert(Expression.Add(Expression.Convert(IX, typeof(int)), Expression.Constant((int)operation.Displacement)), typeof(ushort)));
                 case Operand.IXl:
-                    return Xpr.IXl;
+                    return IXl;
                 case Operand.IXh:
-                    return Xpr.IXh;
+                    return IXh;
                 case Operand.IY:
-                    return Xpr.IY;
+                    return IY;
                 case Operand.mIYd:
                     return Expression.Call(
-                        Xpr.Mmu,
-                        is16Bit ? Xpr.MmuReadWord : Xpr.MmuReadByte,
-                        Expression.Convert(Expression.Add(Expression.Convert(Xpr.IY, typeof(int)), Expression.Constant((int)operation.Displacement)), typeof(ushort)));
+                        Mmu,
+                        is16Bit ? MmuReadWord : MmuReadByte,
+                        Expression.Convert(Expression.Add(Expression.Convert(IY, typeof(int)), Expression.Constant((int)operation.Displacement)), typeof(ushort)));
                 case Operand.IYl:
-                    return Xpr.IYl;
+                    return IYl;
                 case Operand.IYh:
-                    return Xpr.IYh;
+                    return IYh;
                 case Operand.I:
-                    return Xpr.I;
+                    return I;
                 case Operand.R:
-                    return Xpr.R;
+                    return R;
                 case Operand.mCl:
-                    return Expression.Call(Xpr.Mmu, is16Bit ? Xpr.MmuReadWord : Xpr.MmuReadByte, Expression.Add(Expression.Convert(Xpr.C, typeof(ushort)), Expression.Constant((ushort)0xff00)));
+                    return Expression.Call(Mmu, is16Bit ? MmuReadWord : MmuReadByte, Expression.Add(Expression.Convert(C, typeof(ushort)), Expression.Constant((ushort)0xff00)));
                 case Operand.mnl:
-                    return Expression.Call(Xpr.Mmu, is16Bit ? Xpr.MmuReadWord : Xpr.MmuReadByte, Expression.Constant((ushort)(operation.ByteLiteral + 0xff00)));
+                    return Expression.Call(Mmu, is16Bit ? MmuReadWord : MmuReadByte, Expression.Constant((ushort)(operation.ByteLiteral + 0xff00)));
                 case Operand.SPd:
-                    return Expression.Call(Xpr.Alu, Xpr.AluAddDisplacement, Xpr.SP, Expression.Constant((sbyte)operation.ByteLiteral));
+                    return Expression.Call(Alu, AluAddDisplacement, SP, Expression.Constant((sbyte)operation.ByteLiteral));
                 default:
                     throw new ArgumentOutOfRangeException(nameof(operation.Operand2), operation.Operand2, null);
             }
@@ -131,73 +119,73 @@
             switch (operand)
             {
                 case Operand.A:
-                    return Expression.Assign(Xpr.A, value);
+                    return Expression.Assign(A, value);
                 case Operand.B:
-                    return Expression.Assign(Xpr.B, value);
+                    return Expression.Assign(B, value);
                 case Operand.C:
-                    return Expression.Assign(Xpr.C, value);
+                    return Expression.Assign(C, value);
                 case Operand.D:
-                    return Expression.Assign(Xpr.D, value);
+                    return Expression.Assign(D, value);
                 case Operand.E:
-                    return Expression.Assign(Xpr.E, value);
+                    return Expression.Assign(E, value);
                 case Operand.F:
-                    return Expression.Assign(Xpr.F, value);
+                    return Expression.Assign(F, value);
                 case Operand.H:
-                    return Expression.Assign(Xpr.H, value);
+                    return Expression.Assign(H, value);
                 case Operand.L:
-                    return Expression.Assign(Xpr.L, value);
+                    return Expression.Assign(L, value);
                 case Operand.HL:
-                    return Expression.Assign(Xpr.HL, value);
+                    return Expression.Assign(HL, value);
                 case Operand.BC:
-                    return Expression.Assign(Xpr.BC, value);
+                    return Expression.Assign(BC, value);
                 case Operand.DE:
-                    return Expression.Assign(Xpr.DE, value);
+                    return Expression.Assign(DE, value);
                 case Operand.SP:
-                    return Expression.Assign(Xpr.SP, value);
+                    return Expression.Assign(SP, value);
                 case Operand.AF:
-                    return Expression.Assign(Xpr.AF, value);
+                    return Expression.Assign(AF, value);
                 case Operand.mHL:
-                    return Expression.Call(Xpr.Mmu, is16Bit ? Xpr.MmuWriteWord : Xpr.MmuWriteByte, Xpr.HL, value);
+                    return Expression.Call(Mmu, is16Bit ? MmuWriteWord : MmuWriteByte, HL, value);
                 case Operand.mBC:
-                    return Expression.Call(Xpr.Mmu, is16Bit ? Xpr.MmuWriteWord : Xpr.MmuWriteByte, Xpr.BC, value);
+                    return Expression.Call(Mmu, is16Bit ? MmuWriteWord : MmuWriteByte, BC, value);
                 case Operand.mDE:
-                    return Expression.Call(Xpr.Mmu, is16Bit ? Xpr.MmuWriteWord : Xpr.MmuWriteByte, Xpr.DE, value);
+                    return Expression.Call(Mmu, is16Bit ? MmuWriteWord : MmuWriteByte, DE, value);
                 case Operand.mSP:
-                    return Expression.Call(Xpr.Mmu, is16Bit ? Xpr.MmuWriteWord : Xpr.MmuWriteByte, Xpr.SP, value);
+                    return Expression.Call(Mmu, is16Bit ? MmuWriteWord : MmuWriteByte, SP, value);
                 case Operand.mnn:
-                    return Expression.Call(Xpr.Mmu, is16Bit ? Xpr.MmuWriteWord : Xpr.MmuWriteByte, Expression.Constant(operation.WordLiteral), value);
+                    return Expression.Call(Mmu, is16Bit ? MmuWriteWord : MmuWriteByte, Expression.Constant(operation.WordLiteral), value);
                 case Operand.IX:
-                    return Expression.Assign(Xpr.IX, value);
+                    return Expression.Assign(IX, value);
                 case Operand.mIXd:
                     return Expression.Call(
-                        Xpr.Mmu,
-                        is16Bit ? Xpr.MmuWriteWord : Xpr.MmuWriteByte,
-                        Expression.Convert(Expression.Add(Expression.Convert(Xpr.IX, typeof(int)), Expression.Constant((int)operation.Displacement)), typeof(ushort)),
+                        Mmu,
+                        is16Bit ? MmuWriteWord : MmuWriteByte,
+                        Expression.Convert(Expression.Add(Expression.Convert(IX, typeof(int)), Expression.Constant((int)operation.Displacement)), typeof(ushort)),
                         value);
                 case Operand.IXl:
-                    return Expression.Assign(Xpr.IXl, value);
+                    return Expression.Assign(IXl, value);
                 case Operand.IXh:
-                    return Expression.Assign(Xpr.IXh, value);
+                    return Expression.Assign(IXh, value);
                 case Operand.IY:
-                    return Expression.Assign(Xpr.IY, value);
+                    return Expression.Assign(IY, value);
                 case Operand.mIYd:
                     return Expression.Call(
-                        Xpr.Mmu,
-                        is16Bit ? Xpr.MmuWriteWord : Xpr.MmuWriteByte,
-                        Expression.Convert(Expression.Add(Expression.Convert(Xpr.IY, typeof(int)), Expression.Constant((int)operation.Displacement)), typeof(ushort)),
+                        Mmu,
+                        is16Bit ? MmuWriteWord : MmuWriteByte,
+                        Expression.Convert(Expression.Add(Expression.Convert(IY, typeof(int)), Expression.Constant((int)operation.Displacement)), typeof(ushort)),
                         value);
                 case Operand.IYl:
-                    return Expression.Assign(Xpr.IYl, value);
+                    return Expression.Assign(IYl, value);
                 case Operand.IYh:
-                    return Expression.Assign(Xpr.IYh, value);
+                    return Expression.Assign(IYh, value);
                 case Operand.I:
-                    return Expression.Assign(Xpr.I, value);
+                    return Expression.Assign(I, value);
                 case Operand.R:
-                    return Expression.Assign(Xpr.R, value);
+                    return Expression.Assign(R, value);
                 case Operand.mCl:
-                    return Expression.Call(Xpr.Mmu, is16Bit ? Xpr.MmuWriteWord : Xpr.MmuWriteByte, Expression.Add(Expression.Convert(Xpr.C, typeof(ushort)), Expression.Constant((ushort)0xff00)), value);
+                    return Expression.Call(Mmu, is16Bit ? MmuWriteWord : MmuWriteByte, Expression.Add(Expression.Convert(C, typeof(ushort)), Expression.Constant((ushort)0xff00)), value);
                 case Operand.mnl:
-                    return Expression.Call(Xpr.Mmu, is16Bit ? Xpr.MmuWriteWord : Xpr.MmuWriteByte, Expression.Constant((ushort)(operation.ByteLiteral + 0xff00)), value);
+                    return Expression.Call(Mmu, is16Bit ? MmuWriteWord : MmuWriteByte, Expression.Constant((ushort)(operation.ByteLiteral + 0xff00)), value);
                 default:
                     throw new ArgumentOutOfRangeException(nameof(operation.Operand1), operation.Operand1, null);
             }
@@ -208,21 +196,21 @@
             switch (flagTest)
             {
                 case FlagTest.NotZero:
-                    return Expression.Not(Xpr.Zero);
+                    return Expression.Not(Zero);
                 case FlagTest.Zero:
-                    return Xpr.Zero;
+                    return Zero;
                 case FlagTest.NotCarry:
-                    return Expression.Not(Xpr.Carry);
+                    return Expression.Not(Carry);
                 case FlagTest.Carry:
-                    return Xpr.Carry;
+                    return Carry;
                 case FlagTest.ParityOdd:
-                    return Expression.Not(Xpr.ParityOverflow);
+                    return Expression.Not(ParityOverflow);
                 case FlagTest.ParityEven:
-                    return Xpr.ParityOverflow;
+                    return ParityOverflow;
                 case FlagTest.Possitive:
-                    return Expression.Not(Xpr.Sign);
+                    return Expression.Not(Sign);
                 case FlagTest.Negative:
-                    return Xpr.Sign;
+                    return Sign;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(flagTest), flagTest, null);
             }
@@ -230,29 +218,29 @@
 
         public Expression GetDynamicTimings(int mCycles, int tStates)
         {
-            return Expression.Call(Xpr.DynamicTimer, Xpr.DynamicTimerAdd, Expression.Constant(mCycles), Expression.Constant(tStates));
+            return Expression.Call(DynamicTimer, DynamicTimerAdd, Expression.Constant(mCycles), Expression.Constant(tStates));
         }
 
         public Expression GetMemoryRefreshDeltaExpression(Expression deltaExpression)
         {
-            var increment7LsbR = Expression.And(Expression.Add(Expression.Convert(Xpr.R, typeof(int)), deltaExpression), Expression.Constant(0x7f));
-            return Expression.Assign(Xpr.R, Expression.Convert(increment7LsbR, typeof(byte)));
+            var increment7LsbR = Expression.And(Expression.Add(Expression.Convert(R, typeof(int)), deltaExpression), Expression.Constant(0x7f));
+            return Expression.Assign(R, Expression.Convert(increment7LsbR, typeof(byte)));
         }
 
         private Expression JumpToDisplacement(Operation operation)
         {
-            return Expression.Assign(Xpr.PC, Expression.Convert(Expression.Add(Expression.Convert(Xpr.PC, typeof(int)), ReadOperand1(operation, true)), typeof(ushort)));
+            return Expression.Assign(PC, Expression.Convert(Expression.Add(Expression.Convert(PC, typeof(int)), ReadOperand1(operation, true)), typeof(ushort)));
         }
 
         private IEnumerable<Expression> GetLdExpressions(bool decrement = false)
         {
-            yield return Expression.Call(Xpr.Mmu, Xpr.MmuTransferByte, Xpr.HL, Xpr.DE);
-            yield return decrement ? Expression.PreDecrementAssign(Xpr.HL) : Expression.PreIncrementAssign(Xpr.HL);
-            yield return decrement ? Expression.PreDecrementAssign(Xpr.DE) : Expression.PreIncrementAssign(Xpr.DE);
-            yield return Expression.PreDecrementAssign(Xpr.BC);
-            yield return Expression.Assign(Xpr.HalfCarry, Expression.Constant(false));
-            yield return Expression.Assign(Xpr.ParityOverflow, Expression.NotEqual(Xpr.BC, Expression.Constant((ushort)0)));
-            yield return Expression.Assign(Xpr.Subtract, Expression.Constant(false));
+            yield return Expression.Call(Mmu, MmuTransferByte, HL, DE);
+            yield return decrement ? Expression.PreDecrementAssign(HL) : Expression.PreIncrementAssign(HL);
+            yield return decrement ? Expression.PreDecrementAssign(DE) : Expression.PreIncrementAssign(DE);
+            yield return Expression.PreDecrementAssign(BC);
+            yield return Expression.Assign(HalfCarry, Expression.Constant(false));
+            yield return Expression.Assign(ParityOverflow, Expression.NotEqual(BC, Expression.Constant((ushort)0)));
+            yield return Expression.Assign(Subtract, Expression.Constant(false));
         }
 
         private IEnumerable<Expression> GetLdrExpressions(bool decrement = false)
@@ -261,25 +249,25 @@
             yield return
                 Expression.Loop(
                     Expression.Block(
-                        Expression.Call(Xpr.Mmu, Xpr.MmuTransferByte, Xpr.HL, Xpr.DE),
-                        decrement ? Expression.PreDecrementAssign(Xpr.HL) : Expression.PreIncrementAssign(Xpr.HL),
-                        decrement ? Expression.PreDecrementAssign(Xpr.DE) : Expression.PreIncrementAssign(Xpr.DE),
-                        Expression.PreDecrementAssign(Xpr.BC),
-                        Expression.IfThen(Expression.Equal(Xpr.BC, Expression.Constant((ushort)0)), Expression.Break(breakLabel)),
+                        Expression.Call(Mmu, MmuTransferByte, HL, DE),
+                        decrement ? Expression.PreDecrementAssign(HL) : Expression.PreIncrementAssign(HL),
+                        decrement ? Expression.PreDecrementAssign(DE) : Expression.PreIncrementAssign(DE),
+                        Expression.PreDecrementAssign(BC),
+                        Expression.IfThen(Expression.Equal(BC, Expression.Constant((ushort)0)), Expression.Break(breakLabel)),
                         GetDynamicTimings(5, 21),
                         GetMemoryRefreshDeltaExpression(Expression.Constant(2))), // This function actually decreases the PC by two for each 'loop' hence need more refresh cycles.
                     breakLabel);
 
-            yield return Expression.Assign(Xpr.HalfCarry, Expression.Constant(false));
-            yield return Expression.Assign(Xpr.ParityOverflow, Expression.Constant(false));
-            yield return Expression.Assign(Xpr.Subtract, Expression.Constant(false));
+            yield return Expression.Assign(HalfCarry, Expression.Constant(false));
+            yield return Expression.Assign(ParityOverflow, Expression.Constant(false));
+            yield return Expression.Assign(Subtract, Expression.Constant(false));
         }
 
         public IEnumerable<Expression> GetCpExpressions(bool decrement = false)
         {
-            yield return Expression.Call(Xpr.Alu, Xpr.AluCompare, Xpr.A, Expression.Call(Xpr.Mmu, Xpr.MmuReadByte, Xpr.HL));
-            yield return decrement ? Expression.PreDecrementAssign(Xpr.HL) : Expression.PreIncrementAssign(Xpr.HL);
-            yield return Expression.PreDecrementAssign(Xpr.BC);
+            yield return Expression.Call(Alu, AluCompare, A, Expression.Call(Mmu, MmuReadByte, HL));
+            yield return decrement ? Expression.PreDecrementAssign(HL) : Expression.PreIncrementAssign(HL);
+            yield return Expression.PreDecrementAssign(BC);
         }
 
         public Expression GetCprExpression(bool decrement = false)
@@ -288,7 +276,7 @@
             var expressions = GetCpExpressions(decrement);
             var iterationExpressions = new[]
                                        {
-                                           Expression.IfThen(Expression.OrElse(Expression.Equal(Xpr.BC, Expression.Constant((ushort)0)), Xpr.Zero), Expression.Break(breakLabel)), GetDynamicTimings(5, 21),
+                                           Expression.IfThen(Expression.OrElse(Expression.Equal(BC, Expression.Constant((ushort)0)), Zero), Expression.Break(breakLabel)), GetDynamicTimings(5, 21),
                                            GetMemoryRefreshDeltaExpression(Expression.Constant(2))
                                        };
             return Expression.Loop(Expression.Block(expressions.Concat(iterationExpressions).ToArray()), breakLabel);
@@ -296,11 +284,11 @@
 
         public IEnumerable<Expression> GetInExpressions(bool decrement = false)
         {
-            yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteByte, Xpr.HL, Expression.Call(Xpr.IO, Xpr.IoReadByte, Xpr.C, Xpr.B));
-            yield return decrement ? Expression.PreDecrementAssign(Xpr.HL) : Expression.PreIncrementAssign(Xpr.HL);
-            yield return Expression.Assign(Xpr.B, Expression.Convert(Expression.Subtract(Expression.Convert(Xpr.B, typeof(int)), Expression.Constant(1)), typeof(byte)));
-            yield return Expression.Assign(Xpr.Subtract, Expression.Constant(true));
-            yield return Expression.Call(Xpr.Flags, Xpr.SetResultFlags, Xpr.B);
+            yield return Expression.Call(Mmu, MmuWriteByte, HL, Expression.Call(IO, IoReadByte, C, B));
+            yield return decrement ? Expression.PreDecrementAssign(HL) : Expression.PreIncrementAssign(HL);
+            yield return Expression.Assign(B, Expression.Convert(Expression.Subtract(Expression.Convert(B, typeof(int)), Expression.Constant(1)), typeof(byte)));
+            yield return Expression.Assign(Subtract, Expression.Constant(true));
+            yield return Expression.Call(Flags, SetResultFlags, B);
         }
 
         public Expression GetInrExpression(bool decrement = false)
@@ -310,7 +298,7 @@
             var expressions = GetInExpressions(decrement);
             var iterationExpressions = new[]
                                        {
-                                           Expression.IfThen(Expression.Equal(Xpr.B, Expression.Constant((byte)0)), Expression.Break(breakLabel)), GetDynamicTimings(5, 21),
+                                           Expression.IfThen(Expression.Equal(B, Expression.Constant((byte)0)), Expression.Break(breakLabel)), GetDynamicTimings(5, 21),
                                            GetMemoryRefreshDeltaExpression(Expression.Constant(2))
                                        };
 
@@ -319,11 +307,11 @@
 
         public IEnumerable<Expression> GetOutExpressions(bool decrement = false)
         {
-            yield return Expression.Call(Xpr.IO, Xpr.IoWriteByte, Xpr.C, Xpr.B, Xpr.ReadByteAtHL);
-            yield return decrement ? Expression.PreDecrementAssign(Xpr.HL) : Expression.PreIncrementAssign(Xpr.HL);
-            yield return Expression.Assign(Xpr.B, Expression.Convert(Expression.Subtract(Expression.Convert(Xpr.B, typeof(int)), Expression.Constant(1)), typeof(byte)));
-            yield return Expression.Assign(Xpr.Subtract, Expression.Constant(true));
-            yield return Expression.Call(Xpr.Flags, Xpr.SetResultFlags, Xpr.B);
+            yield return Expression.Call(IO, IoWriteByte, C, B, ReadByteAtHL);
+            yield return decrement ? Expression.PreDecrementAssign(HL) : Expression.PreIncrementAssign(HL);
+            yield return Expression.Assign(B, Expression.Convert(Expression.Subtract(Expression.Convert(B, typeof(int)), Expression.Constant(1)), typeof(byte)));
+            yield return Expression.Assign(Subtract, Expression.Constant(true));
+            yield return Expression.Call(Flags, SetResultFlags, B);
         }
 
         public Expression GetOutrExpression(bool decrement = false)
@@ -333,7 +321,7 @@
             var expressions = GetOutExpressions(decrement);
             var iterationExpressions = new[]
                                        {
-                                           Expression.IfThen(Expression.Equal(Xpr.B, Expression.Constant((byte)0)), Expression.Break(breakLabel)), GetDynamicTimings(5, 21),
+                                           Expression.IfThen(Expression.Equal(B, Expression.Constant((byte)0)), Expression.Break(breakLabel)), GetDynamicTimings(5, 21),
                                            GetMemoryRefreshDeltaExpression(Expression.Constant(2))
                                        };
 

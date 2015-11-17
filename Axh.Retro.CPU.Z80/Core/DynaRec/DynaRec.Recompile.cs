@@ -11,15 +11,15 @@
     {
         private IEnumerable<Expression> Recompile(Operation operation)
         {
-            switch (operation.Opcode)
+            switch (operation.OpCode)
             {
-                case Opcode.NoOperation:
+                case OpCode.NoOperation:
                     break;
-                case Opcode.Halt:
+                case OpCode.Halt:
                     LastDecodeResult = DecodeResult.Halt;
                     break;
 
-                case Opcode.Load:
+                case OpCode.Load:
                     if (operation.Operand1 == operation.Operand2)
                     {
                         break;
@@ -30,117 +30,117 @@
                     if (operation.Operand2 == Operand.I || operation.Operand2 == Operand.R)
                     {
                         // LD A, R & LD A, I also reset H & N and copy IFF2 to P/V
-                        yield return Expression.Call(Xpr.Flags, Xpr.SetResultFlags, Xpr.A);
-                        yield return Expression.Assign(Xpr.HalfCarry, Expression.Constant(false));
-                        yield return Expression.Assign(Xpr.Subtract, Expression.Constant(false));
-                        yield return Expression.Assign(Xpr.ParityOverflow, Xpr.IFF2);
+                        yield return Expression.Call(Flags, SetResultFlags, A);
+                        yield return Expression.Assign(HalfCarry, Expression.Constant(false));
+                        yield return Expression.Assign(Subtract, Expression.Constant(false));
+                        yield return Expression.Assign(ParityOverflow, IFF2);
                     }
                     break;
 
-                case Opcode.Load16:
+                case OpCode.Load16:
                     yield return WriteOperand1(operation, ReadOperand2(operation, true), true);
                     break;
 
-                case Opcode.Push:
-                    yield return Xpr.PushSP;
-                    yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteWord, Xpr.SP, ReadOperand1(operation, true));
+                case OpCode.Push:
+                    yield return PushSP;
+                    yield return Expression.Call(Mmu, MmuWriteWord, SP, ReadOperand1(operation, true));
                     break;
 
-                case Opcode.Pop:
-                    yield return WriteOperand1(operation, Expression.Call(Xpr.Mmu, Xpr.MmuReadWord, Xpr.SP), true);
-                    yield return Xpr.PopSP;
+                case OpCode.Pop:
+                    yield return WriteOperand1(operation, Expression.Call(Mmu, MmuReadWord, SP), true);
+                    yield return PopSP;
                     break;
 
-                case Opcode.Add:
-                    yield return Expression.Assign(Xpr.A, Expression.Call(Xpr.Alu, Xpr.AluAdd, Xpr.A, ReadOperand2(operation)));
+                case OpCode.Add:
+                    yield return Expression.Assign(A, Expression.Call(Alu, AluAdd, A, ReadOperand2(operation)));
                     break;
 
-                case Opcode.AddCarry:
-                    yield return Expression.Assign(Xpr.A, Expression.Call(Xpr.Alu, Xpr.AluAddWithCarry, Xpr.A, ReadOperand2(operation)));
+                case OpCode.AddCarry:
+                    yield return Expression.Assign(A, Expression.Call(Alu, AluAddWithCarry, A, ReadOperand2(operation)));
                     break;
 
-                case Opcode.Subtract:
-                    yield return Expression.Assign(Xpr.A, Expression.Call(Xpr.Alu, Xpr.AluSubtract, Xpr.A, ReadOperand2(operation)));
+                case OpCode.Subtract:
+                    yield return Expression.Assign(A, Expression.Call(Alu, AluSubtract, A, ReadOperand2(operation)));
                     break;
 
-                case Opcode.SubtractCarry:
-                    yield return Expression.Assign(Xpr.A, Expression.Call(Xpr.Alu, Xpr.AluSubtractWithCarry, Xpr.A, ReadOperand2(operation)));
+                case OpCode.SubtractCarry:
+                    yield return Expression.Assign(A, Expression.Call(Alu, AluSubtractWithCarry, A, ReadOperand2(operation)));
                     break;
 
-                case Opcode.And:
-                    yield return Expression.Assign(Xpr.A, Expression.Call(Xpr.Alu, Xpr.AluAnd, Xpr.A, ReadOperand2(operation)));
+                case OpCode.And:
+                    yield return Expression.Assign(A, Expression.Call(Alu, AluAnd, A, ReadOperand2(operation)));
                     break;
 
-                case Opcode.Or:
-                    yield return Expression.Assign(Xpr.A, Expression.Call(Xpr.Alu, Xpr.AluOr, Xpr.A, ReadOperand2(operation)));
+                case OpCode.Or:
+                    yield return Expression.Assign(A, Expression.Call(Alu, AluOr, A, ReadOperand2(operation)));
                     break;
 
-                case Opcode.Xor:
-                    yield return Expression.Assign(Xpr.A, Expression.Call(Xpr.Alu, Xpr.AluXor, Xpr.A, ReadOperand2(operation)));
+                case OpCode.Xor:
+                    yield return Expression.Assign(A, Expression.Call(Alu, AluXor, A, ReadOperand2(operation)));
                     break;
 
-                case Opcode.Compare:
-                    yield return Expression.Call(Xpr.Alu, Xpr.AluCompare, Xpr.A, ReadOperand2(operation));
+                case OpCode.Compare:
+                    yield return Expression.Call(Alu, AluCompare, A, ReadOperand2(operation));
                     break;
 
-                case Opcode.Increment:
-                    yield return WriteOperand1(operation, Expression.Call(Xpr.Alu, Xpr.AluIncrement, ReadOperand1(operation)));
+                case OpCode.Increment:
+                    yield return WriteOperand1(operation, Expression.Call(Alu, AluIncrement, ReadOperand1(operation)));
                     break;
 
-                case Opcode.Decrement:
-                    yield return WriteOperand1(operation, Expression.Call(Xpr.Alu, Xpr.AluDecrement, ReadOperand1(operation)));
+                case OpCode.Decrement:
+                    yield return WriteOperand1(operation, Expression.Call(Alu, AluDecrement, ReadOperand1(operation)));
                     break;
 
-                case Opcode.Add16:
-                    yield return WriteOperand1(operation, Expression.Call(Xpr.Alu, Xpr.AluAdd16, ReadOperand1(operation, true), ReadOperand2(operation, true)), true);
+                case OpCode.Add16:
+                    yield return WriteOperand1(operation, Expression.Call(Alu, AluAdd16, ReadOperand1(operation, true), ReadOperand2(operation, true)), true);
                     break;
 
-                case Opcode.AddCarry16:
-                    yield return WriteOperand1(operation, Expression.Call(Xpr.Alu, Xpr.AluAdd16WithCarry, ReadOperand1(operation, true), ReadOperand2(operation, true)), true);
+                case OpCode.AddCarry16:
+                    yield return WriteOperand1(operation, Expression.Call(Alu, AluAdd16WithCarry, ReadOperand1(operation, true), ReadOperand2(operation, true)), true);
                     break;
 
-                case Opcode.SubtractCarry16:
-                    yield return WriteOperand1(operation, Expression.Call(Xpr.Alu, Xpr.AluSubtract16WithCarry, ReadOperand1(operation, true), ReadOperand2(operation, true)), true);
+                case OpCode.SubtractCarry16:
+                    yield return WriteOperand1(operation, Expression.Call(Alu, AluSubtract16WithCarry, ReadOperand1(operation, true), ReadOperand2(operation, true)), true);
                     break;
 
-                case Opcode.Increment16:
+                case OpCode.Increment16:
                     // INC ss (no flags changes so implemented directly)
                     yield return Expression.PreIncrementAssign(ReadOperand1(operation, true));
                     break;
 
-                case Opcode.Decrement16:
+                case OpCode.Decrement16:
                     // DEC ss (no flags changes so implemented directly)
                     yield return Expression.PreDecrementAssign(ReadOperand1(operation, true));
                     break;
 
-                case Opcode.Exchange:
+                case OpCode.Exchange:
                     this.usesLocalWord = true;
-                    yield return Expression.Assign(Xpr.LocalWord, ReadOperand2(operation, true));
+                    yield return Expression.Assign(LocalWord, ReadOperand2(operation, true));
                     yield return WriteOperand2(operation, ReadOperand1(operation, true), true);
-                    yield return WriteOperand1(operation, Xpr.LocalWord, true);
+                    yield return WriteOperand1(operation, LocalWord, true);
                     break;
 
-                case Opcode.ExchangeAccumulatorAndFlags:
-                    yield return Xpr.SwitchToAlternativeAccumulatorAndFlagsRegisters;
+                case OpCode.ExchangeAccumulatorAndFlags:
+                    yield return SwitchToAlternativeAccumulatorAndFlagsRegisters;
                     break;
 
-                case Opcode.ExchangeGeneralPurpose:
-                    yield return Xpr.SwitchToAlternativeGeneralPurposeRegisters;
+                case OpCode.ExchangeGeneralPurpose:
+                    yield return SwitchToAlternativeGeneralPurposeRegisters;
                     break;
 
-                case Opcode.Jump:
+                case OpCode.Jump:
                     if (operation.FlagTest == FlagTest.None)
                     {
-                        yield return Expression.Assign(Xpr.PC, ReadOperand1(operation, true));
+                        yield return Expression.Assign(PC, ReadOperand1(operation, true));
                     }
                     else
                     {
-                        yield return Expression.IfThenElse(GetFlagTestExpression(operation.FlagTest), Expression.Assign(Xpr.PC, ReadOperand1(operation, true)), SyncProgramCounter);
+                        yield return Expression.IfThenElse(GetFlagTestExpression(operation.FlagTest), Expression.Assign(PC, ReadOperand1(operation, true)), SyncProgramCounter);
                     }
                     LastDecodeResult = DecodeResult.Finalize;
                     break;
 
-                case Opcode.JumpRelative:
+                case OpCode.JumpRelative:
                     if (operation.FlagTest == FlagTest.None)
                     {
                         yield return JumpToDisplacement(operation);
@@ -153,21 +153,21 @@
                     LastDecodeResult = DecodeResult.FinalizeAndSync;
                     break;
 
-                case Opcode.DecrementJumpRelativeIfNonZero:
+                case OpCode.DecrementJumpRelativeIfNonZero:
                     this.usesDynamicTimings = true;
-                    yield return Expression.Assign(Xpr.B, Expression.Convert(Expression.Decrement(Expression.Convert(Xpr.B, typeof(int))), typeof(byte)));
-                    yield return Expression.IfThen(Expression.NotEqual(Xpr.B, Expression.Constant((byte)0)), Expression.Block(JumpToDisplacement(operation), GetDynamicTimings(1, 5)));
+                    yield return Expression.Assign(B, Expression.Convert(Expression.Decrement(Expression.Convert(B, typeof(int))), typeof(byte)));
+                    yield return Expression.IfThen(Expression.NotEqual(B, Expression.Constant((byte)0)), Expression.Block(JumpToDisplacement(operation), GetDynamicTimings(1, 5)));
                     LastDecodeResult = DecodeResult.FinalizeAndSync;
                     break;
 
-                case Opcode.Call:
+                case OpCode.Call:
                     yield return SyncProgramCounter;
 
                     if (operation.FlagTest == FlagTest.None)
                     {
-                        yield return Xpr.PushSP;
-                        yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteWord, Xpr.SP, Xpr.PC);
-                        yield return Expression.Assign(Xpr.PC, ReadOperand1(operation));
+                        yield return PushSP;
+                        yield return Expression.Call(Mmu, MmuWriteWord, SP, PC);
+                        yield return Expression.Assign(PC, ReadOperand1(operation));
                     }
                     else
                     {
@@ -175,248 +175,248 @@
                         yield return
                             Expression.IfThen(
                                 GetFlagTestExpression(operation.FlagTest),
-                                Expression.Block(Xpr.PushSP, Xpr.WritePCToStack, Expression.Assign(Xpr.PC, ReadOperand1(operation)), GetDynamicTimings(2, 7)));
+                                Expression.Block(PushSP, WritePCToStack, Expression.Assign(PC, ReadOperand1(operation)), GetDynamicTimings(2, 7)));
                     }
                     LastDecodeResult = DecodeResult.Finalize;
                     break;
 
-                case Opcode.Return:
+                case OpCode.Return:
                     if (operation.FlagTest == FlagTest.None)
                     {
-                        yield return Xpr.ReadPCFromStack;
-                        yield return Xpr.PopSP;
+                        yield return ReadPCFromStack;
+                        yield return PopSP;
                     }
                     else
                     {
                         this.usesDynamicTimings = true;
-                        yield return Expression.IfThenElse(GetFlagTestExpression(operation.FlagTest), Expression.Block(Xpr.ReadPCFromStack, Xpr.PopSP, GetDynamicTimings(2, 6)), SyncProgramCounter);
+                        yield return Expression.IfThenElse(GetFlagTestExpression(operation.FlagTest), Expression.Block(ReadPCFromStack, PopSP, GetDynamicTimings(2, 6)), SyncProgramCounter);
                     }
                     LastDecodeResult = DecodeResult.Finalize;
                     break;
 
-                case Opcode.ReturnFromInterrupt:
-                    yield return Xpr.ReadPCFromStack;
-                    yield return Xpr.PopSP;
+                case OpCode.ReturnFromInterrupt:
+                    yield return ReadPCFromStack;
+                    yield return PopSP;
                     LastDecodeResult = DecodeResult.Finalize;
                     break;
 
-                case Opcode.ReturnFromNonmaskableInterrupt:
-                    yield return Xpr.ReadPCFromStack;
-                    yield return Xpr.PopSP;
-                    yield return Expression.Assign(Xpr.IFF1, Xpr.IFF2);
+                case OpCode.ReturnFromNonmaskableInterrupt:
+                    yield return ReadPCFromStack;
+                    yield return PopSP;
+                    yield return Expression.Assign(IFF1, IFF2);
                     LastDecodeResult = DecodeResult.Finalize;
                     break;
 
-                case Opcode.Reset:
+                case OpCode.Reset:
                     yield return SyncProgramCounter;
-                    yield return Xpr.PushSP;
-                    yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteWord, Xpr.SP, Xpr.PC);
-                    yield return Expression.Assign(Xpr.PC, ReadOperand1(operation, true));
+                    yield return PushSP;
+                    yield return Expression.Call(Mmu, MmuWriteWord, SP, PC);
+                    yield return Expression.Assign(PC, ReadOperand1(operation, true));
                     LastDecodeResult = DecodeResult.Finalize;
                     break;
 
-                case Opcode.Input:
-                    yield return WriteOperand1(operation, Expression.Call(Xpr.IO, Xpr.IoReadByte, ReadOperand2(operation), operation.Operand2 == Operand.n ? Xpr.A : Xpr.B));
+                case OpCode.Input:
+                    yield return WriteOperand1(operation, Expression.Call(IO, IoReadByte, ReadOperand2(operation), operation.Operand2 == Operand.n ? A : B));
                     break;
 
-                case Opcode.Output:
-                    yield return Expression.Call(Xpr.IO, Xpr.IoWriteByte, ReadOperand2(operation), operation.Operand2 == Operand.n ? Xpr.A : Xpr.B, ReadOperand1(operation));
+                case OpCode.Output:
+                    yield return Expression.Call(IO, IoWriteByte, ReadOperand2(operation), operation.Operand2 == Operand.n ? A : B, ReadOperand1(operation));
                     break;
 
-                case Opcode.RotateLeftWithCarry:
-                    yield return WriteOperand1(operation, Expression.Call(Xpr.Alu, Xpr.AluRotateLeftWithCarry, ReadOperand1(operation)));
+                case OpCode.RotateLeftWithCarry:
+                    yield return WriteOperand1(operation, Expression.Call(Alu, AluRotateLeftWithCarry, ReadOperand1(operation)));
                     break;
 
-                case Opcode.RotateLeft:
-                    yield return WriteOperand1(operation, Expression.Call(Xpr.Alu, Xpr.AluRotateLeft, ReadOperand1(operation)));
+                case OpCode.RotateLeft:
+                    yield return WriteOperand1(operation, Expression.Call(Alu, AluRotateLeft, ReadOperand1(operation)));
                     break;
 
-                case Opcode.RotateRightWithCarry:
-                    yield return WriteOperand1(operation, Expression.Call(Xpr.Alu, Xpr.AluRotateRightWithCarry, ReadOperand1(operation)));
+                case OpCode.RotateRightWithCarry:
+                    yield return WriteOperand1(operation, Expression.Call(Alu, AluRotateRightWithCarry, ReadOperand1(operation)));
                     break;
 
-                case Opcode.RotateRight:
-                    yield return WriteOperand1(operation, Expression.Call(Xpr.Alu, Xpr.AluRotateRight, ReadOperand1(operation)));
+                case OpCode.RotateRight:
+                    yield return WriteOperand1(operation, Expression.Call(Alu, AluRotateRight, ReadOperand1(operation)));
                     break;
 
-                case Opcode.RotateLeftDigit:
+                case OpCode.RotateLeftDigit:
                     this.usesAccumulatorAndResult = true;
-                    yield return Expression.Assign(Xpr.AccumulatorAndResult, Expression.Call(Xpr.Alu, Xpr.AluRotateLeftDigit, Xpr.A, Xpr.ReadByteAtHL));
-                    yield return Expression.Assign(Xpr.A, Xpr.AccumulatorAndResult_Accumulator);
-                    yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteByte, Xpr.HL, Xpr.AccumulatorAndResult_Result);
+                    yield return Expression.Assign(AccumulatorAndResult, Expression.Call(Alu, AluRotateLeftDigit, A, ReadByteAtHL));
+                    yield return Expression.Assign(A, AccumulatorAndResult_Accumulator);
+                    yield return Expression.Call(Mmu, MmuWriteByte, HL, AccumulatorAndResult_Result);
                     break;
 
-                case Opcode.RotateRightDigit:
+                case OpCode.RotateRightDigit:
                     this.usesAccumulatorAndResult = true;
-                    yield return Expression.Assign(Xpr.AccumulatorAndResult, Expression.Call(Xpr.Alu, Xpr.AluRotateRightDigit, Xpr.A, Xpr.ReadByteAtHL));
-                    yield return Expression.Assign(Xpr.A, Xpr.AccumulatorAndResult_Accumulator);
-                    yield return Expression.Call(Xpr.Mmu, Xpr.MmuWriteByte, Xpr.HL, Xpr.AccumulatorAndResult_Result);
+                    yield return Expression.Assign(AccumulatorAndResult, Expression.Call(Alu, AluRotateRightDigit, A, ReadByteAtHL));
+                    yield return Expression.Assign(A, AccumulatorAndResult_Accumulator);
+                    yield return Expression.Call(Mmu, MmuWriteByte, HL, AccumulatorAndResult_Result);
                     break;
 
-                case Opcode.ShiftLeft:
-                    yield return WriteOperand1(operation, Expression.Call(Xpr.Alu, Xpr.AluShiftLeft, ReadOperand1(operation)));
+                case OpCode.ShiftLeft:
+                    yield return WriteOperand1(operation, Expression.Call(Alu, AluShiftLeft, ReadOperand1(operation)));
                     break;
 
-                case Opcode.ShiftLeftSet:
-                    yield return WriteOperand1(operation, Expression.Call(Xpr.Alu, Xpr.AluShiftLeftSet, ReadOperand1(operation)));
+                case OpCode.ShiftLeftSet:
+                    yield return WriteOperand1(operation, Expression.Call(Alu, AluShiftLeftSet, ReadOperand1(operation)));
                     break;
 
-                case Opcode.ShiftRight:
-                    yield return WriteOperand1(operation, Expression.Call(Xpr.Alu, Xpr.AluShiftRight, ReadOperand1(operation)));
+                case OpCode.ShiftRight:
+                    yield return WriteOperand1(operation, Expression.Call(Alu, AluShiftRight, ReadOperand1(operation)));
                     break;
 
-                case Opcode.ShiftRightLogical:
-                    yield return WriteOperand1(operation, Expression.Call(Xpr.Alu, Xpr.AluShiftRightLogical, ReadOperand1(operation)));
+                case OpCode.ShiftRightLogical:
+                    yield return WriteOperand1(operation, Expression.Call(Alu, AluShiftRightLogical, ReadOperand1(operation)));
                     break;
 
-                case Opcode.BitTest:
-                    yield return Expression.Call(Xpr.Alu, Xpr.AluBitTest, ReadOperand1(operation), Expression.Constant((int)operation.ByteLiteral));
+                case OpCode.BitTest:
+                    yield return Expression.Call(Alu, AluBitTest, ReadOperand1(operation), Expression.Constant((int)operation.ByteLiteral));
                     break;
 
-                case Opcode.BitSet:
-                    yield return WriteOperand1(operation, Expression.Call(Xpr.Alu, Xpr.AluBitSet, ReadOperand1(operation), Expression.Constant((int)operation.ByteLiteral)));
+                case OpCode.BitSet:
+                    yield return WriteOperand1(operation, Expression.Call(Alu, AluBitSet, ReadOperand1(operation), Expression.Constant((int)operation.ByteLiteral)));
                     break;
 
-                case Opcode.BitReset:
-                    yield return WriteOperand1(operation, Expression.Call(Xpr.Alu, Xpr.AluBitReset, ReadOperand1(operation), Expression.Constant((int)operation.ByteLiteral)));
+                case OpCode.BitReset:
+                    yield return WriteOperand1(operation, Expression.Call(Alu, AluBitReset, ReadOperand1(operation), Expression.Constant((int)operation.ByteLiteral)));
                     break;
 
-                case Opcode.TransferIncrement:
+                case OpCode.TransferIncrement:
                     yield return Expression.Block(GetLdExpressions());
                     break;
 
-                case Opcode.TransferIncrementRepeat:
+                case OpCode.TransferIncrementRepeat:
                     this.usesDynamicTimings = true;
                     yield return Expression.Block(GetLdrExpressions());
                     break;
 
-                case Opcode.TransferDecrement:
+                case OpCode.TransferDecrement:
                     yield return Expression.Block(GetLdExpressions(true));
                     break;
 
-                case Opcode.TransferDecrementRepeat:
+                case OpCode.TransferDecrementRepeat:
                     this.usesDynamicTimings = true;
                     yield return Expression.Block(GetLdrExpressions(true));
                     break;
 
-                case Opcode.SearchIncrement:
+                case OpCode.SearchIncrement:
                     yield return Expression.Block(GetCpExpressions());
                     break;
 
-                case Opcode.SearchIncrementRepeat:
+                case OpCode.SearchIncrementRepeat:
                     this.usesDynamicTimings = true;
                     yield return GetCprExpression();
                     break;
 
-                case Opcode.SearchDecrement:
+                case OpCode.SearchDecrement:
                     yield return Expression.Block(GetCpExpressions(true));
                     break;
 
-                case Opcode.SearchDecrementRepeat:
+                case OpCode.SearchDecrementRepeat:
                     this.usesDynamicTimings = true;
                     yield return GetCprExpression(true);
                     break;
 
-                case Opcode.InputTransferIncrement:
+                case OpCode.InputTransferIncrement:
                     yield return Expression.Block(GetInExpressions());
                     break;
 
-                case Opcode.InputTransferIncrementRepeat:
+                case OpCode.InputTransferIncrementRepeat:
                     this.usesDynamicTimings = true;
                     yield return GetInrExpression();
                     break;
 
-                case Opcode.InputTransferDecrement:
+                case OpCode.InputTransferDecrement:
                     yield return Expression.Block(GetInExpressions(true));
                     break;
 
-                case Opcode.InputTransferDecrementRepeat:
+                case OpCode.InputTransferDecrementRepeat:
                     this.usesDynamicTimings = true;
                     yield return GetInrExpression(true);
                     break;
 
-                case Opcode.OutputTransferIncrement:
+                case OpCode.OutputTransferIncrement:
                     yield return Expression.Block(GetOutExpressions());
                     break;
 
-                case Opcode.OutputTransferIncrementRepeat:
+                case OpCode.OutputTransferIncrementRepeat:
                     this.usesDynamicTimings = true;
                     yield return GetOutrExpression();
                     break;
 
-                case Opcode.OutputTransferDecrement:
+                case OpCode.OutputTransferDecrement:
                     yield return Expression.Block(GetOutExpressions(true));
                     break;
 
-                case Opcode.OutputTransferDecrementRepeat:
+                case OpCode.OutputTransferDecrementRepeat:
                     this.usesDynamicTimings = true;
                     yield return GetOutrExpression(true);
                     break;
 
-                case Opcode.DecimalArithmeticAdjust:
-                    yield return Expression.Assign(Xpr.A, Expression.Call(Xpr.Alu, Xpr.AluDecimalAdjust, Xpr.A));
+                case OpCode.DecimalArithmeticAdjust:
+                    yield return Expression.Assign(A, Expression.Call(Alu, AluDecimalAdjust, A));
                     break;
 
-                case Opcode.NegateOnesComplement:
-                    yield return Expression.Assign(Xpr.A, Expression.Not(Xpr.A));
-                    yield return Expression.Call(Xpr.Flags, Xpr.SetUndocumentedFlags, Xpr.A);
-                    yield return Expression.Assign(Xpr.HalfCarry, Expression.Constant(true));
-                    yield return Expression.Assign(Xpr.Subtract, Expression.Constant(true));
+                case OpCode.NegateOnesComplement:
+                    yield return Expression.Assign(A, Expression.Not(A));
+                    yield return Expression.Call(Flags, SetUndocumentedFlags, A);
+                    yield return Expression.Assign(HalfCarry, Expression.Constant(true));
+                    yield return Expression.Assign(Subtract, Expression.Constant(true));
                     break;
 
-                case Opcode.NegateTwosComplement:
-                    yield return Expression.Assign(Xpr.A, Expression.Call(Xpr.Alu, Xpr.AluSubtract, Expression.Constant((byte)0), Xpr.A));
+                case OpCode.NegateTwosComplement:
+                    yield return Expression.Assign(A, Expression.Call(Alu, AluSubtract, Expression.Constant((byte)0), A));
                     break;
 
-                case Opcode.InvertCarryFlag:
-                    yield return Expression.Assign(Xpr.HalfCarry, Xpr.Carry);
-                    yield return Expression.Assign(Xpr.Subtract, Expression.Constant(false));
-                    yield return Expression.Assign(Xpr.Carry, Expression.Not(Xpr.Carry));
+                case OpCode.InvertCarryFlag:
+                    yield return Expression.Assign(HalfCarry, Carry);
+                    yield return Expression.Assign(Subtract, Expression.Constant(false));
+                    yield return Expression.Assign(Carry, Expression.Not(Carry));
                     break;
 
-                case Opcode.SetCarryFlag:
-                    yield return Expression.Assign(Xpr.HalfCarry, Expression.Constant(false));
-                    yield return Expression.Assign(Xpr.Subtract, Expression.Constant(false));
-                    yield return Expression.Assign(Xpr.Carry, Expression.Constant(true));
+                case OpCode.SetCarryFlag:
+                    yield return Expression.Assign(HalfCarry, Expression.Constant(false));
+                    yield return Expression.Assign(Subtract, Expression.Constant(false));
+                    yield return Expression.Assign(Carry, Expression.Constant(true));
                     break;
 
-                case Opcode.DisableInterrupts:
-                    yield return Expression.Assign(Xpr.IFF1, Expression.Constant(false));
-                    yield return Expression.Assign(Xpr.IFF2, Expression.Constant(false));
+                case OpCode.DisableInterrupts:
+                    yield return Expression.Assign(IFF1, Expression.Constant(false));
+                    yield return Expression.Assign(IFF2, Expression.Constant(false));
                     break;
 
-                case Opcode.EnableInterrupts:
-                    yield return Expression.Assign(Xpr.IFF1, Expression.Constant(true));
-                    yield return Expression.Assign(Xpr.IFF2, Expression.Constant(true));
+                case OpCode.EnableInterrupts:
+                    yield return Expression.Assign(IFF1, Expression.Constant(true));
+                    yield return Expression.Assign(IFF2, Expression.Constant(true));
                     break;
 
-                case Opcode.InterruptMode0:
-                    yield return Expression.Assign(Xpr.IM, Expression.Constant(InterruptMode.InterruptMode0));
+                case OpCode.InterruptMode0:
+                    yield return Expression.Assign(IM, Expression.Constant(InterruptMode.InterruptMode0));
                     break;
 
-                case Opcode.InterruptMode1:
-                    yield return Expression.Assign(Xpr.IM, Expression.Constant(InterruptMode.InterruptMode1));
+                case OpCode.InterruptMode1:
+                    yield return Expression.Assign(IM, Expression.Constant(InterruptMode.InterruptMode1));
                     break;
 
-                case Opcode.InterruptMode2:
-                    yield return Expression.Assign(Xpr.IM, Expression.Constant(InterruptMode.InterruptMode2));
+                case OpCode.InterruptMode2:
+                    yield return Expression.Assign(IM, Expression.Constant(InterruptMode.InterruptMode2));
                     break;
 
-                case Opcode.Swap:
-                    yield return WriteOperand1(operation, Expression.Call(Xpr.Alu, Xpr.AluSwap, ReadOperand1(operation)));
+                case OpCode.Swap:
+                    yield return WriteOperand1(operation, Expression.Call(Alu, AluSwap, ReadOperand1(operation)));
                     break;
 
-                case Opcode.LoadIncrement:
+                case OpCode.LoadIncrement:
                     yield return WriteOperand1(operation, ReadOperand2(operation));
-                    yield return Expression.PreIncrementAssign(Xpr.HL); // No support for indexes but GB doesnt have them
+                    yield return Expression.PreIncrementAssign(HL); // No support for indexes but GB doesnt have them
                     break;
 
-                case Opcode.LoadDecrement:
+                case OpCode.LoadDecrement:
                     yield return WriteOperand1(operation, ReadOperand2(operation));
-                    yield return Expression.PreDecrementAssign(Xpr.HL); // No support for indexes but GB doesnt have them
+                    yield return Expression.PreDecrementAssign(HL); // No support for indexes but GB doesnt have them
                     break;
 
-                case Opcode.Stop:
+                case OpCode.Stop:
                     LastDecodeResult = DecodeResult.Stop;
                     break;
 

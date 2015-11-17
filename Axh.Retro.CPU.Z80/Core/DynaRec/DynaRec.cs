@@ -17,8 +17,6 @@
 
     internal partial class DynaRec<TRegisters> where TRegisters : IRegisters
     {
-        private static readonly DynaRecExpressions<TRegisters> Xpr = new DynaRecExpressions<TRegisters>();
-
         private readonly IPrefetchQueue prefetch;
 
         private readonly CpuMode cpuMode;
@@ -29,9 +27,9 @@
 
         private bool usesAccumulatorAndResult;
 
-        private Expression SyncProgramCounter => Expression.Assign(Xpr.PC, Expression.Convert(Expression.Add(Expression.Convert(Xpr.PC, typeof(int)), Expression.Constant(this.prefetch.TotalBytesRead)), typeof(ushort)));
+        private Expression SyncProgramCounter => Expression.Assign(PC, Expression.Convert(Expression.Add(Expression.Convert(PC, typeof(int)), Expression.Constant(this.prefetch.TotalBytesRead)), typeof(ushort)));
 
-        public DynaRec(IPlatformConfig platformConfig, IPrefetchQueue prefetch)
+        public DynaRec(IPlatformConfig platformConfig, IPrefetchQueue prefetch) : this()
         {
             this.prefetch = prefetch;
             this.cpuMode = platformConfig.CpuMode;
@@ -55,7 +53,7 @@
 
             var expressionBlock = Expression.Block(GeParameterExpressions(), expressions);
 
-            var lambda = Expression.Lambda<Func<TRegisters, IMmu, IAlu, IPeripheralManager, InstructionTimings>>(expressionBlock, Xpr.Registers, Xpr.Mmu, Xpr.Alu, Xpr.IO);
+            var lambda = Expression.Lambda<Func<TRegisters, IMmu, IAlu, IPeripheralManager, InstructionTimings>>(expressionBlock, Registers, Mmu, Alu, IO);
             return lambda;
         }
         
@@ -63,18 +61,18 @@
         {
             if (this.usesLocalWord)
             {
-                yield return Xpr.LocalWord;
+                yield return LocalWord;
             }
 
             if (usesDynamicTimings)
             {
-                yield return Xpr.DynamicTimer;
+                yield return DynamicTimer;
             }
 
             if (this.usesAccumulatorAndResult)
             {
                 // Z80 supports some opcodes that manipulate the accumulator and a result in memory at the same time.
-                yield return Xpr.AccumulatorAndResult;
+                yield return AccumulatorAndResult;
             }
         }
 
@@ -83,7 +81,7 @@
             if (usesDynamicTimings)
             {
                 // Create a new dynamic timer to record any timings calculated at runtime.
-                yield return Expression.Assign(Xpr.DynamicTimer, Expression.New(typeof(InstructionTimingsBuilder)));
+                yield return Expression.Assign(DynamicTimer, Expression.New(typeof(InstructionTimingsBuilder)));
             }
         }
 
@@ -110,7 +108,7 @@
             if (usesDynamicTimings)
             {
                 var getInstructionTimings = ExpressionHelpers.GetMethodInfo<IInstructionTimingsBuilder>(dt => dt.GetInstructionTimings());
-                yield return Expression.Return(returnTarget, Expression.Call(Xpr.DynamicTimer, getInstructionTimings), typeof(InstructionTimings));
+                yield return Expression.Return(returnTarget, Expression.Call(DynamicTimer, getInstructionTimings), typeof(InstructionTimings));
             }
 
             yield return Expression.Label(returnTarget, Expression.Constant(default(InstructionTimings)));

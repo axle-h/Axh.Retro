@@ -47,7 +47,7 @@
     <Compile Include="Core\CoreContext.cs" />
     <Compile Include="Core\Decode\Operation.cs" />
     <Compile Include="Core\Decode\FlagTest.cs" />
-    <Compile Include="Core\Decode\Opcode.cs" />
+    <Compile Include="Core\Decode\OpCode.cs" />
     <Compile Include="Core\Decode\OpCodeDecoder.PrefixCb.cs" />
     <Compile Include="Core\Decode\OpCodeDecoder.PrefixEd.cs" />
     <Compile Include="Core\Decode\OpCodeDecoder.Primary.cs" />
@@ -63,7 +63,7 @@
     <Compile Include="Core\DynaRec\IndexRegisterExpressions.cs" />
     <Compile Include="Core\InterruptManager.cs" />
     <Compile Include="Core\Timing\InstructionTimingsBuilder.cs" />
-    <Compile Include="Core\DynaRec\DynaRecExpressions.cs" />
+    <Compile Include="Core\DynaRec\DynaRec.Expressions.cs" />
     <Compile Include="Core\Interpreted\InterpretedInstructionBlockDecoder.cs" />
     <Compile Include="Core\Timing\MachineCycleTimer.cs" />
     <Compile Include="Factories\CoreContextFactoryBase.cs" />
