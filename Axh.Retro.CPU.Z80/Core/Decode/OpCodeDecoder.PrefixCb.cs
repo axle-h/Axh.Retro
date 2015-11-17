@@ -24,9 +24,10 @@
                 // Only BIT has no autocopy
                 // Add autocopy timings
                 result.AutoCopy();
+                timer.IndexAndMmuByte(true).MmuWord().Extend(1);
             }
 
-            timer.Index(true).MmuByte();
+            timer.IndexAndMmuByte(false).Extend(2);
             return result;
         }
 
@@ -622,8 +623,14 @@
 
         private Operation BitTestFromIndex(int bit)
         {
-            timer.IndexAndMmuByte(index.IsDisplaced);
-            if (!index.IsDisplaced) timer.Extend(1);
+            if (index.IsDisplaced)
+            {
+                timer.MmuWord().Extend(2);
+            }
+            else
+            {
+                timer.MmuByte().Extend(1);
+            }
             return new Operation(Opcode.BitTest, index.Index).AddLiteral((byte)bit);
         }
 

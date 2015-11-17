@@ -76,8 +76,8 @@
         public IInstructionTimingsBuilder IndexAndMmuByte(bool isDisplaced)
         {
             // Only add on prefetch timings when not an indexed register
-            MachineCycles += isDisplaced ? DisplacedIndexMachineCycles : IndexMachineCycles + PrefetchMachineCycles;
-            ThrottlingStates += isDisplaced ? DisplacedIndexThrottlingStates : IndexThrottlingStates + PretetchThrottlingStates;
+            MachineCycles += isDisplaced ? DisplacedIndexMachineCycles : (IndexMachineCycles + PrefetchMachineCycles);
+            ThrottlingStates += isDisplaced ? DisplacedIndexThrottlingStates : (IndexThrottlingStates + PretetchThrottlingStates);
             return this;
         }
 

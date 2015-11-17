@@ -321,7 +321,7 @@
 
         [TestCase(PrimaryOpCode.Prefix_DD)]
         [TestCase(PrimaryOpCode.Prefix_FD)]
-        public void RES__n_IXYd(PrimaryOpCode prefix)
+        public void RES_n_IXYd(PrimaryOpCode prefix)
         {
             const sbyte Displacement = -13;
             var indexValue = prefix == PrimaryOpCode.Prefix_DD ? IX : IY;
@@ -332,7 +332,7 @@
             this.Mmu.Setup(x => x.ReadByte(displacedIndex)).Returns(ValueAtIndex);
             this.Alu.Setup(x => x.BitReset(ValueAtIndex, It.IsAny<int>())).Returns(Expected);
 
-            var opCodes = GetOpCodes("RES_");
+            var opCodes = GetOpCodes("RES");
             foreach (var opCode in opCodes)
             {
                 this.SetupRegisters();
