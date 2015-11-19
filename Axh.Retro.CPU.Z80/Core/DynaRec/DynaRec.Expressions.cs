@@ -12,7 +12,7 @@
     using Axh.Retro.CPU.Z80.Contracts.Registers;
     using Axh.Retro.CPU.Z80.Util;
 
-    internal partial class DynaRec<TRegisters> where TRegisters : IRegisters
+    public partial class DynaRec<TRegisters> where TRegisters : IRegisters
     {
         private readonly ParameterExpression Registers;
         private readonly ParameterExpression Mmu;

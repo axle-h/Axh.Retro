@@ -45,6 +45,7 @@
     <Compile Include="Core\Alu.cs" />
     <Compile Include="Core\CachingCpuCore.cs" />
     <Compile Include="Core\CoreContext.cs" />
+    <Compile Include="Core\Decode\DecodedBlock.cs" />
     <Compile Include="Core\Decode\Operation.cs" />
     <Compile Include="Core\Decode\FlagTest.cs" />
     <Compile Include="Core\Decode\OpCode.cs" />
@@ -81,7 +82,6 @@
     <Compile Include="Util\BitConverterHelpers.cs" />
     <Compile Include="Util\ByteExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Core\DynaRec\DynaRecInstructionBlockDecoder.cs" />
     <Compile Include="Util\DebugViewWriter.cs" />
     <Compile Include="Util\ExpressionHelpers.cs" />
   </ItemGroup>

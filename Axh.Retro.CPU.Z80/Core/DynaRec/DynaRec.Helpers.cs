@@ -8,8 +8,9 @@
 
     using Axh.Retro.CPU.Z80.Contracts.Registers;
     using Axh.Retro.CPU.Z80.Core.Decode;
+    using Axh.Retro.CPU.Z80.Util;
 
-    internal partial class DynaRec<TRegisters> where TRegisters : IRegisters
+    public partial class DynaRec<TRegisters> where TRegisters : IRegisters
     {
         private Expression ReadOperand1(Operation operation, bool is16Bit = false)
         {
@@ -216,12 +217,12 @@
             }
         }
 
-        public Expression GetDynamicTimings(int mCycles, int tStates)
+        private Expression GetDynamicTimings(int mCycles, int tStates)
         {
             return Expression.Call(DynamicTimer, DynamicTimerAdd, Expression.Constant(mCycles), Expression.Constant(tStates));
         }
 
-        public Expression GetMemoryRefreshDeltaExpression(Expression deltaExpression)
+        private Expression GetMemoryRefreshDeltaExpression(Expression deltaExpression)
         {
             var increment7LsbR = Expression.And(Expression.Add(Expression.Convert(R, typeof(int)), deltaExpression), Expression.Constant(0x7f));
             return Expression.Assign(R, Expression.Convert(increment7LsbR, typeof(byte)));
@@ -263,14 +264,14 @@
             yield return Expression.Assign(Subtract, Expression.Constant(false));
         }
 
-        public IEnumerable<Expression> GetCpExpressions(bool decrement = false)
+        private IEnumerable<Expression> GetCpExpressions(bool decrement = false)
         {
             yield return Expression.Call(Alu, AluCompare, A, Expression.Call(Mmu, MmuReadByte, HL));
             yield return decrement ? Expression.PreDecrementAssign(HL) : Expression.PreIncrementAssign(HL);
             yield return Expression.PreDecrementAssign(BC);
         }
 
-        public Expression GetCprExpression(bool decrement = false)
+        private Expression GetCprExpression(bool decrement = false)
         {
             var breakLabel = Expression.Label();
             var expressions = GetCpExpressions(decrement);
@@ -282,7 +283,7 @@
             return Expression.Loop(Expression.Block(expressions.Concat(iterationExpressions).ToArray()), breakLabel);
         }
 
-        public IEnumerable<Expression> GetInExpressions(bool decrement = false)
+        private IEnumerable<Expression> GetInExpressions(bool decrement = false)
         {
             yield return Expression.Call(Mmu, MmuWriteByte, HL, Expression.Call(IO, IoReadByte, C, B));
             yield return decrement ? Expression.PreDecrementAssign(HL) : Expression.PreIncrementAssign(HL);
@@ -291,7 +292,7 @@
             yield return Expression.Call(Flags, SetResultFlags, B);
         }
 
-        public Expression GetInrExpression(bool decrement = false)
+        private Expression GetInrExpression(bool decrement = false)
         {
             var breakLabel = Expression.Label();
 
@@ -305,7 +306,7 @@
             return Expression.Loop(Expression.Block(expressions.Concat(iterationExpressions).ToArray()), breakLabel);
         }
 
-        public IEnumerable<Expression> GetOutExpressions(bool decrement = false)
+        private IEnumerable<Expression> GetOutExpressions(bool decrement = false)
         {
             yield return Expression.Call(IO, IoWriteByte, C, B, ReadByteAtHL);
             yield return decrement ? Expression.PreDecrementAssign(HL) : Expression.PreIncrementAssign(HL);
@@ -314,7 +315,7 @@
             yield return Expression.Call(Flags, SetResultFlags, B);
         }
 
-        public Expression GetOutrExpression(bool decrement = false)
+        private Expression GetOutrExpression(bool decrement = false)
         {
             var breakLabel = Expression.Label();
 
@@ -326,6 +327,12 @@
                                        };
 
             return Expression.Loop(Expression.Block(expressions.Concat(iterationExpressions).ToArray()), breakLabel);
+        }
+
+        private static Expression GetDebugExpression(string text)
+        {
+            var document = Expression.SymbolDocument(text);
+            return Expression.DebugInfo(document, DebugViewWriter.OperationDebugOperationStartLine, 1, DebugViewWriter.OperationDebugOperationStartLine + 1, 1);
         }
     }
 }

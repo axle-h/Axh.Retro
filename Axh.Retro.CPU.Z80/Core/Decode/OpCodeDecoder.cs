@@ -1,10 +1,12 @@
 ﻿namespace Axh.Retro.CPU.Z80.Core.Decode
 {
     using System.Collections.Generic;
+    using System.Linq;
 
     using Axh.Retro.CPU.Common.Contracts.Memory;
     using Axh.Retro.CPU.Z80.Contracts.Config;
     using Axh.Retro.CPU.Z80.Contracts.Core.Timing;
+    using Axh.Retro.CPU.Z80.Core.Timing;
 
     internal partial class OpCodeDecoder
     {
@@ -20,12 +22,12 @@
 
         private IndexRegisterOperands index;
 
-        public OpCodeDecoder(IPlatformConfig platformConfig, IPrefetchQueue prefetch, IInstructionTimingsBuilder timer)
+        public OpCodeDecoder(IPlatformConfig platformConfig, IPrefetchQueue prefetch)
         {
             this.cpuMode = platformConfig.CpuMode;
             this.undefinedInstruction = platformConfig.LockOnUndefinedInstruction ? OpCode.Halt : OpCode.NoOperation;
             this.prefetch = prefetch;
-            this.timer = timer;
+            this.timer = new InstructionTimingsBuilder();
             this.indexRegisterOperands = new Dictionary<IndexRegister, IndexRegisterOperands> { { IndexRegister.HL, new IndexRegisterOperands(Operand.HL, Operand.mHL, Operand.L, Operand.H, false) } };
 
             if (cpuMode == CpuMode.Z80)
@@ -35,7 +37,13 @@
             }
         }
 
-        public IEnumerable<Operation> DecodeNextBlock(ushort address)
+        public DecodedBlock GetNextBlock(ushort address)
+        {
+            var operations = this.DecodeOperations(address);
+            return new DecodedBlock(operations.ToArray(), this.timer.GetInstructionTimings());
+        }
+
+        public IEnumerable<Operation> DecodeOperations(ushort address)
         {
             timer.Reset();
             index = indexRegisterOperands[IndexRegister.HL];

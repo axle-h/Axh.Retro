@@ -70,7 +70,7 @@
                 case CoreMode.Interpreted:
                     throw new NotImplementedException(this.RuntimeConfig.CoreMode.ToString());
                 case CoreMode.DynaRec:
-                    return new DynaRecInstructionBlockDecoder<TRegisters>(this.PlatformConfig, this.RuntimeConfig, prefetchQueue);
+                    return new DynaRec<TRegisters>(this.PlatformConfig, this.RuntimeConfig, prefetchQueue);
                 default:
                     throw new ArgumentOutOfRangeException(nameof(this.RuntimeConfig.CoreMode), this.RuntimeConfig.CoreMode, null);
             }

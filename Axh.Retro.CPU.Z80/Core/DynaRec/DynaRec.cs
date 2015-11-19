@@ -15,11 +15,15 @@
     using Axh.Retro.CPU.Z80.Core.Timing;
     using Axh.Retro.CPU.Z80.Util;
 
-    internal partial class DynaRec<TRegisters> where TRegisters : IRegisters
+    public partial class DynaRec<TRegisters> : IInstructionBlockDecoder<TRegisters> where TRegisters : IRegisters
     {
         private readonly IPrefetchQueue prefetch;
 
         private readonly CpuMode cpuMode;
+
+        private readonly bool debug;
+
+        private readonly OpCodeDecoder decoder;
 
         private bool usesDynamicTimings;
 
@@ -27,24 +31,44 @@
 
         private bool usesAccumulatorAndResult;
 
+        private DecodeResult lastDecodeResult;
+
         private Expression SyncProgramCounter => Expression.Assign(PC, Expression.Convert(Expression.Add(Expression.Convert(PC, typeof(int)), Expression.Constant(this.prefetch.TotalBytesRead)), typeof(ushort)));
 
-        public DynaRec(IPlatformConfig platformConfig, IPrefetchQueue prefetch) : this()
+        public DynaRec(IPlatformConfig platformConfig, IRuntimeConfig runtimeConfig, IPrefetchQueue prefetch) : this()
         {
             this.prefetch = prefetch;
             this.cpuMode = platformConfig.CpuMode;
+            this.debug = runtimeConfig.DebugMode;
+            
+            this.decoder = new OpCodeDecoder(platformConfig, prefetch);
         }
 
-        public DecodeResult LastDecodeResult { get; private set; }
+        public bool SupportsInstructionBlockCaching => true;
 
-
-        public Expression<Func<TRegisters, IMmu, IAlu, IPeripheralManager, InstructionTimings>> BuildExpressionTree(IEnumerable<Operation> operations)
+        public IInstructionBlock<TRegisters> DecodeNextBlock(ushort address)
         {
+            var decodedBlock = this.decoder.GetNextBlock(address);
+            var lambda = this.BuildExpressionTree(decodedBlock.Operations);
+
+            var block = new DynaRecInstructionBlock<TRegisters>(address, (ushort)prefetch.TotalBytesRead, lambda.Compile(), decodedBlock.Timings, lastDecodeResult);
+            if (this.debug)
+            {
+                block.DebugInfo = $"{string.Join("\n", decodedBlock.Operations.Select(x => x.ToString()))}\n\n{lambda.DebugView()}";
+            }
+
+            return block;
+        }
+
+        private Expression<Func<TRegisters, IMmu, IAlu, IPeripheralManager, InstructionTimings>> BuildExpressionTree(IEnumerable<Operation> operations)
+        {
+            // Reset
             this.usesDynamicTimings = false;
             this.usesLocalWord = false;
             this.usesAccumulatorAndResult = false;
+            this.lastDecodeResult = DecodeResult.Continue;
 
-            // Run this first so we know what iinit & final expressions to add.
+            // Run this first so we know what init & final expressions to add.
             var blockExpressions = operations.SelectMany(Recompile).ToArray();
             var initExpressions = GetBlockInitExpressions();
             var finalExpressions = GetBlockFinalExpressions();
@@ -87,7 +111,12 @@
 
         private IEnumerable<Expression> GetBlockFinalExpressions()
         {
-            if (LastDecodeResult == DecodeResult.FinalizeAndSync || LastDecodeResult == DecodeResult.Halt || LastDecodeResult == DecodeResult.Stop)
+            if (this.debug)
+            {
+                yield return GetDebugExpression("Block Finalize");
+            }
+
+            if (lastDecodeResult == DecodeResult.FinalizeAndSync || lastDecodeResult == DecodeResult.Halt || lastDecodeResult == DecodeResult.Stop)
             {
                 // Increment the program counter by how many bytes were read.
                 yield return SyncProgramCounter;

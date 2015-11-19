@@ -104,7 +104,7 @@
 
             var runtimeConfig = new Mock<IRuntimeConfig>();
             runtimeConfig.Setup(x => x.DebugMode).Returns(true);
-            this.DynaRecBlockDecoder = new DynaRecInstructionBlockDecoder<TRegisters>(platformConfig.Object, runtimeConfig.Object, this.Cache.Object);
+            this.DynaRecBlockDecoder = new DynaRec<TRegisters>(platformConfig.Object, runtimeConfig.Object, this.Cache.Object);
         }
 
         protected void SetupRegisters(ushort? bc = null)

@@ -6,17 +6,23 @@
 
     using Axh.Retro.CPU.Z80.Contracts.Registers;
     using Axh.Retro.CPU.Z80.Core.Decode;
+    using Axh.Retro.CPU.Z80.Util;
 
-    internal partial class DynaRec<TRegisters> where TRegisters : IRegisters
+    public partial class DynaRec<TRegisters> where TRegisters : IRegisters
     {
         private IEnumerable<Expression> Recompile(Operation operation)
         {
+            if (debug)
+            {
+                yield return GetDebugExpression(operation.ToString());
+            }
+
             switch (operation.OpCode)
             {
                 case OpCode.NoOperation:
                     break;
                 case OpCode.Halt:
-                    LastDecodeResult = DecodeResult.Halt;
+                    lastDecodeResult = DecodeResult.Halt;
                     break;
 
                 case OpCode.Load:
@@ -137,7 +143,7 @@
                     {
                         yield return Expression.IfThenElse(GetFlagTestExpression(operation.FlagTest), Expression.Assign(PC, ReadOperand1(operation, true)), SyncProgramCounter);
                     }
-                    LastDecodeResult = DecodeResult.Finalize;
+                    lastDecodeResult = DecodeResult.Finalize;
                     break;
 
                 case OpCode.JumpRelative:
@@ -150,14 +156,14 @@
                         this.usesDynamicTimings = true;
                         yield return Expression.IfThen(GetFlagTestExpression(operation.FlagTest), Expression.Block(JumpToDisplacement(operation), GetDynamicTimings(1, 5)));
                     }
-                    LastDecodeResult = DecodeResult.FinalizeAndSync;
+                    lastDecodeResult = DecodeResult.FinalizeAndSync;
                     break;
 
                 case OpCode.DecrementJumpRelativeIfNonZero:
                     this.usesDynamicTimings = true;
                     yield return Expression.Assign(B, Expression.Convert(Expression.Decrement(Expression.Convert(B, typeof(int))), typeof(byte)));
                     yield return Expression.IfThen(Expression.NotEqual(B, Expression.Constant((byte)0)), Expression.Block(JumpToDisplacement(operation), GetDynamicTimings(1, 5)));
-                    LastDecodeResult = DecodeResult.FinalizeAndSync;
+                    lastDecodeResult = DecodeResult.FinalizeAndSync;
                     break;
 
                 case OpCode.Call:
@@ -177,7 +183,7 @@
                                 GetFlagTestExpression(operation.FlagTest),
                                 Expression.Block(PushSP, WritePCToStack, Expression.Assign(PC, ReadOperand1(operation)), GetDynamicTimings(2, 7)));
                     }
-                    LastDecodeResult = DecodeResult.Finalize;
+                    lastDecodeResult = DecodeResult.Finalize;
                     break;
 
                 case OpCode.Return:
@@ -191,20 +197,20 @@
                         this.usesDynamicTimings = true;
                         yield return Expression.IfThenElse(GetFlagTestExpression(operation.FlagTest), Expression.Block(ReadPCFromStack, PopSP, GetDynamicTimings(2, 6)), SyncProgramCounter);
                     }
-                    LastDecodeResult = DecodeResult.Finalize;
+                    lastDecodeResult = DecodeResult.Finalize;
                     break;
 
                 case OpCode.ReturnFromInterrupt:
                     yield return ReadPCFromStack;
                     yield return PopSP;
-                    LastDecodeResult = DecodeResult.Finalize;
+                    lastDecodeResult = DecodeResult.Finalize;
                     break;
 
                 case OpCode.ReturnFromNonmaskableInterrupt:
                     yield return ReadPCFromStack;
                     yield return PopSP;
                     yield return Expression.Assign(IFF1, IFF2);
-                    LastDecodeResult = DecodeResult.Finalize;
+                    lastDecodeResult = DecodeResult.Finalize;
                     break;
 
                 case OpCode.Reset:
@@ -212,7 +218,7 @@
                     yield return PushSP;
                     yield return Expression.Call(Mmu, MmuWriteWord, SP, PC);
                     yield return Expression.Assign(PC, ReadOperand1(operation, true));
-                    LastDecodeResult = DecodeResult.Finalize;
+                    lastDecodeResult = DecodeResult.Finalize;
                     break;
 
                 case OpCode.Input:
@@ -417,7 +423,7 @@
                     break;
 
                 case OpCode.Stop:
-                    LastDecodeResult = DecodeResult.Stop;
+                    lastDecodeResult = DecodeResult.Stop;
                     break;
 
                 default:
