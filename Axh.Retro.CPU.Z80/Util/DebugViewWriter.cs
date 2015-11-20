@@ -1338,8 +1338,10 @@ namespace Axh.Retro.CPU.Z80.Util
         {
             if (node.StartLine == OperationDebugOperationStartLine)
             {
+                // Empty line
+                Out(string.Empty);
                 NewLine();
-                Out(string.Format(CultureInfo.CurrentCulture, ".Op({0})", node.Document.FileName));
+                Out(string.Format(CultureInfo.CurrentCulture, ".Z80({0})", node.Document.FileName));
             }
             else
             {
