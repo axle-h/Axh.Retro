@@ -56,11 +56,11 @@
     <Compile Include="Media\MediaExtensions.cs" />
     <Compile Include="Media\CartridgeRamSize.cs" />
     <Compile Include="Media\CartridgeRomSize.cs" />
-    <Compile Include="Peripherals\IGameBoyRegisters.cs" />
+    <Compile Include="Peripherals\IGameBoyMemoryMappedIO.cs" />
     <Compile Include="Devices\IHardwareRegisters.cs" />
     <Compile Include="Devices\IJoyPad.cs" />
     <Compile Include="Devices\IRenderhandler.cs" />
-    <Compile Include="Peripherals\IGraphicsFrameBuffer.cs" />
+    <Compile Include="Peripherals\IFrameBuffer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

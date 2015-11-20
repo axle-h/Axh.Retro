@@ -1,4 +1,4 @@
-﻿namespace Axh.Retro.GameBoy.Peripherals
+﻿namespace Axh.Retro.GameBoy.Devices
 {
     using System.Collections.Generic;
 
@@ -7,20 +7,19 @@
     using Axh.Retro.CPU.Common.Contracts.Memory;
     using Axh.Retro.CPU.Common.Memory;
     using Axh.Retro.CPU.Z80.Contracts.Core;
-    using Axh.Retro.CPU.Z80.Contracts.Peripherals;
     using Axh.Retro.GameBoy.Contracts.Devices;
     using Axh.Retro.GameBoy.Contracts.Peripherals;
 
-    public class GraphicsFrameBuffer : IGraphicsFrameBuffer, IMemoryMappedPeripheral
+    internal class FrameBuffer : IFrameBuffer
     {
         private static readonly IMemoryBankConfig SpriteRamConfig = new SimpleMemoryBankConfig(MemoryBankType.Peripheral, null, 0xfe00, 0xa0);
         private static readonly IMemoryBankConfig MapRamConfig = new SimpleMemoryBankConfig(MemoryBankType.Peripheral, null, 0x8000, 0x2000);
-        
+
         /// <summary>
         /// $FE00-$FE9F	OAM - Object Attribute Memory
         /// </summary>
         private readonly ArrayBackedMemoryBank spriteRam;
-        
+
         /// <summary>
         /// $9C00-$9FFF	BG Map Data 2
         /// $9800-$9BFF BG Map Data 1
@@ -34,7 +33,7 @@
 
         private readonly IRenderHandler renderhandler;
 
-        public GraphicsFrameBuffer(IInterruptManager interruptManager, IHardwareRegisters hardwareRegisters, IRenderHandler renderhandler)
+        public FrameBuffer(IInterruptManager interruptManager, IHardwareRegisters hardwareRegisters, IRenderHandler renderhandler)
         {
             this.interruptManager = interruptManager;
             this.hardwareRegisters = hardwareRegisters;
@@ -52,7 +51,7 @@
         {
             throw new System.NotImplementedException();
         }
-        
-        public IEnumerable<IAddressSegment> AddressSegments => new[] { mapRam, spriteRam };
+
+        public IEnumerable<IAddressSegment> AddressSegments => new[] { spriteRam, mapRam };
     }
 }

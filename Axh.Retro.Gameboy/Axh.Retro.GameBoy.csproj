@@ -43,15 +43,15 @@
     <Compile Include="Config\GameBoyInitialStateConfig.cs" />
     <Compile Include="Config\GameBoyPlatformConfig.cs" />
     <Compile Include="Config\GameBoyRuntimeConfig.cs" />
+    <Compile Include="Devices\FrameBuffer.cs" />
     <Compile Include="Devices\LazyDividerRegister.cs" />
     <Compile Include="Devices\GameBoyInterruptManager.cs" />
     <Compile Include="Devices\SyncSerialPort.cs" />
     <Compile Include="Factories\PeripheralFactory.cs" />
     <Compile Include="Media\Cartridge.cs" />
     <Compile Include="Factories\CartridgeFactory.cs" />
-    <Compile Include="Peripherals\GraphicsFrameBuffer.cs" />
     <Compile Include="Devices\HardwareRegisters.cs" />
-    <Compile Include="Peripherals\GameBoyRegisters.cs" />
+    <Compile Include="Peripherals\GameBoyMemoryMappedIO.cs" />
     <Compile Include="Devices\InterruptRegister.cs" />
     <Compile Include="Devices\JoyPad.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

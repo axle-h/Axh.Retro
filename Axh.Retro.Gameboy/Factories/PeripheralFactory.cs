@@ -9,7 +9,7 @@
     using Axh.Retro.GameBoy.Contracts.Factories;
     using Axh.Retro.GameBoy.Devices;
     using Axh.Retro.GameBoy.Peripherals;
-
+    
     public class PeripheralFactory : IPeripheralFactory
     {
         private readonly IRenderHandlerFactory renderHandlerFactory;
@@ -39,11 +39,13 @@
             var hardwareRegisters = new HardwareRegisters(joyPad, serialPort, dividerRegister);
             var interruptRegister = new InterruptRegister();
 
-            // Build peripherals
-            var hardwareRegistersPeripheral = new GameBoyRegisters(hardwareRegisters, interruptRegister);
-            var graphicsFrameBuffer = new GraphicsFrameBuffer(interruptManager, hardwareRegisters, renderhandler);
+            // Build framebuffer
+            var frameBuffer = new FrameBuffer(interruptManager, hardwareRegisters, renderhandler);
 
-            return new IMemoryMappedPeripheral[] { hardwareRegistersPeripheral, graphicsFrameBuffer };
+            // Build peripherals
+            var hardwareRegistersPeripheral = new GameBoyMemoryMappedIO(hardwareRegisters, interruptRegister, frameBuffer);
+            
+            return new IMemoryMappedPeripheral[] { hardwareRegistersPeripheral };
         }
     }
 }

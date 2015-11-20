@@ -2,10 +2,12 @@
 {
     using Axh.Retro.GameBoy.Contracts.Devices;
 
-    public interface IGameBoyRegisters
+    public interface IGameBoyMemoryMappedIO
     {
         IHardwareRegisters HardwareRegisters { get; }
 
         IInterruptRegister InterruptRegister { get; }
+
+        IFrameBuffer FrameBuffer { get; }
     }
 }
