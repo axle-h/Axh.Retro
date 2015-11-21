@@ -8,8 +8,10 @@
     using Axh.Retro.CPU.Z80.Contracts.Peripherals;
     using Axh.Retro.GameBoy.Contracts.Factories;
     using Axh.Retro.GameBoy.Devices;
+    using Axh.Retro.GameBoy.Registers;
     using Axh.Retro.GameBoy.Peripherals;
-    
+    using Axh.Retro.GameBoy.Registers.Interfaces;
+
     public class PeripheralFactory : IPeripheralFactory
     {
         private readonly IRenderHandlerFactory renderHandlerFactory;
@@ -30,17 +32,19 @@
             var gameBoyInterruptManager = new GameBoyInterruptManager(interruptManager);
 
             // Build devices
+            var renderhandler = this.renderHandlerFactory.GetRenderHandler();
             var joyPad = new JoyPad(gameBoyInterruptManager);
             var serialPort = new SyncSerialPort(gameBoyInterruptManager);
             var dividerRegister = new LazyDividerRegister();
-            var renderhandler = this.renderHandlerFactory.GetRenderHandler();
+            var lcdControlRegister = new LcdControlRegister();
+            var registers = new IRegister[] { joyPad, serialPort, dividerRegister, lcdControlRegister };
 
             // Build registers
-            var hardwareRegisters = new HardwareRegisters(joyPad, serialPort, dividerRegister);
-            var interruptRegister = new InterruptRegister();
+            var hardwareRegisters = new HardwareRegisters(registers, joyPad, serialPort);
+            var interruptRegister = new InterruptEnableRegister();
 
             // Build framebuffer
-            var frameBuffer = new FrameBuffer(interruptManager, hardwareRegisters, renderhandler);
+            var frameBuffer = new Gpu(interruptManager, hardwareRegisters, renderhandler);
 
             // Build peripherals
             var hardwareRegistersPeripheral = new GameBoyMemoryMappedIO(hardwareRegisters, interruptRegister, frameBuffer);

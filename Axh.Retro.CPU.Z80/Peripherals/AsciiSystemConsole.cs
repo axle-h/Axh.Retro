@@ -25,20 +25,15 @@
             var c = (char)value;
             Console.Write(c);
         }
-
-        public void Halt()
-        {
-            // Don't listen.
-        }
-
-        public void Resume()
-        {
-            // Don't listen.
-        }
-
+        
         public void RegisterDma(IMmu mmu)
         {
             // No DMA.
+        }
+
+        public void Signal(ControlSignal signal)
+        {
+            // Don't listen.
         }
     }
 }

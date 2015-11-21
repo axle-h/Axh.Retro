@@ -1,4 +1,4 @@
-﻿namespace Axh.Retro.GameBoy.Contracts.Devices
+﻿namespace Axh.Retro.GameBoy.Contracts.Graphics
 {
     using System.Drawing;
 

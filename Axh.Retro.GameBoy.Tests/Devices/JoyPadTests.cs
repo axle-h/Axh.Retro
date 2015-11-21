@@ -6,6 +6,7 @@
 
     using Axh.Retro.GameBoy.Contracts.Devices;
     using Axh.Retro.GameBoy.Devices;
+    using Axh.Retro.GameBoy.Devices.CoreInterfaces;
 
     using Moq;
 
@@ -22,7 +23,7 @@
         private const byte P14 = 0x10;
         private const byte P15 = 0x20;
 
-        private IJoyPad joyPad;
+        private ICoreJoyPad joyPad;
 
         [TestFixtureSetUp]
         public void TestFixtureSetUp()

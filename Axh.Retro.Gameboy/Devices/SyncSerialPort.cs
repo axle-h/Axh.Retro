@@ -5,12 +5,14 @@
     using System.Threading.Tasks;
 
     using Axh.Retro.GameBoy.Contracts.Devices;
+    using Axh.Retro.GameBoy.Devices.CoreInterfaces;
+    using Axh.Retro.GameBoy.Registers.Interfaces;
 
     /// <summary>
     /// Serial port that will transfer bytes synchronously.
     /// Wanring! This will lock up the CPU if the Transfer funciton on the other SerialPort do any 'work'.
     /// </summary>
-    public class SyncSerialPort : ISerialPort, IDisposable
+    public class SyncSerialPort : SerialPortBase, IDisposable
     {
         private const byte TransferStartFlagMask = 0x80;
         private const byte IsFastModeMask = 0x02;
@@ -34,12 +36,6 @@
         }
 
         /// <summary>
-        /// 8 Bits of data to be read/written
-        /// Transmitting and receiving serial data is done simultaneously.
-        /// </summary>
-        public byte SerialData { get; set; }
-
-        /// <summary>
         /// Bit 7 - Transfer Start Flag
         /// 0: Non transfer
         /// 1: Start transfer
@@ -51,7 +47,7 @@
         /// and is automatically set to 0 at the end
         /// of Transfer.
         /// </summary>
-        public byte ControlRegister {
+        public override byte Register {
             get
             {
                 var value = 0x00;
@@ -88,7 +84,7 @@
 
                 if (this.isInternalClock)
                 {
-                    this.SerialData = this.connectedSerialPort.Transfer(this.SerialData);
+                    this.SerialData.Register = this.connectedSerialPort.Transfer(this.SerialData.Register);
                 }
                 else
                 {
@@ -111,20 +107,20 @@
             this.isInternalClock = false;
         }
 
-        public void Connect(ISerialPort serialPort)
+        public override void Connect(ISerialPort serialPort)
         {
             this.connectedSerialPort = serialPort;
         }
 
-        public void Disconnect()
+        public override void Disconnect()
         {
             this.connectedSerialPort = null;
         }
 
-        public byte Transfer(byte value)
+        public override byte Transfer(byte value)
         {
-            var tmp = this.SerialData;
-            this.SerialData = value;
+            var tmp = this.SerialData.Register;
+            this.SerialData.Register = value;
 
             this.transferredTaskSource?.TrySetResult(true);
 

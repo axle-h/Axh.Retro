@@ -23,15 +23,10 @@
         void WriteByteToPort(byte port, byte addressMsb, byte value);
 
         /// <summary>
-        /// Halt all peripherals
+        /// Signal all peripherals
         /// </summary>
-        void Halt();
-
-        /// <summary>
-        /// Resume all peripherals
-        /// </summary>
-        void Resume();
-
+        void Signal(ControlSignal signal);
+        
         /// <summary>
         /// Register the an mmu for use in dma peripherals
         /// </summary>

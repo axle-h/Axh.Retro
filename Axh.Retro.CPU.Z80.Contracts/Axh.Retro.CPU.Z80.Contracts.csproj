@@ -68,6 +68,7 @@
     <Compile Include="OpCodes\PrefixCbOpCode.cs" />
     <Compile Include="OpCodes\PrefixEdOpCode.cs" />
     <Compile Include="OpCodes\PrimaryOpCode.cs" />
+    <Compile Include="Peripherals\ControlSignal.cs" />
     <Compile Include="Registers\IAccumulatorAndFlagsRegisterSet.cs" />
     <Compile Include="Registers\IIntel8080Registers.cs" />
     <Compile Include="Registers\InterruptMode.cs" />

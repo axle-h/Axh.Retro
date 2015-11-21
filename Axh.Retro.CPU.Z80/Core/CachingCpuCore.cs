@@ -6,6 +6,7 @@
     using Axh.Retro.CPU.Z80.Contracts.Core;
     using Axh.Retro.CPU.Z80.Contracts.Core.Timing;
     using Axh.Retro.CPU.Z80.Contracts.Factories;
+    using Axh.Retro.CPU.Z80.Contracts.Peripherals;
     using Axh.Retro.CPU.Z80.Contracts.Registers;
 
     public class CachingCpuCore<TRegisters, TRegisterState> : ICpuCore<TRegisters, TRegisterState>
@@ -66,8 +67,8 @@
                     interruptManager.Halt();
                     if (instructionBlock.HaltPeripherals)
                     {
-                        peripherals.Halt();
-                        interruptManager.AddResumeTask(() => peripherals.Resume());
+                        peripherals.Signal(ControlSignal.Halt);
+                        interruptManager.AddResumeTask(() => peripherals.Signal(ControlSignal.Resume));
                     }
                 }
 

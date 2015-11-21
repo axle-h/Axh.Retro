@@ -1,10 +1,10 @@
 ﻿namespace Axh.Retro.GameBoy.Devices
 {
     using System;
-
-    using Axh.Retro.GameBoy.Contracts.Devices;
     
-    public class JoyPad : IJoyPad
+    using Axh.Retro.GameBoy.Devices.CoreInterfaces;
+
+    public class JoyPad : ICoreJoyPad
     {
         private readonly IGameBoyInterruptManager gameBoyInterruptManager;
 
@@ -129,6 +129,10 @@
             }
         }
 
+        public ushort Address => 0xff00;
+
+        public string Name => "Joypad Port (JOYPAD R/W)";
+
         /// <summary>
         ///  Bit 7 - Not used
         ///  Bit 6 - Not used
@@ -188,6 +192,8 @@
                 this.matrixColumn = MatrixColumn.None;
             }
         }
+
+        public string DebugView { get; }
 
         private static byte GetRegister(bool p10, bool p11, bool p12, bool p13)
         {

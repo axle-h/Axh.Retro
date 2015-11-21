@@ -1,38 +1,52 @@
 ﻿namespace Axh.Retro.GameBoy.Peripherals
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
 
     using Axh.Retro.CPU.Common.Contracts.Memory;
     using Axh.Retro.CPU.Z80.Contracts.Peripherals;
     using Axh.Retro.GameBoy.Contracts.Devices;
+    using Axh.Retro.GameBoy.Contracts.Graphics;
     using Axh.Retro.GameBoy.Contracts.Peripherals;
+    using Axh.Retro.GameBoy.Devices;
+    using Axh.Retro.GameBoy.Devices.CoreInterfaces;
+    using Axh.Retro.GameBoy.Registers.Interfaces;
 
-    public class GameBoyMemoryMappedIO : IMemoryMappedPeripheral, IGameBoyMemoryMappedIO
+    internal class GameBoyMemoryMappedIO : IMemoryMappedPeripheral, IGameBoyMemoryMappedIO
     {
-        public GameBoyMemoryMappedIO(IHardwareRegisters hardwareRegisters, IInterruptRegister interruptRegister, IFrameBuffer frameBuffer)
+        private readonly ICoreGpu gpu;
+
+        private readonly IInterruptEnableRegister interruptRegister;
+
+        private readonly ICoreHardwareRegisters hardwareRegisters;
+
+        public GameBoyMemoryMappedIO(ICoreHardwareRegisters hardwareRegisters, IInterruptEnableRegister interruptRegister, ICoreGpu gpu)
         {
-            this.HardwareRegisters = hardwareRegisters;
-            this.InterruptRegister = interruptRegister;
-            this.FrameBuffer = frameBuffer;
+            this.hardwareRegisters = hardwareRegisters;
+            this.interruptRegister = interruptRegister;
+            this.gpu = gpu;
         }
 
-        public void Halt()
+        public void Signal(ControlSignal signal)
         {
-            // Do nothing
+            switch (signal)
+            {
+                case ControlSignal.Halt:
+                    gpu.Halt();
+                    break;
+                case ControlSignal.Resume:
+                    gpu.Resume();
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(signal), signal, null);
+            }
         }
+        
+        public IEnumerable<IAddressSegment> AddressSegments => new IAddressSegment[] { hardwareRegisters, interruptRegister }.Concat(gpu.AddressSegments).ToArray();
 
-        public void Resume()
-        {
-            // Do nothing
-        }
+        public IHardwareRegisters HardwareRegisters => hardwareRegisters;
 
-        public IEnumerable<IAddressSegment> AddressSegments => new IAddressSegment[] { HardwareRegisters, InterruptRegister }.Concat(FrameBuffer.AddressSegments).ToArray();
-
-        public IHardwareRegisters HardwareRegisters { get; }
-
-        public IInterruptRegister InterruptRegister { get; }
-
-        public IFrameBuffer FrameBuffer { get; }
+        public IGpu Gpu => this.gpu;
     }
 }

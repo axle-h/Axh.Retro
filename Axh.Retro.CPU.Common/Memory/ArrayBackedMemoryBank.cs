@@ -53,6 +53,11 @@
             return bytes;
         }
 
+        public void ReadBytes(ushort address, byte[] buffer)
+        {
+            Array.Copy(Memory, address, buffer, 0, buffer.Length);
+        }
+
         public void WriteByte(ushort address, byte value)
         {
             this.Memory[address] = value;

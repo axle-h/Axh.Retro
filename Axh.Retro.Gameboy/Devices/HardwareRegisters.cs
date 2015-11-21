@@ -1,28 +1,23 @@
 ﻿namespace Axh.Retro.GameBoy.Devices
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
 
     using Axh.Retro.CPU.Common.Contracts.Memory;
     using Axh.Retro.GameBoy.Contracts.Devices;
-    using Axh.Retro.GameBoy.Contracts.Peripherals;
+    using Axh.Retro.GameBoy.Devices.CoreInterfaces;
+    using Axh.Retro.GameBoy.Registers.Interfaces;
 
-    public class HardwareRegisters : IHardwareRegisters
+    internal class HardwareRegisters : ICoreHardwareRegisters
     {
-        private const ushort P1 = 0xff00; // Register for reading joy pad info and determining system type. (R/W)
-        private const ushort SB = 0xff01; // Serial transfer data (R/W)
-        private const ushort SC = 0xff02; // SIO control (R/W)
-        private const ushort DIV = 0xff04; // Divider Register (R/W)
-        private const ushort TIMA = 0xff05; // Timer counter (R/W)
-        private const ushort TMA = 0xff06; // Timer Modulo (R/W)
-        private const ushort TAC = 0xff07; // Timer Control (R/W)
-        
-        private readonly IDividerRegister dividerRegister;
+        private readonly IDictionary<ushort, IRegister> registers;
 
-        public HardwareRegisters(IJoyPad joyPad, ISerialPort serialPort, IDividerRegister dividerRegister)
+        public HardwareRegisters(IEnumerable<IRegister> registers, IJoyPad joyPad, ISerialPort serialPort)
         {
             JoyPad = joyPad;
             SerialPort = serialPort;
-            this.dividerRegister = dividerRegister;
+            this.registers = registers.ToDictionary(x => x.Address);
         }
 
         private const ushort Address = 0xff00;
@@ -36,20 +31,7 @@
 
         public byte ReadByte(ushort address)
         {
-            switch (address)
-            {
-                case P1:
-                    return this.JoyPad.Register;
-                case SB:
-                    return this.SerialPort.SerialData;
-                case SC:
-                    return this.SerialPort.ControlRegister;
-                case DIV:
-                    return this.dividerRegister.Register;
-                default:
-                    // Unused register
-                    return 0x00;
-            }
+            return this.registers.ContainsKey(address) ? this.registers[address].Register : (byte)0x0000;
         }
 
         public ushort ReadWord(ushort address)
@@ -61,29 +43,23 @@
         public byte[] ReadBytes(ushort address, int length)
         {
             var bytes = new byte[length];
-            for (var i = 0; i < length; i++)
-            {
-                bytes[i] = this.ReadByte(unchecked((ushort)(address + i)));
-            }
+            ReadBytes(address, bytes);
             return bytes;
+        }
+
+        public void ReadBytes(ushort address, byte[] buffer)
+        {
+            for (var i = 0; i < buffer.Length; i++)
+            {
+                buffer[i] = this.ReadByte(unchecked((ushort)(address + i)));
+            }
         }
 
         public void WriteByte(ushort address, byte value)
         {
-            switch (address)
+            if (this.registers.ContainsKey(address))
             {
-                case P1:
-                    this.JoyPad.Register = value;
-                    break;
-                case SB:
-                    this.SerialPort.SerialData = value;
-                    break;
-                case SC:
-                    this.SerialPort.ControlRegister = value;
-                    break;
-                case DIV:
-                    this.dividerRegister.Register = value;
-                    break;
+                this.registers[address].Register = value;
             }
         }
 

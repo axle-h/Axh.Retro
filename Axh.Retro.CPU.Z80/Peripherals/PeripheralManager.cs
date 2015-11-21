@@ -35,22 +35,14 @@
             ioPeripherals[port].WriteByte(addressMsb, value);
         }
 
-        public void Halt()
+        public void Signal(ControlSignal signal)
         {
             foreach (var peripheral in this.ioPeripherals.Values.Cast<IPeripheral>().Concat(memoryMappedPeripherals))
             {
-                peripheral.Halt();
+                peripheral.Signal(signal);
             }
         }
-
-        public void Resume()
-        {
-            foreach (var peripheral in this.ioPeripherals.Values.Cast<IPeripheral>().Concat(memoryMappedPeripherals))
-            {
-                peripheral.Resume();
-            }
-        }
-
+        
         public void RegisterDma(IMmu mmu)
         {
             foreach (var peripheral in this.ioPeripherals.Values)

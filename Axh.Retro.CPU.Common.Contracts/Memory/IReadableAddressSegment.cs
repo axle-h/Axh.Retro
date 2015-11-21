@@ -3,7 +3,11 @@
     public interface IReadableAddressSegment : IAddressSegment
     {
         byte ReadByte(ushort address);
+
         ushort ReadWord(ushort address);
+
         byte[] ReadBytes(ushort address, int length);
+
+        void ReadBytes(ushort address, byte[] buffer);
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace Axh.Retro.GameBoy.Contracts.Devices
+﻿namespace Axh.Retro.GameBoy.Devices.CoreInterfaces
 {
     public interface IGameBoyInterruptManager
     {

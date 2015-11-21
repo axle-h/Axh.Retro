@@ -2,7 +2,7 @@
 {
     using Axh.Retro.CPU.Common.Contracts.Memory;
 
-    public interface IHardwareRegisters : IReadableAddressSegment, IWriteableAddressSegment
+    public interface IHardwareRegisters
     {
         IJoyPad JoyPad { get; }
 

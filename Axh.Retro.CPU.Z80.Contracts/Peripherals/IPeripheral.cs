@@ -7,8 +7,6 @@
     /// </summary>
     public interface IPeripheral
     {
-        void Halt();
-
-        void Resume();
+        void Signal(ControlSignal signal);
     }
 }

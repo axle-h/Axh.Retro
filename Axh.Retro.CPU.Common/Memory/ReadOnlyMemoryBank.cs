@@ -48,5 +48,10 @@
             Array.Copy(memory, address, bytes, 0, length);
             return bytes;
         }
+
+        public void ReadBytes(ushort address, byte[] buffer)
+        {
+            Array.Copy(memory, address, buffer, 0, buffer.Length);
+        }
     }
 }

@@ -23,13 +23,8 @@
         {
             // Nothing to write
         }
-        
-        public void Halt()
-        {
-            // Don't listen.
-        }
 
-        public void Resume()
+        public void Signal(ControlSignal signal)
         {
             // Don't listen.
         }
