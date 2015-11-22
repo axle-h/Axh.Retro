@@ -56,8 +56,6 @@
     <Compile Include="Core\Timing\InstructionTimings.cs" />
     <Compile Include="Config\CpuMode.cs" />
     <Compile Include="Core\Timing\TimingSyncEventArgs.cs" />
-    <Compile Include="Factories\ICoreContextFactory.cs" />
-    <Compile Include="Factories\IPeripheralFactory.cs" />
     <Compile Include="Core\ICpuCore.cs" />
     <Compile Include="OpCodes\GameBoyPrefixCbOpCode.cs" />
     <Compile Include="OpCodes\GameBoyPrimaryOpCode.cs" />

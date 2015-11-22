@@ -5,7 +5,6 @@
     
     using Axh.Retro.CPU.Z80.Contracts.Core;
     using Axh.Retro.CPU.Z80.Contracts.Core.Timing;
-    using Axh.Retro.CPU.Z80.Contracts.Factories;
     using Axh.Retro.CPU.Z80.Contracts.Peripherals;
     using Axh.Retro.CPU.Z80.Contracts.Registers;
 
@@ -13,39 +12,34 @@
         where TRegisters : IStateBackedRegisters<TRegisterState>
         where TRegisterState : struct
     {
-        private readonly ICoreContextFactory<TRegisters, TRegisterState> coreContextFactory;
-
-        public CachingCpuCore(ICoreContextFactory<TRegisters, TRegisterState> coreContextFactory)
+        public CachingCpuCore(ICoreContext<TRegisters, TRegisterState> context)
         {
-            this.coreContextFactory = coreContextFactory;
+            this.Context = context;
         }
 
-        public ICoreContext<TRegisters, TRegisterState> GetContext()
-        {
-            return this.coreContextFactory.GetContext();
-        }
+        public ICoreContext<TRegisters, TRegisterState> Context { get; }
 
-        public async Task StartCoreProcessAsync(ICoreContext<TRegisters, TRegisterState> context)
+        public async Task StartCoreProcessAsync()
         {
-            var interruptManager = context.InterruptManager as ICoreInterruptManager;
+            var interruptManager = Context.InterruptManager as ICoreInterruptManager;
             if (interruptManager == null)
             {
                 throw new ArgumentException("interruptManager");
             }
 
-            var timer = context.InstructionTimer as ICoreInstructionTimer;
+            var timer = Context.InstructionTimer as ICoreInstructionTimer;
             if (timer == null)
             {
                 throw new ArgumentException("timer");
             }
 
             // Flatten the context so we aren't calling the properties in the core.
-            var registers = context.Registers;
-            var peripherals = context.PeripheralManager;
-            var mmu = context.Mmu;
-            var alu = context.Alu;
-            var cache = context.InstructionBlockCache;
-            var instructionBlockDecoder = context.InstructionBlockDecoder;
+            var registers = Context.Registers;
+            var peripherals = Context.PeripheralManager;
+            var mmu = Context.Mmu;
+            var alu = Context.Alu;
+            var cache = Context.InstructionBlockCache;
+            var instructionBlockDecoder = Context.InstructionBlockDecoder;
 
             if (!instructionBlockDecoder.SupportsInstructionBlockCaching)
             {

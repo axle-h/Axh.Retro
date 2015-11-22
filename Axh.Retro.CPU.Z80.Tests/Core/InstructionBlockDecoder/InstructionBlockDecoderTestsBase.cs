@@ -5,11 +5,8 @@
     using System.Linq;
 
     using Axh.Retro.CPU.Common.Contracts.Memory;
-    using Axh.Retro.CPU.Z80.Contracts;
-    using Axh.Retro.CPU.Z80.Core;
     using Axh.Retro.CPU.Z80.Contracts.Config;
     using Axh.Retro.CPU.Z80.Contracts.Core;
-    using Axh.Retro.CPU.Z80.Contracts.Factories;
     using Axh.Retro.CPU.Z80.Contracts.OpCodes;
     using Axh.Retro.CPU.Z80.Contracts.Peripherals;
     using Axh.Retro.CPU.Z80.Contracts.Registers;

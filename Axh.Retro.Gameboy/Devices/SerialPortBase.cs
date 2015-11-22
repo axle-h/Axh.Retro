@@ -1,12 +1,13 @@
 ﻿namespace Axh.Retro.GameBoy.Devices
 {
     using Axh.Retro.GameBoy.Contracts.Devices;
+    using Axh.Retro.GameBoy.Devices.CoreInterfaces;
     using Axh.Retro.GameBoy.Registers.Interfaces;
 
     /// <summary>
     /// FF01 - SB - Serial transfer data (R/W)
     /// </summary>
-    public abstract class SerialPortBase : ISerialPort, IRegister
+    public abstract class SerialPortBase : ICoreSerialPort
     {
         /// <summary>
         /// 8 Bits of data to be read/written

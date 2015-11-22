@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Axh.Retro.GameBoy.Tests.Properties {
+namespace Axh.Retro.GameBoy.Console.Properties {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace Axh.Retro.GameBoy.Tests.Properties {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Axh.Retro.GameBoy.Tests.Properties.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Axh.Retro.GameBoy.Console.Properties.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -63,19 +63,9 @@ namespace Axh.Retro.GameBoy.Tests.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
-        internal static byte[] Pokemon_Red_UE_Gb_Zip {
+        internal static byte[] DMG_ROM {
             get {
-                object obj = ResourceManager.GetObject("Pokemon_Red_UE_Gb_Zip", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
-        /// </summary>
-        internal static byte[] Tetris_W_Gb_Zip {
-            get {
-                object obj = ResourceManager.GetObject("Tetris_W_Gb_Zip", resourceCulture);
+                object obj = ResourceManager.GetObject("DMG_ROM", resourceCulture);
                 return ((byte[])(obj));
             }
         }

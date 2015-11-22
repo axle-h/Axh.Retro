@@ -5,7 +5,7 @@
     
     using ICSharpCode.SharpZipLib.Zip;
 
-    internal static class ZipUtils
+    public static class ZipUtils
     {
         public static byte[] UnZip(this byte[] compressedBytes)
         {

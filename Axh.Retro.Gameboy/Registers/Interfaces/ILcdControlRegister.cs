@@ -1,7 +1,6 @@
-﻿namespace Axh.Retro.GameBoy.Registers.Interfaces
+namespace Axh.Retro.GameBoy.Registers.Interfaces
 {
-    
-    internal interface ILcdControlRegister : IRegister
+    public interface ILcdControlRegister : IRegister
     {
         /// <summary>
         /// LCD status

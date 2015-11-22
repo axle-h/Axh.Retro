@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{F09F977E-69D3-434C-B5D2-C95EFD9294FB}</ProjectGuid>
+    <ProjectGuid>{7856A753-B026-44DD-A2F5-44F716AD488C}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Axh.Retro.GameBoy.Binding</RootNamespace>
-    <AssemblyName>Axh.Retro.GameBoy.Binding</AssemblyName>
+    <RootNamespace>Axh.Retro.GameBoy.Resources</RootNamespace>
+    <AssemblyName>Axh.Retro.GameBoy.Resources</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -31,12 +31,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Ninject, Version=3.2.0.0, Culture=neutral, PublicKeyToken=c7192dc5380945e7, processorArchitecture=MSIL">
-      <HintPath>..\packages\Ninject.3.2.2.0\lib\net45-full\Ninject.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Ninject.Extensions.NamedScope, Version=3.2.0.0, Culture=neutral, PublicKeyToken=c7192dc5380945e7, processorArchitecture=MSIL">
-      <HintPath>..\packages\Ninject.Extensions.NamedScope.3.2.0.0\lib\net45-full\Ninject.Extensions.NamedScope.dll</HintPath>
+    <Reference Include="ICSharpCode.SharpZipLib, Version=0.86.0.518, Culture=neutral, PublicKeyToken=1b03e6acf1164f73, processorArchitecture=MSIL">
+      <HintPath>..\packages\SharpZipLib.0.86.0\lib\20\ICSharpCode.SharpZipLib.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -49,33 +45,24 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="GameBoyModule.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="ZipUtils.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Axh.Retro.CPU.Common.Contracts\Axh.Retro.CPU.Common.Contracts.csproj">
-      <Project>{5A958C82-D6EA-4BD1-9CC6-3727AFE1874C}</Project>
-      <Name>Axh.Retro.CPU.Common.Contracts</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Axh.Retro.CPU.Z80.Contracts\Axh.Retro.CPU.Z80.Contracts.csproj">
-      <Project>{15e8bff0-aa13-420f-8527-9187a37f6360}</Project>
-      <Name>Axh.Retro.CPU.Z80.Contracts</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Axh.Retro.CPU.Z80\Axh.Retro.CPU.Z80.csproj">
-      <Project>{71763a1a-f228-451c-bf71-5f8eeb905820}</Project>
-      <Name>Axh.Retro.CPU.Z80</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Axh.Retro.GameBoy.Contracts\Axh.Retro.GameBoy.Contracts.csproj">
-      <Project>{5bcb273c-063e-466f-b397-550a97547f2f}</Project>
-      <Name>Axh.Retro.GameBoy.Contracts</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Axh.Retro.Gameboy\Axh.Retro.GameBoy.csproj">
-      <Project>{84d4dac3-9b2e-4a9a-9c85-16a7e58deeb8}</Project>
-      <Name>Axh.Retro.GameBoy</Name>
-    </ProjectReference>
+    <None Include="Resources\Pokemon - Red Version %28UE%29 [S][!].gb.zip" />
+    <None Include="Resources\Tetris %28W%29 %28V1.1%29 [!].gb.zip" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

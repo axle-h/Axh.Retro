@@ -9,15 +9,15 @@
     using Axh.Retro.GameBoy.Devices.CoreInterfaces;
     using Axh.Retro.GameBoy.Registers.Interfaces;
 
-    internal class HardwareRegisters : ICoreHardwareRegisters
+    public class HardwareRegisters : ICoreHardwareRegisters
     {
         private readonly IDictionary<ushort, IRegister> registers;
 
-        public HardwareRegisters(IEnumerable<IRegister> registers, IJoyPad joyPad, ISerialPort serialPort)
+        public HardwareRegisters(IEnumerable<IRegister> registers, ICoreJoyPad joyPad, ICoreSerialPort serialPort)
         {
             JoyPad = joyPad;
             SerialPort = serialPort;
-            this.registers = registers.ToDictionary(x => x.Address);
+            this.registers = registers.Concat(new[] { joyPad, serialPort, serialPort.SerialData }).ToDictionary(x => x.Address);
         }
 
         private const ushort Address = 0xff00;

@@ -6,7 +6,7 @@
     using Axh.Retro.GameBoy.Registers.Interfaces;
     using Axh.Retro.GameBoy.Util;
 
-    internal class LcdControlRegister : ILcdControlRegister
+    public class LcdControlRegister : ILcdControlRegister
     {
         private LcdControl lcdControl;
 

@@ -3,10 +3,9 @@
     using System.Collections.Generic;
 
     using Axh.Retro.CPU.Common.Contracts.Memory;
-    using Axh.Retro.GameBoy.Contracts.Devices;
     using Axh.Retro.GameBoy.Contracts.Graphics;
 
-    internal interface ICoreGpu : IGpu
+    public interface ICoreGpu : IGpu
     {
         IEnumerable<IAddressSegment> AddressSegments { get; }
 

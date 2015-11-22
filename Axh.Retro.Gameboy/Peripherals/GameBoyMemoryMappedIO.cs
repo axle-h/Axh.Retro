@@ -13,7 +13,7 @@
     using Axh.Retro.GameBoy.Devices.CoreInterfaces;
     using Axh.Retro.GameBoy.Registers.Interfaces;
 
-    internal class GameBoyMemoryMappedIO : IMemoryMappedPeripheral, IGameBoyMemoryMappedIO
+    public class GameBoyMemoryMappedIO : IMemoryMappedPeripheral, IGameBoyMemoryMappedIO
     {
         private readonly ICoreGpu gpu;
 

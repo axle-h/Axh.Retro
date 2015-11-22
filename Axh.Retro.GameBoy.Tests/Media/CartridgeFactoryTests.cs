@@ -5,7 +5,6 @@
     using Axh.Retro.GameBoy.Contracts.Factories;
     using Axh.Retro.GameBoy.Contracts.Media;
     using Axh.Retro.GameBoy.Factories;
-    using Axh.Retro.GameBoy.Tests.Properties;
     using Axh.Retro.GameBoy.Tests.Util;
 
     using NUnit.Framework;
@@ -25,7 +24,7 @@
         [Test]
         public void CanReadTetris()
         {
-            var tetris = Resources.Tetris_W_Gb_Zip.UnZip();
+            var tetris = Axh.Retro.GameBoy.Resources.Resources.Tetris_W_Gb_Zip.UnZip();
             var cartridge = this.cartridgeFactory.GetCartridge(tetris);
 
             Assert.IsNotNull(cartridge);
@@ -41,7 +40,7 @@
         [Test]
         public void CanReadPokemon()
         {
-            var pokemon = Resources.Pokemon_Red_UE_Gb_Zip.UnZip();
+            var pokemon = Axh.Retro.GameBoy.Resources.Resources.Pokemon_Red_UE_Gb_Zip.UnZip();
             var cartridge = this.cartridgeFactory.GetCartridge(pokemon);
 
             Assert.IsNotNull(cartridge);

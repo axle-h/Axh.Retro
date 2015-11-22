@@ -8,8 +8,8 @@
         where TRegisters : IStateBackedRegisters<TRegisterState>
         where TRegisterState : struct
     {
-        ICoreContext<TRegisters, TRegisterState> GetContext();
+        Task StartCoreProcessAsync();
 
-        Task StartCoreProcessAsync(ICoreContext<TRegisters, TRegisterState> context);
+        ICoreContext<TRegisters, TRegisterState> Context { get; }
     }
 }

@@ -7,12 +7,7 @@
 
     public class AsciiSystemConsole : IIOPeripheral
     {
-        public AsciiSystemConsole(byte port)
-        {
-            this.Port = port;
-        }
-
-        public byte Port { get; }
+        public byte Port => 0;
 
         public byte ReadByte(byte addressMsb)
         {

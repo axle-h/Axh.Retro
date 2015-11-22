@@ -1,5 +1,6 @@
 ﻿namespace Axh.Retro.CPU.Z80.Tests.Registers
 {
+    using Axh.Retro.CPU.Z80.Contracts.Config;
     using Axh.Retro.CPU.Z80.Contracts.Registers;
     using Axh.Retro.CPU.Z80.Contracts.State;
     using Axh.Retro.CPU.Z80.Registers;
@@ -31,13 +32,14 @@
             alternativeGeneralPurposeRegisters = new Mock<IGeneralPurposeRegisterSet>();
             primaryAccumulatorAndFlagsRegisters = new Mock<IAccumulatorAndFlagsRegisterSet>();
             alternativeAccumulatorAndFlagsRegisters = new Mock<IAccumulatorAndFlagsRegisterSet>();
+            var initialStateFactory = new Mock<IInitialStateFactory<Z80RegisterState>>();
 
             this.z80Registers = new Z80Registers(
                 primaryGeneralPurposeRegisters.Object,
                 alternativeGeneralPurposeRegisters.Object,
                 primaryAccumulatorAndFlagsRegisters.Object,
                 alternativeAccumulatorAndFlagsRegisters.Object,
-                new Z80RegisterState());
+                initialStateFactory.Object);
         }
 
         [Test]

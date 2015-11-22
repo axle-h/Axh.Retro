@@ -1,5 +1,6 @@
 ﻿namespace Axh.Retro.CPU.Z80.Registers
 {
+    using Axh.Retro.CPU.Z80.Contracts.Config;
     using Axh.Retro.CPU.Z80.Contracts.Registers;
     using Axh.Retro.CPU.Z80.Contracts.State;
     using Axh.Retro.CPU.Z80.Util;
@@ -90,14 +91,14 @@
             IGeneralPurposeRegisterSet alternativeGeneralPurposeRegisterSet,
             IAccumulatorAndFlagsRegisterSet primaryAccumulatorAndFlagsRegisterSet,
             IAccumulatorAndFlagsRegisterSet alternativeAccumulatorAndFlagsRegisterSet,
-            Z80RegisterState initialState)
+            IInitialStateFactory<Z80RegisterState> initialStateFactory)
         {
             this.primaryGeneralPurposeRegisterSet = primaryGeneralPurposeRegisterSet;
             this.alternativeGeneralPurposeRegisterSet = alternativeGeneralPurposeRegisterSet;
             this.primaryAccumulatorAndFlagsRegisterSet = primaryAccumulatorAndFlagsRegisterSet;
             this.alternativeAccumulatorAndFlagsRegisterSet = alternativeAccumulatorAndFlagsRegisterSet;
 
-            this.ResetToState(initialState);
+            this.ResetToState(initialStateFactory.GetInitialRegisterState());
         }
 
         public void SwitchToAlternativeGeneralPurposeRegisters()

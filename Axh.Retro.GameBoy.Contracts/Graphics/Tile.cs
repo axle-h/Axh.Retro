@@ -1,6 +1,8 @@
 ﻿namespace Axh.Retro.GameBoy.Contracts.Graphics
 {
     using System;
+    using System.Collections.Generic;
+    using System.Drawing;
 
     public class Tile
     {
@@ -13,6 +15,17 @@
         public Palette[][] PaletteMap { get; }
 
         public Guid Id { get; }
+
+        public void Paint(Bitmap image, int x, int y, IDictionary<Palette, Color> colors)
+        {
+            for (var r = 0; r < 8; r++)
+            {
+                for (var c = 0; c < 8; c++)
+                {
+                    image.SetPixel(x + r, y + c, colors[PaletteMap[r][c]]);
+                }
+            }
+        }
     }
 
     public enum Palette : byte

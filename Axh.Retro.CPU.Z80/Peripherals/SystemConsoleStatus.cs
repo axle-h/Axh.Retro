@@ -7,12 +7,7 @@
 
     public class SystemConsoleStatus : IIOPeripheral
     {
-        public SystemConsoleStatus(byte port)
-        {
-            Port = port;
-        }
-
-        public byte Port { get; }
+        public byte Port => 1;
 
         public byte ReadByte(byte addressMsb)
         {

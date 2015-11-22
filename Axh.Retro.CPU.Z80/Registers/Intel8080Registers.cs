@@ -1,15 +1,16 @@
 ﻿namespace Axh.Retro.CPU.Z80.Registers
 {
+    using Axh.Retro.CPU.Z80.Contracts.Config;
     using Axh.Retro.CPU.Z80.Contracts.Registers;
     using Axh.Retro.CPU.Z80.Contracts.State;
 
     public class Intel8080Registers : IIntel8080Registers
     {
-        public Intel8080Registers(IGeneralPurposeRegisterSet generalPurposeRegisters, IAccumulatorAndFlagsRegisterSet accumulatorAndFlagsRegisters, Intel8080RegisterState initialState)
+        public Intel8080Registers(IGeneralPurposeRegisterSet generalPurposeRegisters, IAccumulatorAndFlagsRegisterSet accumulatorAndFlagsRegisters, IInitialStateFactory<Intel8080RegisterState> initialStateFactory)
         {
             GeneralPurposeRegisters = generalPurposeRegisters;
             AccumulatorAndFlagsRegisters = accumulatorAndFlagsRegisters;
-            this.ResetToState(initialState);
+            this.ResetToState(initialStateFactory.GetInitialRegisterState());
         }
 
         public IGeneralPurposeRegisterSet GeneralPurposeRegisters { get; }

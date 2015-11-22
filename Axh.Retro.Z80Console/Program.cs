@@ -1,5 +1,6 @@
 ﻿namespace Axh.Retro.Z80Console
 {
+    using Axh.Retro.CPU.Z80.Binding;
     using Axh.Retro.CPU.Z80.Contracts.Core;
     using Axh.Retro.CPU.Z80.Contracts.Peripherals;
     using Axh.Retro.CPU.Z80.Contracts.Registers;
@@ -17,14 +18,15 @@
     /// </summary>
     class Program
     {
+        private const string ScopeName = "Z80-Console";
+
         static void Main(string[] args)
         {
-            using (var kernel = new StandardKernel(new Z80Module()))
+            using (var kernel = new StandardKernel(new Z80ConsoleModule(ScopeName), new Z80Module<IZ80Registers, Z80RegisterState>(ScopeName)))
             {
                 var core = kernel.Get<ICpuCore<IZ80Registers, Z80RegisterState>>();
-
-                var context = core.GetContext();
-                core.StartCoreProcessAsync(context).Wait();
+                
+                core.StartCoreProcessAsync().Wait();
             }
         }
     }
