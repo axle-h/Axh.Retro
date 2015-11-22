@@ -21,7 +21,7 @@
         }
 
         private const ushort Address = 0xff00;
-        private const ushort Length = 0x7f;
+        private const ushort Length = 0x80;
         
         public MemoryBankType Type => MemoryBankType.Peripheral;
 
@@ -80,5 +80,10 @@
         public IJoyPad JoyPad { get; }
 
         public ISerialPort SerialPort { get; }
+
+        public override string ToString()
+        {
+            return $"{Type}: 0x{Address:x4} - 0x{Address + Length - 1:x4}";
+        }
     }
 }

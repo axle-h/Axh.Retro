@@ -17,15 +17,18 @@
     {
         private readonly ICoreGpu gpu;
 
+        private readonly IMemoryBankController1 memoryBankController1;
+
         private readonly IInterruptEnableRegister interruptRegister;
 
         private readonly ICoreHardwareRegisters hardwareRegisters;
 
-        public GameBoyMemoryMappedIO(ICoreHardwareRegisters hardwareRegisters, IInterruptEnableRegister interruptRegister, ICoreGpu gpu)
+        public GameBoyMemoryMappedIO(ICoreHardwareRegisters hardwareRegisters, IInterruptEnableRegister interruptRegister, ICoreGpu gpu, IMemoryBankController1 memoryBankController1)
         {
             this.hardwareRegisters = hardwareRegisters;
             this.interruptRegister = interruptRegister;
             this.gpu = gpu;
+            this.memoryBankController1 = memoryBankController1;
         }
 
         public void Signal(ControlSignal signal)
@@ -43,7 +46,7 @@
             }
         }
         
-        public IEnumerable<IAddressSegment> AddressSegments => new IAddressSegment[] { hardwareRegisters, interruptRegister }.Concat(gpu.AddressSegments).ToArray();
+        public IEnumerable<IAddressSegment> AddressSegments => new IAddressSegment[] { hardwareRegisters, interruptRegister, memoryBankController1 }.Concat(gpu.AddressSegments).ToArray();
 
         public IHardwareRegisters HardwareRegisters => hardwareRegisters;
 

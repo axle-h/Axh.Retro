@@ -26,7 +26,13 @@
 
         private const ushort CartridgeRamAddress = 0xa000;
         private const ushort CartridgeRamLength = 0x2000;
-        
+
+        /// <summary>
+        /// $E000-$FDFF	Echo RAM - Reserved, Do Not Use
+        /// TODO: Implement Echo RAM
+        /// </summary>
+        private static readonly IMemoryBankConfig EchoConfig = new SimpleMemoryBankConfig(MemoryBankType.Unused, null, 0xe000, 0x1e00);
+
         /// <summary>
         /// $FF80-$FFFE	Zero Page - 127 bytes
         /// </summary>
@@ -111,6 +117,7 @@
                 }
 
                 yield return UnusedConfig;
+                yield return EchoConfig;
                 yield return ZeroPageConfig;
             }
         }

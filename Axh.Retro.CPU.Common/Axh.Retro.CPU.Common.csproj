@@ -43,6 +43,7 @@
   <ItemGroup>
     <Compile Include="Config\SimpleMemoryBankConfig.cs" />
     <Compile Include="Memory\ArrayBackedMemoryBank.cs" />
+    <Compile Include="Memory\NullMemoryBank.cs" />
     <Compile Include="Memory\PrefetchQueue.cs" />
     <Compile Include="Memory\ReadOnlyMemoryBank.cs" />
     <Compile Include="Memory\SegmentMmu.cs" />

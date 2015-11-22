@@ -34,6 +34,8 @@
                     return new ArrayBackedMemoryBank(config);
                 case MemoryBankType.ReadOnlyMemory:
                     return new ReadOnlyMemoryBank(config);
+                case MemoryBankType.Unused:
+                    return new NullMemoryBank(config);
                 default:
                     throw new ArgumentOutOfRangeException();
             }

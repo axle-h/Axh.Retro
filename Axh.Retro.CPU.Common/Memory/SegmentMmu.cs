@@ -228,30 +228,30 @@
 
         private static void CheckSegments(IEnumerable<IAddressSegment> addressSegments)
         {
-            ushort lastAddress = 0x0000;
+            uint lastAddress = 0x0000;
             foreach (var segment in addressSegments)
             {
                 if (segment.Length < 1)
                 {
-                    throw new PlatformConfigurationException(string.Format("Segment length is less than 1 at 0x{0:x4}", segment.Address));
+                    throw new PlatformConfigurationException($"Segment length is less than 1 at 0x{segment.Address:x4}");
                 }
 
                 if (segment.Address > lastAddress)
                 {
-                    throw new MmuAddressSegmentGapException(lastAddress, segment.Address);
+                    throw new MmuAddressSegmentGapException((ushort)lastAddress, segment.Address);
                 }
 
                 if (segment.Address < lastAddress)
                 {
-                    throw new MmuAddressSegmentOverlapException(segment.Address, lastAddress);
+                    throw new MmuAddressSegmentOverlapException(segment.Address, (ushort)lastAddress);
                 }
 
                 lastAddress += segment.Length;
             }
 
-            if (lastAddress < ushort.MaxValue)
+            if (lastAddress < ushort.MaxValue + 1)
             {
-                throw new MmuAddressSegmentGapException(lastAddress, ushort.MaxValue);
+                throw new MmuAddressSegmentGapException((ushort)lastAddress, ushort.MaxValue);
             }
         }
 

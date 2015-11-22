@@ -53,5 +53,10 @@
         {
             Array.Copy(memory, address, buffer, 0, buffer.Length);
         }
+
+        public override string ToString()
+        {
+            return $"{Type}: 0x{Address:x4} - 0x{Address + Length - 1:x4}";
+        }
     }
 }
