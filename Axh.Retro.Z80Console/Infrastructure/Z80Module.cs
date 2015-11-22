@@ -23,13 +23,11 @@
         {
             // Core
             this.Bind<ICpuCore<IZ80Registers, Z80RegisterState>>().To<CachingCpuCore<IZ80Registers, Z80RegisterState>>();
-            
-            // Factories
-            this.Bind<IPeripheralFactory>().To<PeripheralFactory>().InSingletonScope();
-            this.Bind<ICoreContextFactory<IZ80Registers, Z80RegisterState>>().To<Z80ContextFactory>().InSingletonScope();
+            this.Bind<ICoreContextFactory<IZ80Registers, Z80RegisterState>>().To<NinjectCoreContextFactory<IZ80Registers, Z80RegisterState>>();
 
-            // Config
-            this.Bind<IInitialStateConfig<Z80RegisterState>>().To<Z80InitialStateConfig>().InSingletonScope();
+            // Z80 Console specific
+            this.Bind<IPeripheralFactory>().To<PeripheralFactory>().InSingletonScope();
+            this.Bind<IInitialStateFactory<Z80RegisterState>>().To<Z80InitialStateFactory>().InSingletonScope();
             this.Bind<IPlatformConfig>().To<Z8064KBootstrappedConfig>().InSingletonScope();
             this.Bind<IRuntimeConfig>().To<RuntimeConfig>().InSingletonScope();
         }

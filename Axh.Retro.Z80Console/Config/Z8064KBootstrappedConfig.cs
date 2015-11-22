@@ -28,7 +28,7 @@
 
         public CpuMode CpuMode => CpuMode.Z80;
 
-        public IEnumerable<IMmuBankConfig> MemoryBanks { get; }
+        public IEnumerable<IMemoryBankConfig> MemoryBanks { get; }
 
         public double MachineCycleSpeedMhz => 4;
 

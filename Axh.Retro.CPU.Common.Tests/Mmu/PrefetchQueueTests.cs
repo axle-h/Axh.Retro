@@ -47,7 +47,8 @@
         [Test]
         public void NextByte()
         {
-            var cache = new PrefetchQueue(mmu.Object, Address);
+            var cache = new PrefetchQueue(mmu.Object);
+            cache.ReBuildCache(Address);
 
             // Read 1k bytes
             var bytes = Enumerable.Range(0, 1000).Select(i => cache.NextByte()).ToArray();
@@ -60,7 +61,8 @@
         [Test]
         public void NextBytes()
         {
-            var cache = new PrefetchQueue(mmu.Object, Address);
+            var cache = new PrefetchQueue(mmu.Object);
+            cache.ReBuildCache(Address);
 
             // Read 1k bytes
             var bytes = cache.NextBytes(1000);
@@ -73,7 +75,8 @@
         [Test]
         public void NextBytesThenNextByte()
         {
-            var cache = new PrefetchQueue(mmu.Object, Address);
+            var cache = new PrefetchQueue(mmu.Object);
+            cache.ReBuildCache(Address);
 
             // Read 1k bytes
             var bytes = cache.NextBytes(1000);
@@ -94,7 +97,8 @@
         [Test]
         public void NextWord()
         {
-            var cache = new PrefetchQueue(mmu.Object, Address);
+            var cache = new PrefetchQueue(mmu.Object);
+            cache.ReBuildCache(Address);
 
             // Read 1k words
             var words = Enumerable.Range(0, 1000).Select(i => cache.NextWord()).ToArray();

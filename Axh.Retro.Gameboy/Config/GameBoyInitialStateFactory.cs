@@ -4,7 +4,7 @@
     using Axh.Retro.CPU.Z80.Contracts.Registers;
     using Axh.Retro.CPU.Z80.Contracts.State;
 
-    public class GameBoyInitialStateConfig : IInitialStateConfig<Intel8080RegisterState>
+    public class GameBoyInitialStateFactory : IInitialStateFactory<Intel8080RegisterState>
     {
         private const ushort InitialStackPointer = 0x0;
         private const ushort InitialProgramCounter = 0x1000;

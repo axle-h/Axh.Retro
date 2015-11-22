@@ -8,6 +8,13 @@
 
     public class InterruptEnableRegister : IInterruptEnableRegister
     {
+        private InterruptEnable interruptEnable;
+
+        public InterruptEnableRegister()
+        {
+            this.interruptEnable = InterruptEnable.None;
+        }
+
         public MemoryBankType Type => MemoryBankType.RandomAccessMemory;
 
         public ushort Address => 0xffff;
@@ -76,16 +83,23 @@
         {
             get
             {
-                return RegisterHelpers.GetRegister(false, false, false, JoyPadPress, SerialLink, TimerOverflow, LcdStatusTriggers, VerticalBlank);
+                return (byte)this.interruptEnable;
             }
             set
             {
-                JoyPadPress = RegisterHelpers.GetBit(value, 4);
-                SerialLink = RegisterHelpers.GetBit(value, 3);
-                TimerOverflow = RegisterHelpers.GetBit(value, 2);
-                LcdStatusTriggers = RegisterHelpers.GetBit(value, 1);
-                VerticalBlank = RegisterHelpers.GetBit(value, 0);
+                this.interruptEnable = (InterruptEnable)value;
             }
+        }
+
+        [Flags]
+        private enum InterruptEnable : byte
+        {
+            None = 0,
+            VerticalBlank = 0x01,
+            LcdStatusTriggers = 0x02,
+            TimerOverflow = 0x04,
+            SerialLink = 0x08,
+            JoyPadPress = 0x10
         }
 
         public string DebugView => this.ToString();
@@ -95,14 +109,14 @@
             return $"{Name} ({Address}) = {Register}\nVerticalBlank: {VerticalBlank}\nLcdStatusTriggers: {LcdStatusTriggers}\nTimerOverflow: {TimerOverflow}\nSerialLink: {SerialLink}\nJoyPadPress: {JoyPadPress}";
         }
 
-        public bool VerticalBlank { get; private set; }
+        public bool VerticalBlank => this.interruptEnable.HasFlag(InterruptEnable.VerticalBlank);
 
-        public bool LcdStatusTriggers { get; private set; }
+        public bool LcdStatusTriggers => this.interruptEnable.HasFlag(InterruptEnable.LcdStatusTriggers);
 
-        public bool TimerOverflow { get; private set; }
+        public bool TimerOverflow => this.interruptEnable.HasFlag(InterruptEnable.TimerOverflow);
 
-        public bool SerialLink { get; private set; }
+        public bool SerialLink => this.interruptEnable.HasFlag(InterruptEnable.SerialLink);
 
-        public bool JoyPadPress { get; private set; }
+        public bool JoyPadPress => this.interruptEnable.HasFlag(InterruptEnable.JoyPadPress);
     }
 }

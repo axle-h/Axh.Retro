@@ -5,10 +5,11 @@
 
     public class Intel8080Registers : IIntel8080Registers
     {
-        public Intel8080Registers(IGeneralPurposeRegisterSet generalPurposeRegisters, IAccumulatorAndFlagsRegisterSet accumulatorAndFlagsRegisters)
+        public Intel8080Registers(IGeneralPurposeRegisterSet generalPurposeRegisters, IAccumulatorAndFlagsRegisterSet accumulatorAndFlagsRegisters, Intel8080RegisterState initialState)
         {
             GeneralPurposeRegisters = generalPurposeRegisters;
             AccumulatorAndFlagsRegisters = accumulatorAndFlagsRegisters;
+            this.ResetToState(initialState);
         }
 
         public IGeneralPurposeRegisterSet GeneralPurposeRegisters { get; }

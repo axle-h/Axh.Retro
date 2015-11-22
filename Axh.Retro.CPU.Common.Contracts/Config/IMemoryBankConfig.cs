@@ -2,7 +2,7 @@
 {
     using Axh.Retro.CPU.Common.Contracts.Memory;
 
-    public interface IMmuBankConfig
+    public interface IMemoryBankConfig
     {
         MemoryBankType Type { get; }
 
@@ -11,10 +11,7 @@
         ushort Address { get; }
 
         ushort Length { get; }
-    }
 
-    public interface IMemoryBankConfig : IMmuBankConfig
-    {
         /// <summary>
         /// Initial state of the memory bank.
         /// </summary>

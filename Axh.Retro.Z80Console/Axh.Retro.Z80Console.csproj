@@ -49,7 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Config\RuntimeConfig.cs" />
-    <Compile Include="Config\Z80InitialStateConfig.cs" />
+    <Compile Include="Config\Z80InitialStateFactory.cs" />
     <Compile Include="Config\Z8064KBootstrappedConfig.cs" />
     <Compile Include="Factories\PeripheralFactory.cs" />
     <Compile Include="Program.cs" />

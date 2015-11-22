@@ -1,4 +1,4 @@
-﻿namespace Axh.Retro.GameBoy.Devices.CoreInterfaces
+﻿namespace Axh.Retro.GameBoy.Devices
 {
     using Axh.Retro.GameBoy.Contracts.Devices;
     using Axh.Retro.GameBoy.Registers.Interfaces;
@@ -12,7 +12,7 @@
         /// 8 Bits of data to be read/written
         /// Transmitting and receiving serial data is done simultaneously.
         /// </summary>
-        protected IRegister SerialData;
+        public IRegister SerialData { get; }
 
         protected SerialPortBase()
         {

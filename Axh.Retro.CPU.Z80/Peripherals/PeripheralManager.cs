@@ -4,6 +4,8 @@
     using System.Linq;
 
     using Axh.Retro.CPU.Common.Contracts.Memory;
+    using Axh.Retro.CPU.Z80.Contracts.Core;
+    using Axh.Retro.CPU.Z80.Contracts.Factories;
     using Axh.Retro.CPU.Z80.Contracts.Peripherals;
 
     public class PeripheralManager : IPeripheralManager
@@ -12,12 +14,10 @@
 
         private readonly IMemoryMappedPeripheral[] memoryMappedPeripherals;
 
-        public PeripheralManager(IEnumerable<IPeripheral> peripherals)
+        public PeripheralManager(IPeripheralFactory peripheralFactory, IInterruptManager interruptManager)
         {
-            var peripheralArray = peripherals as IPeripheral[] ?? peripherals.ToArray();
-
-            this.ioPeripherals = peripheralArray.OfType<IIOPeripheral>().ToDictionary(x => x.Port);
-            this.memoryMappedPeripherals = peripheralArray.OfType<IMemoryMappedPeripheral>().ToArray();
+            this.ioPeripherals = peripheralFactory.GetIOMappedPeripherals(interruptManager).ToDictionary(x => x.Port);
+            this.memoryMappedPeripherals = peripheralFactory.GetMemoryMappedPeripherals(interruptManager).ToArray();
         }
 
         public byte ReadByteFromPort(byte port, byte addressMsb)

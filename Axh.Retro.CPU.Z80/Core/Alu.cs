@@ -4,19 +4,22 @@
     using Axh.Retro.CPU.Z80.Contracts.Core;
     using Axh.Retro.CPU.Z80.Contracts.Registers;
 
-    public class Alu : IAlu
+    public class Alu<TRegisters> : IAlu where TRegisters : IRegisters
     {
-        private readonly IFlagsRegister flags;
+        private readonly TRegisters registers;
 
-        public Alu(IFlagsRegister flags)
+        private IFlagsRegister Flags => registers.AccumulatorAndFlagsRegisters.Flags;
+
+        public Alu(TRegisters registers)
         {
-            this.flags = flags;
+            this.registers = registers;
         }
 
         public byte Increment(byte b)
         {
             var result = b + 1;
 
+            var flags = Flags;
             flags.HalfCarry = (b & 0x0f) == 0x0f;
             flags.ParityOverflow = b == 0x7f;
             flags.Subtract = false;
@@ -30,6 +33,7 @@
         {
             var result = b - 1;
 
+            var flags = Flags;
             flags.HalfCarry = (b & 0x0f) == 0;
             flags.ParityOverflow = b == 0x80;
             flags.Subtract = true;
@@ -46,7 +50,7 @@
 
         public byte AddWithCarry(byte a, byte b)
         {
-            return Add(a, b, flags.Carry);
+            return Add(a, b, Flags.Carry);
         }
         
         public ushort Add(ushort a, ushort b)
@@ -56,7 +60,7 @@
 
         public ushort AddWithCarry(ushort a, ushort b)
         {
-            return Add(a, b, flags.Carry);
+            return Add(a, b, Flags.Carry);
         }
 
         public byte Subtract(byte a, byte b)
@@ -66,11 +70,12 @@
 
         public byte SubtractWithCarry(byte a, byte b)
         {
-            return Subtract(a, b, flags.Carry);
+            return Subtract(a, b, Flags.Carry);
         }
         
         public ushort SubtractWithCarry(ushort a, ushort b)
         {
+            var flags = Flags;
             var carry = flags.Carry ? 1 : 0;
             var result = a - b - carry;
 
@@ -92,11 +97,12 @@
         {
             var result = a - b;
 
+            var flags = Flags;
             flags.HalfCarry = (a & 0x0f) < (b & 0x0f);
 
             // Overflow = (added signs are same) && (result sign differs from the sign of either of operands)
             flags.ParityOverflow = (((a ^ ~b) & 0x80) == 0) && (((result ^ a) & 0x80) != 0);
-            
+
             flags.Subtract = true;
 
             b = unchecked((byte)result);
@@ -106,6 +112,8 @@
         public byte And(byte a, byte b)
         {
             a &= b;
+
+            var flags = Flags;
             flags.SetParityFlags(a);
             flags.HalfCarry = true;
             flags.Carry = false;
@@ -115,6 +123,8 @@
         public byte Or(byte a, byte b)
         {
             a |= b;
+
+            var flags = Flags;
             flags.SetParityFlags(a);
             flags.HalfCarry = true;
             flags.Carry = false;
@@ -124,6 +134,8 @@
         public byte Xor(byte a, byte b)
         {
             a ^= b;
+
+            var flags = Flags;
             flags.SetParityFlags(a);
             flags.HalfCarry = true;
             flags.Carry = false;
@@ -134,6 +146,7 @@
         {
             var a0 = a;
 
+            var flags = Flags;
             if ((a & 0x0f) > 9 || flags.HalfCarry)
             {
                 if (flags.Subtract)
@@ -179,6 +192,7 @@
             var carry = (a & 0x80) > 0;
             var result = unchecked((byte)((a << 1) | (carry ? 1 : 0)));
 
+            var flags = Flags;
             flags.Carry = carry;
             flags.HalfCarry = false;
             flags.Subtract = false;
@@ -194,6 +208,7 @@
         /// <param name="a"></param>
         public byte RotateLeft(byte a)
         {
+            var flags = Flags;
             var result = unchecked((byte)((a << 1) | (flags.Carry ? 1 : 0)));
             
             flags.Carry = (a & 0x80) > 0;
@@ -215,6 +230,7 @@
             var carry = (a & 1) > 0;
             var result = unchecked((byte)((a >> 1) | (carry ? 0x80 : 0)));
 
+            var flags = Flags;
             flags.Carry = carry;
             flags.HalfCarry = false;
             flags.Subtract = false;
@@ -231,6 +247,7 @@
         /// <returns></returns>
         public byte RotateRight(byte a)
         {
+            var flags = Flags;
             var result = unchecked((byte)((a >> 1) | (flags.Carry ? 0x80 : 0)));
 
             flags.Carry = (a & 1) > 0;
@@ -250,10 +267,11 @@
         /// <returns></returns>
         public byte ShiftLeft(byte a)
         {
+            var flags = Flags;
             flags.Carry = (a & 0x80) > 0;
             var result = unchecked((byte)(a << 1));
 
-            this.flags.SetParityFlags(result);
+            flags.SetParityFlags(result);
             flags.HalfCarry = false;
             return result;
         }
@@ -268,10 +286,11 @@
         /// <returns></returns>
         public byte ShiftLeftSet(byte a)
         {
+            var flags = Flags;
             flags.Carry = (a & 0x80) > 0;
             var result = unchecked((byte)((a << 1) | 0x01));
 
-            this.flags.SetParityFlags(result);
+            flags.SetParityFlags(result);
             flags.HalfCarry = false;
             return result;
         }
@@ -285,10 +304,11 @@
         /// <returns></returns>
         public byte ShiftRight(byte a)
         {
+            var flags = Flags;
             flags.Carry = (a & 0x01) > 0;
             var result = unchecked((byte)((a >> 1) | (a & 0x80)));
             
-            this.flags.SetParityFlags(result);
+            flags.SetParityFlags(result);
             flags.HalfCarry = false;
             return result;
         }
@@ -302,10 +322,11 @@
         /// <returns></returns>
         public byte ShiftRightLogical(byte a)
         {
+            var flags = Flags;
             flags.Carry = (a & 0x01) > 0;
             var result = unchecked((byte)(a >> 1));
 
-            this.flags.SetParityFlags(result);
+            flags.SetParityFlags(result);
             flags.HalfCarry = false;
             return result;
         }
@@ -323,7 +344,9 @@
                              Accumulator = (byte)((accumulator & 0xf0) | ((b & 0xf0) >> 4)),
                              Result = (byte)(((b & 0x0f) << 4) | (accumulator & 0x0f))
                          };
-            this.flags.SetParityFlags(result.Accumulator);
+
+            var flags = Flags;
+            flags.SetParityFlags(result.Accumulator);
             flags.HalfCarry = false;
             return result;
         }
@@ -341,7 +364,9 @@
                              Accumulator = (byte)((accumulator & 0xf0) | (b & 0x0f)),
                              Result = (byte)(((accumulator & 0x0f) << 4) | ((b & 0xf0) >> 4))
                          };
-            this.flags.SetParityFlags(result.Accumulator);
+
+            var flags = Flags;
+            flags.SetParityFlags(result.Accumulator);
             flags.HalfCarry = false;
             return result;
         }
@@ -353,6 +378,7 @@
         /// <param name="bit"></param>
         public void BitTest(byte a, int bit)
         {
+            var flags = Flags;
             flags.Zero = ((0x1 << bit) & a) == 0;
             flags.HalfCarry = true;
             flags.Subtract = false;
@@ -376,7 +402,8 @@
         public ushort AddDisplacement(ushort a, sbyte d)
         {
             var result = a + d;
-            
+
+            var flags = Flags;
             if (d >= 0)
             {
                 flags.Carry = (result & 0x100) == 0x100;
@@ -397,6 +424,8 @@
         public byte Swap(byte a)
         {
             var result = (byte)(((a & 0xf) << 4) | ((a & 0xf0) >> 4));
+
+            var flags = Flags;
             flags.Zero = result == 0;
             flags.Subtract = false;
             flags.HalfCarry = false;
@@ -409,6 +438,7 @@
             var carry = addCarry ? 1 : 0;
             var result = a + b + carry;
 
+            var flags = Flags;
             flags.HalfCarry = (((a & 0x0f) + (b & 0x0f) + (carry & 0x0f)) & 0xf0) > 0;
 
             // Overflow = (added signs are same) && (result sign differs from the sign of either of operands)
@@ -428,6 +458,8 @@
         {
             var carry = addCarry ? 1 : 0;
             var result = a + b + carry;
+
+            var flags = Flags;
 
             // Half carry is carry from bit 11
             flags.HalfCarry = (((a & 0x0f00) + (b & 0x0f00) + (carry & 0x0f00)) & 0xf000) > 0;
@@ -459,6 +491,8 @@
         {
             var carry = addCarry ? 1 : 0;
             var result = a - b - carry;
+
+            var flags = Flags;
 
             flags.HalfCarry = (a & 0x0f) < (b & 0x0f) + carry;
 

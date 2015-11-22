@@ -31,6 +31,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Ninject, Version=3.2.0.0, Culture=neutral, PublicKeyToken=c7192dc5380945e7, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ninject.3.2.2.0\lib\net45-full\Ninject.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime.Caching" />
@@ -67,9 +71,8 @@
     <Compile Include="Core\DynaRec\DynaRec.Expressions.cs" />
     <Compile Include="Core\Interpreted\InterpretedInstructionBlockDecoder.cs" />
     <Compile Include="Core\Timing\MachineCycleTimer.cs" />
-    <Compile Include="Factories\CoreContextFactoryBase.cs" />
-    <Compile Include="Factories\Intel8080ContextFactory.cs" />
-    <Compile Include="Factories\Z80ContextFactory.cs" />
+    <Compile Include="Factories\NinjectCoreContextFactory.cs" />
+    <Compile Include="Memory\Z80Mmu.cs" />
     <Compile Include="Peripherals\AsciiSystemConsole.cs" />
     <Compile Include="Peripherals\SystemConsoleStatus.cs" />
     <Compile Include="Peripherals\PeripheralManager.cs" />
@@ -85,7 +88,9 @@
     <Compile Include="Util\DebugViewWriter.cs" />
     <Compile Include="Util\ExpressionHelpers.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Axh.Retro.CPU.Common.Contracts\Axh.Retro.CPU.Common.Contracts.csproj">
       <Project>{5a958c82-d6ea-4bd1-9cc6-3727afe1874c}</Project>

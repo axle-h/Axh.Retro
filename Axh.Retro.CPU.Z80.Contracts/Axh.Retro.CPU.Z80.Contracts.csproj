@@ -42,7 +42,7 @@
   <ItemGroup>
     <Compile Include="Cache\IInstructionBlockCache.cs" />
     <Compile Include="Config\CoreMode.cs" />
-    <Compile Include="Config\IInitialStateConfig.cs" />
+    <Compile Include="Config\IInitialStateFactory.cs" />
     <Compile Include="Config\InstructionTimingSyncMode.cs" />
     <Compile Include="Config\IPlatformConfig.cs" />
     <Compile Include="Config\IRuntimeConfig.cs" />

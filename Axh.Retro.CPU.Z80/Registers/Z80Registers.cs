@@ -89,14 +89,15 @@
             IGeneralPurposeRegisterSet primaryGeneralPurposeRegisterSet,
             IGeneralPurposeRegisterSet alternativeGeneralPurposeRegisterSet,
             IAccumulatorAndFlagsRegisterSet primaryAccumulatorAndFlagsRegisterSet,
-            IAccumulatorAndFlagsRegisterSet alternativeAccumulatorAndFlagsRegisterSet)
+            IAccumulatorAndFlagsRegisterSet alternativeAccumulatorAndFlagsRegisterSet,
+            Z80RegisterState initialState)
         {
             this.primaryGeneralPurposeRegisterSet = primaryGeneralPurposeRegisterSet;
             this.alternativeGeneralPurposeRegisterSet = alternativeGeneralPurposeRegisterSet;
             this.primaryAccumulatorAndFlagsRegisterSet = primaryAccumulatorAndFlagsRegisterSet;
             this.alternativeAccumulatorAndFlagsRegisterSet = alternativeAccumulatorAndFlagsRegisterSet;
 
-            Reset();
+            this.ResetToState(initialState);
         }
 
         public void SwitchToAlternativeGeneralPurposeRegisters()

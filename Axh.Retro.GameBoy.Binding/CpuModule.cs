@@ -23,13 +23,12 @@
         {
             // Core
             this.Bind<ICpuCore<IIntel8080Registers, Intel8080RegisterState>>().To<CachingCpuCore<IIntel8080Registers, Intel8080RegisterState>>();
-            
-            // Factories
-            this.Bind<IPeripheralFactory>().To<PeripheralFactory>().InSingletonScope();
-            this.Bind<ICoreContextFactory<IIntel8080Registers, Intel8080RegisterState>>().To<Intel8080ContextFactory>().InSingletonScope();
+            this.Bind<ICoreContextFactory<IIntel8080Registers, Intel8080RegisterState>>().To<NinjectCoreContextFactory<IIntel8080Registers, Intel8080RegisterState>>();
 
-            // Config
-            this.Bind<IInitialStateConfig<Intel8080RegisterState>>().To<GameBoyInitialStateConfig>().InSingletonScope();
+
+            // Gameboy specific
+            this.Bind<IPeripheralFactory>().To<PeripheralFactory>().InSingletonScope();
+            this.Bind<IInitialStateFactory<Intel8080RegisterState>>().To<GameBoyInitialStateFactory>().InSingletonScope();
             this.Bind<IPlatformConfig>().To<GameBoyPlatformConfig>().InSingletonScope();
             this.Bind<IRuntimeConfig>().To<GameBoyRuntimeConfig>().InSingletonScope();
         }

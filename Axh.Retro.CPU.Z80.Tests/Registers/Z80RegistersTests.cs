@@ -1,6 +1,7 @@
 ﻿namespace Axh.Retro.CPU.Z80.Tests.Registers
 {
     using Axh.Retro.CPU.Z80.Contracts.Registers;
+    using Axh.Retro.CPU.Z80.Contracts.State;
     using Axh.Retro.CPU.Z80.Registers;
 
     using Moq;
@@ -35,7 +36,8 @@
                 primaryGeneralPurposeRegisters.Object,
                 alternativeGeneralPurposeRegisters.Object,
                 primaryAccumulatorAndFlagsRegisters.Object,
-                alternativeAccumulatorAndFlagsRegisters.Object);
+                alternativeAccumulatorAndFlagsRegisters.Object,
+                new Z80RegisterState());
         }
 
         [Test]

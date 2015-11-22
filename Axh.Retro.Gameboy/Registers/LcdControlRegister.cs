@@ -1,11 +1,20 @@
 ﻿namespace Axh.Retro.GameBoy.Registers
 {
+    using System;
+
     using Axh.Retro.GameBoy.Devices.CoreInterfaces;
     using Axh.Retro.GameBoy.Registers.Interfaces;
     using Axh.Retro.GameBoy.Util;
 
     internal class LcdControlRegister : ILcdControlRegister
     {
+        private LcdControl lcdControl;
+
+        public LcdControlRegister()
+        {
+            this.lcdControl = LcdControl.None;
+        }
+
         public ushort Address => 0xff40;
 
         public string Name => "LCD Control (LCDCONT R/W)";
@@ -25,19 +34,26 @@
         {
             get
             {
-                return RegisterHelpers.GetRegister(LcdOperation, WindowTileMap, WindowDisplay, TilePatternTable, BackgroundTileMap, SpriteSize, WindowColor0Transparent, BackgroundDisplay);
+                return (byte)lcdControl;
             }
             set
             {
-                LcdOperation = RegisterHelpers.GetBit(value, 7);
-                WindowTileMap = RegisterHelpers.GetBit(value, 6);
-                WindowDisplay = RegisterHelpers.GetBit(value, 5);
-                TilePatternTable = RegisterHelpers.GetBit(value, 4);
-                BackgroundTileMap = RegisterHelpers.GetBit(value, 3);
-                SpriteSize = RegisterHelpers.GetBit(value, 2);
-                WindowColor0Transparent = RegisterHelpers.GetBit(value, 1);
-                BackgroundDisplay = RegisterHelpers.GetBit(value, 0);
+                lcdControl = (LcdControl)value;
             }
+        }
+
+        [Flags]
+        private enum LcdControl : byte
+        {
+            None = 0,
+            BackgroundDisplay = 0x01,
+            WindowColor0Transparent = 0x02,
+            SpriteSize = 0x04,
+            BackgroundTileMap = 0x08,
+            TilePatternTable = 0x10,
+            WindowDisplay = 0x20,
+            WindowTileMap = 0x40,
+            LcdOperation = 0x80
         }
 
         public string DebugView => this.ToString();
@@ -47,60 +63,60 @@
         /// True: On
         /// False: Off
         /// </summary>
-        public bool LcdOperation { get; private set; }
+        public bool LcdOperation => this.lcdControl.HasFlag(LcdControl.LcdOperation);
 
         /// <summary>
         /// Sets which tile map the window uses
         /// True: 9C00-9FFF (1)
         /// False: 9800-9BFF (0)
         /// </summary>
-        public bool WindowTileMap { get; private set; }
+        public bool WindowTileMap => this.lcdControl.HasFlag(LcdControl.WindowTileMap);
 
         /// <summary>
         /// Window status
         /// True: On
         /// False: Off
         /// </summary>
-        public bool WindowDisplay { get; private set; }
+        public bool WindowDisplay => this.lcdControl.HasFlag(LcdControl.WindowDisplay);
 
         /// <summary>
         /// Sets which tile pattern table to use
         /// True: 8000-8FFF (1)
         /// False: 8800-97FF (0)
         /// </summary>
-        public bool TilePatternTable { get; private set; }
+        public bool TilePatternTable => this.lcdControl.HasFlag(LcdControl.TilePatternTable);
 
         /// <summary>
         /// Sets which tile map the background uses
         /// True: 9C00-9FFF (1)
         /// False: 9800-9BFF (0)
         /// </summary>
-        public bool BackgroundTileMap { get; private set; }
+        public bool BackgroundTileMap => this.lcdControl.HasFlag(LcdControl.BackgroundTileMap);
 
         /// <summary>
         /// Sets the sprite size
         /// True: 8x16
         /// False: 8x8
         /// </summary>
-        public bool SpriteSize { get; private set; }
+        public bool SpriteSize => this.lcdControl.HasFlag(LcdControl.SpriteSize);
 
         /// <summary>
         /// Sets the transparency of colour 0 on the window
         /// True: SOLID
         /// False: TRANSPARENT
         /// </summary>
-        public bool WindowColor0Transparent { get; private set; }
+        public bool WindowColor0Transparent => this.lcdControl.HasFlag(LcdControl.WindowColor0Transparent);
 
         /// <summary>
         /// Background status
         /// True: On
         /// False: Off
         /// </summary>
-        public bool BackgroundDisplay { get; private set; }
+        public bool BackgroundDisplay => this.lcdControl.HasFlag(LcdControl.BackgroundDisplay);
 
         public override string ToString()
         {
-            return $"{Name} ({Address}) = {Register}\nLcdOperation: {LcdOperation}\nWindowTileMap: {WindowTileMap}\nWindowDisplay: {WindowDisplay}\nTilePatternTable: {TilePatternTable}\nBackgroundTileMap: {BackgroundTileMap}\nSpriteSize: {SpriteSize}\nWindowColor0Transparent: {WindowColor0Transparent}\nBackgroundDisplay: {BackgroundDisplay}";
+            return $"{Name} ({Address}) = {Register}\n\tLcdOperation: {LcdOperation}\n\tWindowTileMap: {WindowTileMap}\n\tWindowDisplay: {WindowDisplay}\n\tTilePatternTable: {TilePatternTable}\n\tBackgroundTileMap: {BackgroundTileMap}\n\tSpriteSize: {SpriteSize}\n\tWindowColor0Transparent: {WindowColor0Transparent}\n\tBackgroundDisplay: {BackgroundDisplay}";
         }
     }
     

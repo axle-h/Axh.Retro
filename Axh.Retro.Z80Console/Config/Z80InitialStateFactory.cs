@@ -4,7 +4,7 @@
     using Axh.Retro.CPU.Z80.Contracts.Registers;
     using Axh.Retro.CPU.Z80.Contracts.State;
 
-    internal class Z80InitialStateConfig : IInitialStateConfig<Z80RegisterState>
+    internal class Z80InitialStateFactory : IInitialStateFactory<Z80RegisterState>
     {
         private const ushort InitialStackPointer = 0xffff;
         private const ushort InitialProgramCounter = 0x0000;

@@ -20,10 +20,10 @@
 
         private ushort address;
 
-        public PrefetchQueue(IMmu mmu, ushort address)
+        public PrefetchQueue(IMmu mmu)
         {
             this.mmu = mmu;
-            this.address = address;
+            this.address = 0x0000;
             this.Init();
         }
 

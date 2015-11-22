@@ -8,7 +8,7 @@
     {
         CpuMode CpuMode { get; }
 
-        IEnumerable<IMmuBankConfig> MemoryBanks { get; }
+        IEnumerable<IMemoryBankConfig> MemoryBanks { get; }
         
         double MachineCycleSpeedMhz { get; }
 

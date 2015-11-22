@@ -58,7 +58,7 @@
         /// Build the memory banks every time they are requested.
         /// Means we can change stuff in IGameBoyConfig at runtime and get a different system state running.
         /// </summary>
-        public IEnumerable<IMmuBankConfig> MemoryBanks
+        public IEnumerable<IMemoryBankConfig> MemoryBanks
         {
             get
             {

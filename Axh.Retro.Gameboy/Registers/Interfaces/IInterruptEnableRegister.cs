@@ -5,7 +5,7 @@
     /// <summary>
     /// FFFF - IE - Interrupt Enable (R/W)
     /// </summary>
-    internal interface IInterruptEnableRegister : IRegister, IReadableAddressSegment, IWriteableAddressSegment
+    public interface IInterruptEnableRegister : IRegister, IReadableAddressSegment, IWriteableAddressSegment
     {
         /// <summary>
         /// Bit 0: V-Blank  Interrupt Enable  (INT 40h)  (1=Enable)

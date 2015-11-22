@@ -17,13 +17,19 @@
     {
         private Mock<IFlagsRegister> flags;
 
-        private Alu alu;
+        private Alu<IZ80Registers> alu;
 
         [TestFixtureSetUp]
         public void TestFixtureSetUp()
         {
             flags = new Mock<IFlagsRegister>();
-            alu = new Alu(flags.Object);
+            var registers = new Mock<IZ80Registers>();
+            var accumulatorAndFlagsRegisterSet = new Mock<IAccumulatorAndFlagsRegisterSet>();
+
+            registers.Setup(x => x.AccumulatorAndFlagsRegisters).Returns(accumulatorAndFlagsRegisterSet.Object);
+            accumulatorAndFlagsRegisterSet.Setup(x => x.Flags).Returns(flags.Object);
+
+            alu = new Alu<IZ80Registers>(registers.Object);
         }
 
         private void Reset(bool carry = false)

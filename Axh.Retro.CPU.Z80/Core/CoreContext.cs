@@ -13,8 +13,6 @@
         where TRegisters : IStateBackedRegisters<TRegisterState>
         where TRegisterState : struct
     {
-        private readonly Action disposeAction;
-
         public CoreContext(
             TRegisters registers,
             IInterruptManager interruptManager,
@@ -23,8 +21,7 @@
             IInstructionTimer instructionTimer,
             IAlu alu,
             IInstructionBlockCache<TRegisters> instructionBlockCache,
-            IInstructionBlockDecoder<TRegisters> instructionBlockDecoder, 
-            Action disposeAction = null)
+            IInstructionBlockDecoder<TRegisters> instructionBlockDecoder)
         {
             Registers = registers;
             InterruptManager = interruptManager;
@@ -34,7 +31,8 @@
             Alu = alu;
             InstructionBlockCache = instructionBlockCache;
             InstructionBlockDecoder = instructionBlockDecoder;
-            this.disposeAction = disposeAction;
+
+            peripheralManager.RegisterDma(mmu);
         }
 
         public TRegisters Registers { get; }
@@ -55,10 +53,7 @@
 
         public void Dispose()
         {
-            if (this.disposeAction != null)
-            {
-                disposeAction();
-            }
+            // TODO.
         }
     }
 }

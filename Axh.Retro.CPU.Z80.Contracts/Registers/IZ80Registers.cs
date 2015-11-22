@@ -2,7 +2,7 @@
 {
     using Axh.Retro.CPU.Z80.Contracts.State;
 
-    public interface IZ80Registers : IRegisters, IStateBackedRegisters<Z80RegisterState>
+    public interface IZ80Registers : IStateBackedRegisters<Z80RegisterState>
     {
         ushort IX { get; set; }
 
