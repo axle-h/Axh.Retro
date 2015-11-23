@@ -36,8 +36,11 @@
             this.Bind<IInterruptEnableRegister>().To<InterruptEnableRegister>().InNamedScope(cpuContextScope);
             this.Bind<ICoreJoyPad>().To<JoyPad>().InNamedScope(cpuContextScope);
             this.Bind<ICoreSerialPort>().To<SyncSerialPort>().InNamedScope(cpuContextScope);
-            this.Bind<ILcdControlRegister>().To<LcdControlRegister>().InNamedScope(cpuContextScope);
             this.Bind<IMemoryBankController1>().To<MemoryBankController1>().InNamedScope(cpuContextScope);
+
+            this.Bind<IRegister, ILcdControlRegister>().To<LcdControlRegister>().InNamedScope(cpuContextScope);
+            this.Bind<IRegister, ICurrentScanlineRegister>().To<CurrentScanlineRegister>().InNamedScope(cpuContextScope);
+
             // Un-named registers
             this.Bind<IRegister>().To<LazyDividerRegister>().InNamedScope(cpuContextScope);
 

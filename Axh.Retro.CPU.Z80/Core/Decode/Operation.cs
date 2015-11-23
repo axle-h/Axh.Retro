@@ -97,6 +97,11 @@
         public override string ToString()
         {
             var sb = new StringBuilder().AppendFormat("0x{0}   {1}", this.Address.ToString("x4"), OpCode.GetMnemonic());
+            if (this.FlagTest != FlagTest.None)
+            {
+                sb.AppendFormat(" {0}", GetFlagTestString(this.FlagTest));
+            }
+
             if (Operand1 != Operand.None)
             {
                 sb.AppendFormat(" {0}", GetOperandString(Operand1));
@@ -108,6 +113,31 @@
             }
 
             return sb.AppendFormat(", {0}", GetOperandString(Operand2)).ToString();
+        }
+
+        private static string GetFlagTestString(FlagTest flagTest)
+        {
+            switch (flagTest)
+            {
+                case FlagTest.NotZero:
+                    return "NZ";
+                case FlagTest.Zero:
+                    return "Z";
+                case FlagTest.NotCarry:
+                    return "NC";
+                case FlagTest.Carry:
+                    return "C";
+                case FlagTest.ParityOdd:
+                    return "PO";
+                case FlagTest.ParityEven:
+                    return "PE";
+                case FlagTest.Possitive:
+                    return "P";
+                case FlagTest.Negative:
+                    return "M";
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(flagTest), flagTest, null);
+            }
         }
 
         private string GetOperandString(Operand operand)
@@ -149,7 +179,7 @@
                 case Operand.nn:
                     return $"0x{this.WordLiteral.ToString("x4")}";
                 case Operand.n:
-                    return $"(0x{this.ByteLiteral.ToString("x2")})";
+                    return $"0x{this.ByteLiteral.ToString("x2")}";
                 case Operand.d:
                     return ((sbyte)this.ByteLiteral).ToString();
                 case Operand.mIXd:
@@ -159,7 +189,7 @@
                 case Operand.mCl:
                     return "(0xff00 + C)";
                 case Operand.mnl:
-                    return $"(0xff00 + 0x{this.ByteLiteral})";
+                    return $"(0xff00 + 0x{this.ByteLiteral:x2})";
                 case Operand.SPd:
                     var d = (sbyte)this.ByteLiteral;
                     return d > 0 ? $"SP+{d}" : $"SP{d}";

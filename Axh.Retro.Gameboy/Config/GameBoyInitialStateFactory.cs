@@ -6,8 +6,8 @@
 
     public class GameBoyInitialStateFactory : IInitialStateFactory<Intel8080RegisterState>
     {
-        private const ushort InitialStackPointer = 0x0;
-        private const ushort InitialProgramCounter = 0x1000;
+        private const ushort InitialStackPointer = 0xfffe;
+        private const ushort InitialProgramCounter = 0x0100;
 
         public Intel8080RegisterState GetInitialRegisterState()
         {
@@ -26,15 +26,13 @@
 
         private static GeneralPurposeRegisterState GetInitialGeneralPurposeRegisterState()
         {
-            var state = new GeneralPurposeRegisterState();
-            state.B = state.C = state.D = state.E = state.H = state.L = 0;
+            var state = new GeneralPurposeRegisterState { B = 0x00, C = 0x13, D = 0x00, E = 0xd8, H = 0x01, L = 0x4d };
             return state;
         }
         
         private static AccumulatorAndFlagsRegisterState GetInitialAccumulatorAndFlagsRegisterState()
         {
-            var state = new AccumulatorAndFlagsRegisterState();
-            state.A = state.F = 0;
+            var state = new AccumulatorAndFlagsRegisterState { A = 0x01, F = 0xb0 };
             return state;
         }
     }

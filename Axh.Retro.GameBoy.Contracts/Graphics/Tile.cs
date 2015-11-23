@@ -26,6 +26,11 @@
                 }
             }
         }
+
+        public override string ToString()
+        {
+            return Id.ToString();
+        }
     }
 
     public enum Palette : byte

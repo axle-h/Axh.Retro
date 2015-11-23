@@ -12,6 +12,7 @@
     using Axh.Retro.CPU.Z80.Contracts.Core;
     using Axh.Retro.GameBoy.Contracts.Graphics;
     using Axh.Retro.GameBoy.Devices.CoreInterfaces;
+    using Axh.Retro.GameBoy.Registers;
     using Axh.Retro.GameBoy.Registers.Interfaces;
 
     public class Gpu : ICoreGpu
@@ -37,6 +38,8 @@
 
         private readonly ILcdControlRegister lcdControlRegister;
 
+        private readonly ICurrentScanlineRegister currentScanlineRegister;
+
         private readonly IRenderHandler renderhandler;
 
         /// <summary>
@@ -55,10 +58,11 @@
         /// </summary>
         private readonly IDictionary<Guid, Tile> tileCache;
         
-        public Gpu(IInterruptManager interruptManager, ILcdControlRegister lcdControlRegister, IRenderHandler renderhandler)
+        public Gpu(IInterruptManager interruptManager, ILcdControlRegister lcdControlRegister, ICurrentScanlineRegister currentScanlineRegister, IRenderHandler renderhandler)
         {
             this.interruptManager = interruptManager;
             this.lcdControlRegister = lcdControlRegister;
+            this.currentScanlineRegister = currentScanlineRegister;
             this.renderhandler = renderhandler;
             this.spriteRam = new ArrayBackedMemoryBank(SpriteRamConfig);
             this.tileRam = new ArrayBackedMemoryBank(MapRamConfig);
@@ -94,12 +98,13 @@
                              { Palette.Colour2, Color.FromArgb(96, 96, 96) },
                              { Palette.Colour3, Color.FromArgb(0, 0, 0) }
                          };
-
+            
             var frame = new Bitmap(32 * 8, 32 * 8);
             // Paint all 32 * 32 tiles for now
             for (var r = 0; r < 32; r++)
             {
                 var y = r * 8;
+                currentScanlineRegister.SetCurrentScanline(y);
                 for (var c = 0; c < 32; c++)
                 {
                     tileMap[r][c].Paint(frame, c * 8, y, colors);
