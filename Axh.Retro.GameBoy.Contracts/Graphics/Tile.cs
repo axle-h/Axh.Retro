@@ -6,9 +6,10 @@
 
     public class Tile
     {
-        public Tile(Guid id, Palette[][] paletteMap)
+        public Tile(Guid id, byte[] tileData, Palette[][] paletteMap)
         {
             this.Id = id;
+            this.TileData = tileData;
             this.PaletteMap = paletteMap;
         }
 
@@ -16,16 +17,7 @@
 
         public Guid Id { get; }
 
-        public void Paint(Bitmap image, int x, int y, IDictionary<Palette, Color> colors)
-        {
-            for (var r = 0; r < 8; r++)
-            {
-                for (var c = 0; c < 8; c++)
-                {
-                    image.SetPixel(x + r, y + c, colors[PaletteMap[r][c]]);
-                }
-            }
-        }
+        public byte[] TileData { get; }
 
         public override string ToString()
         {

@@ -33,17 +33,10 @@
         {
             return $"{Name} ({Address}) = {Register}"; ;
         }
-
-        public void SetCurrentScanline(int scanline)
+        
+        public void IncrementScanline()
         {
-            if (scanline > 153)
-            {
-                this.register = 153;
-            }
-            else
-            {
-                this.register = (byte)scanline;
-            }   
+            register = (byte)((register + 1) % 154);   
         }
     }
 }

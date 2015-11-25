@@ -2,6 +2,6 @@
 {
     public interface ICurrentScanlineRegister : IRegister
     {
-        void SetCurrentScanline(int scanline);
+        void IncrementScanline();
     }
 }

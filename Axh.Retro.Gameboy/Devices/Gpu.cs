@@ -3,7 +3,9 @@
     using System;
     using System.Collections.Generic;
     using System.Drawing;
+    using System.Linq;
     using System.Threading.Tasks;
+    using System.Timers;
 
     using Axh.Retro.CPU.Common.Config;
     using Axh.Retro.CPU.Common.Contracts.Config;
@@ -14,11 +16,15 @@
     using Axh.Retro.GameBoy.Devices.CoreInterfaces;
     using Axh.Retro.GameBoy.Registers;
     using Axh.Retro.GameBoy.Registers.Interfaces;
+    using Axh.Retro.GameBoy.Util;
 
     public class Gpu : ICoreGpu
     {
         private static readonly IMemoryBankConfig SpriteRamConfig = new SimpleMemoryBankConfig(MemoryBankType.Peripheral, null, 0xfe00, 0xa0);
         private static readonly IMemoryBankConfig MapRamConfig = new SimpleMemoryBankConfig(MemoryBankType.Peripheral, null, 0x8000, 0x2000);
+
+        private const double FrameRate = 1000 / 60.0;
+        private const double ScanLineRate = 1000 / 60.0 / 153.0;
 
         /// <summary>
         /// $FE00-$FE9F	OAM - Object Attribute Memory
@@ -57,6 +63,10 @@
         /// TODO: How big will this grow?
         /// </summary>
         private readonly IDictionary<Guid, Tile> tileCache;
+
+        private readonly Timer frameTimer;
+        private readonly Timer scanLineTimer;
+        private uint lastFrameDigest;
         
         public Gpu(IInterruptManager interruptManager, ILcdControlRegister lcdControlRegister, ICurrentScanlineRegister currentScanlineRegister, IRenderHandler renderhandler)
         {
@@ -66,12 +76,20 @@
             this.renderhandler = renderhandler;
             this.spriteRam = new ArrayBackedMemoryBank(SpriteRamConfig);
             this.tileRam = new ArrayBackedMemoryBank(MapRamConfig);
+            this.lastFrameDigest = 0;
 
             this.tileSet0 = new Tile[256];
             this.tileSet1 = new Tile[256];
             this.tileCache = new Dictionary<Guid, Tile>();
+            
+            frameTimer = new Timer(FrameRate);
+            scanLineTimer = new Timer(ScanLineRate);
 
-            DrawBackground();
+            frameTimer.Elapsed += (sender, args) => Paint();
+            scanLineTimer.Elapsed += (sender, args) => currentScanlineRegister.IncrementScanline();
+
+            frameTimer.Start();
+            scanLineTimer.Start();
         }
 
         public void Halt()
@@ -84,11 +102,21 @@
             
         }
 
+        private void Paint()
+        {
+            DrawBackground();
+        }
+
         private void DrawBackground()
         {
             UpdateTileSets();
 
             var tileMap = this.lcdControlRegister.BackgroundTileMap ? GetTileMap(0x9c00, tileSet1) : GetTileMap(0x9800, tileSet0, true);
+
+            if (tileMap == null)
+            {
+                return;
+            }
 
             // TODO get background palette register
             var colors = new Dictionary<Palette, Color>
@@ -104,20 +132,24 @@
             for (var r = 0; r < 32; r++)
             {
                 var y = r * 8;
-                currentScanlineRegister.SetCurrentScanline(y);
                 for (var c = 0; c < 32; c++)
                 {
-                    tileMap[r][c].Paint(frame, c * 8, y, colors);
+                    Paint(tileMap[r][c], frame, c * 8, y, colors);
                 }
             }
 
             this.renderhandler.Paint(frame);
+        }
 
-            Task.Delay(1000).ContinueWith(
-                x =>
+        private static void Paint(Tile tile, Bitmap image, int x, int y, IDictionary<Palette, Color> colors)
+        {
+            for (var r = 0; r < 8; r++)
+            {
+                for (var c = 0; c < 8; c++)
                 {
-                    DrawBackground();
-                });
+                    image.SetPixel(x + r, y + c, colors[tile.PaletteMap[r][c]]);
+                }
+            }
         }
 
         private Tile[][] GetTileMap(ushort address, Tile[] tileSet, bool isSigned = false)
@@ -130,16 +162,26 @@
             var tileMapBytes = this.tileRam.ReadBytes(address, 1024);
 
             address = 0;
+            var hash = new XxHash(0);
             for (var r = 0; r < 32; r++)
             {
                 tileMap[r] = new Tile[32];
                 for (var c = 0; c < 32; address += 1, c++)
                 {
-                    var index = isSigned ? ((sbyte)tileMapBytes[address] + 127) : tileMapBytes[address];
-                    tileMap[r][c] = tileSet[index];
+                    var index = isSigned ? (((sbyte)tileMapBytes[address]) + 127) : tileMapBytes[address];
+                    var tile = tileSet[index];
+                    hash.Update(tile.TileData, 16);
+                    tileMap[r][c] = tile;
                 }
             }
 
+            var digest = hash.Digest();
+            if (digest == lastFrameDigest)
+            {
+                return null;
+            }
+
+            lastFrameDigest = digest;
             return tileMap;
         }
 
@@ -197,10 +239,16 @@
                 }
             }
 
-            var tile = new Tile(id, palette);
+            var tile = new Tile(id, buffer, palette);
             return tile;
         }
 
         public IEnumerable<IAddressSegment> AddressSegments => new[] { spriteRam, tileRam };
+
+        public void Dispose()
+        {
+            frameTimer.Dispose();
+            scanLineTimer.Dispose();
+        }
     }
 }

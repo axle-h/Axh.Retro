@@ -71,6 +71,7 @@
     <Compile Include="Devices\JoyPad.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Util\StreamExtensions.cs" />
+    <Compile Include="Util\xxHash.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Axh.Retro.CPU.Common.Contracts\Axh.Retro.CPU.Common.Contracts.csproj">

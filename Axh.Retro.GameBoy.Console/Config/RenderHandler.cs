@@ -8,9 +8,11 @@
 
     public class RenderHandler : IRenderHandler
     {
+        private int frameId = 0;
+
         public void Paint(Bitmap frame)
         {
-            frame.Save($"frame-{Guid.NewGuid()}.png", ImageFormat.Png);
+            frame.Save($"frame-{frameId++}.png", ImageFormat.Png);
         }
     }
 }

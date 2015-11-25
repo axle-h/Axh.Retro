@@ -17,7 +17,7 @@
         {
             JoyPad = joyPad;
             SerialPort = serialPort;
-            this.registers = registers.Concat(new[] { joyPad, serialPort, serialPort.SerialData }).ToDictionary(x => x.Address);
+            this.registers = registers.Concat(new[] { joyPad, serialPort, serialPort.SerialData }).ToDictionary(x => (ushort)(x.Address - Address));
         }
 
         private const ushort Address = 0xff00;
