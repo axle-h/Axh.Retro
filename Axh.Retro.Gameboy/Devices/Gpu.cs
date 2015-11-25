@@ -111,7 +111,7 @@
         {
             UpdateTileSets();
 
-            var tileMap = this.lcdControlRegister.BackgroundTileMap ? GetTileMap(0x9c00, tileSet1) : GetTileMap(0x9800, tileSet0, true);
+            var tileMap = this.lcdControlRegister.BackgroundTileMap ? GetTileMap(0x1c00, tileSet1) : GetTileMap(0x1800, tileSet0);
 
             if (tileMap == null)
             {
@@ -147,16 +147,13 @@
             {
                 for (var c = 0; c < 8; c++)
                 {
-                    image.SetPixel(x + r, y + c, colors[tile.PaletteMap[r][c]]);
+                    image.SetPixel(x + c, y + r, colors[tile.PaletteMap[r][c]]);
                 }
             }
         }
 
-        private Tile[][] GetTileMap(ushort address, Tile[] tileSet, bool isSigned = false)
+        private Tile[][] GetTileMap(ushort address, Tile[] tileSet)
         {
-            // Adjust for segment address
-            address -= 0x8000;
-
             var tileMap = new Tile[32][];
 
             var tileMapBytes = this.tileRam.ReadBytes(address, 1024);
@@ -168,7 +165,7 @@
                 tileMap[r] = new Tile[32];
                 for (var c = 0; c < 32; address += 1, c++)
                 {
-                    var index = isSigned ? (((sbyte)tileMapBytes[address]) + 127) : tileMapBytes[address];
+                    var index = tileMapBytes[address];
                     var tile = tileSet[index];
                     hash.Update(tile.TileData, 16);
                     tileMap[r][c] = tile;
@@ -187,24 +184,19 @@
 
         private void UpdateTileSets()
         {
-            // $9000-$97FF Tile set #0: tiles 0-127
-            GetTiles(this.tileSet0, 0x9000, 0);
-
-            // $8800-$8FFF Tile set #1: tiles 128-255 & Tile set #0: tiles -128 (0) to -1 (127)
-            GetTiles(this.tileSet0, 0x8800, 128);
-            Array.Copy(this.tileSet0, 0, this.tileSet1, 0, 128);
-
-            // $8000-$87FF Tile set #1: tiles 0 (128) to 127 (255)
-            GetTiles(this.tileSet1, 0x8000, 128);
+            // $8000-$87FF Tile set #1: tiles 0 to 127
+            GetTiles(0x0000, this.tileSet1, 0, 256);
+            
+            // $9000-$97FF Tile set #0: tiles 0 (128) - 127 (255)
+            GetTiles(0x1000, this.tileSet0, 128, 128);
+            
+            Array.Copy(this.tileSet1, 0, this.tileSet0, 0, 128);
         }
 
-        private void GetTiles(Tile[] tileSet, ushort address, int tileId)
+        private void GetTiles(ushort address, Tile[] tileSet, int tileId, int length)
         {
-            // Adjust for segment address
-            address -= 0x8000;
-
             var buffer = new byte[16];
-            for (var i = 0; i < 128; address += 16, i++, tileId++)
+            for (var i = 0; i < length; address += 16, i++, tileId++)
             {
                 tileRam.ReadBytes(address, buffer);
                 var id = new Guid(buffer); // So happnes that a Guid stores 16 bytes nicely
@@ -224,22 +216,24 @@
         private static Tile GetTile(Guid id, byte[] buffer)
         {
             var palette = new Palette[8][];
-            for (var row = 0; row < 8; row++)
+            var address = 0;
+            for (var row = 0; row < 8; row++, address += 2)
             {
                 palette[row] = new Palette[8];
-                var address = row * 2;
                 var low = buffer[address];
                 var high = buffer[address + 1];
 
                 for (var col = 0; col < 8; col++)
                 {
                     // Each value is a 2bit number stored in matching positions across low and high bytes
-                    var mask = 0x1 << (8 - col - 1);
+                    var mask = 0x1 << (7- col);
                     palette[row][col] = (Palette)(((low & mask) > 0 ? 1 : 0) + ((high & mask) > 0 ? 2 : 0));
                 }
             }
 
-            var tile = new Tile(id, buffer, palette);
+            var tileData = new byte[16];
+            Array.Copy(buffer, tileData, 16);
+            var tile = new Tile(id, tileData, palette);
             return tile;
         }
 
