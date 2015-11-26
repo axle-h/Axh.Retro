@@ -68,7 +68,7 @@
 
                 if (interruptManager.IsHalted)
                 {
-                    if (registers.InterruptFlipFlop1 || !interruptManager.IsInterrupted)
+                    if (interruptManager.IsInterrupted)
                     {
                         // Notify halt success before halting
                         interruptManager.NotifyHalt();

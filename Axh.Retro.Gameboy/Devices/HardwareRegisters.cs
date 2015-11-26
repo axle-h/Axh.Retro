@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq;
 
     using Axh.Retro.CPU.Common.Contracts.Memory;
@@ -31,7 +32,12 @@
 
         public byte ReadByte(ushort address)
         {
-            return this.registers.ContainsKey(address) ? this.registers[address].Register : (byte)0x0000;
+            if (this.registers.ContainsKey(address))
+            {
+                return this.registers[address].Register;
+            }
+            Debug.WriteLine("Missing Hardware Register: " + address);
+            return 0x00;
         }
 
         public ushort ReadWord(ushort address)

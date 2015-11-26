@@ -64,7 +64,6 @@
 
             // Resume the CPU with the program counter set to address
             this.interruptTaskSource.TrySetResult(address);
-            Debug.WriteLine("Interrupted: " + address);
             this.IsInterrupted = false;
         }
 
