@@ -3,5 +3,7 @@
     public interface ICurrentScanlineRegister : IRegister
     {
         void IncrementScanline();
+
+        byte Scanline { get; }
     }
 }

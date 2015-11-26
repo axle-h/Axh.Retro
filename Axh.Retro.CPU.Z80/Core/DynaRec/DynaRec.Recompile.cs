@@ -203,6 +203,7 @@
                 case OpCode.ReturnFromInterrupt:
                     yield return ReadPCFromStack;
                     yield return PopSP;
+                    yield return Expression.Assign(IFF1, Expression.Constant(true));
                     lastDecodeResult = DecodeResult.Finalize;
                     break;
 

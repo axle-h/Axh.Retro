@@ -48,6 +48,7 @@
     <Compile Include="Devices\CoreInterfaces\ICoreJoyPad.cs" />
     <Compile Include="Devices\CoreInterfaces\ICoreSerialPort.cs" />
     <Compile Include="Devices\CoreInterfaces\IMemoryBankController1.cs" />
+    <Compile Include="Devices\GpuMode.cs" />
     <Compile Include="Devices\MemoryBankController1.cs" />
     <Compile Include="Devices\SerialPortBase.cs" />
     <Compile Include="Registers\CurrentScanlineRegister.cs" />

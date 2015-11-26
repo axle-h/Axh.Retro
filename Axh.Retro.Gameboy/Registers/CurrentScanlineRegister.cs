@@ -4,11 +4,9 @@
 
     public class CurrentScanlineRegister : ICurrentScanlineRegister
     {
-        private byte register;
-
         public CurrentScanlineRegister()
         {
-            this.register = 0;
+            this.Scanline = 0;
         }
 
         public ushort Address => 0xff44;
@@ -19,11 +17,11 @@
         {
             get
             {
-                return register;
+                return Scanline;
             }
             set
             {
-                register = 0x00;
+                Scanline = 0x00;
             }
         }
 
@@ -36,7 +34,9 @@
         
         public void IncrementScanline()
         {
-            register = (byte)((register + 1) % 154);   
+            Scanline = (byte)((Scanline + 1) % 154);   
         }
+
+        public byte Scanline { get; private set; }
     }
 }

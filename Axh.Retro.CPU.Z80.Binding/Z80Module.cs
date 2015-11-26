@@ -82,15 +82,15 @@
             {
                 case CpuMode.Intel8080:
                     this.Bind<IFlagsRegister>().To<Intel8080FlagsRegister>().InTransientScope(); // Transient so never inject this except for into IAccumulatorAndFlagsRegisterSet classes
-                    this.Bind<IIntel8080Registers>().To<Intel8080Registers>().InNamedScope(cpuContextScope);
+                    this.Bind<IRegisters, IIntel8080Registers>().To<Intel8080Registers>().InNamedScope(cpuContextScope);
                     break;
                 case CpuMode.GameBoy:
                     this.Bind<IFlagsRegister>().To<GameBoyFlagsRegister>().InTransientScope(); // Transient so never inject this except for into IAccumulatorAndFlagsRegisterSet classes
-                    this.Bind<IIntel8080Registers>().To<Intel8080Registers>().InNamedScope(cpuContextScope);
+                    this.Bind<IRegisters, IIntel8080Registers>().To<Intel8080Registers>().InNamedScope(cpuContextScope);
                     break;
                 case CpuMode.Z80:
                     this.Bind<IFlagsRegister>().To<Intel8080FlagsRegister>().InTransientScope(); // Transient so never inject this except for into IAccumulatorAndFlagsRegisterSet classes
-                    this.Bind<IZ80Registers>().To<Z80Registers>().InNamedScope(cpuContextScope);
+                    this.Bind<IRegisters, IZ80Registers>().To<Z80Registers>().InNamedScope(cpuContextScope);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(platformConfig.CpuMode), platformConfig.CpuMode, null);

@@ -118,5 +118,30 @@
         public bool SerialLink => this.interruptEnable.HasFlag(InterruptEnable.SerialLink);
 
         public bool JoyPadPress => this.interruptEnable.HasFlag(InterruptEnable.JoyPadPress);
+
+        public void DisableVerticalBlank()
+        {
+            this.interruptEnable = ~InterruptEnable.VerticalBlank;
+        }
+
+        public void DisableLcdStatusTriggers()
+        {
+            this.interruptEnable &= ~InterruptEnable.LcdStatusTriggers;
+        }
+
+        public void DisableTimerOverflow()
+        {
+            this.interruptEnable &= ~InterruptEnable.TimerOverflow;
+        }
+
+        public void DisableSerialLink()
+        {
+            this.interruptEnable &= ~InterruptEnable.SerialLink;
+        }
+
+        public void DisableJoyPadPress()
+        {
+            this.interruptEnable &= ~InterruptEnable.JoyPadPress;
+        }
     }
 }

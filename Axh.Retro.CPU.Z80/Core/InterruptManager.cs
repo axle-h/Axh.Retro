@@ -1,12 +1,16 @@
 ﻿namespace Axh.Retro.CPU.Z80.Core
 {
     using System;
+    using System.Diagnostics;
     using System.Threading.Tasks;
 
     using Axh.Retro.CPU.Z80.Contracts.Core;
+    using Axh.Retro.CPU.Z80.Contracts.Registers;
 
     public class InterruptManager : ICoreInterruptManager
     {
+        private readonly IRegisters registers;
+
         private TaskCompletionSource<bool> haltTaskSource;
 
         private TaskCompletionSource<ushort> interruptTaskSource;
@@ -14,8 +18,9 @@
 
         private readonly object interruptSyncContext;
 
-        public InterruptManager()
+        public InterruptManager(IRegisters registers)
         {
+            this.registers = registers;
             this.haltTaskSource = new TaskCompletionSource<bool>();
             this.IsHalted = false;
             this.IsInterrupted = false;
@@ -24,6 +29,12 @@
 
         public async Task Interrupt(ushort address)
         {
+            if (!this.registers.InterruptFlipFlop1)
+            {
+                // Interrupts disabled.
+                return;
+            }
+
             if (IsInterrupted)
             {
                 // TODO: don't ignore these interrupts, interrupts trigerreed at the same time should be chosen by priority
@@ -39,6 +50,8 @@
                 this.IsInterrupted = true;
             }
 
+            this.registers.InterruptFlipFlop1 = false;
+
             // Halt the CPU if not already halted
             if (!IsHalted)
             {
@@ -51,6 +64,7 @@
 
             // Resume the CPU with the program counter set to address
             this.interruptTaskSource.TrySetResult(address);
+            Debug.WriteLine("Interrupted: " + address);
             this.IsInterrupted = false;
         }
 

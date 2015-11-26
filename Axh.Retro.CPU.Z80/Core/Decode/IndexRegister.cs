@@ -1,4 +1,4 @@
-﻿namespace Axh.Retro.CPU.Z80.Core
+﻿namespace Axh.Retro.CPU.Z80.Core.Decode
 {
     internal enum IndexRegister
     {

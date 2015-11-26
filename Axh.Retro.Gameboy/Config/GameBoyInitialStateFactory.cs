@@ -17,8 +17,8 @@
                             AccumulatorAndFlagsRegisterState = GetInitialAccumulatorAndFlagsRegisterState(),
                             StackPointer = InitialStackPointer,
                             ProgramCounter = InitialProgramCounter,
-                            InterruptFlipFlop1 = false,
-                            InterruptFlipFlop2 = false,
+                            InterruptFlipFlop1 = true,
+                            InterruptFlipFlop2 = true,
                             InterruptMode = InterruptMode.InterruptMode0
                         };
             return state;

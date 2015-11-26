@@ -60,8 +60,7 @@
     <Compile Include="Core\DynaRec\DynaRec.Helpers.cs" />
     <Compile Include="Core\DynaRec\DynaRec.Recompile.cs" />
     <Compile Include="Core\DynaRec\DynaRecInstructionBlock.cs" />
-    <Compile Include="Core\IndexRegister.cs" />
-    <Compile Include="Core\DynaRec\IndexRegisterExpressions.cs" />
+    <Compile Include="Core\Decode\IndexRegister.cs" />
     <Compile Include="Core\InterruptManager.cs" />
     <Compile Include="Core\Timing\InstructionTimingsBuilder.cs" />
     <Compile Include="Core\DynaRec\DynaRec.Expressions.cs" />

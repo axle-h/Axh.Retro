@@ -31,5 +31,15 @@
         /// Bit 4: Joypad   Interrupt Enable  (INT 60h)  (1=Enable)
         /// </summary>
         bool JoyPadPress { get; }
+
+        void DisableVerticalBlank();
+
+        void DisableLcdStatusTriggers();
+
+        void DisableTimerOverflow();
+
+        void DisableSerialLink();
+
+        void DisableJoyPadPress();
     }
 }

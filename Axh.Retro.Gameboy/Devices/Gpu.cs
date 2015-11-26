@@ -12,6 +12,7 @@
     using Axh.Retro.CPU.Common.Contracts.Memory;
     using Axh.Retro.CPU.Common.Memory;
     using Axh.Retro.CPU.Z80.Contracts.Core;
+    using Axh.Retro.CPU.Z80.Contracts.Core.Timing;
     using Axh.Retro.GameBoy.Contracts.Graphics;
     using Axh.Retro.GameBoy.Devices.CoreInterfaces;
     using Axh.Retro.GameBoy.Registers;
@@ -23,8 +24,8 @@
         private static readonly IMemoryBankConfig SpriteRamConfig = new SimpleMemoryBankConfig(MemoryBankType.Peripheral, null, 0xfe00, 0xa0);
         private static readonly IMemoryBankConfig MapRamConfig = new SimpleMemoryBankConfig(MemoryBankType.Peripheral, null, 0x8000, 0x2000);
 
-        private const double FrameRate = 1000 / 60.0;
-        private const double ScanLineRate = 1000 / 60.0 / 153.0;
+        private const int Scanlines = 144;
+        private const int VertaicalBlankScanlines = 153;
 
         /// <summary>
         /// $FE00-$FE9F	OAM - Object Attribute Memory
@@ -40,7 +41,7 @@
         /// </summary>
         private readonly ArrayBackedMemoryBank tileRam;
 
-        private readonly IInterruptManager interruptManager;
+        private readonly IGameBoyInterruptManager interruptManager;
 
         private readonly ILcdControlRegister lcdControlRegister;
 
@@ -63,17 +64,22 @@
         /// TODO: How big will this grow?
         /// </summary>
         private readonly IDictionary<Guid, Tile> tileCache;
-
-        private readonly Timer frameTimer;
-        private readonly Timer scanLineTimer;
+        
         private uint lastFrameDigest;
         
-        public Gpu(IInterruptManager interruptManager, ILcdControlRegister lcdControlRegister, ICurrentScanlineRegister currentScanlineRegister, IRenderHandler renderhandler)
+        private GpuMode mode;
+        
+        private int currentTimings;
+
+        private bool isEnabled;
+
+        public Gpu(IGameBoyInterruptManager interruptManager, ILcdControlRegister lcdControlRegister, ICurrentScanlineRegister currentScanlineRegister, IRenderHandler renderhandler, IInstructionTimer timer)
         {
             this.interruptManager = interruptManager;
             this.lcdControlRegister = lcdControlRegister;
             this.currentScanlineRegister = currentScanlineRegister;
             this.renderhandler = renderhandler;
+            
             this.spriteRam = new ArrayBackedMemoryBank(SpriteRamConfig);
             this.tileRam = new ArrayBackedMemoryBank(MapRamConfig);
             this.lastFrameDigest = 0;
@@ -81,16 +87,14 @@
             this.tileSet0 = new Tile[256];
             this.tileSet1 = new Tile[256];
             this.tileCache = new Dictionary<Guid, Tile>();
-            
-            frameTimer = new Timer(FrameRate);
-            scanLineTimer = new Timer(ScanLineRate);
 
-            frameTimer.Elapsed += (sender, args) => Paint();
-            scanLineTimer.Elapsed += (sender, args) => currentScanlineRegister.IncrementScanline();
-
-            frameTimer.Start();
-            scanLineTimer.Start();
+            this.isEnabled = false;
+            this.mode = GpuMode.VerticalBlank;
+            this.currentTimings = 0;
+            timer.TimingSync += Sync;
         }
+
+        public IEnumerable<IAddressSegment> AddressSegments => new[] { spriteRam, tileRam };
 
         public void Halt()
         {
@@ -102,6 +106,78 @@
             
         }
 
+        private void Sync(object sender, TimingSyncEventArgs args)
+        {
+            if (!this.lcdControlRegister.LcdOperation)
+            {
+                if (this.isEnabled)
+                {
+                    this.mode = GpuMode.VerticalBlank;
+                    this.currentTimings = 0;
+                    this.currentScanlineRegister.Register = 0x00;
+                    // TODO: write blank frame.
+                }
+                return;
+            }
+
+            this.isEnabled = true;
+            
+            var timings = args.InstructionTimings.MachineCycles;
+            currentTimings += timings;
+
+            const int VerticalBlankClocks = 456;
+            const int ReadingOamClocks = 80;
+            const int ReadingVramClocks = 172;
+            const int HorizontalBlankClocks = 204;
+            
+
+            switch (mode)
+            {
+                case GpuMode.HorizonalBlank:
+                    if (currentTimings >= HorizontalBlankClocks)
+                    {
+                        this.currentScanlineRegister.IncrementScanline();
+                        mode = this.currentScanlineRegister.Scanline == Scanlines ? GpuMode.VerticalBlank : GpuMode.ReadingOam;
+                        currentTimings -= HorizontalBlankClocks;
+                    }
+                    break;
+                case GpuMode.VerticalBlank:
+                    if (currentTimings >= VerticalBlankClocks)
+                    {
+                        if (this.currentScanlineRegister.Scanline == VertaicalBlankScanlines)
+                        {
+                            // Reset
+                            this.currentScanlineRegister.Register = 0x00;
+                            mode = GpuMode.ReadingOam;
+                            currentTimings -= VerticalBlankClocks;
+                            interruptManager.VerticalBlank();
+                            break;
+                        }
+
+                        this.currentScanlineRegister.IncrementScanline();
+                        currentTimings -= VerticalBlankClocks;
+                    }
+                    break;
+                case GpuMode.ReadingOam:
+                    if (currentTimings >= ReadingOamClocks)
+                    {
+                        mode = GpuMode.ReadingVram;
+                        currentTimings -= ReadingOamClocks;
+                    }
+                    break;
+                case GpuMode.ReadingVram:
+                    if (currentTimings >= ReadingVramClocks)
+                    {
+                        Paint();
+                        mode = GpuMode.HorizonalBlank;
+                        currentTimings -= ReadingVramClocks;
+                    }
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+        
         private void Paint()
         {
             DrawBackground();
@@ -236,13 +312,7 @@
             var tile = new Tile(id, tileData, palette);
             return tile;
         }
-
-        public IEnumerable<IAddressSegment> AddressSegments => new[] { spriteRam, tileRam };
-
-        public void Dispose()
-        {
-            frameTimer.Dispose();
-            scanLineTimer.Dispose();
-        }
+        
+        
     }
 }
