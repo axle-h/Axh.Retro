@@ -1,6 +1,7 @@
 ﻿namespace Axh.Retro.CPU.Z80.Core
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     
     using Axh.Retro.CPU.Z80.Contracts.Core;
@@ -19,7 +20,7 @@
 
         public ICoreContext<TRegisters, TRegisterState> Context { get; }
 
-        public async Task StartCoreProcessAsync()
+        public async Task StartCoreProcessAsync(CancellationToken cancellationToken)
         {
             var interruptManager = Context.InterruptManager as ICoreInterruptManager;
             if (interruptManager == null)
@@ -50,7 +51,7 @@
             mmu.AddressWrite += (sender, args) => cache.InvalidateCache(args.Address, args.Length);
             ushort? interruptAddress = null;
 
-            while (true)
+            while (!cancellationToken.IsCancellationRequested)
             {
                 var address = interruptAddress ?? registers.ProgramCounter;
                 var instructionBlock = cache.GetOrSet(address, () => instructionBlockDecoder.DecodeNextBlock(address));
@@ -68,7 +69,8 @@
 
                 if (interruptManager.IsHalted)
                 {
-                    if (interruptManager.IsInterrupted)
+                    // Did we request an interrupt or run a HALT opcode.
+                    if (interruptManager.IsInterrupted || instructionBlock.HaltCpu)
                     {
                         // Notify halt success before halting
                         interruptManager.NotifyHalt();

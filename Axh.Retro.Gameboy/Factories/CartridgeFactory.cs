@@ -47,13 +47,7 @@
                 // Should we do this?!
                 throw new Exception("Nintendo logo is not valid");
             }
-
-            if (string.IsNullOrEmpty(header.Title))
-            {
-                // Using as a sanity check. Will there ever not be a title?
-                throw new Exception("No title in cartridge");
-            }
-
+            
             if (header.RomSize.NumberOfBanks() != numberOfBanks)
             {
                 throw new Exception($"Cartridge type {header.RomSize} does not match ROM banks: " + numberOfBanks);

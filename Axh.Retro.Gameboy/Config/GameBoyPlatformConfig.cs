@@ -56,6 +56,7 @@
         {
             this.gameBoyConfig = gameBoyConfig;
             this.cartridgeFactory = cartridgeFactory;
+            InstructionTimingSyncMode = gameBoyConfig.UseGameBoyTimings ? InstructionTimingSyncMode.MachineCycles : InstructionTimingSyncMode.Null;
         }
         
         public CpuMode CpuMode => CpuMode.GameBoy;
@@ -127,7 +128,7 @@
         /// <summary>
         /// GB rounds all machine cycles to 4 throttling states. I.e. we need to run timing based on machine cycles.
         /// </summary>
-        public InstructionTimingSyncMode InstructionTimingSyncMode => InstructionTimingSyncMode.MachineCycles;
+        public InstructionTimingSyncMode InstructionTimingSyncMode { get; }
 
         public bool LockOnUndefinedInstruction => false;
 

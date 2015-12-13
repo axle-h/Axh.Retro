@@ -53,7 +53,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Config\GameBoyConfig.cs" />
+    <Compile Include="Config\StaticGameBoyConfig.cs" />
     <Compile Include="Config\GameBoyConsoleModule.cs" />
     <Compile Include="Config\RenderHandler.cs" />
     <Compile Include="ConsoleSerialPort.cs" />

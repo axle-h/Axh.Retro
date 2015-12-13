@@ -348,16 +348,30 @@
             flags.VerifySet(x => x.Carry = false, Times.Once);
         }
 
-        [TestCase(0x15 + 0x27, 0x42)]
-        [TestCase(0x50 + 0x18, 0x68)]
-        public void DecimalAdjust(byte a, byte expected)
+        [TestCase(0x15, 0x27, 0x42)]
+        [TestCase(0x50, 0x18, 0x68)]
+        public void DecimalAdjustAddition(byte a, byte b, byte expected)
         {
             Reset();
 
-            var result = alu.DecimalAdjust(a);
+            var result = alu.Add(a, b);
+            var daa = alu.DecimalAdjust(result);
 
-            Assert.AreEqual(expected, result);
-            flags.Verify(x => x.SetResultFlags(expected), Times.Once);
+            Assert.AreEqual(expected, daa);
+            flags.Verify(x => x.SetResultFlags(expected), Times.AtLeastOnce);
+        }
+
+        [TestCase(0x15, 0x27, 0x88)]
+        [TestCase(0x50, 0x18, 0x32)]
+        public void DecimalAdjustSubraction(byte a, byte b, byte expected)
+        {
+            Reset();
+            
+            var result = alu.Subtract(a, b);
+            var daa = alu.DecimalAdjust(result);
+
+            Assert.AreEqual(expected, daa);
+            flags.Verify(x => x.SetResultFlags(expected), Times.AtLeastOnce);
         }
 
         [TestCase((ushort)0x4242, (ushort)0x1111, (ushort)0x5353, false, false)]

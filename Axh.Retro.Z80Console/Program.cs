@@ -1,5 +1,7 @@
 ﻿namespace Axh.Retro.Z80Console
 {
+    using System.Threading;
+
     using Axh.Retro.CPU.Z80.Binding;
     using Axh.Retro.CPU.Z80.Contracts.Core;
     using Axh.Retro.CPU.Z80.Contracts.Peripherals;
@@ -25,8 +27,12 @@
             using (var kernel = new StandardKernel(new Z80ConsoleModule(ScopeName), new Z80Module<IZ80Registers, Z80RegisterState>(ScopeName)))
             {
                 var core = kernel.Get<ICpuCore<IZ80Registers, Z80RegisterState>>();
+
+                using (var cancellation = new CancellationTokenSource())
+                {
+                    core.StartCoreProcessAsync(cancellation.Token).Wait(cancellation.Token);
+                }
                 
-                core.StartCoreProcessAsync().Wait();
             }
         }
     }

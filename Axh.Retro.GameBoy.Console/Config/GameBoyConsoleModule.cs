@@ -10,15 +10,18 @@
     {
         private readonly string cpuContextScope;
 
-        public GameBoyConsoleModule(string cpuContextScope)
+        private readonly byte[] cartridge;
+
+        public GameBoyConsoleModule(string cpuContextScope, byte[] cartridge)
         {
             this.cpuContextScope = cpuContextScope;
+            this.cartridge = cartridge;
         }
 
         public override void Load()
         {
             this.Kernel.Bind<IRenderHandler>().To<RenderHandler>().InNamedScope(cpuContextScope);
-            this.Kernel.Bind<IGameBoyConfig>().To<GameBoyConfig>().InSingletonScope();
+            this.Kernel.Bind<IGameBoyConfig>().To<StaticGameBoyConfig>().InSingletonScope().WithConstructorArgument(cartridge);
         }
     }
 }

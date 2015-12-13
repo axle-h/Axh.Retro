@@ -73,6 +73,116 @@ namespace Axh.Retro.GameBoy {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
+        public static byte[] cpu_instrs_01_special {
+            get {
+                object obj = ResourceManager.GetObject("cpu_instrs_01_special", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        public static byte[] cpu_instrs_02_interrupts {
+            get {
+                object obj = ResourceManager.GetObject("cpu_instrs_02_interrupts", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        public static byte[] cpu_instrs_03_op_sp_hl {
+            get {
+                object obj = ResourceManager.GetObject("cpu_instrs_03_op_sp_hl", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        public static byte[] cpu_instrs_04_op_r_imm {
+            get {
+                object obj = ResourceManager.GetObject("cpu_instrs_04_op_r_imm", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        public static byte[] cpu_instrs_05_op_rp {
+            get {
+                object obj = ResourceManager.GetObject("cpu_instrs_05_op_rp", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        public static byte[] cpu_instrs_06_ld_r_r {
+            get {
+                object obj = ResourceManager.GetObject("cpu_instrs_06_ld_r_r", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        public static byte[] cpu_instrs_07_jr_jp_call_ret_rst {
+            get {
+                object obj = ResourceManager.GetObject("cpu_instrs_07_jr_jp_call_ret_rst", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        public static byte[] cpu_instrs_08_misc_instrs {
+            get {
+                object obj = ResourceManager.GetObject("cpu_instrs_08_misc_instrs", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        public static byte[] cpu_instrs_09_op_r_r {
+            get {
+                object obj = ResourceManager.GetObject("cpu_instrs_09_op_r_r", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        public static byte[] cpu_instrs_10_bit_ops {
+            get {
+                object obj = ResourceManager.GetObject("cpu_instrs_10_bit_ops", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        public static byte[] cpu_instrs_11_op_a_mhl {
+            get {
+                object obj = ResourceManager.GetObject("cpu_instrs_11_op_a_mhl", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
         public static byte[] DMG_ROM {
             get {
                 object obj = ResourceManager.GetObject("DMG_ROM", resourceCulture);

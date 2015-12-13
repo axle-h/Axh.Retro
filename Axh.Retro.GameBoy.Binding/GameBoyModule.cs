@@ -58,7 +58,7 @@
 
 
             // Remaining
-            // IGameBoyConfig Singleton copuled to filesystem
+            // IGameBoyConfig Singleton coupled to filesystem
             // IRenderHandler NamedScope coupled to view
         }
     }

@@ -13,6 +13,7 @@
     using Axh.Retro.CPU.Common.Memory;
     using Axh.Retro.CPU.Z80.Contracts.Core;
     using Axh.Retro.CPU.Z80.Contracts.Core.Timing;
+    using Axh.Retro.GameBoy.Contracts.Config;
     using Axh.Retro.GameBoy.Contracts.Graphics;
     using Axh.Retro.GameBoy.Devices.CoreInterfaces;
     using Axh.Retro.GameBoy.Registers;
@@ -73,7 +74,7 @@
 
         private bool isEnabled;
 
-        public Gpu(IGameBoyInterruptManager interruptManager, ILcdControlRegister lcdControlRegister, ICurrentScanlineRegister currentScanlineRegister, IRenderHandler renderhandler, IInstructionTimer timer)
+        public Gpu(IGameBoyConfig gameBoyConfig, IGameBoyInterruptManager interruptManager, ILcdControlRegister lcdControlRegister, ICurrentScanlineRegister currentScanlineRegister, IRenderHandler renderhandler, IInstructionTimer timer)
         {
             this.interruptManager = interruptManager;
             this.lcdControlRegister = lcdControlRegister;
@@ -91,7 +92,11 @@
             this.isEnabled = false;
             this.mode = GpuMode.VerticalBlank;
             this.currentTimings = 0;
-            timer.TimingSync += Sync;
+            
+            if (gameBoyConfig.RunGpu)
+            {
+                timer.TimingSync += Sync;
+            }
         }
 
         public IEnumerable<IAddressSegment> AddressSegments => new[] { spriteRam, tileRam };

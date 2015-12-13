@@ -1,5 +1,7 @@
 ﻿namespace Axh.Retro.GameBoy.Console
 {
+    using System.Threading;
+
     using Axh.Retro.CPU.Z80.Binding;
     using Axh.Retro.CPU.Z80.Contracts.Core;
     using Axh.Retro.CPU.Z80.Contracts.Registers;
@@ -17,14 +19,17 @@
 
         static void Main(string[] args)
         {
-            using (var kernel = new StandardKernel(new GameBoyConsoleModule(ScopeName), new GameBoyModule(ScopeName), new Z80Module<IIntel8080Registers, Intel8080RegisterState>(ScopeName)))
+            using (var kernel = new StandardKernel(new GameBoyConsoleModule(ScopeName, Resources.cpu_instrs_01_special), new GameBoyModule(ScopeName), new Z80Module<IIntel8080Registers, Intel8080RegisterState>(ScopeName)))
             {
                 var core = kernel.Get<ICpuCore<IIntel8080Registers, Intel8080RegisterState>>();
 
                 var io = core.Context.PeripheralManager.GetMemoryMappedPeripherals<IGameBoyMemoryMappedIO>();
                 io.HardwareRegisters.SerialPort.Connect(new ConsoleSerialPort());
 
-                core.StartCoreProcessAsync().Wait();
+                using (var cancellation = new CancellationTokenSource())
+                {
+                    core.StartCoreProcessAsync(cancellation.Token).Wait(cancellation.Token);
+                }
             }
         }
     }

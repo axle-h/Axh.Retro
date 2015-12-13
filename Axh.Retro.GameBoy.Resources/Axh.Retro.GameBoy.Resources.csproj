@@ -61,7 +61,18 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="Resources\cpu_instrs.gb" />
+    <None Include="Resources\cpu_instrs\01-special.gb" />
+    <None Include="Resources\cpu_instrs\02-interrupts.gb" />
+    <None Include="Resources\cpu_instrs\03-op sp,hl.gb" />
+    <None Include="Resources\cpu_instrs\04-op r,imm.gb" />
+    <None Include="Resources\cpu_instrs\05-op rp.gb" />
+    <None Include="Resources\cpu_instrs\06-ld r,r.gb" />
+    <None Include="Resources\cpu_instrs\07-jr,jp,call,ret,rst.gb" />
+    <None Include="Resources\cpu_instrs\08-misc instrs.gb" />
+    <None Include="Resources\cpu_instrs\09-op r,r.gb" />
+    <None Include="Resources\cpu_instrs\10-bit ops.gb" />
+    <None Include="Resources\cpu_instrs\11-op a,%28hl%29.gb" />
+    <None Include="Resources\cpu_instrs\cpu_instrs.gb" />
     <None Include="Resources\DMG_ROM.bin" />
     <None Include="Resources\Pokemon - Red Version %28UE%29 [S][!].gb.zip" />
     <None Include="Resources\Tetris %28W%29 %28V1.1%29 [!].gb.zip" />
