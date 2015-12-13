@@ -60,7 +60,7 @@
 
         public ushort AddWithCarry(ushort a, ushort b)
         {
-            return Add(a, b, Flags.Carry);
+            return Add(a, b, true);
         }
 
         public byte Subtract(byte a, byte b)
@@ -443,19 +443,12 @@
             var result = a + d;
 
             var flags = Flags;
-            if (d >= 0)
-            {
-                flags.Carry = (result & 0x100) == 0x100;
-                flags.HalfCarry = (((a & 0x0f) + (d & 0x0f)) & 0xf0) > 0;
-            }
-            else
-            {
-                flags.Carry = result < 0;
-                flags.HalfCarry = (a & 0x0f) < (d & 0x0f);
-            }
 
-            flags.Subtract = false;
+            var carry = a ^ d ^ result;
+            flags.Carry = (carry & 0x100) > 0;
+            flags.HalfCarry = ((carry << 5) & 0x200) > 0;
             flags.Zero = false;
+            flags.Subtract = false;
 
             return unchecked ((ushort)result);
         }
@@ -495,10 +488,10 @@
 
         private ushort Add(ushort a, ushort b, bool addCarry)
         {
-            var carry = addCarry ? 1 : 0;
-            var result = a + b + carry;
-
             var flags = Flags;
+
+            var carry = addCarry && flags.Carry ? 1 : 0;
+            var result = a + b + carry;
 
             // Half carry is carry from bit 11
             flags.HalfCarry = (((a & 0x0f00) + (b & 0x0f00) + (carry & 0x0f00)) & 0xf000) > 0;
@@ -518,8 +511,8 @@
             else
             {
                 // S & Z are unaffected so we're only setting the undocumented flags from the last 8-bit addition
-                var b0 = unchecked((byte)((result & 0xff00) >> 8));
-                flags.SetUndocumentedFlags(b0);
+                var b0 = (result & 0xff00) >> 8;
+                flags.SetUndocumentedFlags((byte)b0);
                 b = unchecked((ushort)result);
             }
             

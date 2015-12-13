@@ -376,12 +376,14 @@
                     break;
 
                 case OpCode.InvertCarryFlag:
+                    yield return Expression.Call(Flags, SetUndocumentedFlags, A);
                     yield return Expression.Assign(HalfCarry, Carry);
                     yield return Expression.Assign(Subtract, Expression.Constant(false));
                     yield return Expression.Assign(Carry, Expression.Not(Carry));
                     break;
 
                 case OpCode.SetCarryFlag:
+                    yield return Expression.Call(Flags, SetUndocumentedFlags, A);
                     yield return Expression.Assign(HalfCarry, Expression.Constant(false));
                     yield return Expression.Assign(Subtract, Expression.Constant(false));
                     yield return Expression.Assign(Carry, Expression.Constant(true));

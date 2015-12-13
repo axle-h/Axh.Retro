@@ -118,11 +118,7 @@
         public bool Subtract { get; set; }
 
         public bool Carry { get; set; }
-
-        public GameBoyFlagsRegister()
-        {
-        }
-
+        
         public void SetUndocumentedFlags(byte result)
         {
             // No undocumented flags on the GB

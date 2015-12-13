@@ -19,7 +19,7 @@
 
         static void Main(string[] args)
         {
-            using (var kernel = new StandardKernel(new GameBoyConsoleModule(ScopeName, Resources.cpu_instrs_01_special), new GameBoyModule(ScopeName), new Z80Module<IIntel8080Registers, Intel8080RegisterState>(ScopeName)))
+            using (var kernel = new StandardKernel(new GameBoyConsoleModule(ScopeName, Resources.cpu_instrs_09_op_r_r), new GameBoyModule(ScopeName), new Z80Module<IIntel8080Registers, Intel8080RegisterState>(ScopeName)))
             {
                 var core = kernel.Get<ICpuCore<IIntel8080Registers, Intel8080RegisterState>>();
 

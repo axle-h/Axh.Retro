@@ -59,7 +59,7 @@
         public string WaitForNextWord()
         {
             string word;
-            var result = wordQueue.TryTake(out word, TimeSpan.FromMinutes(1));
+            var result = wordQueue.TryTake(out word, TimeSpan.FromMinutes(10));
             if (result)
             {
                 Words.Add(word);
