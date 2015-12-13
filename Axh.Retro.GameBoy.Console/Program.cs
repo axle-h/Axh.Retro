@@ -25,11 +25,7 @@
 
                 var io = core.Context.PeripheralManager.GetMemoryMappedPeripherals<IGameBoyMemoryMappedIO>();
                 io.HardwareRegisters.SerialPort.Connect(new ConsoleSerialPort());
-
-                using (var cancellation = new CancellationTokenSource())
-                {
-                    core.StartCoreProcessAsync(cancellation.Token).Wait(cancellation.Token);
-                }
+                core.StartCoreProcessAsync(CancellationToken.None).Wait();
             }
         }
     }

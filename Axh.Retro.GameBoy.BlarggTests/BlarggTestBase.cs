@@ -34,15 +34,7 @@
             config = kernel.Get<IGameBoyConfig>() as BlarggTestGameBoyConfig;
         }
 
-        [Test]
-        public void cpu_instrs_01_special()
-        {
-            var result = Run(Resources.cpu_instrs_01_special, port => port.Words.Count > 2 && port.Words.Reverse().Skip(1).First() == "Failed", port => false);
-            Assert.IsTrue(result);
-
-        }
-
-        protected bool Run(byte[] cartridge, Func<BlarggTestSerialPort, bool> terminate, Func<BlarggTestSerialPort, bool> pass)
+        protected void Run(byte[] cartridge)
         {
             config.CartridgeData = cartridge;
             var core = kernel.Get<ICpuCore<IIntel8080Registers, Intel8080RegisterState>>();
@@ -53,18 +45,22 @@
 
             using (var cancellation = new CancellationTokenSource())
             {
-                var cpuProcess = core.StartCoreProcessAsync(cancellation.Token);
+                var token = cancellation.Token;
+                Task.Run(() => core.StartCoreProcessAsync(token), token);
                 while (true)
                 {
-                    if (!serialPort.WaitForNextWord())
+                    var word = serialPort.WaitForNextWord();
+                    if (word == null)
                     {
                         throw new Exception("Couldn't get next word");
                     }
-
-                    if (terminate(serialPort))
+                    
+                    if (word == "Failed" || word == "Passed")
                     {
+                        Task.Delay(TimeSpan.FromSeconds(1), token).Wait(token);
                         cancellation.Cancel();
-                        return pass(serialPort);
+                        Assert.IsTrue(word == "Passed");
+                        return;
                     }
                 }
             }

@@ -6,6 +6,7 @@
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
 
     using Axh.Retro.GameBoy.Contracts.Devices;
@@ -55,16 +56,16 @@
 
         public IList<string> Words { get; }
 
-        public bool WaitForNextWord()
+        public string WaitForNextWord()
         {
             string word;
-            var result = wordQueue.TryTake(out word);
+            var result = wordQueue.TryTake(out word, TimeSpan.FromMinutes(1));
             if (result)
             {
                 Words.Add(word);
             }
             
-            return result;
+            return result ? word : null;
         }
     }
 }

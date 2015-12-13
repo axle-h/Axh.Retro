@@ -28,11 +28,7 @@
             {
                 var core = kernel.Get<ICpuCore<IZ80Registers, Z80RegisterState>>();
 
-                using (var cancellation = new CancellationTokenSource())
-                {
-                    core.StartCoreProcessAsync(cancellation.Token).Wait(cancellation.Token);
-                }
-                
+                core.StartCoreProcessAsync(CancellationToken.None).Wait();
             }
         }
     }

@@ -63,6 +63,7 @@
     <Compile Include="BlarggTestSerialPort.cs" />
     <Compile Include="Config\BlarggTestModule.cs" />
     <Compile Include="Config\BlarggTestGameBoyConfig.cs" />
+    <Compile Include="CpuInstructions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
