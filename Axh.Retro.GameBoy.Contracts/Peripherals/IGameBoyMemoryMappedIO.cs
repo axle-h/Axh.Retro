@@ -1,9 +1,10 @@
 ﻿namespace Axh.Retro.GameBoy.Contracts.Peripherals
 {
+    using Axh.Retro.CPU.Z80.Contracts.Peripherals;
     using Axh.Retro.GameBoy.Contracts.Devices;
     using Axh.Retro.GameBoy.Contracts.Graphics;
 
-    public interface IGameBoyMemoryMappedIO
+    public interface IGameBoyMemoryMappedIO : IMemoryMappedPeripheral
     {
         IHardwareRegisters HardwareRegisters { get; }
         

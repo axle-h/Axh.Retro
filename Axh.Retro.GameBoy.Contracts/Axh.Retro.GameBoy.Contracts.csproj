@@ -65,6 +65,10 @@
       <Project>{5A958C82-D6EA-4BD1-9CC6-3727AFE1874C}</Project>
       <Name>Axh.Retro.CPU.Common.Contracts</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Axh.Retro.CPU.Z80.Contracts\Axh.Retro.CPU.Z80.Contracts.csproj">
+      <Project>{15E8BFF0-AA13-420F-8527-9187A37F6360}</Project>
+      <Name>Axh.Retro.CPU.Z80.Contracts</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -24,7 +24,6 @@
         private bool isFastMode;
         private bool transferStartFlag;
         private bool isInternalClock;
-        private ISerialPort connectedSerialPort;
 
         private TaskCompletionSource<bool> transferredTaskSource;
         
@@ -72,7 +71,7 @@
             set
             {
                 this.transferStartFlag = (value & TransferStartFlagMask) > 0;
-                if (!this.transferStartFlag || this.connectedSerialPort == null)
+                if (!this.transferStartFlag || this.ConnectedSerialPort == null)
                 {
                     // No transfer, nothing to transfer to.
                     Reset();
@@ -84,7 +83,7 @@
 
                 if (this.isInternalClock)
                 {
-                    this.SerialData.Register = this.connectedSerialPort.Transfer(this.SerialData.Register);
+                    this.SerialData.Register = this.ConnectedSerialPort.Transfer(this.SerialData.Register);
                 }
                 else
                 {
@@ -105,16 +104,6 @@
             this.transferStartFlag = false;
             this.isFastMode = false;
             this.isInternalClock = false;
-        }
-
-        public override void Connect(ISerialPort serialPort)
-        {
-            this.connectedSerialPort = serialPort;
-        }
-
-        public override void Disconnect()
-        {
-            this.connectedSerialPort = null;
         }
 
         public override byte Transfer(byte value)

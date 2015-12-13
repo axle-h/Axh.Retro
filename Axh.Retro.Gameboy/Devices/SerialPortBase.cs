@@ -9,6 +9,8 @@
     /// </summary>
     public abstract class SerialPortBase : ICoreSerialPort
     {
+        protected ISerialPort ConnectedSerialPort;
+
         /// <summary>
         /// 8 Bits of data to be read/written
         /// Transmitting and receiving serial data is done simultaneously.
@@ -19,10 +21,6 @@
         {
             SerialData = new SimpleRegister(0xff01, "Serial data (SIODATA R/W)");
         }
-
-        public abstract void Connect(ISerialPort serialPort);
-
-        public abstract void Disconnect();
 
         public abstract byte Transfer(byte value);
 
@@ -40,6 +38,16 @@
         public override string ToString()
         {
             return $"{this.SerialData}\n{Name} ({Address}) = {Register}";
+        }
+
+        public virtual void Connect(ISerialPort serialPort)
+        {
+            this.ConnectedSerialPort = serialPort;
+        }
+
+        public virtual void Disconnect()
+        {
+            this.ConnectedSerialPort = null;
         }
     }
 }

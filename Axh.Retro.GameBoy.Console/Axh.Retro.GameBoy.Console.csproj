@@ -56,6 +56,7 @@
     <Compile Include="Config\GameBoyConfig.cs" />
     <Compile Include="Config\GameBoyConsoleModule.cs" />
     <Compile Include="Config\RenderHandler.cs" />
+    <Compile Include="ConsoleSerialPort.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
