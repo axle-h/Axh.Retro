@@ -3,7 +3,9 @@
     public interface IAddressSegment
     {
         MemoryBankType Type { get; }
+
         ushort Address { get; }
+
         ushort Length { get; }
     }
 }

@@ -1,5 +1,6 @@
 ﻿namespace Axh.Retro.GameBoy.Binding
 {
+    using Axh.Retro.CPU.Common.Contracts.Memory;
     using Axh.Retro.CPU.Z80.Contracts.Config;
     using Axh.Retro.CPU.Z80.Contracts.Peripherals;
     using Axh.Retro.CPU.Z80.Contracts.State;
@@ -36,7 +37,7 @@
             this.Bind<IInterruptEnableRegister>().To<InterruptEnableRegister>().InNamedScope(cpuContextScope);
             this.Bind<ICoreJoyPad>().To<JoyPad>().InNamedScope(cpuContextScope);
             this.Bind<ICoreSerialPort>().To<SyncSerialPort>().InNamedScope(cpuContextScope);
-            this.Bind<IMemoryBankController1>().To<MemoryBankController1>().InNamedScope(cpuContextScope);
+            this.Bind<IMemoryBankController>().To<MemoryBankController1>().InNamedScope(cpuContextScope);
 
             this.Bind<IRegister, ILcdControlRegister>().To<LcdControlRegister>().InNamedScope(cpuContextScope);
             this.Bind<IRegister, ICurrentScanlineRegister>().To<CurrentScanlineRegister>().InNamedScope(cpuContextScope);

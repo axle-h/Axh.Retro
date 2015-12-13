@@ -15,30 +15,47 @@
     /// </summary>
     public class Z80Mmu : SegmentMmu
     {
-        public Z80Mmu(IPeripheralManager peripheralManager, IPlatformConfig platformConfig)
-            : base(GetAddressSegments(peripheralManager, platformConfig))
+        public Z80Mmu(IPeripheralManager peripheralManager, IPlatformConfig platformConfig, IMemoryBankController memoryBankController)
+            : base(GetAddressSegments(peripheralManager, platformConfig, memoryBankController))
         {
         }
 
-        private static IEnumerable<IAddressSegment> GetAddressSegments(IPeripheralManager peripheralManager, IPlatformConfig platformConfig)
+        private static IEnumerable<IAddressSegment> GetAddressSegments(IPeripheralManager peripheralManager, IPlatformConfig platformConfig, IMemoryBankController memoryBankController)
         {
-            var memoryBanks = platformConfig.MemoryBanks.Select(GetAddressSegment).ToArray();
+            var memoryBanks = platformConfig.MemoryBanks.GroupBy(x => x.Address).Select(x => GetAddressSegment(x.ToArray(), memoryBankController)).ToArray();
             return memoryBanks.Concat(peripheralManager.GetAllMemoryMappedPeripherals().SelectMany(x => x.AddressSegments));
         }
 
-        private static IAddressSegment GetAddressSegment(IMemoryBankConfig config)
+        private static IAddressSegment GetAddressSegment(ICollection<IMemoryBankConfig> configs, IMemoryBankController memoryBankController)
         {
-            switch (config.Type)
+            var config = configs.First();
+            if (configs.Count == 1)
             {
-                case MemoryBankType.RandomAccessMemory:
-                    return new ArrayBackedMemoryBank(config);
-                case MemoryBankType.ReadOnlyMemory:
-                    return new ReadOnlyMemoryBank(config);
-                case MemoryBankType.Unused:
-                    return new NullMemoryBank(config);
-                default:
-                    throw new ArgumentOutOfRangeException();
+                switch (config.Type)
+                {
+                    case MemoryBankType.RandomAccessMemory:
+                        return new ArrayBackedMemoryBank(config);
+                    case MemoryBankType.ReadOnlyMemory:
+                        return new ReadOnlyMemoryBank(config);
+                    case MemoryBankType.Unused:
+                        return new NullMemoryBank(config);
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
             }
+            else
+            {
+                switch (config.Type)
+                {
+                    case MemoryBankType.RandomAccessMemory:
+                        throw new NotImplementedException("Banked RAM");
+                    case MemoryBankType.ReadOnlyMemory:
+                        return new BankedReadOnlyMemoryBank(configs, memoryBankController);
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
+            
         }
     }
 }

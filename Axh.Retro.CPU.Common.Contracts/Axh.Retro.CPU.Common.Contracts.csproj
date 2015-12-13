@@ -48,7 +48,9 @@
     <Compile Include="Exceptions\PlatformConfigurationException.cs" />
     <Compile Include="Exceptions\SegmentationFaultException.cs" />
     <Compile Include="Memory\AddressWriteEventArgs.cs" />
+    <Compile Include="Memory\MemoryBankControllerEventArgs.cs" />
     <Compile Include="Memory\IAddressSegment.cs" />
+    <Compile Include="Memory\IMemoryBankController.cs" />
     <Compile Include="Memory\IMmu.cs" />
     <Compile Include="Memory\IPrefetchQueue.cs" />
     <Compile Include="Memory\IReadableAddressSegment.cs" />

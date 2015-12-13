@@ -7,7 +7,7 @@
     <ProjectGuid>{7856A753-B026-44DD-A2F5-44F716AD488C}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Axh.Retro.GameBoy.Resources</RootNamespace>
+    <RootNamespace>Axh.Retro.GameBoy</RootNamespace>
     <AssemblyName>Axh.Retro.GameBoy.Resources</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -61,6 +61,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="Resources\cpu_instrs.gb" />
+    <None Include="Resources\DMG_ROM.bin" />
     <None Include="Resources\Pokemon - Red Version %28UE%29 [S][!].gb.zip" />
     <None Include="Resources\Tetris %28W%29 %28V1.1%29 [!].gb.zip" />
   </ItemGroup>

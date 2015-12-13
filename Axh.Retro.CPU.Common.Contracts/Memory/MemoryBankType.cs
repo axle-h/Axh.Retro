@@ -5,6 +5,8 @@
         Unused,
         RandomAccessMemory,
         ReadOnlyMemory,
-        Peripheral
+        Peripheral,
+        BankedReadOnlyMemory,
+
     }
 }

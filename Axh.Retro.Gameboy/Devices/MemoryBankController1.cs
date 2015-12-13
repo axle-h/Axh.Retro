@@ -2,9 +2,11 @@
 
 namespace Axh.Retro.GameBoy.Devices
 {
+    using System;
+
     using Axh.Retro.GameBoy.Devices.CoreInterfaces;
 
-    public class MemoryBankController1 : IMemoryBankController1
+    public class MemoryBankController1 : IMemoryBankController
     {
         private const ushort Address = 0x0000;
         private const ushort Length = 0x8000;
@@ -19,6 +21,7 @@ namespace Axh.Retro.GameBoy.Devices
         public MemoryBankController1()
         {
             this.ramBankingMode = false;
+            this.RomBankNumber = 1;
         }
 
         public MemoryBankType Type => MemoryBankType.Peripheral;
@@ -33,6 +36,7 @@ namespace Axh.Retro.GameBoy.Devices
             {
                 // RAM Enable
                 RamEnable = (value & 0xf) == 0xa;
+                OnEvent(MemoryBankControllerEventTarget.RamEnable);
                 return;
             }
 
@@ -41,6 +45,8 @@ namespace Axh.Retro.GameBoy.Devices
                 // ROM Bank Number
                 RomBankNumber &= 0xe0; // Clear 0x17
                 RomBankNumber |= GetRomBankNumber(value);
+
+                OnEvent(MemoryBankControllerEventTarget.RomBankSwitch);
                 return;
             }
 
@@ -51,6 +57,7 @@ namespace Axh.Retro.GameBoy.Devices
                 if (this.ramBankingMode)
                 {
                     RamBankNumber = (byte)(value & 0x3);
+                    OnEvent(MemoryBankControllerEventTarget.RamBankSwitch);
                 }
                 else
                 {
@@ -100,5 +107,12 @@ namespace Axh.Retro.GameBoy.Devices
         public byte RomBankNumber { get; private set; }
 
         public byte RamBankNumber { get; private set; }
+
+        public event EventHandler<MemoryBankControllerEventArgs> MemoryBankSwitch;
+        
+        protected void OnEvent(MemoryBankControllerEventTarget eventTarget)
+        {
+            MemoryBankSwitch?.Invoke(this, new MemoryBankControllerEventArgs(eventTarget));
+        }
     }
 }

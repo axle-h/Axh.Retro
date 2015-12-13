@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Axh.Retro.GameBoy.Resources {
+namespace Axh.Retro.GameBoy {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace Axh.Retro.GameBoy.Resources {
         public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Axh.Retro.GameBoy.Resources.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Axh.Retro.GameBoy.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -57,6 +57,26 @@ namespace Axh.Retro.GameBoy.Resources {
             }
             set {
                 resourceCulture = value;
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        public static byte[] cpu_instrs {
+            get {
+                object obj = ResourceManager.GetObject("cpu_instrs", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        public static byte[] DMG_ROM {
+            get {
+                object obj = ResourceManager.GetObject("DMG_ROM", resourceCulture);
+                return ((byte[])(obj));
             }
         }
         

@@ -58,18 +58,12 @@
     <Compile Include="Config\RenderHandler.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Resources\DMG_ROM.bin" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Axh.Retro.CPU.Z80.Binding\Axh.Retro.CPU.Z80.Binding.csproj">
@@ -92,12 +86,6 @@
       <Project>{7856a753-b026-44dd-a2f5-44f716ad488c}</Project>
       <Name>Axh.Retro.GameBoy.Resources</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
