@@ -489,14 +489,12 @@
         private ushort Add(ushort a, ushort b, bool addCarry)
         {
             var flags = Flags;
-
             var carry = addCarry && flags.Carry ? 1 : 0;
             var result = a + b + carry;
 
             // Half carry is carry from bit 11
-            flags.HalfCarry = (((a & 0x0f00) + (b & 0x0f00) + (carry & 0x0f00)) & 0xf000) > 0;
-
-            // Carry = result > ushort.MaxValue;
+            flags.HalfCarry = (((a & 0x0fff) + (b & 0x0fff) + carry) & 0xf000) > 0;
+            
             flags.Carry = (result & 0x10000) == 0x10000;
 
             flags.Subtract = false;
@@ -515,7 +513,7 @@
                 flags.SetUndocumentedFlags((byte)b0);
                 b = unchecked((ushort)result);
             }
-            
+                
             return b;
         }
 
