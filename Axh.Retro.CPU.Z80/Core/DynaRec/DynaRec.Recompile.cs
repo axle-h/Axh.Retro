@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq.Expressions;
 
+    using Axh.Retro.CPU.Z80.Contracts.Config;
     using Axh.Retro.CPU.Z80.Contracts.Registers;
     using Axh.Retro.CPU.Z80.Core.Decode;
     using Axh.Retro.CPU.Z80.Util;
@@ -377,7 +378,15 @@
 
                 case OpCode.InvertCarryFlag:
                     yield return Expression.Call(Flags, SetUndocumentedFlags, A);
-                    yield return Expression.Assign(HalfCarry, Carry);
+                    if (cpuMode == CpuMode.GameBoy)
+                    {
+                        yield return Expression.Assign(HalfCarry, Expression.Constant(false));
+                    }
+                    else
+                    {
+                        yield return Expression.Assign(HalfCarry, Carry);
+                    }
+                    
                     yield return Expression.Assign(Subtract, Expression.Constant(false));
                     yield return Expression.Assign(Carry, Expression.Not(Carry));
                     break;
