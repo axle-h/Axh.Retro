@@ -95,18 +95,8 @@
 
         public void Compare(byte a, byte b)
         {
-            var result = a - b;
-
-            var flags = Flags;
-            flags.HalfCarry = (a & 0x0f) < (b & 0x0f);
-
-            // Overflow = (added signs are same) && (result sign differs from the sign of either of operands)
-            flags.ParityOverflow = (((a ^ ~b) & 0x80) == 0) && (((result ^ a) & 0x80) != 0);
-
-            flags.Subtract = true;
-
-            b = unchecked((byte)result);
-            flags.SetResultFlags(b);
+            Subtract(a, b, false);
+            Flags.SetUndocumentedFlags(b);
         }
 
         public byte And(byte a, byte b)
@@ -126,7 +116,7 @@
 
             var flags = Flags;
             flags.SetParityFlags(a);
-            flags.HalfCarry = true;
+            flags.HalfCarry = false;
             flags.Carry = false;
             return a;
         }
@@ -137,7 +127,7 @@
 
             var flags = Flags;
             flags.SetParityFlags(a);
-            flags.HalfCarry = true;
+            flags.HalfCarry = false;
             flags.Carry = false;
             return a;
         }
