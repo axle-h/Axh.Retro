@@ -233,18 +233,38 @@
 
                 case OpCode.RotateLeftWithCarry:
                     yield return WriteOperand1(operation, Expression.Call(Alu, AluRotateLeftWithCarry, ReadOperand1(operation)));
+                    if (operation.OpCodeMeta.HasFlag(OpCodeMeta.UseAlternativeFlagAffection))
+                    {
+                        yield return Expression.Assign(Zero, Expression.Constant(false));
+                        yield return Expression.Assign(Sign, Expression.Constant(false));
+                    }
                     break;
 
                 case OpCode.RotateLeft:
                     yield return WriteOperand1(operation, Expression.Call(Alu, AluRotateLeft, ReadOperand1(operation)));
+                    if (operation.OpCodeMeta.HasFlag(OpCodeMeta.UseAlternativeFlagAffection))
+                    {
+                        yield return Expression.Assign(Zero, Expression.Constant(false));
+                        yield return Expression.Assign(Sign, Expression.Constant(false));
+                    }
                     break;
 
                 case OpCode.RotateRightWithCarry:
                     yield return WriteOperand1(operation, Expression.Call(Alu, AluRotateRightWithCarry, ReadOperand1(operation)));
+                    if (operation.OpCodeMeta.HasFlag(OpCodeMeta.UseAlternativeFlagAffection))
+                    {
+                        yield return Expression.Assign(Zero, Expression.Constant(false));
+                        yield return Expression.Assign(Sign, Expression.Constant(false));
+                    }
                     break;
 
                 case OpCode.RotateRight:
                     yield return WriteOperand1(operation, Expression.Call(Alu, AluRotateRight, ReadOperand1(operation)));
+                    if (operation.OpCodeMeta.HasFlag(OpCodeMeta.UseAlternativeFlagAffection))
+                    {
+                        yield return Expression.Assign(Zero, Expression.Constant(false));
+                        yield return Expression.Assign(Sign, Expression.Constant(false));
+                    }
                     break;
 
                 case OpCode.RotateLeftDigit:

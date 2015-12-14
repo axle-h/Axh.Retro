@@ -225,7 +225,7 @@
             flags.Carry = carry;
             flags.HalfCarry = false;
             flags.Subtract = false;
-            flags.SetUndocumentedFlags(result);
+            flags.SetResultFlags(result);
 
             return result;
         }
@@ -243,7 +243,7 @@
             flags.Carry = (a & 0x80) > 0;
             flags.HalfCarry = false;
             flags.Subtract = false;
-            flags.SetUndocumentedFlags(result);
+            flags.SetResultFlags(result);
 
             return result;
         }
@@ -263,7 +263,7 @@
             flags.Carry = carry;
             flags.HalfCarry = false;
             flags.Subtract = false;
-            flags.SetUndocumentedFlags(result);
+            flags.SetResultFlags(result);
 
             return result;
         }
@@ -278,11 +278,11 @@
         {
             var flags = Flags;
             var result = unchecked((byte)((a >> 1) | (flags.Carry ? 0x80 : 0)));
-
+            
             flags.Carry = (a & 1) > 0;
             flags.HalfCarry = false;
             flags.Subtract = false;
-            flags.SetUndocumentedFlags(result);
+            flags.SetResultFlags(result);
 
             return result;
         }

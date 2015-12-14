@@ -76,6 +76,12 @@
             this.OpCodeMeta |= OpCodeMeta.AutoCopy;
         }
 
+        public Operation UseAlternativeFlagAffection()
+        {
+            this.OpCodeMeta |= OpCodeMeta.UseAlternativeFlagAffection;
+            return this;
+        }
+
         public ushort Address { get; set; }
         
         public OpCode OpCode { get; }

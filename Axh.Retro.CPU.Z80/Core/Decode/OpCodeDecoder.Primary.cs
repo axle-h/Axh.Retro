@@ -685,19 +685,19 @@
                 // ********* Rotate *********
                 // RLCA
                 case PrimaryOpCode.RLCA:
-                    return new Operation(OpCode.RotateLeftWithCarry, Operand.A);
+                    return new Operation(OpCode.RotateLeftWithCarry, Operand.A).UseAlternativeFlagAffection();
 
                 // RLA
                 case PrimaryOpCode.RLA:
-                    return new Operation(OpCode.RotateLeft, Operand.A);
+                    return new Operation(OpCode.RotateLeft, Operand.A).UseAlternativeFlagAffection();
 
                 // RRCA
                 case PrimaryOpCode.RRCA:
-                    return new Operation(OpCode.RotateRightWithCarry, Operand.A);
+                    return new Operation(OpCode.RotateRightWithCarry, Operand.A).UseAlternativeFlagAffection();
 
                 // RRA
                 case PrimaryOpCode.RRA:
-                    return new Operation(OpCode.RotateRight, Operand.A);
+                    return new Operation(OpCode.RotateRight, Operand.A).UseAlternativeFlagAffection();
 
                 // ********* Jump *********
                 case PrimaryOpCode.JP:
