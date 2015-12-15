@@ -425,7 +425,7 @@
 
         public byte BitReset(byte a, int bit)
         {
-            return (byte)(a ^ (0x1 << bit));
+            return (byte)(a & ~(0x1 << bit));
         }
 
         public ushort AddDisplacement(ushort a, sbyte d)
