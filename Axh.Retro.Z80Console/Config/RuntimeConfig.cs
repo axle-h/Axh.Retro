@@ -6,8 +6,6 @@
 
     public class RuntimeConfig : IRuntimeConfig
     {
-        public TimeSpan? InstructionCacheSlidingExpiration => TimeSpan.FromSeconds(3);
-
         public bool DebugMode => true;
 
         public CoreMode CoreMode => CoreMode.DynaRec;

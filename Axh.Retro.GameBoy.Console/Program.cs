@@ -10,6 +10,7 @@
     using Axh.Retro.GameBoy.Console.Config;
     using Axh.Retro.GameBoy.Contracts.Devices;
     using Axh.Retro.GameBoy.Contracts.Peripherals;
+    using Axh.Retro.GameBoy.Tests.Util;
 
     using Ninject;
 
@@ -19,7 +20,7 @@
 
         static void Main(string[] args)
         {
-            using (var kernel = new StandardKernel(new GameBoyConsoleModule(ScopeName, Resources.cpu_instrs_09_op_r_r), new GameBoyModule(ScopeName), new Z80Module<IIntel8080Registers, Intel8080RegisterState>(ScopeName)))
+            using (var kernel = new StandardKernel(new GameBoyConsoleModule(ScopeName, Resources.Tetris_W_Gb_Zip.UnZip()), new GameBoyModule(ScopeName), new Z80Module<IIntel8080Registers, Intel8080RegisterState>(ScopeName)))
             {
                 var core = kernel.Get<ICpuCore<IIntel8080Registers, Intel8080RegisterState>>();
 

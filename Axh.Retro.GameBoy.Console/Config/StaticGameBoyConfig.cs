@@ -17,6 +17,6 @@
 
         public bool RunGpu => true;
 
-        public bool UseGameBoyTimings => true;
+        public bool UseGameBoyTimings => false;
     }
 }

@@ -8,42 +8,52 @@
     using System.Threading.Tasks;
 
     using Axh.Retro.CPU.Z80.Contracts.Cache;
-    using Axh.Retro.CPU.Z80.Contracts.Config;
     using Axh.Retro.CPU.Z80.Contracts.Core;
     using Axh.Retro.CPU.Z80.Contracts.Registers;
 
-    public class InstructionBlockCache<TRegisters> : IInstructionBlockCache<TRegisters> where TRegisters : IRegisters
+    using Timer = System.Timers.Timer;
+
+    public class InstructionBlockCache<TRegisters> : IInstructionBlockCache<TRegisters>, IDisposable where TRegisters : IRegisters
     {
-        private readonly bool slidingExpirationEnabled;
-        private readonly TimeSpan slidingExpiration;
+        private readonly TimeSpan garbageCollectionInterval = TimeSpan.FromMinutes(10);
 
-        private readonly ConcurrentDictionary<ushort, InstructionBlockCacheItem> cache;
+        private readonly ConcurrentDictionary<ushort, ICacheItem> cache;
+        
+        private readonly Timer timer;
 
-        public InstructionBlockCache(IRuntimeConfig runtimeConfig)
+        public InstructionBlockCache()
         {
             this.CacheId = Guid.NewGuid();
-            this.slidingExpirationEnabled = runtimeConfig.InstructionCacheSlidingExpiration.HasValue;
-            this.slidingExpiration = runtimeConfig.InstructionCacheSlidingExpiration.GetValueOrDefault();
-            this.cache = new ConcurrentDictionary<ushort, InstructionBlockCacheItem>();
+            this.cache = new ConcurrentDictionary<ushort, ICacheItem>();
+
+            // Psuedo garbage collection. Meh... will create a proper implementation another day.
+            timer = new Timer(garbageCollectionInterval.TotalMilliseconds);
+            timer.Elapsed += (sender, args) => GarbageCollection();
         }
 
         public Guid CacheId { get; }
 
         public IInstructionBlock<TRegisters> GetOrSet(ushort address, Func<IInstructionBlock<TRegisters>> getInstanceFunc)
         {
-            InstructionBlockCacheItem cacheItem;
+            ICacheItem cacheItem;
             if (this.cache.TryGetValue(address, out cacheItem))
             {
-                if (slidingExpirationEnabled)
-                {
-                    cacheItem.RegisterAccess();
-                }
+                cacheItem.Accessed++;
             }
             else
             {
                 var block = getInstanceFunc();
-                cacheItem = this.slidingExpirationEnabled ? new InstructionBlockCacheItem(block, slidingExpiration, () => Remove(address)) : new InstructionBlockCacheItem(block);
-                this.cache.TryAdd(address, cacheItem);
+                var ranges = NormalRange.GetRanges(block.Address, block.Length).ToArray();
+                if (ranges.Length == 1)
+                {
+                    cacheItem = new NormalInstructionBlockCacheItem(ranges[0], block);
+                }
+                else
+                {
+                    cacheItem = new InstructionBlockCacheItem(ranges, block);
+                }
+                
+                this.cache.TryAdd(block.Address, cacheItem);
             }
             
             return cacheItem.InstructionBlock;
@@ -51,133 +61,138 @@
 
         public void InvalidateCache(ushort address, ushort length)
         {
-            var ranges = Range.GetRanges(address, length).ToArray();
-
-            foreach (var cacheItem in cache.Where(cacheItem => ranges.Any(range => cacheItem.Value.Intersects(range))))
+            var ranges = NormalRange.GetRanges(address, length).ToArray();
+            if (ranges.Length == 1)
             {
-                Remove(cacheItem.Key);
-            }
-        }
-
-        private void Remove(ushort address)
-        {
-            InstructionBlockCacheItem cacheItem;
-            cache.TryRemove(address, out cacheItem);
-            cacheItem?.Dispose();
-        }
-
-        private struct Range
-        {
-            private readonly ushort min;
-            private readonly ushort max;
-
-            private Range(ushort min, ushort max) : this()
-            {
-                if (min > max)
+                var range = ranges[0];
+                foreach (var kvp in cache.Where(x => x.Value.Intersects(range)).ToArray())
                 {
-                    throw new Exception("Bad range");
+                    ICacheItem dummy;
+                    cache.TryRemove(kvp.Key, out dummy);
                 }
-                this.min = min;
-                this.max = max;
             }
-
-            public bool Intersects(Range range)
+            else
             {
-                return Math.Max(range.min, this.min) <= Math.Min(range.max, this.max);
+                foreach (var key in cache.Keys)
+                {
+                    var cacheItem = cache[key];
+                    if (ranges.Any(range => cacheItem.Intersects(range)))
+                    {
+                        cache.TryRemove(key, out cacheItem);
+                    }
+                }
+            }
+        }
+
+        private void GarbageCollection()
+        {
+            foreach (var key in cache.Keys)
+            {
+                var cacheItem = cache[key];
+                if (cacheItem.Accessed == 0)
+                {
+                    cache.TryRemove(key, out cacheItem);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Normal: min > max due to mod ushort
+        /// </summary>
+        private struct NormalRange
+        {
+            private readonly ushort address;
+            private readonly ushort maxAddress;
+
+            private NormalRange(ushort address, ushort maxAddress) : this()
+            {
+                if (address > maxAddress)
+                {
+                    throw new ArgumentException($"Cannot create normal range: {maxAddress} > {address}");
+                }
+                this.address = address;
+                this.maxAddress = maxAddress;
+            }
+            
+            public bool Intersects(NormalRange range)
+            {
+                return Math.Max(range.address, this.address) <= Math.Min(range.maxAddress, this.maxAddress);
             }
 
-            public static IEnumerable<Range> GetRanges(ushort address, ushort length)
+            public static IEnumerable<NormalRange> GetRanges(ushort address, ushort length)
             {
                 var maxAddress = unchecked((ushort)(address + length - 1));
                 if (maxAddress >= address)
                 {
-                    yield return new Range(address, maxAddress);
+                    yield return new NormalRange(address, maxAddress);
                 }
                 else
                 {
-                    yield return new Range(ushort.MinValue, maxAddress);
-                    yield return new Range(address, ushort.MaxValue);
+                    yield return new NormalRange(ushort.MinValue, maxAddress);
+                    yield return new NormalRange(address, ushort.MaxValue);
                 }
             }
 
             public override string ToString()
             {
-                return $"({min}, {max})";
+                return $"({address}, {maxAddress})";
             }
         }
 
-        private class InstructionBlockCacheItem : IDisposable
+        private class NormalInstructionBlockCacheItem : ICacheItem
         {
-            private readonly Range[] addressRanges;
-            private readonly Action removeTask;
-            private readonly TimeSpan slidingExpiration;
-            private readonly CancellationTokenSource cancellationTokenSource;
+            private readonly NormalRange addressRange;
 
-            private long? lastAccessed;
+            public uint Accessed { get; set; }
             
-            public InstructionBlockCacheItem(IInstructionBlock<TRegisters> instructionBlock)
+            public NormalInstructionBlockCacheItem(NormalRange range, IInstructionBlock<TRegisters> instructionBlock)
             {
                 this.InstructionBlock = instructionBlock;
-                this.addressRanges = Range.GetRanges(this.InstructionBlock.Address, this.InstructionBlock.Length).ToArray();
-            }
-
-            public InstructionBlockCacheItem(IInstructionBlock<TRegisters> instructionBlock, TimeSpan slidingExpiration, Action removeTask) : this(instructionBlock)
-            {
-                this.slidingExpiration = slidingExpiration;
-                this.removeTask = removeTask;
-                this.cancellationTokenSource = new CancellationTokenSource();
-
-                Task.Delay(slidingExpiration, cancellationTokenSource.Token).ContinueWith(CheckSlidingExpiration, cancellationTokenSource.Token);
+                this.addressRange = range;
             }
 
             public IInstructionBlock<TRegisters> InstructionBlock { get; }
 
-            public bool Intersects(Range range)
+            public bool Intersects(NormalRange range)
             {
-                return addressRanges.Any(x => x.Intersects(range));
+                return range.Intersects(addressRange);
+            }
+        }
+
+        private class InstructionBlockCacheItem : ICacheItem
+        {
+            private readonly NormalRange addressRange0;
+            private readonly NormalRange addressRange1;
+
+            public InstructionBlockCacheItem(IReadOnlyList<NormalRange> addressRanges, IInstructionBlock<TRegisters> instructionBlock)
+            {
+                InstructionBlock = instructionBlock;
+                this.addressRange0 = addressRanges[0];
+                this.addressRange1 = addressRanges[1];
             }
 
-            public void RegisterAccess()
-            {
-                this.lastAccessed = DateTime.UtcNow.Ticks;
-            }
+            public IInstructionBlock<TRegisters> InstructionBlock { get; }
 
-            private void CheckSlidingExpiration(Task task)
-            {
-                if (task.IsCanceled)
-                {
-                    return;
-                }
+            public uint Accessed { get; set; }
 
-                if (lastAccessed.HasValue)
-                {
-                    var timeSinceLastAccessed = TimeSpan.FromTicks(DateTime.UtcNow.Ticks - lastAccessed.Value);
-                    if (timeSinceLastAccessed >= slidingExpiration)
-                    {
-                        this.removeTask();
-                    }
-                    else
-                    {
-                        Task.Delay(slidingExpiration.Subtract(timeSinceLastAccessed), cancellationTokenSource.Token).ContinueWith(CheckSlidingExpiration, cancellationTokenSource.Token);
-                        this.lastAccessed = null;
-                    }
-                }
-                else
-                {
-                    this.removeTask();
-                }
-            }
-            
-            public void Dispose()
+            public bool Intersects(NormalRange range)
             {
-                if (this.cancellationTokenSource == null)
-                {
-                    return;
-                }
-
-                this.cancellationTokenSource.Cancel();
-                this.cancellationTokenSource.Dispose();
+                return range.Intersects(addressRange0) || range.Intersects(addressRange1);
             }
+        }
+
+        private interface ICacheItem
+        {
+            IInstructionBlock<TRegisters> InstructionBlock { get; }
+
+            uint Accessed { get; set; }
+
+            bool Intersects(NormalRange range);
+        }
+
+        public void Dispose()
+        {
+            timer?.Dispose();
         }
     }
 }

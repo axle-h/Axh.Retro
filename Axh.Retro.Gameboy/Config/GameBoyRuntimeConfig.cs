@@ -6,8 +6,6 @@
 
     public class GameBoyRuntimeConfig : IRuntimeConfig
     {
-        public TimeSpan? InstructionCacheSlidingExpiration => TimeSpan.FromSeconds(30);
-
         public bool DebugMode => true;
 
         public CoreMode CoreMode => CoreMode.DynaRec;
