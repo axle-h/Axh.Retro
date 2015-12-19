@@ -39,8 +39,11 @@
             this.Bind<ISerialPort, ICoreSerialPort>().To<SyncSerialPort>().InNamedScope(cpuContextScope);
             this.Bind<IMemoryBankController>().To<MemoryBankController1>().InNamedScope(cpuContextScope);
 
-            this.Bind<IRegister, ILcdControlRegister>().To<LcdControlRegister>().InNamedScope(cpuContextScope);
-            this.Bind<IRegister, ICurrentScanlineRegister>().To<CurrentScanlineRegister>().InNamedScope(cpuContextScope);
+
+            // GPU registers.
+            this.Bind<IGpuRegisters>().To<GpuRegisters>().InNamedScope(cpuContextScope);
+            this.Bind<ILcdControlRegister>().To<LcdControlRegister>().InNamedScope(cpuContextScope);
+            this.Bind<ICurrentScanlineRegister>().To<CurrentScanlineRegister>().InNamedScope(cpuContextScope);
 
             // Un-named registers
             this.Bind<IRegister>().To<LazyDividerRegister>().InNamedScope(cpuContextScope);

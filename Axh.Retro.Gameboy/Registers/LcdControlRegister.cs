@@ -1,8 +1,7 @@
 ﻿namespace Axh.Retro.GameBoy.Registers
 {
     using System;
-
-    using Axh.Retro.GameBoy.Devices.CoreInterfaces;
+    
     using Axh.Retro.GameBoy.Registers.Interfaces;
     using Axh.Retro.GameBoy.Util;
 
@@ -57,7 +56,7 @@
         }
 
         public string DebugView => this.ToString();
-
+        
         /// <summary>
         /// LCD status
         /// True: On

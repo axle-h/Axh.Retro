@@ -22,13 +22,27 @@ namespace Axh.Retro.GameBoy.Util
         public XxHash(uint seed)
         {
             this.seed = seed;
+            memory = new byte[16];
+            Init();
+        }
+
+        public void Reset()
+        {
+            for (var i = 0; i < memory.Length; i++)
+            {
+                memory[i] = 0;
+            }
+            Init();
+        }
+
+        private void Init()
+        {
             v1 = seed + Prime321 + Prime322;
             v2 = seed + Prime322;
             v3 = seed + 0;
             v4 = seed - Prime321;
             totalLen = 0;
             memsize = 0;
-            memory = new byte[16];
         }
         
         public bool Update(byte[] input, int len)

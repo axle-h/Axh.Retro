@@ -14,11 +14,15 @@
     {
         private readonly IDictionary<ushort, IRegister> registers;
 
-        public HardwareRegisters(IEnumerable<IRegister> registers, ICoreJoyPad joyPad, ICoreSerialPort serialPort)
+        public HardwareRegisters(IEnumerable<IRegister> registers, ICoreJoyPad joyPad, ICoreSerialPort serialPort, IGpuRegisters gpuRegisters)
         {
             JoyPad = joyPad;
             SerialPort = serialPort;
-            this.registers = registers.Concat(new[] { joyPad, serialPort, serialPort.SerialData }).ToDictionary(x => (ushort)(x.Address - Address));
+            this.registers =
+                registers.Concat(
+                    new[]
+                    { joyPad, serialPort, serialPort.SerialData, gpuRegisters.ScrollXRegister, gpuRegisters.ScrollYRegister, gpuRegisters.CurrentScanlineRegister, gpuRegisters.LcdControlRegister })
+                    .ToDictionary(x => (ushort)(x.Address - Address));
         }
 
         private const ushort Address = 0xff00;

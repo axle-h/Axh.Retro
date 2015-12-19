@@ -4,8 +4,6 @@
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Threading;
-    using System.Threading.Tasks;
 
     using Axh.Retro.CPU.Z80.Contracts.Cache;
     using Axh.Retro.CPU.Z80.Contracts.Core;
@@ -23,7 +21,6 @@
 
         public InstructionBlockCache()
         {
-            this.CacheId = Guid.NewGuid();
             this.cache = new ConcurrentDictionary<ushort, ICacheItem>();
 
             // Psuedo garbage collection. Meh... will create a proper implementation another day.
@@ -31,8 +28,12 @@
             timer.Elapsed += (sender, args) => GarbageCollection();
         }
 
-        public Guid CacheId { get; }
-
+        /// <summary>
+        /// Get an instruction block from the cache at address. If not present then call getInstanceFunc and add to the cache.
+        /// </summary>
+        /// <param name="address"></param>
+        /// <param name="getInstanceFunc"></param>
+        /// <returns></returns>
         public IInstructionBlock<TRegisters> GetOrSet(ushort address, Func<IInstructionBlock<TRegisters>> getInstanceFunc)
         {
             ICacheItem cacheItem;
@@ -59,6 +60,11 @@
             return cacheItem.InstructionBlock;
         }
 
+        /// <summary>
+        /// Invalidates all cache from address for length
+        /// </summary>
+        /// <param name="address"></param>
+        /// <param name="length"></param>
         public void InvalidateCache(ushort address, ushort length)
         {
             var ranges = NormalRange.GetRanges(address, length).ToArray();
@@ -139,6 +145,9 @@
             }
         }
 
+        /// <summary>
+        /// Instruction block cache wrapper with a single normal range.
+        /// </summary>
         private class NormalInstructionBlockCacheItem : ICacheItem
         {
             private readonly NormalRange addressRange;
@@ -159,6 +168,9 @@
             }
         }
 
+        /// <summary>
+        /// Instruction block cache wrapper with two ranges.
+        /// </summary>
         private class InstructionBlockCacheItem : ICacheItem
         {
             private readonly NormalRange addressRange0;

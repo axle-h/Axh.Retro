@@ -12,12 +12,12 @@
     /// Serial port that will transfer bytes synchronously.
     /// Wanring! This will lock up the CPU if the Transfer funciton on the other SerialPort do any 'work'.
     /// </summary>
-    public class SyncSerialPort : SerialPortBase, IDisposable
+    public class SyncSerialPort : SerialPortBase
     {
         private const byte TransferStartFlagMask = 0x80;
         private const byte IsFastModeMask = 0x02;
         private const byte IsInternalClockMask = 0x01;
-        private static readonly TimeSpan ExternalTransferTimeout = TimeSpan.FromSeconds(30); // Real GB doesn't have timeout but we can't lock this thread forever.
+        private static readonly TimeSpan ExternalTransferTimeout = TimeSpan.FromSeconds(1); // Real GB doesn't have timeout but we can't lock this thread forever.
 
         private readonly IGameBoyInterruptManager gameBoyInterruptManager;
 
@@ -26,8 +26,6 @@
         private bool isInternalClock;
 
         private TaskCompletionSource<bool> transferredTaskSource;
-        
-        private CancellationTokenSource transferredCancellationSource;
         
         public SyncSerialPort(IGameBoyInterruptManager gameBoyInterruptManager)
         {
@@ -88,10 +86,8 @@
                 else
                 {
                     // Wait...
-                    transferredCancellationSource = new CancellationTokenSource();
-                    transferredCancellationSource.CancelAfter(ExternalTransferTimeout);
                     transferredTaskSource = new TaskCompletionSource<bool>();
-                    transferredTaskSource.Task.Wait(transferredCancellationSource.Token);
+                    transferredTaskSource.Task.Wait(ExternalTransferTimeout);
                 }
 
                 this.gameBoyInterruptManager.SerialLink();
@@ -115,16 +111,6 @@
 
             return tmp;
         }
-
-        public void Dispose()
-        {
-            if (this.transferredCancellationSource == null)
-            {
-                return;
-            }
-
-            this.transferredCancellationSource.Cancel();
-            this.transferredCancellationSource.Dispose();
-        }
+        
     }
 }
