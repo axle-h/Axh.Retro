@@ -231,7 +231,7 @@
             AluAnd = ExpressionHelpers.GetMethodInfo<IAlu, byte, byte>((alu, a, b) => alu.And(a, b));
             AluOr = ExpressionHelpers.GetMethodInfo<IAlu, byte, byte>((alu, a, b) => alu.Or(a, b));
             AluXor = ExpressionHelpers.GetMethodInfo<IAlu, byte, byte>((alu, a, b) => alu.Xor(a, b));
-            AluDecimalAdjust = ExpressionHelpers.GetMethodInfo<IAlu, byte, byte>((alu, a) => alu.DecimalAdjust(a));
+            AluDecimalAdjust = ExpressionHelpers.GetMethodInfo<IAlu, byte, bool, byte>((alu, a, b) => alu.DecimalAdjust(a, b));
             AluRotateLeftWithCarry = ExpressionHelpers.GetMethodInfo<IAlu, byte, byte>((alu, a) => alu.RotateLeftWithCarry(a));
             AluRotateLeft = ExpressionHelpers.GetMethodInfo<IAlu, byte, byte>((alu, a) => alu.RotateLeft(a));
             AluRotateRightWithCarry = ExpressionHelpers.GetMethodInfo<IAlu, byte, byte>((alu, a) => alu.RotateRightWithCarry(a));

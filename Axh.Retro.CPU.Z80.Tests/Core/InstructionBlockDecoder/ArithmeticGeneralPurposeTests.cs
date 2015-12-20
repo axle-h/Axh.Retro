@@ -22,11 +22,11 @@
             this.ResetMocks();
             
             const byte Expected = 0xac;
-            this.Alu.Setup(x => x.DecimalAdjust(A)).Returns(Expected);
+            this.Alu.Setup(x => x.DecimalAdjust(A, true)).Returns(Expected);
 
             RunWithHalt(1, 4, PrimaryOpCode.DAA);
 
-            this.Alu.Verify(x => x.DecimalAdjust(A), Times.Once);
+            this.Alu.Verify(x => x.DecimalAdjust(A, true), Times.Once);
             this.AfRegisters.VerifySet(x => x.A = Expected, Times.Once);
         }
 

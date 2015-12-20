@@ -28,7 +28,7 @@
 
         byte Xor(byte a, byte b);
 
-        byte DecimalAdjust(byte a);
+        byte DecimalAdjust(byte a, bool setHalfCarry);
 
         /// <summary>
         /// The value a is rotated left 1 bit position.

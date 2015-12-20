@@ -20,7 +20,7 @@
 
         private const ushort Length0 = Address1 - Address0;
         private const ushort Length1 = Address2 - Address1;
-        private const ushort Length2 = 0xffff - Address2;
+        private const ushort Length2 = 0x10000 - Address2;
 
         private const int MinByteLength = 24;
         private const int MaxByteLength = 32;

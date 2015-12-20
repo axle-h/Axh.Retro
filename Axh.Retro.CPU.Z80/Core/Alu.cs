@@ -132,81 +132,91 @@
             return a;
         }
 
-
-
-
-        /// <summary>
-        /// http://www.worldofspectrum.org/faq/reference/z80reference.htm#DAA
-        ///- If the A register is greater than 0x99, OR the Carry flag is SET, then
-        ///
-        ///    The upper four bits of the Correction Factor are set to 6,
-        ///    and the Carry flag will be SET.
-        ///  Else
-        ///    The upper four bits of the Correction Factor are set to 0,
-        ///    and the Carry flag will be CLEARED.
-        ///
-        ///
-        ///- If the lower four bits of the A register (A AND 0x0F) is greater than 9,
-        ///  OR the Half-Carry(H) flag is SET, then
-        ///
-        ///   The lower four bits of the Correction Factor are set to 6.
-        ///  Else
-        ///    The lower four bits of the Correction Factor are set to 0.
-        ///
-        ///
-        ///- This results in a Correction Factor of 0x00, 0x06, 0x60 or 0x66.
-        ///
-        ///
-        ///- If the N flag is CLEAR, then
-        ///
-        ///    ADD the Correction Factor to the A register.
-        ///  Else
-        ///    SUBTRACT the Correction Factor from the A register.
-        ///
-        ///
-        ///- The Flags are set as follows:
-        ///
-        ///  Carry:      Set/clear as in the first step above.
-        ///
-        ///  Half-Carry: Set if the correction operation caused a binary carry/borrow
-        ///              from bit 3 to bit 4.
-        ///              For this purpose, may be calculated as:
-        ///              Bit 4 of: A(before) XOR A(after).
-        ///
-        ///  S,Z,P,5,3:  Set as for simple logic operations on the resultant A value.
-        ///
-        ///  N:          Leave.
-        /// </summary>
-        /// <param name="a"></param>
+        ///  <summary>
+        ///  http://www.worldofspectrum.org/faq/reference/z80reference.htm#DAA
+        /// - If the A register is greater than 0x99, OR the Carry flag is SET, then
+        /// 
+        ///     The upper four bits of the Correction Factor are set to 6,
+        ///     and the Carry flag will be SET.
+        ///   Else
+        ///     The upper four bits of the Correction Factor are set to 0,
+        ///     and the Carry flag will be CLEARED.
+        /// 
+        /// 
+        /// - If the lower four bits of the A register (A AND 0x0F) is greater than 9,
+        ///   OR the Half-Carry(H) flag is SET, then
+        /// 
+        ///    The lower four bits of the Correction Factor are set to 6.
+        ///   Else
+        ///     The lower four bits of the Correction Factor are set to 0.
+        /// 
+        /// 
+        /// - This results in a Correction Factor of 0x00, 0x06, 0x60 or 0x66.
+        /// 
+        /// 
+        /// - If the N flag is CLEAR, then
+        /// 
+        ///     ADD the Correction Factor to the A register.
+        ///   Else
+        ///     SUBTRACT the Correction Factor from the A register.
+        /// 
+        /// 
+        /// - The Flags are set as follows:
+        /// 
+        ///   Carry:      Set/clear as in the first step above.
+        /// 
+        ///   Half-Carry: Set if the correction operation caused a binary carry/borrow
+        ///               from bit 3 to bit 4.
+        ///               For this purpose, may be calculated as:
+        ///               Bit 4 of: A(before) XOR A(after).
+        /// 
+        ///   S,Z,P,5,3:  Set as for simple logic operations on the resultant A value.
+        /// 
+        ///   N:          Leave.
+        ///  </summary>
+        ///  <param name="a"></param>
+        /// <param name="setHalfCarry"></param>
         /// <returns></returns>
-        public byte DecimalAdjust(byte a)
+        public byte DecimalAdjust(byte a, bool setHalfCarry)
         {
             var flags = Flags;
-            byte n = 0;
-            if ((a > 0x99) || flags.Carry)
-            {
-                n |= 0x60;
-            }
-            if (((a & 0x0F) > 0x09) || flags.HalfCarry)
-            {
-                n |= 0x06;
-            }
+            int result = a;
 
-            flags.HalfCarry = ((a >> 4) & 1) > 0;
-            if (flags.Subtract)
+            if (!flags.Subtract)
             {
-                a -= n;
+                if (flags.HalfCarry || ((result & 0xF) > 9))
+                {
+                    result += 0x06;
+                }
+                
+                if (flags.Carry || (result > 0x9F))
+                {
+                    result += 0x60;
+                }
             }
             else
             {
-                a += n;
+                if (flags.HalfCarry)
+                {
+                    result = (result - 6) & 0xFF;
+                }
+                
+                if (flags.Carry)
+                {
+                    result -= 0x60;
+                }    
             }
-
-            flags.HalfCarry = (((flags.HalfCarry ? 1 : 0) ^ (a >> 4)) & 1) > 0;
-            flags.Carry = (n >> 6) > 0;
+            
+            if ((result & 0x100) == 0x100)
+            {
+                flags.Carry = true;
+            }
+            
+            a = (byte)(result & 0xFF);
+            flags.HalfCarry = setHalfCarry && (((flags.HalfCarry ? 1 : 0) ^ (a >> 4)) & 1) > 0;
             flags.ParityOverflow = a.IsEvenParity();
             flags.SetResultFlags(a);
-            
+
             return a;
         }
 

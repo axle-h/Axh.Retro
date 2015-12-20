@@ -331,7 +331,7 @@
 
             Assert.AreEqual(expected, result);
             flags.Verify(x => x.SetParityFlags(expected), Times.Once);
-            flags.VerifySet(x => x.HalfCarry = true, Times.Once);
+            flags.VerifySet(x => x.HalfCarry = false, Times.Once);
             flags.VerifySet(x => x.Carry = false, Times.Once);
         }
         
@@ -344,7 +344,7 @@
 
             Assert.AreEqual(expected, result);
             flags.Verify(x => x.SetParityFlags(expected), Times.Once);
-            flags.VerifySet(x => x.HalfCarry = true, Times.Once);
+            flags.VerifySet(x => x.HalfCarry = false, Times.Once);
             flags.VerifySet(x => x.Carry = false, Times.Once);
         }
 
@@ -355,7 +355,7 @@
             Reset();
 
             var result = alu.Add(a, b);
-            var daa = alu.DecimalAdjust(result);
+            var daa = alu.DecimalAdjust(result, true);
 
             Assert.AreEqual(expected, daa);
             flags.Verify(x => x.SetResultFlags(expected), Times.AtLeastOnce);
@@ -368,7 +368,7 @@
             Reset();
             
             var result = alu.Subtract(a, b);
-            var daa = alu.DecimalAdjust(result);
+            var daa = alu.DecimalAdjust(result, true);
 
             Assert.AreEqual(expected, daa);
             flags.Verify(x => x.SetResultFlags(expected), Times.AtLeastOnce);
@@ -376,7 +376,7 @@
 
         [TestCase((ushort)0x4242, (ushort)0x1111, (ushort)0x5353, false, false)]
         [TestCase((ushort)0x0100, (ushort)0x7f00, (ushort)0x8000, true, false)]
-        [TestCase((ushort)0xffff, (ushort)0x0001, (ushort)0x0000, false, true)]
+        [TestCase((ushort)0xffff, (ushort)0x0001, (ushort)0x0000, true, true)]
         [TestCase((ushort)0xaaaa, (ushort)0xbbbb, (ushort)0x6665, true, true)]
         public void Add16(ushort a, ushort b, ushort expected, bool halfCarry, bool carry)
         {
@@ -391,7 +391,7 @@
 
         [TestCase((ushort)0x4242, (ushort)0x1111, (ushort)0x5354, false, false, false)]
         [TestCase((ushort)0x0100, (ushort)0x7f00, (ushort)0x8001, true, true, false)]
-        [TestCase((ushort)0xffff, (ushort)0x0001, (ushort)0x0001, false, false, true)]
+        [TestCase((ushort)0xffff, (ushort)0x0001, (ushort)0x0001, true, false, true)]
         [TestCase((ushort)0xaaaa, (ushort)0xbbbb, (ushort)0x6666, true, true, true)]
         public void Add16WithCarry(ushort a, ushort b, ushort expected, bool halfCarry, bool overflow, bool carry)
         {
@@ -437,7 +437,7 @@
 
             AssertFlags(null, null, null, false, null, false, expectedCarry);
 
-            flags.Verify(x => x.SetUndocumentedFlags(result), Times.Once);
+            flags.Verify(x => x.SetResultFlags(result), Times.Once);
         }
 
         [TestCase(false, 0x88, 0x10, true)]
@@ -454,7 +454,7 @@
 
             AssertFlags(null, null, null, false, null, false, expectedCarry);
 
-            flags.Verify(x => x.SetUndocumentedFlags(result), Times.Once);
+            flags.Verify(x => x.SetResultFlags(result), Times.Once);
         }
 
         [TestCase(0x11, 0x88, true)]
@@ -469,7 +469,7 @@
 
             AssertFlags(null, null, null, false, null, false, expectedCarry);
 
-            flags.Verify(x => x.SetUndocumentedFlags(result), Times.Once);
+            flags.Verify(x => x.SetResultFlags(result), Times.Once);
         }
         
         [TestCase(false, 0x11, 0x08, true)]
@@ -486,7 +486,7 @@
 
             AssertFlags(null, null, null, false, null, false, expectedCarry);
 
-            flags.Verify(x => x.SetUndocumentedFlags(result), Times.Once);
+            flags.Verify(x => x.SetResultFlags(result), Times.Once);
         }
 
         [TestCase(0x88, 0x10, true)]

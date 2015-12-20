@@ -382,7 +382,7 @@
                     break;
 
                 case OpCode.DecimalArithmeticAdjust:
-                    yield return Expression.Assign(A, Expression.Call(Alu, AluDecimalAdjust, A));
+                    yield return Expression.Assign(A, Expression.Call(Alu, AluDecimalAdjust, A, Expression.Constant(cpuMode == CpuMode.Z80)));
                     break;
 
                 case OpCode.NegateOnesComplement:
