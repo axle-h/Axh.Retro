@@ -2,7 +2,7 @@
 {
     using System;
 
-    internal enum OpCode
+    internal enum OpCode : byte
     {
         NoOperation,
         Halt,

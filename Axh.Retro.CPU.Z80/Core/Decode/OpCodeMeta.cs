@@ -6,7 +6,7 @@ namespace Axh.Retro.CPU.Z80.Core.Decode
     /// Internal decode meta flags for communicating with CPU execution.
     /// </summary>
     [Flags]
-    internal enum OpCodeMeta
+    internal enum OpCodeMeta : byte
     {
         None = 0,
 

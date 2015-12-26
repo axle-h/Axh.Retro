@@ -59,35 +59,35 @@
                     break;
 
                 case OpCode.Add:
-                    yield return Expression.Assign(A, Expression.Call(Alu, AluAdd, A, ReadOperand2(operation)));
+                    yield return Expression.Assign(A, Expression.Call(Alu, AluAdd, A, ReadOperand1(operation)));
                     break;
 
                 case OpCode.AddCarry:
-                    yield return Expression.Assign(A, Expression.Call(Alu, AluAddWithCarry, A, ReadOperand2(operation)));
+                    yield return Expression.Assign(A, Expression.Call(Alu, AluAddWithCarry, A, ReadOperand1(operation)));
                     break;
 
                 case OpCode.Subtract:
-                    yield return Expression.Assign(A, Expression.Call(Alu, AluSubtract, A, ReadOperand2(operation)));
+                    yield return Expression.Assign(A, Expression.Call(Alu, AluSubtract, A, ReadOperand1(operation)));
                     break;
 
                 case OpCode.SubtractCarry:
-                    yield return Expression.Assign(A, Expression.Call(Alu, AluSubtractWithCarry, A, ReadOperand2(operation)));
+                    yield return Expression.Assign(A, Expression.Call(Alu, AluSubtractWithCarry, A, ReadOperand1(operation)));
                     break;
 
                 case OpCode.And:
-                    yield return Expression.Assign(A, Expression.Call(Alu, AluAnd, A, ReadOperand2(operation)));
+                    yield return Expression.Assign(A, Expression.Call(Alu, AluAnd, A, ReadOperand1(operation)));
                     break;
 
                 case OpCode.Or:
-                    yield return Expression.Assign(A, Expression.Call(Alu, AluOr, A, ReadOperand2(operation)));
+                    yield return Expression.Assign(A, Expression.Call(Alu, AluOr, A, ReadOperand1(operation)));
                     break;
 
                 case OpCode.Xor:
-                    yield return Expression.Assign(A, Expression.Call(Alu, AluXor, A, ReadOperand2(operation)));
+                    yield return Expression.Assign(A, Expression.Call(Alu, AluXor, A, ReadOperand1(operation)));
                     break;
 
                 case OpCode.Compare:
-                    yield return Expression.Call(Alu, AluCompare, A, ReadOperand2(operation));
+                    yield return Expression.Call(Alu, AluCompare, A, ReadOperand1(operation));
                     break;
 
                 case OpCode.Increment:

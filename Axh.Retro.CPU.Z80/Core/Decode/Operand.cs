@@ -2,7 +2,7 @@
 {
     using System;
 
-    internal enum Operand
+    internal enum Operand : byte
     {
         None = 0,
 

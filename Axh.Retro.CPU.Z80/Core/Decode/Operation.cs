@@ -3,103 +3,39 @@
     using System;
     using System.Text;
 
-    internal class Operation
+    internal struct Operation
     {
-        public Operation(OpCode opCode)
+        public Operation(ushort address, OpCode opCode, Operand operand1, Operand operand2, FlagTest flagTest, OpCodeMeta opCodeMeta, byte byteLiteral, ushort wordLiteral, sbyte displacement) : this()
         {
-            OpCode = opCode;
-        }
-
-        public Operation(OpCode opCode, Operand operand1)
-        {
-            OpCode = opCode;
-            Operand1 = operand1;
-        }
-        
-        public Operation(OpCode opCode, Operand operand1, Operand operand2)
-        {
+            Address = address;
             OpCode = opCode;
             Operand1 = operand1;
             Operand2 = operand2;
+            FlagTest = flagTest;
+            OpCodeMeta = opCodeMeta;
+            ByteLiteral = byteLiteral;
+            WordLiteral = wordLiteral;
+            Displacement = displacement;
         }
 
-        public Operation WithFlag(FlagTest flagTest)
-        {
-            this.FlagTest = flagTest;
-            return this;
-        }
-
-        public Operation AddLiteral(byte literal)
-        {
-            this.ByteLiteral = literal;
-            return this;
-        }
-
-        public Operation WithByteLiteral()
-        {
-            this.OpCodeMeta |= OpCodeMeta.ByteLiteral;
-            return this;
-        }
-
-        public Operation AddLiteral(ushort literal)
-        {
-            this.WordLiteral = literal;
-            return this;
-        }
-
-        public Operation WithWordLiteral()
-        {
-            this.OpCodeMeta |= OpCodeMeta.WordLiteral;
-            return this;
-        }
-
-        public Operation AddDisplacement(byte displacement)
-        {
-            this.Displacement = (sbyte)displacement;
-            return this;
-        }
-
-        public Operation WithDisplacement()
-        {
-            this.OpCodeMeta |= OpCodeMeta.Displacement;
-            return this;
-        }
-
-        public Operation EndBlock()
-        {
-            this.OpCodeMeta |= OpCodeMeta.EndBlock;
-            return this;
-        }
-
-        public void AutoCopy()
-        {
-            this.OpCodeMeta |= OpCodeMeta.AutoCopy;
-        }
-
-        public Operation UseAlternativeFlagAffection()
-        {
-            this.OpCodeMeta |= OpCodeMeta.UseAlternativeFlagAffection;
-            return this;
-        }
-
-        public ushort Address { get; set; }
+        public ushort Address { get; }
         
         public OpCode OpCode { get; }
 
-        public Operand Operand1 { get; set; }
+        public Operand Operand1 { get; }
 
-        public Operand Operand2 { get; set; }
+        public Operand Operand2 { get; }
 
-        public FlagTest FlagTest { get; private set; }
+        public FlagTest FlagTest { get; }
 
-        public byte ByteLiteral { get; private set; }
+        public OpCodeMeta OpCodeMeta { get; }
 
-        public ushort WordLiteral { get; private set; }
+        public byte ByteLiteral { get; }
 
-        public sbyte Displacement { get; private set; }
+        public ushort WordLiteral { get; }
 
-        public OpCodeMeta OpCodeMeta { get; private set; }
-
+        public sbyte Displacement { get; }
+        
         public override string ToString()
         {
             var sb = new StringBuilder().AppendFormat("0x{0}   {1}", this.Address.ToString("x4"), OpCode.GetMnemonic());

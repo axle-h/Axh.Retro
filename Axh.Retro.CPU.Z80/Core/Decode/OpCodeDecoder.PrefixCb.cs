@@ -7,32 +7,31 @@
 
     internal partial class OpCodeDecoder
     {
-        private Operation FixPrefixDdFdPrefixCbResult(Operation result)
+        private OpCode FixPrefixDdFdPrefixCbResult(OpCode result)
         {
-            if (result.Operand1 == index.Index)
+            if (operand1 == index.Index)
             {
                 // Documented operation, no autocopy
                 return result;
             }
 
             // Add index operand
-            result.Operand2 = result.Operand1;
-            result.Operand1 = index.Index;
+            operand2 = operand1;
+            operand1 = index.Index;
 
-            if (result.OpCode != OpCode.BitTest)
+            if (result != OpCode.BitTest)
             {
                 // Only BIT has no autocopy
                 // Add autocopy timings
-                result.AutoCopy();
+                opCodeMeta |= OpCodeMeta.AutoCopy;
                 timer.IndexAndMmuByte(true);
             }
-
-
+            
             timer.ApplyDisplacement().MmuByte();
             return result;
         }
 
-        private Operation DecodePrefixCb()
+        private OpCode DecodePrefixCb()
         {
             var code = (PrefixCbOpCode)prefetch.NextByte();
 
@@ -43,164 +42,229 @@
                 // ********* Rotate *********
                 // RLC r
                 case PrefixCbOpCode.RLC_A:
-                    return new Operation(OpCode.RotateLeftWithCarry, Operand.A);
+                    operand1 = Operand.A;
+                    return OpCode.RotateLeftWithCarry;
                 case PrefixCbOpCode.RLC_B:
-                    return new Operation(OpCode.RotateLeftWithCarry, Operand.B);
+                    operand1 = Operand.B;
+                    return OpCode.RotateLeftWithCarry;
                 case PrefixCbOpCode.RLC_C:
-                    return new Operation(OpCode.RotateLeftWithCarry, Operand.C);
+                    operand1 = Operand.C;
+                    return OpCode.RotateLeftWithCarry;
                 case PrefixCbOpCode.RLC_D:
-                    return new Operation(OpCode.RotateLeftWithCarry, Operand.D);
+                    operand1 = Operand.D;
+                    return OpCode.RotateLeftWithCarry;
                 case PrefixCbOpCode.RLC_E:
-                    return new Operation(OpCode.RotateLeftWithCarry, Operand.E);
+                    operand1 = Operand.E;
+                    return OpCode.RotateLeftWithCarry;
                 case PrefixCbOpCode.RLC_H:
-                    return new Operation(OpCode.RotateLeftWithCarry, Operand.H);
+                    operand1 = Operand.H;
+                    return OpCode.RotateLeftWithCarry;
                 case PrefixCbOpCode.RLC_L:
-                    return new Operation(OpCode.RotateLeftWithCarry, Operand.L);
+                    operand1 = Operand.L;
+                    return OpCode.RotateLeftWithCarry;
                 case PrefixCbOpCode.RLC_mHL:
                     timer.IndexAndMmuByte(index.IsDisplaced);
                     if (!index.IsDisplaced) timer.Extend(1);
-                    return new Operation(OpCode.RotateLeftWithCarry, index.Index);
+                    operand1 = index.Index;
+                    return OpCode.RotateLeftWithCarry;
 
                 // RL r
                 case PrefixCbOpCode.RL_A:
-                    return new Operation(OpCode.RotateLeft, Operand.A);
+                    operand1 = Operand.A;
+                    return OpCode.RotateLeft;
                 case PrefixCbOpCode.RL_B:
-                    return new Operation(OpCode.RotateLeft, Operand.B);
+                    operand1 = Operand.B;
+                    return OpCode.RotateLeft;
                 case PrefixCbOpCode.RL_C:
-                    return new Operation(OpCode.RotateLeft, Operand.C);
+                    operand1 = Operand.C;
+                    return OpCode.RotateLeft;
                 case PrefixCbOpCode.RL_D:
-                    return new Operation(OpCode.RotateLeft, Operand.D);
+                    operand1 = Operand.D;
+                    return OpCode.RotateLeft;
                 case PrefixCbOpCode.RL_E:
-                    return new Operation(OpCode.RotateLeft, Operand.E);
+                    operand1 = Operand.E;
+                    return OpCode.RotateLeft;
                 case PrefixCbOpCode.RL_H:
-                    return new Operation(OpCode.RotateLeft, Operand.H);
+                    operand1 = Operand.H;
+                    return OpCode.RotateLeft;
                 case PrefixCbOpCode.RL_L:
-                    return new Operation(OpCode.RotateLeft, Operand.L);
+                    operand1 = Operand.L;
+                    return OpCode.RotateLeft;
                 case PrefixCbOpCode.RL_mHL:
                     timer.IndexAndMmuByte(index.IsDisplaced);
                     if (!index.IsDisplaced) timer.Extend(1);
-                    return new Operation(OpCode.RotateLeft, index.Index);
+                    operand1 = index.Index;
+                    return OpCode.RotateLeft;
 
                 // RRC r
                 case PrefixCbOpCode.RRC_A:
-                    return new Operation(OpCode.RotateRightWithCarry, Operand.A);
+                    operand1 = Operand.A;
+                    return OpCode.RotateRightWithCarry;
                 case PrefixCbOpCode.RRC_B:
-                    return new Operation(OpCode.RotateRightWithCarry, Operand.B);
+                    operand1 = Operand.B;
+                    return OpCode.RotateRightWithCarry;
                 case PrefixCbOpCode.RRC_C:
-                    return new Operation(OpCode.RotateRightWithCarry, Operand.C);
+                    operand1 = Operand.C;
+                    return OpCode.RotateRightWithCarry;
                 case PrefixCbOpCode.RRC_D:
-                    return new Operation(OpCode.RotateRightWithCarry, Operand.D);
+                    operand1 = Operand.D;
+                    return OpCode.RotateRightWithCarry;
                 case PrefixCbOpCode.RRC_E:
-                    return new Operation(OpCode.RotateRightWithCarry, Operand.E);
+                    operand1 = Operand.E;
+                    return OpCode.RotateRightWithCarry;
                 case PrefixCbOpCode.RRC_H:
-                    return new Operation(OpCode.RotateRightWithCarry, Operand.H);
+                    operand1 = Operand.H;
+                    return OpCode.RotateRightWithCarry;
                 case PrefixCbOpCode.RRC_L:
-                    return new Operation(OpCode.RotateRightWithCarry, Operand.L);
+                    operand1 = Operand.L;
+                    return OpCode.RotateRightWithCarry;
                 case PrefixCbOpCode.RRC_mHL:
                     timer.IndexAndMmuByte(index.IsDisplaced);
                     if (!index.IsDisplaced) timer.Extend(1);
-                    return new Operation(OpCode.RotateRightWithCarry, index.Index);
+                    operand1 = index.Index;
+                    return OpCode.RotateRightWithCarry;
 
                 // RR r
                 case PrefixCbOpCode.RR_A:
-                    return new Operation(OpCode.RotateRight, Operand.A);
+                    operand1 = Operand.A;
+                    return OpCode.RotateRight;
                 case PrefixCbOpCode.RR_B:
-                    return new Operation(OpCode.RotateRight, Operand.B);
+                    operand1 = Operand.B;
+                    return OpCode.RotateRight;
                 case PrefixCbOpCode.RR_C:
-                    return new Operation(OpCode.RotateRight, Operand.C);
+                    operand1 = Operand.C;
+                    return OpCode.RotateRight;
                 case PrefixCbOpCode.RR_D:
-                    return new Operation(OpCode.RotateRight, Operand.D);
+                    operand1 = Operand.D;
+                    return OpCode.RotateRight;
                 case PrefixCbOpCode.RR_E:
-                    return new Operation(OpCode.RotateRight, Operand.E);
+                    operand1 = Operand.E;
+                    return OpCode.RotateRight;
                 case PrefixCbOpCode.RR_H:
-                    return new Operation(OpCode.RotateRight, Operand.H);
+                    operand1 = Operand.H;
+                    return OpCode.RotateRight;
                 case PrefixCbOpCode.RR_L:
-                    return new Operation(OpCode.RotateRight, Operand.L);
+                    operand1 = Operand.L;
+                    return OpCode.RotateRight;
                 case PrefixCbOpCode.RR_mHL:
                     timer.IndexAndMmuByte(index.IsDisplaced);
                     if (!index.IsDisplaced) timer.Extend(1);
-                    return new Operation(OpCode.RotateRight, index.Index);
+                    operand1 = index.Index;
+                    return OpCode.RotateRight;
 
                 // ********* Shift *********
                 // SLA r
                 case PrefixCbOpCode.SLA_A:
-                    return new Operation(OpCode.ShiftLeft, Operand.A);
+                    operand1 = Operand.A;
+                    return OpCode.ShiftLeft;
                 case PrefixCbOpCode.SLA_B:
-                    return new Operation(OpCode.ShiftLeft, Operand.B);
+                    operand1 = Operand.B;
+                    return OpCode.ShiftLeft;
                 case PrefixCbOpCode.SLA_C:
-                    return new Operation(OpCode.ShiftLeft, Operand.C);
+                    operand1 = Operand.C;
+                    return OpCode.ShiftLeft;
                 case PrefixCbOpCode.SLA_D:
-                    return new Operation(OpCode.ShiftLeft, Operand.D);
+                    operand1 = Operand.D;
+                    return OpCode.ShiftLeft;
                 case PrefixCbOpCode.SLA_E:
-                    return new Operation(OpCode.ShiftLeft, Operand.E);
+                    operand1 = Operand.E;
+                    return OpCode.ShiftLeft;
                 case PrefixCbOpCode.SLA_H:
-                    return new Operation(OpCode.ShiftLeft, Operand.H);
+                    operand1 = Operand.H;
+                    return OpCode.ShiftLeft;
                 case PrefixCbOpCode.SLA_L:
-                    return new Operation(OpCode.ShiftLeft, Operand.L);
+                    operand1 = Operand.L;
+                    return OpCode.ShiftLeft;
                 case PrefixCbOpCode.SLA_mHL:
                     timer.IndexAndMmuByte(index.IsDisplaced);
                     if (!index.IsDisplaced) timer.Extend(1);
-                    return new Operation(OpCode.ShiftLeft, index.Index);
+                    operand1 = index.Index;
+                    return OpCode.ShiftLeft;
 
                 // SLS r (undocumented)
+                // Runs as SWAP on GB
                 case PrefixCbOpCode.SLS_A:
-                    return new Operation(this.cpuMode == CpuMode.GameBoy ? OpCode.Swap : OpCode.ShiftLeftSet, Operand.A);
+                    operand1 = Operand.A;
+                    return this.cpuMode == CpuMode.GameBoy ? OpCode.Swap : OpCode.ShiftLeftSet;
                 case PrefixCbOpCode.SLS_B:
-                    return new Operation(this.cpuMode == CpuMode.GameBoy ? OpCode.Swap : OpCode.ShiftLeftSet, Operand.B);
+                    operand1 = Operand.B;
+                    return this.cpuMode == CpuMode.GameBoy ? OpCode.Swap : OpCode.ShiftLeftSet;
                 case PrefixCbOpCode.SLS_C:
-                    return new Operation(this.cpuMode == CpuMode.GameBoy ? OpCode.Swap : OpCode.ShiftLeftSet, Operand.C);
+                    operand1 = Operand.C;
+                    return this.cpuMode == CpuMode.GameBoy ? OpCode.Swap : OpCode.ShiftLeftSet;
                 case PrefixCbOpCode.SLS_D:
-                    return new Operation(this.cpuMode == CpuMode.GameBoy ? OpCode.Swap : OpCode.ShiftLeftSet, Operand.D);
+                    operand1 = Operand.D;
+                    return this.cpuMode == CpuMode.GameBoy ? OpCode.Swap : OpCode.ShiftLeftSet;
                 case PrefixCbOpCode.SLS_E:
-                    return new Operation(this.cpuMode == CpuMode.GameBoy ? OpCode.Swap : OpCode.ShiftLeftSet, Operand.E);
+                    operand1 = Operand.E;
+                    return this.cpuMode == CpuMode.GameBoy ? OpCode.Swap : OpCode.ShiftLeftSet;
                 case PrefixCbOpCode.SLS_H:
-                    return new Operation(this.cpuMode == CpuMode.GameBoy ? OpCode.Swap : OpCode.ShiftLeftSet, Operand.H);
+                    operand1 = Operand.H;
+                    return this.cpuMode == CpuMode.GameBoy ? OpCode.Swap : OpCode.ShiftLeftSet;
                 case PrefixCbOpCode.SLS_L:
-                    return new Operation(this.cpuMode == CpuMode.GameBoy ? OpCode.Swap : OpCode.ShiftLeftSet, Operand.L);
+                    operand1 = Operand.L;
+                    return this.cpuMode == CpuMode.GameBoy ? OpCode.Swap : OpCode.ShiftLeftSet;
                 case PrefixCbOpCode.SLS_mHL:
                     timer.IndexAndMmuByte(index.IsDisplaced);
                     if (!index.IsDisplaced) timer.Extend(1);
-                    return new Operation(this.cpuMode == CpuMode.GameBoy ? OpCode.Swap : OpCode.ShiftLeftSet, index.Index);
+                    operand1 = index.Index;
+                    return this.cpuMode == CpuMode.GameBoy ? OpCode.Swap : OpCode.ShiftLeftSet;
 
                 // SRA r
                 case PrefixCbOpCode.SRA_A:
-                    return new Operation(OpCode.ShiftRight, Operand.A);
+                    operand1 = Operand.A;
+                    return OpCode.ShiftRight;
                 case PrefixCbOpCode.SRA_B:
-                    return new Operation(OpCode.ShiftRight, Operand.B);
+                    operand1 = Operand.B;
+                    return OpCode.ShiftRight;
                 case PrefixCbOpCode.SRA_C:
-                    return new Operation(OpCode.ShiftRight, Operand.C);
+                    operand1 = Operand.C;
+                    return OpCode.ShiftRight;
                 case PrefixCbOpCode.SRA_D:
-                    return new Operation(OpCode.ShiftRight, Operand.D);
+                    operand1 = Operand.D;
+                    return OpCode.ShiftRight;
                 case PrefixCbOpCode.SRA_E:
-                    return new Operation(OpCode.ShiftRight, Operand.E);
+                    operand1 = Operand.E;
+                    return OpCode.ShiftRight;
                 case PrefixCbOpCode.SRA_H:
-                    return new Operation(OpCode.ShiftRight, Operand.H);
+                    operand1 = Operand.H;
+                    return OpCode.ShiftRight;
                 case PrefixCbOpCode.SRA_L:
-                    return new Operation(OpCode.ShiftRight, Operand.L);
+                    operand1 = Operand.L;
+                    return OpCode.ShiftRight;
                 case PrefixCbOpCode.SRA_mHL:
                     timer.IndexAndMmuByte(index.IsDisplaced);
                     if (!index.IsDisplaced) timer.Extend(1);
-                    return new Operation(OpCode.ShiftRight, index.Index);
+                    operand1 = index.Index;
+                    return OpCode.ShiftRight;
 
                 // SRL r
                 case PrefixCbOpCode.SRL_A:
-                    return new Operation(OpCode.ShiftRightLogical, Operand.A);
+                    operand1 = Operand.A;
+                    return OpCode.ShiftRightLogical;
                 case PrefixCbOpCode.SRL_B:
-                    return new Operation(OpCode.ShiftRightLogical, Operand.B);
+                    operand1 = Operand.B;
+                    return OpCode.ShiftRightLogical;
                 case PrefixCbOpCode.SRL_C:
-                    return new Operation(OpCode.ShiftRightLogical, Operand.C);
+                    operand1 = Operand.C;
+                    return OpCode.ShiftRightLogical;
                 case PrefixCbOpCode.SRL_D:
-                    return new Operation(OpCode.ShiftRightLogical, Operand.D);
+                    operand1 = Operand.D;
+                    return OpCode.ShiftRightLogical;
                 case PrefixCbOpCode.SRL_E:
-                    return new Operation(OpCode.ShiftRightLogical, Operand.E);
+                    operand1 = Operand.E;
+                    return OpCode.ShiftRightLogical;
                 case PrefixCbOpCode.SRL_H:
-                    return new Operation(OpCode.ShiftRightLogical, Operand.H);
+                    operand1 = Operand.H;
+                    return OpCode.ShiftRightLogical;
                 case PrefixCbOpCode.SRL_L:
-                    return new Operation(OpCode.ShiftRightLogical, Operand.L);
+                    operand1 = Operand.L;
+                    return OpCode.ShiftRightLogical;
                 case PrefixCbOpCode.SRL_mHL:
                     timer.IndexAndMmuByte(index.IsDisplaced);
                     if (!index.IsDisplaced) timer.Extend(1);
-                    return new Operation(OpCode.ShiftRightLogical, index.Index);
+                    operand1 = index.Index;
+                    return OpCode.ShiftRightLogical;
 
                 // ********* Bit Test, Set & Reset *********
                 // BIT r
@@ -598,39 +662,51 @@
             }
         }
 
-        private Operation BitResetFromIndex(int bit)
+        private OpCode BitResetFromIndex(int bit)
         {
             timer.IndexAndMmuByte(index.IsDisplaced);
             if (!index.IsDisplaced) timer.Extend(1);
-            return new Operation(OpCode.BitReset, index.Index).AddLiteral((byte)bit);
+
+            operand1 = index.Index;
+            byteLiteral = (byte)bit;
+            return OpCode.BitReset;
         }
 
-        private Operation BitReset(Operand register, int bit)
+        private OpCode BitReset(Operand register, int bit)
         {
             if (index.IsDisplaced)
             {
                 timer.MmuWord().Extend(1);
             }
-            return new Operation(OpCode.BitReset, register).AddLiteral((byte)bit);
+
+            operand1 = register;
+            byteLiteral = (byte)bit;
+            return OpCode.BitReset;
         }
 
-        private Operation BitSetFromIndex(int bit)
+        private OpCode BitSetFromIndex(int bit)
         {
             timer.IndexAndMmuByte(index.IsDisplaced);
             if (!index.IsDisplaced) timer.Extend(1);
-            return new Operation(OpCode.BitSet, index.Index).AddLiteral((byte)bit);
+
+            operand1 = index.Index;
+            byteLiteral = (byte)bit;
+            return OpCode.BitSet;
         }
 
-        private Operation BitSet(Operand register, int bit)
+        private OpCode BitSet(Operand register, int bit)
         {
             if (index.IsDisplaced)
             {
                 timer.MmuWord().Extend(1);
             }
-            return new Operation(OpCode.BitSet, register).AddLiteral((byte)bit);
+
+            operand1 = register;
+            byteLiteral = (byte)bit;
+            return OpCode.BitSet;
         }
 
-        private Operation BitTestFromIndex(int bit)
+        private OpCode BitTestFromIndex(int bit)
         {
             if (index.IsDisplaced)
             {
@@ -640,12 +716,17 @@
             {
                 timer.MmuByte().Extend(1);
             }
-            return new Operation(OpCode.BitTest, index.Index).AddLiteral((byte)bit);
+
+            operand1 = index.Index;
+            byteLiteral = (byte)bit;
+            return OpCode.BitTest;
         }
 
-        private static Operation BitTest(Operand register, int bit)
+        private OpCode BitTest(Operand register, int bit)
         {
-            return new Operation(OpCode.BitTest, register).AddLiteral((byte)bit);
+            operand1 = register;
+            byteLiteral = (byte)bit;
+            return OpCode.BitTest;
         }
     }
 }

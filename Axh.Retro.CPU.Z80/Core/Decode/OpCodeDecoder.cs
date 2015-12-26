@@ -21,7 +21,15 @@
         private readonly IPrefetchQueue prefetch;
 
         private IndexRegisterOperands index;
-
+        
+        private Operand operand1;
+        private Operand operand2;
+        private FlagTest flagTest;
+        private OpCodeMeta opCodeMeta;
+        private byte byteLiteral;
+        private ushort wordLiteral;
+        private byte displacement;
+        
         public OpCodeDecoder(IPlatformConfig platformConfig, IPrefetchQueue prefetch)
         {
             this.cpuMode = platformConfig.CpuMode;
@@ -52,36 +60,43 @@
 
             while (true)
             {
+                // Reset
+                operand1 = Operand.None;
+                operand2 = Operand.None;
+                flagTest = FlagTest.None;
+                opCodeMeta = OpCodeMeta.None;
+                byteLiteral = 0x00;
+                wordLiteral = 0x0000;
+                displacement = 0x00;
+                
                 var result = DecodePrimary();
 
-                if (result == null)
+                if (!result.HasValue)
                 {
                     continue;
                 }
 
-                if (result.OpCodeMeta.HasFlag(OpCodeMeta.Displacement) && index.IsDisplaced)
+                if (opCodeMeta.HasFlag(OpCodeMeta.Displacement) && index.IsDisplaced)
                 {
-                    result.AddDisplacement(prefetch.NextByte());
+                    displacement = prefetch.NextByte();
                 }
 
-                if (result.OpCodeMeta.HasFlag(OpCodeMeta.ByteLiteral))
+                if (opCodeMeta.HasFlag(OpCodeMeta.ByteLiteral))
                 {
-                    result.AddLiteral(prefetch.NextByte());
+                    byteLiteral = prefetch.NextByte();
                 }
 
-                if (result.OpCodeMeta.HasFlag(OpCodeMeta.WordLiteral))
+                if (opCodeMeta.HasFlag(OpCodeMeta.WordLiteral))
                 {
-                    result.AddLiteral(prefetch.NextWord());
+                    wordLiteral = prefetch.NextWord();
                 }
+                
+                yield return new Operation(address, result.Value, operand1, operand2, flagTest, opCodeMeta, byteLiteral, wordLiteral, (sbyte)displacement);
 
-                result.Address = address;
-                yield return result;
-
-                if (result.OpCodeMeta.HasFlag(OpCodeMeta.EndBlock))
+                if (opCodeMeta.HasFlag(OpCodeMeta.EndBlock))
                 {
                     yield break;
                 }
-
                 
                 index = this.indexRegisterOperands[IndexRegister.HL];
                 var opBytes = prefetch.TotalBytesRead - totalBytesRead;
