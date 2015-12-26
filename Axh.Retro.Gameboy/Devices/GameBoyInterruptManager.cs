@@ -1,8 +1,11 @@
 ﻿namespace Axh.Retro.GameBoy.Devices
 {
+    using System.Threading;
+
     using Axh.Retro.CPU.Z80.Contracts.Core;
     using Axh.Retro.GameBoy.Contracts.Devices;
     using Axh.Retro.GameBoy.Devices.CoreInterfaces;
+    using Axh.Retro.GameBoy.Registers;
     using Axh.Retro.GameBoy.Registers.Interfaces;
 
     public class GameBoyInterruptManager : IGameBoyInterruptManager
@@ -17,57 +20,70 @@
 
         private readonly IInterruptEnableRegister interruptEnableRegister;
 
+        private readonly InterruptFlagsRegister interruptFlagsRegister;
+
+        private InterruptFlag delayedInterrupts;
+
         public GameBoyInterruptManager(IInterruptManager interruptManager, IInterruptEnableRegister interruptEnableRegister)
         {
             this.interruptManager = interruptManager;
             this.interruptEnableRegister = interruptEnableRegister;
+            this.interruptFlagsRegister = new InterruptFlagsRegister(UpdateInterrupts);
         }
+        
+        public IRegister InterruptFlagsRegister => interruptFlagsRegister;
 
-        public void VerticalBlank()
+        public void UpdateInterrupts(InterruptFlag interrupts)
         {
-            if (!this.interruptEnableRegister.VerticalBlank)
+            // Try delayed interrupts again.
+            interrupts |= delayedInterrupts;
+
+            if (interrupts.HasFlag(InterruptFlag.VerticalBlank))
             {
-                return;
+                if (this.interruptEnableRegister.VerticalBlank)
+                {
+                    interrupts &= ~InterruptFlag.VerticalBlank;
+                    this.interruptManager.Interrupt(VerticalBlankAddress);
+                }
             }
-            this.interruptManager.Interrupt(VerticalBlankAddress);
-        }
 
-        public void LcdStatusTriggers()
-        {
-            if (!this.interruptEnableRegister.LcdStatusTriggers)
+            if (interrupts.HasFlag(InterruptFlag.LcdStatusTriggers))
             {
-                return;
+                if (this.interruptEnableRegister.LcdStatusTriggers)
+                {
+                    interrupts &= ~InterruptFlag.LcdStatusTriggers;
+                    this.interruptManager.Interrupt(LcdStatusTriggersAddress);
+                }
             }
-            this.interruptManager.Interrupt(LcdStatusTriggersAddress);
-        }
 
-        public void TimerOverflow()
-        {
-            if (!this.interruptEnableRegister.TimerOverflow)
+            if (interrupts.HasFlag(InterruptFlag.TimerOverflow))
             {
-                return;
+                if (this.interruptEnableRegister.TimerOverflow)
+                {
+                    interrupts &= ~InterruptFlag.TimerOverflow;
+                    this.interruptManager.Interrupt(TimerOverflowAddress);
+                }
             }
-            this.interruptManager.Interrupt(TimerOverflowAddress);
-        }
 
-        public void SerialLink()
-        {
-            if (!this.interruptEnableRegister.SerialLink)
+            if (interrupts.HasFlag(InterruptFlag.SerialLink))
             {
-                return;
+                if (this.interruptEnableRegister.SerialLink)
+                {
+                    interrupts &= ~InterruptFlag.SerialLink;
+                    this.interruptManager.Interrupt(SerialLinkAddress);
+                }
             }
-            this.interruptManager.Interrupt(SerialLinkAddress);
-        }
 
-        public void JoyPadPress()
-        {
-            if (!this.interruptEnableRegister.JoyPadPress)
+            if (interrupts.HasFlag(InterruptFlag.JoyPadPress))
             {
-                return;
+                if (this.interruptEnableRegister.JoyPadPress)
+                {
+                    interrupts &= ~InterruptFlag.JoyPadPress;
+                    this.interruptManager.Interrupt(JoyPadPressAddress);
+                }
             }
-            this.interruptManager.Interrupt(JoyPadPressAddress);
+
+            delayedInterrupts = interrupts;
         }
-
-
     }
 }

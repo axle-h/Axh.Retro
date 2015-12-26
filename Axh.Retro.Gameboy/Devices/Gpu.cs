@@ -16,6 +16,7 @@
     using Axh.Retro.CPU.Z80.Contracts.Core;
     using Axh.Retro.CPU.Z80.Contracts.Core.Timing;
     using Axh.Retro.GameBoy.Contracts.Config;
+    using Axh.Retro.GameBoy.Contracts.Devices;
     using Axh.Retro.GameBoy.Contracts.Graphics;
     using Axh.Retro.GameBoy.Devices.CoreInterfaces;
     using Axh.Retro.GameBoy.Registers;
@@ -150,7 +151,7 @@
                             this.gpuRegisters.CurrentScanlineRegister.Register = 0x00;
                             mode = GpuMode.ReadingOam;
                             currentTimings -= VerticalBlankClocks;
-                            interruptManager.VerticalBlank();
+                            this.interruptManager.UpdateInterrupts(InterruptFlag.VerticalBlank);
                             break;
                         }
 

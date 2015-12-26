@@ -1,7 +1,8 @@
 ﻿namespace Axh.Retro.GameBoy.Devices
 {
     using System;
-    
+
+    using Axh.Retro.GameBoy.Contracts.Devices;
     using Axh.Retro.GameBoy.Devices.CoreInterfaces;
 
     public class JoyPad : ICoreJoyPad
@@ -34,7 +35,7 @@
             set
             {
                 this.up = value;
-                this.gameBoyInterruptManager.JoyPadPress();
+                this.gameBoyInterruptManager.UpdateInterrupts(InterruptFlag.JoyPadPress);
             }
         }
 
@@ -47,7 +48,7 @@
             set
             {
                 this.down = value;
-                this.gameBoyInterruptManager.JoyPadPress();
+                this.gameBoyInterruptManager.UpdateInterrupts(InterruptFlag.JoyPadPress);
             }
         }
 
@@ -60,7 +61,7 @@
             set
             {
                 this.left = value;
-                this.gameBoyInterruptManager.JoyPadPress();
+                this.gameBoyInterruptManager.UpdateInterrupts(InterruptFlag.JoyPadPress);
             }
         }
 
@@ -73,7 +74,7 @@
             set
             {
                 this.right = value;
-                this.gameBoyInterruptManager.JoyPadPress();
+                this.gameBoyInterruptManager.UpdateInterrupts(InterruptFlag.JoyPadPress);
             }
         }
 
@@ -86,7 +87,7 @@
             set
             {
                 this.a = value;
-                this.gameBoyInterruptManager.JoyPadPress();
+                this.gameBoyInterruptManager.UpdateInterrupts(InterruptFlag.JoyPadPress);
             }
         }
 
@@ -99,7 +100,7 @@
             set
             {
                 this.b = value;
-                this.gameBoyInterruptManager.JoyPadPress();
+                this.gameBoyInterruptManager.UpdateInterrupts(InterruptFlag.JoyPadPress);
             }
         }
 
@@ -112,7 +113,7 @@
             set
             {
                 this.select = value;
-                this.gameBoyInterruptManager.JoyPadPress();
+                this.gameBoyInterruptManager.UpdateInterrupts(InterruptFlag.JoyPadPress);
             }
         }
 
@@ -125,7 +126,7 @@
             set
             {
                 this.start = value;
-                this.gameBoyInterruptManager.JoyPadPress();
+                this.gameBoyInterruptManager.UpdateInterrupts(InterruptFlag.JoyPadPress);
             }
         }
 

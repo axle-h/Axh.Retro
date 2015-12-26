@@ -1,15 +1,12 @@
 ﻿namespace Axh.Retro.GameBoy.Devices.CoreInterfaces
 {
+    using Axh.Retro.GameBoy.Contracts.Devices;
+    using Axh.Retro.GameBoy.Registers.Interfaces;
+
     public interface IGameBoyInterruptManager
     {
-        void VerticalBlank();
+        IRegister InterruptFlagsRegister { get; }
 
-        void LcdStatusTriggers();
-
-        void TimerOverflow();
-
-        void SerialLink();
-
-        void JoyPadPress();
+        void UpdateInterrupts(InterruptFlag interrupts);
     }
 }

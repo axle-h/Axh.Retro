@@ -69,7 +69,7 @@
             set
             {
                 this.transferStartFlag = (value & TransferStartFlagMask) > 0;
-                if (!this.transferStartFlag || this.ConnectedSerialPort == null)
+                if (!this.transferStartFlag)
                 {
                     // No transfer, nothing to transfer to.
                     Reset();
@@ -81,16 +81,18 @@
 
                 if (this.isInternalClock)
                 {
-                    this.SerialData.Register = this.ConnectedSerialPort.Transfer(this.SerialData.Register);
+                    this.SerialData.Register = this.ConnectedSerialPort?.Transfer(this.SerialData.Register) ?? 0x00;
                 }
                 else
                 {
-                    // Wait...
-                    transferredTaskSource = new TaskCompletionSource<bool>();
-                    transferredTaskSource.Task.Wait(ExternalTransferTimeout);
-                }
+                    // Wait... Except we also need to be listening for interrupts some how...
+                    // transferredTaskSource = new TaskCompletionSource<bool>();
+                    // transferredTaskSource.Task.Wait(ExternalTransferTimeout);
 
-                this.gameBoyInterruptManager.SerialLink();
+                    // Not implemented.
+                    this.SerialData.Register = 0x00;
+                }
+                
                 Reset();
             }
         }
@@ -109,6 +111,7 @@
 
             this.transferredTaskSource?.TrySetResult(true);
 
+            this.gameBoyInterruptManager.UpdateInterrupts(InterruptFlag.SerialLink);
             return tmp;
         }
         

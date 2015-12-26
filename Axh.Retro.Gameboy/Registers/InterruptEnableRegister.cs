@@ -3,16 +3,17 @@
     using System;
 
     using Axh.Retro.CPU.Common.Contracts.Memory;
+    using Axh.Retro.GameBoy.Contracts.Devices;
     using Axh.Retro.GameBoy.Registers.Interfaces;
     using Axh.Retro.GameBoy.Util;
 
     public class InterruptEnableRegister : IInterruptEnableRegister
     {
-        private InterruptEnable interruptEnable;
+        private InterruptFlag interruptFlag;
 
         public InterruptEnableRegister()
         {
-            this.interruptEnable = InterruptEnable.None;
+            this.interruptFlag = InterruptFlag.None;
         }
 
         public MemoryBankType Type => MemoryBankType.RandomAccessMemory;
@@ -83,25 +84,14 @@
         {
             get
             {
-                return (byte)this.interruptEnable;
+                return (byte)this.interruptFlag;
             }
             set
             {
-                this.interruptEnable = (InterruptEnable)value;
+                this.interruptFlag = (InterruptFlag)value;
             }
         }
-
-        [Flags]
-        private enum InterruptEnable : byte
-        {
-            None = 0,
-            VerticalBlank = 0x01,
-            LcdStatusTriggers = 0x02,
-            TimerOverflow = 0x04,
-            SerialLink = 0x08,
-            JoyPadPress = 0x10
-        }
-
+        
         public string DebugView => this.ToString();
 
         public override string ToString()
@@ -109,39 +99,14 @@
             return $"{Name} ({Address}) = {Register}\nVerticalBlank: {VerticalBlank}\nLcdStatusTriggers: {LcdStatusTriggers}\nTimerOverflow: {TimerOverflow}\nSerialLink: {SerialLink}\nJoyPadPress: {JoyPadPress}";
         }
 
-        public bool VerticalBlank => this.interruptEnable.HasFlag(InterruptEnable.VerticalBlank);
+        public bool VerticalBlank => this.interruptFlag.HasFlag(InterruptFlag.VerticalBlank);
 
-        public bool LcdStatusTriggers => this.interruptEnable.HasFlag(InterruptEnable.LcdStatusTriggers);
+        public bool LcdStatusTriggers => this.interruptFlag.HasFlag(InterruptFlag.LcdStatusTriggers);
 
-        public bool TimerOverflow => this.interruptEnable.HasFlag(InterruptEnable.TimerOverflow);
+        public bool TimerOverflow => this.interruptFlag.HasFlag(InterruptFlag.TimerOverflow);
 
-        public bool SerialLink => this.interruptEnable.HasFlag(InterruptEnable.SerialLink);
+        public bool SerialLink => this.interruptFlag.HasFlag(InterruptFlag.SerialLink);
 
-        public bool JoyPadPress => this.interruptEnable.HasFlag(InterruptEnable.JoyPadPress);
-
-        public void DisableVerticalBlank()
-        {
-            this.interruptEnable = ~InterruptEnable.VerticalBlank;
-        }
-
-        public void DisableLcdStatusTriggers()
-        {
-            this.interruptEnable &= ~InterruptEnable.LcdStatusTriggers;
-        }
-
-        public void DisableTimerOverflow()
-        {
-            this.interruptEnable &= ~InterruptEnable.TimerOverflow;
-        }
-
-        public void DisableSerialLink()
-        {
-            this.interruptEnable &= ~InterruptEnable.SerialLink;
-        }
-
-        public void DisableJoyPadPress()
-        {
-            this.interruptEnable &= ~InterruptEnable.JoyPadPress;
-        }
+        public bool JoyPadPress => this.interruptFlag.HasFlag(InterruptFlag.JoyPadPress);
     }
 }
