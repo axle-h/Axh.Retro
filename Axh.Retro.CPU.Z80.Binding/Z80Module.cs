@@ -51,7 +51,7 @@
             this.Bind<ICoreContext<TRegisters, TRegisterState>>().To<CoreContext<TRegisters, TRegisterState>>().InNamedScope(cpuContextScope);
             
             this.Kernel.Bind<IPeripheralManager>().To<PeripheralManager>().InNamedScope(cpuContextScope);
-            this.Kernel.Bind<IMmu>().To<Z80Mmu>().InNamedScope(cpuContextScope);
+            this.Kernel.Bind<IMmu>().To<Z80Mmu<TRegisters>>().InNamedScope(cpuContextScope);
             this.Kernel.Bind<IPrefetchQueue>().To<PrefetchQueue>().InNamedScope(cpuContextScope);
 
             this.Kernel.Bind<IAlu>().To<Alu<TRegisters>>().InNamedScope(cpuContextScope);

@@ -1,6 +1,7 @@
 ﻿namespace Axh.Retro.GameBoy.Registers.Interfaces
 {
     using Axh.Retro.CPU.Common.Contracts.Memory;
+    using Contracts.Devices;
 
     /// <summary>
     /// FFFF - IE - Interrupt Enable (R/W)
@@ -31,5 +32,7 @@
         /// Bit 4: Joypad   Interrupt Enable  (INT 60h)  (1=Enable)
         /// </summary>
         bool JoyPadPress { get; }
+
+        bool InterruptEnabled(InterruptFlag flag);
     }
 }

@@ -27,6 +27,8 @@
             this.interruptSyncContext = new object();
         }
 
+        public bool InterruptsEnabled => this.registers.InterruptFlipFlop1 && !IsInterrupted;
+
         public async Task Interrupt(ushort address)
         {
             if (!this.registers.InterruptFlipFlop1)
@@ -37,7 +39,7 @@
 
             if (IsInterrupted)
             {
-                // TODO: don't ignore these interrupts, interrupts trigerreed at the same time should be chosen by priority
+                // TODO: support nested interrupts
                 return;
             }
 
@@ -45,6 +47,7 @@
             {
                 if (IsInterrupted)
                 {
+                    // TODO: support nested interrupts
                     return;
                 }
                 this.IsInterrupted = true;
@@ -57,7 +60,7 @@
             {
                 Halt();
             }
-
+            
             // Wait for the halt to be confirmed
             await this.haltTaskSource.Task;
             this.haltTaskSource = new TaskCompletionSource<bool>();

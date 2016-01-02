@@ -48,7 +48,6 @@
             }
 
             // Register the invalidate cache event with mmu AddressWrite event
-            mmu.AddressWrite += (sender, args) => cache.InvalidateCache(args.Address, args.Length);
             ushort? interruptAddress = null;
 
             while (!cancellationToken.IsCancellationRequested)

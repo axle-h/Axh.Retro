@@ -180,11 +180,13 @@
             this.WriteByte(addressTo, b);
         }
 
-        public event EventHandler<AddressWriteEventArgs> AddressWrite;
-        
-        protected void OnAddressWrite(ushort address, ushort length)
+        /// <summary>
+        /// When overridden in a derived class, registers an address write event.
+        /// </summary>
+        /// <param name="address"></param>
+        /// <param name="length"></param>
+        protected virtual void OnAddressWrite(ushort address, ushort length)
         {
-            AddressWrite?.Invoke(this, new AddressWriteEventArgs(address, length));
         }
 
         private static TAddressSegment GetAddressSegmentForAddress<TAddressSegment>(ushort[] segmentAddresses, IList<TAddressSegment> segments, ushort address, out ushort segmentAddress)

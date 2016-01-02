@@ -9,15 +9,20 @@
     using Axh.Retro.CPU.Common.Memory;
     using Axh.Retro.CPU.Z80.Contracts.Config;
     using Axh.Retro.CPU.Z80.Contracts.Peripherals;
+    using Contracts.Cache;
+    using Contracts.Registers;
 
     /// <summary>
     /// Z80 MMU builds a segment MMU taking memory bank configs from IPlatformConfig and IPeripheralManager
     /// </summary>
-    public class Z80Mmu : SegmentMmu
+    public class Z80Mmu<TRegisters> : SegmentMmu where TRegisters : IRegisters
     {
-        public Z80Mmu(IPeripheralManager peripheralManager, IPlatformConfig platformConfig, IMemoryBankController memoryBankController)
+        private readonly IInstructionBlockCache<TRegisters> instructionBlockCache;
+        
+        public Z80Mmu(IPeripheralManager peripheralManager, IPlatformConfig platformConfig, IMemoryBankController memoryBankController, IInstructionBlockCache<TRegisters> instructionBlockCache)
             : base(GetAddressSegments(peripheralManager, platformConfig, memoryBankController))
         {
+            this.instructionBlockCache = instructionBlockCache;
         }
 
         private static IEnumerable<IAddressSegment> GetAddressSegments(IPeripheralManager peripheralManager, IPlatformConfig platformConfig, IMemoryBankController memoryBankController)
@@ -43,19 +48,21 @@
                         throw new ArgumentOutOfRangeException();
                 }
             }
-            else
+
+            switch (config.Type)
             {
-                switch (config.Type)
-                {
-                    case MemoryBankType.RandomAccessMemory:
-                        throw new NotImplementedException("Banked RAM");
-                    case MemoryBankType.ReadOnlyMemory:
-                        return new BankedReadOnlyMemoryBank(configs, memoryBankController);
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
+                case MemoryBankType.RandomAccessMemory:
+                    throw new NotImplementedException("Banked RAM");
+                case MemoryBankType.ReadOnlyMemory:
+                    return new BankedReadOnlyMemoryBank(configs, memoryBankController);
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
-            
+        }
+
+        protected override void OnAddressWrite(ushort address, ushort length)
+        {
+            instructionBlockCache.InvalidateCache(address, length);
         }
     }
 }

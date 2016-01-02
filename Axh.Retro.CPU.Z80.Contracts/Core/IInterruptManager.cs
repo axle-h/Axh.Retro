@@ -16,6 +16,7 @@
         bool IsHalted { get; }
 
         bool IsInterrupted { get; }
+        
     }
 
     public interface IInterruptManager
@@ -23,5 +24,7 @@
         Task Interrupt(ushort address);
 
         void Halt();
+
+        bool InterruptsEnabled { get; }
     }
 }

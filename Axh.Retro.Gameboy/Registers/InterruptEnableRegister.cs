@@ -108,5 +108,7 @@
         public bool SerialLink => this.interruptFlag.HasFlag(InterruptFlag.SerialLink);
 
         public bool JoyPadPress => this.interruptFlag.HasFlag(InterruptFlag.JoyPadPress);
+
+        public bool InterruptEnabled(InterruptFlag flag) => this.interruptFlag.HasFlag(flag);
     }
 }

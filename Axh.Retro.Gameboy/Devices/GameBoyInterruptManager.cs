@@ -1,7 +1,5 @@
 ﻿namespace Axh.Retro.GameBoy.Devices
 {
-    using System.Threading;
-
     using Axh.Retro.CPU.Z80.Contracts.Core;
     using Axh.Retro.GameBoy.Contracts.Devices;
     using Axh.Retro.GameBoy.Devices.CoreInterfaces;
@@ -21,7 +19,7 @@
         private readonly IInterruptEnableRegister interruptEnableRegister;
 
         private readonly InterruptFlagsRegister interruptFlagsRegister;
-
+        
         private InterruptFlag delayedInterrupts;
 
         public GameBoyInterruptManager(IInterruptManager interruptManager, IInterruptEnableRegister interruptEnableRegister)
@@ -35,55 +33,36 @@
 
         public void UpdateInterrupts(InterruptFlag interrupts)
         {
-            // Try delayed interrupts again.
-            interrupts |= delayedInterrupts;
+            // Combine with delayed interrupts.
+            delayedInterrupts |= interrupts;
 
-            if (interrupts.HasFlag(InterruptFlag.VerticalBlank))
+            if (delayedInterrupts == InterruptFlag.None)
             {
-                if (this.interruptEnableRegister.VerticalBlank)
-                {
-                    interrupts &= ~InterruptFlag.VerticalBlank;
-                    this.interruptManager.Interrupt(VerticalBlankAddress);
-                }
+                return;
             }
 
-            if (interrupts.HasFlag(InterruptFlag.LcdStatusTriggers))
+            if (!interruptManager.InterruptsEnabled)
             {
-                if (this.interruptEnableRegister.LcdStatusTriggers)
-                {
-                    interrupts &= ~InterruptFlag.LcdStatusTriggers;
-                    this.interruptManager.Interrupt(LcdStatusTriggersAddress);
-                }
+                return;
+            }
+            
+            CheckInterrupt(InterruptFlag.VerticalBlank, VerticalBlankAddress);
+            CheckInterrupt(InterruptFlag.LcdStatusTriggers, LcdStatusTriggersAddress);
+            CheckInterrupt(InterruptFlag.TimerOverflow, TimerOverflowAddress);
+            CheckInterrupt(InterruptFlag.SerialLink, SerialLinkAddress);
+            CheckInterrupt(InterruptFlag.JoyPadPress, JoyPadPressAddress);
+        }
+
+        private void CheckInterrupt(InterruptFlag interrupt, ushort address)
+        {
+            if (!delayedInterrupts.HasFlag(interrupt) || !this.interruptEnableRegister.InterruptEnabled(interrupt))
+            {
+                return;
             }
 
-            if (interrupts.HasFlag(InterruptFlag.TimerOverflow))
-            {
-                if (this.interruptEnableRegister.TimerOverflow)
-                {
-                    interrupts &= ~InterruptFlag.TimerOverflow;
-                    this.interruptManager.Interrupt(TimerOverflowAddress);
-                }
-            }
-
-            if (interrupts.HasFlag(InterruptFlag.SerialLink))
-            {
-                if (this.interruptEnableRegister.SerialLink)
-                {
-                    interrupts &= ~InterruptFlag.SerialLink;
-                    this.interruptManager.Interrupt(SerialLinkAddress);
-                }
-            }
-
-            if (interrupts.HasFlag(InterruptFlag.JoyPadPress))
-            {
-                if (this.interruptEnableRegister.JoyPadPress)
-                {
-                    interrupts &= ~InterruptFlag.JoyPadPress;
-                    this.interruptManager.Interrupt(JoyPadPressAddress);
-                }
-            }
-
-            delayedInterrupts = interrupts;
+            // Do not await this as potentially called from CPU execution thread.
+            this.interruptManager.Interrupt(address);
+            delayedInterrupts &= ~interrupt;
         }
     }
 }

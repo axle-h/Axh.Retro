@@ -5,21 +5,16 @@
     using System.Drawing;
     using System.Drawing.Imaging;
     using System.Linq;
-    using System.Security.Cryptography;
-    using System.Threading.Tasks;
-    using System.Timers;
-
+    using System.Runtime.InteropServices;
     using Axh.Retro.CPU.Common.Config;
     using Axh.Retro.CPU.Common.Contracts.Config;
     using Axh.Retro.CPU.Common.Contracts.Memory;
     using Axh.Retro.CPU.Common.Memory;
-    using Axh.Retro.CPU.Z80.Contracts.Core;
     using Axh.Retro.CPU.Z80.Contracts.Core.Timing;
     using Axh.Retro.GameBoy.Contracts.Config;
     using Axh.Retro.GameBoy.Contracts.Devices;
     using Axh.Retro.GameBoy.Contracts.Graphics;
     using Axh.Retro.GameBoy.Devices.CoreInterfaces;
-    using Axh.Retro.GameBoy.Registers;
     using Axh.Retro.GameBoy.Registers.Interfaces;
     using Axh.Retro.GameBoy.Util;
 
@@ -66,7 +61,20 @@
         /// </summary>
         private readonly IDictionary<Guid, Tile> tileCache;
 
+        /// <summary>
+        /// Normal frame buffer.
+        /// </summary>
         private readonly Bitmap frameBuffer;
+
+        /// <summary>
+        /// Double width and height buffer for when scrolling overflows the frame buffer.
+        /// </summary>
+        private readonly Bitmap scrollOverflowFrameBuffer;
+
+        private static readonly Rectangle FrameBounds = new Rectangle(0, 0, FrameBufferDimension, FrameBufferDimension);
+        private static readonly Rectangle OverscanXBounds = new Rectangle(FrameBufferDimension, 0, FrameBufferDimension, FrameBufferDimension);
+        private static readonly Rectangle OverscanYBounds = new Rectangle(0, FrameBufferDimension, FrameBufferDimension, FrameBufferDimension);
+        private static readonly Rectangle OverscanXYBounds = new Rectangle(FrameBufferDimension, FrameBufferDimension, FrameBufferDimension, FrameBufferDimension);
 
         private GpuMode mode;
         
@@ -100,6 +108,7 @@
             }
 
             frameBuffer = new Bitmap(FrameBufferDimension, FrameBufferDimension);
+            scrollOverflowFrameBuffer = new Bitmap(FrameBufferDimension * 2, FrameBufferDimension * 2);
         }
 
         public IEnumerable<IAddressSegment> AddressSegments => new[] { spriteRam, tileRam };
@@ -219,10 +228,63 @@
                 }
             }
 
-            // TODO. this is naive. If SCROLLX + Width > 32 * 8 or SCROLLY + Height > 32 * 8 then... boom
-            var frame = frameBuffer.Clone(new Rectangle(renderSettings.ScrollX, renderSettings.ScrollY, LcdWidth, LcdHeight), PixelFormat.DontCare);
+            // Detect and fix scroll overflow.
+            var lcdBounds = new Rectangle(renderSettings.ScrollX, renderSettings.ScrollY, LcdWidth, LcdHeight);
+            if (!FrameBounds.Contains(lcdBounds))
+            {
+                var overscanX = renderSettings.ScrollX > FrameBufferDimension - LcdWidth;
+                var overscanY = renderSettings.ScrollY > FrameBufferDimension - LcdHeight;
 
-            this.renderhandler.Paint(frame);
+                CopyBitmapSafe(FrameBounds, FrameBounds);
+
+                // Copy primary framebuffer to satisfy overlaps.
+                if (overscanX)
+                {
+                    CopyBitmapSafe(FrameBounds, OverscanXBounds);
+                }
+
+                if (overscanY)
+                {
+                    CopyBitmapSafe(FrameBounds, OverscanYBounds);
+                }
+
+                if (overscanX && overscanY)
+                {
+                    CopyBitmapSafe(FrameBounds, OverscanXYBounds);
+                }
+
+                this.renderhandler.Paint(scrollOverflowFrameBuffer.Clone(lcdBounds, scrollOverflowFrameBuffer.PixelFormat));
+            }
+            
+            this.renderhandler.Paint(frameBuffer.Clone(lcdBounds, frameBuffer.PixelFormat));
+        }
+
+        private void CopyBitmapSafe(Rectangle from, Rectangle to)
+        {
+            var fromData = frameBuffer.LockBits(from, ImageLockMode.ReadOnly, frameBuffer.PixelFormat);
+            var toData = scrollOverflowFrameBuffer.LockBits(to, ImageLockMode.WriteOnly, frameBuffer.PixelFormat);
+            
+            var bpp = Math.Abs(fromData.Stride) / frameBuffer.Width;
+            var strideOffset = from.X * bpp;
+            var buffer = new byte[bpp * from.Width];
+            try
+            {
+                var fromPtr = new IntPtr(fromData.Scan0.ToInt64() + strideOffset);
+                var toPtr = new IntPtr(toData.Scan0.ToInt64() + strideOffset);
+                for (var y = 0; y < fromData.Height; y++)
+                {
+                    Marshal.Copy(fromPtr, buffer, 0, buffer.Length);
+                    Marshal.Copy(buffer, 0, toPtr, buffer.Length);
+
+                    fromPtr += fromData.Stride;
+                    toPtr += toData.Stride;
+                }
+            }
+            finally
+            {
+                frameBuffer.UnlockBits(fromData);
+                scrollOverflowFrameBuffer.UnlockBits(toData);
+            }
         }
 
         private IEnumerable<Tile> GetTileSet(byte[] tileSetBytes)
