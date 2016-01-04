@@ -31,38 +31,44 @@
         
         public IRegister InterruptFlagsRegister => interruptFlagsRegister;
 
-        public void UpdateInterrupts(InterruptFlag interrupts)
+        public bool UpdateInterrupts(InterruptFlag interrupts)
         {
             // Combine with delayed interrupts.
             delayedInterrupts |= interrupts;
 
             if (delayedInterrupts == InterruptFlag.None)
             {
-                return;
+                return false;
             }
 
             if (!interruptManager.InterruptsEnabled)
             {
-                return;
+                return false;
             }
-            
-            CheckInterrupt(InterruptFlag.VerticalBlank, VerticalBlankAddress);
-            CheckInterrupt(InterruptFlag.LcdStatusTriggers, LcdStatusTriggersAddress);
-            CheckInterrupt(InterruptFlag.TimerOverflow, TimerOverflowAddress);
-            CheckInterrupt(InterruptFlag.SerialLink, SerialLinkAddress);
-            CheckInterrupt(InterruptFlag.JoyPadPress, JoyPadPressAddress);
+
+            if (CheckInterrupt(InterruptFlag.VerticalBlank, VerticalBlankAddress))
+            {
+                return false;
+            }
+
+            return CheckInterrupt(InterruptFlag.VerticalBlank, VerticalBlankAddress) ||
+                   CheckInterrupt(InterruptFlag.LcdStatusTriggers, LcdStatusTriggersAddress) ||
+                   CheckInterrupt(InterruptFlag.TimerOverflow, TimerOverflowAddress) ||
+                   CheckInterrupt(InterruptFlag.SerialLink, SerialLinkAddress) ||
+                   CheckInterrupt(InterruptFlag.JoyPadPress, JoyPadPressAddress);
         }
 
-        private void CheckInterrupt(InterruptFlag interrupt, ushort address)
+        private bool CheckInterrupt(InterruptFlag interrupt, ushort address)
         {
             if (!delayedInterrupts.HasFlag(interrupt) || !this.interruptEnableRegister.InterruptEnabled(interrupt))
             {
-                return;
+                return false;
             }
 
             // Do not await this as potentially called from CPU execution thread.
             this.interruptManager.Interrupt(address);
             delayedInterrupts &= ~interrupt;
+            return true;
         }
     }
 }

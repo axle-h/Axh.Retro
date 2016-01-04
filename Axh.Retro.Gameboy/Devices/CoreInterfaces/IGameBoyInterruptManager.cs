@@ -8,6 +8,6 @@
     {
         IRegister InterruptFlagsRegister { get; }
 
-        void UpdateInterrupts(InterruptFlag interrupts);
+        bool UpdateInterrupts(InterruptFlag interrupts);
     }
 }

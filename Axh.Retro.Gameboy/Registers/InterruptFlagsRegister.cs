@@ -7,11 +7,11 @@ namespace Axh.Retro.GameBoy.Registers
 
     public class InterruptFlagsRegister : IRegister
     {
-        private readonly Action<InterruptFlag> updateInterruptsAction;
+        private readonly Func<InterruptFlag, bool> updateInterruptsAction;
 
         private InterruptFlag interruptFlag;
 
-        public InterruptFlagsRegister(Action<InterruptFlag> updateInterruptsAction)
+        public InterruptFlagsRegister(Func<InterruptFlag, bool> updateInterruptsAction)
         {
             this.updateInterruptsAction = updateInterruptsAction;
             this.interruptFlag = InterruptFlag.None;
