@@ -235,56 +235,63 @@
                 var overscanX = renderSettings.ScrollX > FrameBufferDimension - LcdWidth;
                 var overscanY = renderSettings.ScrollY > FrameBufferDimension - LcdHeight;
 
-                CopyBitmapSafe(FrameBounds, FrameBounds);
-
                 // Copy primary framebuffer to satisfy overlaps.
-                if (overscanX)
-                {
-                    CopyBitmapSafe(FrameBounds, OverscanXBounds);
-                }
-
-                if (overscanY)
-                {
-                    CopyBitmapSafe(FrameBounds, OverscanYBounds);
-                }
-
-                if (overscanX && overscanY)
-                {
-                    CopyBitmapSafe(FrameBounds, OverscanXYBounds);
-                }
-
+                DrawOverscan(overscanX, overscanY);
+                
                 this.renderhandler.Paint(scrollOverflowFrameBuffer.Clone(lcdBounds, scrollOverflowFrameBuffer.PixelFormat));
             }
-            
+
             this.renderhandler.Paint(frameBuffer.Clone(lcdBounds, frameBuffer.PixelFormat));
         }
 
-        private void CopyBitmapSafe(Rectangle from, Rectangle to)
+        /// <summary>
+        /// Copies frameBuffer to scrollOverflowFrameBuffer and draws overscan where required.
+        /// </summary>
+        /// <param name="drawOverscanX"></param>
+        /// <param name="drawOverscanY"></param>
+        private void DrawOverscan(bool drawOverscanX, bool drawOverscanY)
         {
-            var fromData = frameBuffer.LockBits(from, ImageLockMode.ReadOnly, frameBuffer.PixelFormat);
-            var toData = scrollOverflowFrameBuffer.LockBits(to, ImageLockMode.WriteOnly, frameBuffer.PixelFormat);
-            
-            var bpp = Math.Abs(fromData.Stride) / frameBuffer.Width;
-            var strideOffset = from.X * bpp;
-            var buffer = new byte[bpp * from.Width];
-            try
-            {
-                var fromPtr = new IntPtr(fromData.Scan0.ToInt64() + strideOffset);
-                var toPtr = new IntPtr(toData.Scan0.ToInt64() + strideOffset);
-                for (var y = 0; y < fromData.Height; y++)
-                {
-                    Marshal.Copy(fromPtr, buffer, 0, buffer.Length);
-                    Marshal.Copy(buffer, 0, toPtr, buffer.Length);
+            var frameData = frameBuffer.LockBits(FrameBounds, ImageLockMode.ReadOnly, frameBuffer.PixelFormat);
+            var bpp = Math.Abs(frameData.Stride) / frameBuffer.Width;
+            var buffer = new byte[bpp * FrameBounds.Width];
 
-                    fromPtr += fromData.Stride;
-                    toPtr += toData.Stride;
+            var rectangles = new List<Rectangle> {FrameBounds};
+            if (drawOverscanX)
+            {
+                rectangles.Add(OverscanXBounds);
+            }
+
+            if (drawOverscanY)
+            {
+                rectangles.Add(OverscanYBounds);
+            }
+
+            if (drawOverscanX && drawOverscanY)
+            {
+                rectangles.Add(OverscanXYBounds);
+            }
+
+            foreach (var rectangle in rectangles)
+            {
+                var toData = scrollOverflowFrameBuffer.LockBits(rectangle, ImageLockMode.WriteOnly, frameBuffer.PixelFormat);
+                var fromPtr = new IntPtr(frameData.Scan0.ToInt64());
+                var toPtr = new IntPtr(toData.Scan0.ToInt64());
+
+                try
+                {
+                    for (var y = 0; y < frameData.Height; y++, fromPtr += frameData.Stride, toPtr += toData.Stride)
+                    {
+                        Marshal.Copy(fromPtr, buffer, 0, buffer.Length);
+                        Marshal.Copy(buffer, 0, toPtr, buffer.Length);
+                    }
+                }
+                finally
+                {
+                    scrollOverflowFrameBuffer.UnlockBits(toData);
                 }
             }
-            finally
-            {
-                frameBuffer.UnlockBits(fromData);
-                scrollOverflowFrameBuffer.UnlockBits(toData);
-            }
+
+            frameBuffer.UnlockBits(frameData);
         }
 
         private IEnumerable<Tile> GetTileSet(byte[] tileSetBytes)
