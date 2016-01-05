@@ -1,5 +1,6 @@
 ﻿namespace Axh.Retro.GameBoy.Devices
 {
+    using System.Diagnostics;
     using Axh.Retro.CPU.Z80.Contracts.Core;
     using Axh.Retro.GameBoy.Contracts.Devices;
     using Axh.Retro.GameBoy.Devices.CoreInterfaces;
@@ -64,7 +65,7 @@
             {
                 return false;
             }
-
+            
             // Do not await this as potentially called from CPU execution thread.
             this.interruptManager.Interrupt(address);
             delayedInterrupts &= ~interrupt;
