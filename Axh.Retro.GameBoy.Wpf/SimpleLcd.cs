@@ -1,4 +1,6 @@
-﻿namespace Axh.Retro.GameBoy.Wpf
+﻿using System.Runtime.InteropServices;
+
+namespace Axh.Retro.GameBoy.Wpf
 {
     using System;
     using System.Drawing;
@@ -81,19 +83,10 @@
             // Reserve the back buffer for updates.
             writeableBitmap.Lock();
             var srcData = frame.LockBits(new Rectangle(0, 0, frame.Width, frame.Height), ImageLockMode.ReadOnly, frame.PixelFormat);
-
-            unsafe
-            {
-                // Get a pointer to the back buffer.
-                var pBackBuffer = (int*)writeableBitmap.BackBuffer;
-                var srcScan0 = (int*)srcData.Scan0;
-
-                var numPixels = srcData.Stride / 4 * srcData.Height;
-                for (var p = 0; p < numPixels; p++)
-                {
-                    pBackBuffer[p] = srcScan0[p];
-                }
-            }
+            var srcScan0 = srcData.Scan0;            
+            var buffer = new byte[srcData.Stride * srcData.Height];
+            Marshal.Copy(srcScan0, buffer, 0, buffer.Length);
+            Marshal.Copy(buffer, 0, writeableBitmap.BackBuffer, buffer.Length);
 
             // Specify the area of the bitmap that changed.
             writeableBitmap.AddDirtyRect(new Int32Rect(0, 0, frame.Width, frame.Height));

@@ -207,7 +207,11 @@
             lastTileSetBytes = tileSetBytes;
 
             var tileSet = GetTileSet(tileSetBytes).ToArray();
-            var tileMap = GetTileMap(tileMapBytes, tileSet, renderSettings.TileSetIsSigned);
+            var tileMap =
+                GetTileMap(tileMapBytes, tileSet, renderSettings.TileSetIsSigned)
+                    .GroupBy(x => x.Key, x => x.Value)
+                    .ToArray();
+
             
             // TODO get background palette register
             var colors = new Dictionary<Palette, Color>
@@ -218,14 +222,17 @@
                              { Palette.Colour3, Color.FromArgb(0, 0, 0) }
                          };
 
-            // Paint all 32 * 32 tiles for now
-            for (var r = 0; r < 32; r++)
+            foreach (var tilePoints in tileMap)
             {
-                var y = r * 8;
-                for (var c = 0; c < 32; c++)
-                {
-                    DrawTile(tileMap[r][c], c * 8, y, colors);
-                }
+                // TODO: check if tile is visible.
+                // Draw the first tile.
+                var firstPoint = tilePoints.First();
+                DrawTile(tilePoints.Key, firstPoint.X, firstPoint.Y, colors);
+
+                // Copy first tile to all other locations.
+                var sourceRectangle = new Rectangle(firstPoint.X, firstPoint.Y, 8, 8);
+                var destinations = tilePoints.Skip(1).Select(p => new Rectangle(p.X, p.Y, 8, 8));
+                CopyRegion(frameBuffer, sourceRectangle, frameBuffer, destinations);
             }
 
             // Detect and fix scroll overflow.
@@ -236,62 +243,69 @@
                 var overscanY = renderSettings.ScrollY > FrameBufferDimension - LcdHeight;
 
                 // Copy primary framebuffer to satisfy overlaps.
-                DrawOverscan(overscanX, overscanY);
-                
-                this.renderhandler.Paint(scrollOverflowFrameBuffer.Clone(lcdBounds, scrollOverflowFrameBuffer.PixelFormat));
+                CopyRegion(frameBuffer, FrameBounds, scrollOverflowFrameBuffer, GetOverscanRectangles(overscanX, overscanY));
+                this.renderhandler.Paint(scrollOverflowFrameBuffer.Clone(lcdBounds,
+                                                                         scrollOverflowFrameBuffer.PixelFormat));
             }
-
-            this.renderhandler.Paint(frameBuffer.Clone(lcdBounds, frameBuffer.PixelFormat));
+            else
+            {
+                this.renderhandler.Paint(frameBuffer.Clone(lcdBounds, frameBuffer.PixelFormat));
+            }
         }
 
-        /// <summary>
-        /// Copies frameBuffer to scrollOverflowFrameBuffer and draws overscan where required.
-        /// </summary>
-        /// <param name="drawOverscanX"></param>
-        /// <param name="drawOverscanY"></param>
-        private void DrawOverscan(bool drawOverscanX, bool drawOverscanY)
+        private static void CopyRegion(Bitmap source, Rectangle sourceRegion, Bitmap destination, IEnumerable<Rectangle> destinationRegions)
         {
-            var frameData = frameBuffer.LockBits(FrameBounds, ImageLockMode.ReadOnly, frameBuffer.PixelFormat);
-            var bpp = Math.Abs(frameData.Stride) / frameBuffer.Width;
-            var buffer = new byte[bpp * FrameBounds.Width];
+            // Get source data into managed memory.
+            // We have to do this as we cannot lock the same bitmap for both read and write.
+            var frameData = source.LockBits(sourceRegion, ImageLockMode.ReadOnly, source.PixelFormat);
+            var ptr = frameData.Scan0;
+            var bpp = Math.Abs(frameData.Stride) / source.Width;
+            var sourceStrideLength = bpp * sourceRegion.Width;
+            var buffers = new byte[source.Height][];
+            
+            // Read all source bytes.
+            for (var y = 0; y < frameData.Height; y++, ptr += frameData.Stride)
+            {
+                var buffer = new byte[sourceStrideLength];
+                Marshal.Copy(ptr, buffer, 0, buffer.Length);
+                buffers[y] = buffer;
+            }
 
-            var rectangles = new List<Rectangle> {FrameBounds};
+            source.UnlockBits(frameData);
+
+            // Write source bytes to all destination regions.
+            foreach (var region in destinationRegions)
+            {
+                frameData = destination.LockBits(region, ImageLockMode.WriteOnly, destination.PixelFormat);
+                ptr = frameData.Scan0;
+                for (var y = 0; y < frameData.Height; y++, ptr += frameData.Stride)
+                {
+                    var buffer = buffers[y];
+                    Marshal.Copy(buffer, 0, ptr, buffer.Length);
+                }
+
+                destination.UnlockBits(frameData);
+            }
+        }
+
+        private static IEnumerable<Rectangle> GetOverscanRectangles(bool drawOverscanX, bool drawOverscanY)
+        {
+            yield return FrameBounds;
+
             if (drawOverscanX)
             {
-                rectangles.Add(OverscanXBounds);
+                yield return OverscanXBounds;
             }
 
             if (drawOverscanY)
             {
-                rectangles.Add(OverscanYBounds);
+                yield return OverscanYBounds;
             }
 
             if (drawOverscanX && drawOverscanY)
             {
-                rectangles.Add(OverscanXYBounds);
+                yield return OverscanXYBounds;
             }
-
-            foreach (var rectangle in rectangles)
-            {
-                var toData = scrollOverflowFrameBuffer.LockBits(rectangle, ImageLockMode.WriteOnly, frameBuffer.PixelFormat);
-                var fromPtr = new IntPtr(frameData.Scan0.ToInt64());
-                var toPtr = new IntPtr(toData.Scan0.ToInt64());
-
-                try
-                {
-                    for (var y = 0; y < frameData.Height; y++, fromPtr += frameData.Stride, toPtr += toData.Stride)
-                    {
-                        Marshal.Copy(fromPtr, buffer, 0, buffer.Length);
-                        Marshal.Copy(buffer, 0, toPtr, buffer.Length);
-                    }
-                }
-                finally
-                {
-                    scrollOverflowFrameBuffer.UnlockBits(toData);
-                }
-            }
-
-            frameBuffer.UnlockBits(frameData);
         }
 
         private IEnumerable<Tile> GetTileSet(byte[] tileSetBytes)
@@ -326,22 +340,19 @@
                 }
             }
         }
-
-        private static Tile[][] GetTileMap(byte[] tileMapBytes, Tile[] tileSet, bool indexIsSigned)
+        
+        private static IEnumerable<KeyValuePair<Tile, Point>> GetTileMap(byte[] tileMapBytes, Tile[] tileSet, bool indexIsSigned)
         {
-            var tileMap = new Tile[32][];
             var address = 0;
             for (var r = 0; r < 32; r++)
             {
-                tileMap[r] = new Tile[32];
                 for (var c = 0; c < 32; address += 1, c++)
                 {
                     var index = tileMapBytes[address];
                     var tile = tileSet[indexIsSigned ? (sbyte)index + 128 : index];
-                    tileMap[r][c] = tile;
+                    yield return new KeyValuePair<Tile, Point>(tile, new Point(c * 8, r * 8));
                 }
             }
-            return tileMap;
         }
         
         private static Tile GetTile(byte[] buffer)
@@ -364,7 +375,7 @@
             
             return new Tile(palette);
         }
-
+        
         private struct RenderSettings
         {
             public readonly ushort TileMapAddress;
