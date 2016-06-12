@@ -1,25 +1,48 @@
 ﻿namespace Axh.Retro.GameBoy.Registers.Interfaces
 {
+    /// <summary>
+    /// GameBoy GPU registers.
+    /// </summary>
     public interface IGpuRegisters
     {
         /// <summary>
-        /// Scroll X register.
+        /// Gets the scroll x register.
         /// </summary>
+        /// <value>
+        /// The scroll x register.
+        /// </value>
         IRegister ScrollXRegister { get; }
 
         /// <summary>
-        /// Scroll Y register.
+        /// Gets the scroll y register.
         /// </summary>
+        /// <value>
+        /// The scroll y register.
+        /// </value>
         IRegister ScrollYRegister { get; }
 
         /// <summary>
-        /// LCD controller register.
+        /// Gets the LCD control register.
         /// </summary>
+        /// <value>
+        /// The LCD control register.
+        /// </value>
         ILcdControlRegister LcdControlRegister { get; }
 
         /// <summary>
-        /// Current scanline register.
+        /// Gets the current scanline register.
         /// </summary>
+        /// <value>
+        /// The current scanline register.
+        /// </value>
         ICurrentScanlineRegister CurrentScanlineRegister { get; }
+
+        /// <summary>
+        /// Gets the LCD monochrome palette register.
+        /// </summary>
+        /// <value>
+        /// The LCD monochrome palette register.
+        /// </value>
+        ILcdMonochromePaletteRegister LcdMonochromePaletteRegister { get; }
     }
 }

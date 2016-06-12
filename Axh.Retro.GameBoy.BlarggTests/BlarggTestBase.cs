@@ -1,15 +1,15 @@
-﻿namespace Axh.Retro.GameBoy.BlarggTests
+﻿using Axh.Retro.CPU.Z80.Wiring;
+using Axh.Retro.GameBoy.Wiring;
+
+namespace Axh.Retro.GameBoy.BlarggTests
 {
     using System;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
-
-    using Axh.Retro.CPU.Z80.Binding;
     using Axh.Retro.CPU.Z80.Contracts.Core;
     using Axh.Retro.CPU.Z80.Contracts.Registers;
     using Axh.Retro.CPU.Z80.Contracts.State;
-    using Axh.Retro.GameBoy.Binding;
     using Axh.Retro.GameBoy.BlarggTests.Config;
     using Axh.Retro.GameBoy.Contracts.Config;
     using Axh.Retro.GameBoy.Contracts.Devices;

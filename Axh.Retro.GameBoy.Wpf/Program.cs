@@ -1,12 +1,13 @@
-﻿namespace Axh.Retro.GameBoy.Wpf
+﻿using Axh.Retro.CPU.Z80.Wiring;
+using Axh.Retro.GameBoy.Wiring;
+
+namespace Axh.Retro.GameBoy.Wpf
 {
     using System;
     using System.Threading;
-    using Axh.Retro.CPU.Z80.Binding;
     using Axh.Retro.CPU.Z80.Contracts.Core;
     using Axh.Retro.CPU.Z80.Contracts.Registers;
     using Axh.Retro.CPU.Z80.Contracts.State;
-    using Axh.Retro.GameBoy.Binding;
     using Axh.Retro.GameBoy.Tests.Util;
     using Axh.Retro.GameBoy.Wpf.Config;
     using Ninject;

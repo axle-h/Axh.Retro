@@ -1,6 +1,5 @@
 ﻿namespace Axh.Retro.GameBoy.Wpf.Config
 {
-    using Axh.Retro.GameBoy.Console.Config;
     using Axh.Retro.GameBoy.Contracts.Config;
     using Axh.Retro.GameBoy.Contracts.Graphics;
     using Axh.Retro.GameBoy.Wpf;

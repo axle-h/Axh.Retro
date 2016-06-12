@@ -19,12 +19,19 @@
             JoyPad = joyPad;
             SerialPort = serialPort;
             this.registers =
-                registers.Concat(
-                    new[]
-                    {
-                        joyPad, serialPort, serialPort.SerialData, gpuRegisters.ScrollXRegister, gpuRegisters.ScrollYRegister, gpuRegisters.CurrentScanlineRegister, gpuRegisters.LcdControlRegister,
-                        interruptManager.InterruptFlagsRegister
-                    }).ToDictionary(x => (ushort)(x.Address - Address));
+                registers.Concat(new[]
+                                 {
+                                     joyPad,
+                                     serialPort,
+                                     serialPort.SerialData,
+                                     gpuRegisters.ScrollXRegister,
+                                     gpuRegisters.ScrollYRegister,
+                                     gpuRegisters.CurrentScanlineRegister,
+                                     gpuRegisters.LcdControlRegister,
+                                     gpuRegisters.LcdMonochromePaletteRegister,
+                                     interruptManager.InterruptFlagsRegister
+                                 })
+                         .ToDictionary(x => (ushort) (x.Address - Address));
         }
 
         private const ushort Address = 0xff00;

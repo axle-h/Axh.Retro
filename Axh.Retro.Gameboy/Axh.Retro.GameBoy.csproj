@@ -48,6 +48,8 @@
     <Compile Include="Devices\CoreInterfaces\ICoreJoyPad.cs" />
     <Compile Include="Devices\CoreInterfaces\ICoreSerialPort.cs" />
     <Compile Include="Devices\GpuMode.cs" />
+    <Compile Include="Registers\Interfaces\ILcdMonochromePaletteRegister.cs" />
+    <Compile Include="Registers\Interfaces\SimpleRegister.cs" />
     <Compile Include="Registers\InterruptFlagsRegister.cs" />
     <Compile Include="Devices\MemoryBankController1.cs" />
     <Compile Include="Devices\SerialPortBase.cs" />
@@ -73,6 +75,7 @@
     <Compile Include="Registers\InterruptEnableRegister.cs" />
     <Compile Include="Devices\JoyPad.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Registers\LcdMonochromePaletteRegister.cs" />
     <Compile Include="Registers\SimpleRegister.cs" />
     <Compile Include="Util\ByteArrayExtensions.cs" />
     <Compile Include="Util\StreamExtensions.cs" />

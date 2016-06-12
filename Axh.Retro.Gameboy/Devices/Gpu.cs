@@ -33,8 +33,7 @@
         private const int LcdWidth = 160;
         private const int LcdHeight = 144;
         private const int FrameBufferDimension = 32 * 8;
-
-
+        
         /// <summary>
         /// $FE00-$FE9F	OAM - Object Attribute Memory
         /// </summary>
@@ -54,7 +53,9 @@
         private readonly IGpuRegisters gpuRegisters;
 
         private readonly IRenderHandler renderhandler;
-        
+
+        private readonly IGameBoyConfig gameBoyConfig;
+
         /// <summary>
         /// We expect the GPU to reuse tiles often. Better to cache the result of parsing tiles than process them every frame.
         /// TODO: How big will this grow?
@@ -93,6 +94,7 @@
             this.interruptManager = interruptManager;
             this.gpuRegisters = gpuRegisters;
             this.renderhandler = renderhandler;
+            this.gameBoyConfig = gameBoyConfig;
             
             this.spriteRam = new ArrayBackedMemoryBank(SpriteRamConfig);
             this.tileRam = new ArrayBackedMemoryBank(MapRamConfig);
@@ -205,23 +207,16 @@
             lastRenderSettings = renderSettings;
             lastTileMapBytes = tileMapBytes;
             lastTileSetBytes = tileSetBytes;
+            
+            // Get colours from palette register and covnert to argb colours using config palette.
+            var colors = gpuRegisters.LcdMonochromePaletteRegister.Pallette.ToDictionary(x => x.Key,
+                                                                                         x =>
+                                                                                             gameBoyConfig
+                                                                                             .MonocromePalette[x.Value]);
 
             var tileSet = GetTileSet(tileSetBytes).ToArray();
-            var tileMap =
-                GetTileMap(tileMapBytes, tileSet, renderSettings.TileSetIsSigned)
-                    .GroupBy(x => x.Key, x => x.Value)
-                    .ToArray();
-
-            
-            // TODO get background palette register
-            var colors = new Dictionary<Palette, Color>
-                         {
-                             { Palette.Colour0, Color.FromArgb(255, 255, 255) },
-                             { Palette.Colour1, Color.FromArgb(192, 192, 192) },
-                             { Palette.Colour2, Color.FromArgb(96, 96, 96) },
-                             { Palette.Colour3, Color.FromArgb(0, 0, 0) }
-                         };
-
+            var tileMap = GetTileMap(tileMapBytes, tileSet, renderSettings.TileSetIsSigned)
+                .GroupBy(x => x.Key, x => x.Value);
             foreach (var tilePoints in tileMap)
             {
                 // TODO: check if tile is visible.
@@ -237,11 +232,10 @@
 
             // Detect and fix scroll overflow.
             var lcdBounds = new Rectangle(renderSettings.ScrollX, renderSettings.ScrollY, LcdWidth, LcdHeight);
-            if (!FrameBounds.Contains(lcdBounds))
+            var overscanX = renderSettings.ScrollX > FrameBufferDimension - LcdWidth;
+            var overscanY = renderSettings.ScrollY > FrameBufferDimension - LcdHeight;
+            if (overscanX || overscanY)
             {
-                var overscanX = renderSettings.ScrollX > FrameBufferDimension - LcdWidth;
-                var overscanY = renderSettings.ScrollY > FrameBufferDimension - LcdHeight;
-
                 // Copy primary framebuffer to satisfy overlaps.
                 CopyRegion(frameBuffer, FrameBounds, scrollOverflowFrameBuffer, GetOverscanRectangles(overscanX, overscanY));
                 this.renderhandler.Paint(scrollOverflowFrameBuffer.Clone(lcdBounds,

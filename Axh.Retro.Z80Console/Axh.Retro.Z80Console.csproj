@@ -84,9 +84,9 @@
       <Project>{7881740a-89de-438c-beb0-cbf3d7dfbd58}</Project>
       <Name>Axh.Retro.CPU.Common</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Axh.Retro.CPU.Z80.Binding\Axh.Retro.CPU.Z80.Binding.csproj">
+    <ProjectReference Include="..\Axh.Retro.CPU.Z80.Binding\Axh.Retro.CPU.Z80.Wiring.csproj">
       <Project>{23BBD87E-C5A0-407D-B892-1F2718D05788}</Project>
-      <Name>Axh.Retro.CPU.Z80.Binding</Name>
+      <Name>Axh.Retro.CPU.Z80.Wiring</Name>
     </ProjectReference>
     <ProjectReference Include="..\Axh.Retro.CPU.Z80.Contracts\Axh.Retro.CPU.Z80.Contracts.csproj">
       <Project>{15e8bff0-aa13-420f-8527-9187a37f6360}</Project>

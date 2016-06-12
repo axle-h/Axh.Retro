@@ -1,27 +1,25 @@
-﻿namespace Axh.Retro.CPU.Z80.Binding
+﻿using System;
+using Axh.Retro.CPU.Common.Contracts.Memory;
+using Axh.Retro.CPU.Common.Memory;
+using Axh.Retro.CPU.Z80.Cache;
+using Axh.Retro.CPU.Z80.Contracts.Cache;
+using Axh.Retro.CPU.Z80.Contracts.Config;
+using Axh.Retro.CPU.Z80.Contracts.Core;
+using Axh.Retro.CPU.Z80.Contracts.Core.Timing;
+using Axh.Retro.CPU.Z80.Contracts.Peripherals;
+using Axh.Retro.CPU.Z80.Contracts.Registers;
+using Axh.Retro.CPU.Z80.Core;
+using Axh.Retro.CPU.Z80.Core.DynaRec;
+using Axh.Retro.CPU.Z80.Core.Timing;
+using Axh.Retro.CPU.Z80.Memory;
+using Axh.Retro.CPU.Z80.Peripherals;
+using Axh.Retro.CPU.Z80.Registers;
+using Ninject;
+using Ninject.Extensions.NamedScope;
+using Ninject.Modules;
+
+namespace Axh.Retro.CPU.Z80.Wiring
 {
-    using System;
-
-    using Axh.Retro.CPU.Common.Contracts.Memory;
-    using Axh.Retro.CPU.Common.Memory;
-    using Axh.Retro.CPU.Z80.Cache;
-    using Axh.Retro.CPU.Z80.Contracts.Cache;
-    using Axh.Retro.CPU.Z80.Contracts.Config;
-    using Axh.Retro.CPU.Z80.Contracts.Core;
-    using Axh.Retro.CPU.Z80.Contracts.Core.Timing;
-    using Axh.Retro.CPU.Z80.Contracts.Peripherals;
-    using Axh.Retro.CPU.Z80.Contracts.Registers;
-    using Axh.Retro.CPU.Z80.Core;
-    using Axh.Retro.CPU.Z80.Core.DynaRec;
-    using Axh.Retro.CPU.Z80.Core.Timing;
-    using Axh.Retro.CPU.Z80.Memory;
-    using Axh.Retro.CPU.Z80.Peripherals;
-    using Axh.Retro.CPU.Z80.Registers;
-
-    using Ninject;
-    using Ninject.Extensions.NamedScope;
-    using Ninject.Modules;
-
     public class Z80Module<TRegisters, TRegisterState> : NinjectModule
         where TRegisterState : struct
         where TRegisters : IStateBackedRegisters<TRegisterState>

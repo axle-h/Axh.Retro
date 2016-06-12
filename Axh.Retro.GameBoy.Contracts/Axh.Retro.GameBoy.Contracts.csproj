@@ -47,7 +47,9 @@
     <Compile Include="Devices\ISerialPort.cs" />
     <Compile Include="Factories\ICartridgeFactory.cs" />
     <Compile Include="GameBoyType.cs" />
+    <Compile Include="Graphics\MonocromeShade.cs" />
     <Compile Include="Graphics\NullRenderHandler.cs" />
+    <Compile Include="Graphics\Palette.cs" />
     <Compile Include="Graphics\Tile.cs" />
     <Compile Include="Media\CartridgeType.cs" />
     <Compile Include="Media\DestinationCode.cs" />

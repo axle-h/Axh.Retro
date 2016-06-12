@@ -1,8 +1,8 @@
-﻿namespace Axh.Retro.Z80Console
+﻿using Axh.Retro.CPU.Z80.Wiring;
+
+namespace Axh.Retro.Z80Console
 {
     using System.Threading;
-
-    using Axh.Retro.CPU.Z80.Binding;
     using Axh.Retro.CPU.Z80.Contracts.Core;
     using Axh.Retro.CPU.Z80.Contracts.Peripherals;
     using Axh.Retro.CPU.Z80.Contracts.Registers;

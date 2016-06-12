@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.24720.0
+VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Axh.Retro.CPU.Z80", "Axh.Retro.CPU.Z80\Axh.Retro.CPU.Z80.csproj", "{71763A1A-F228-451C-BF71-5F8EEB905820}"
 EndProject
@@ -15,7 +15,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Axh.Retro.Z80Console", "Axh
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Axh.Retro.GameBoy.Contracts", "Axh.Retro.GameBoy.Contracts\Axh.Retro.GameBoy.Contracts.csproj", "{5BCB273C-063E-466F-B397-550A97547F2F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Axh.Retro.GameBoy.Binding", "Axh.Retro.GameBoy.Binding\Axh.Retro.GameBoy.Binding.csproj", "{F09F977E-69D3-434C-B5D2-C95EFD9294FB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Axh.Retro.GameBoy.Wiring", "Axh.Retro.GameBoy.Wiring\Axh.Retro.GameBoy.Wiring.csproj", "{F09F977E-69D3-434C-B5D2-C95EFD9294FB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Axh.Retro.CPU.Common", "Axh.Retro.CPU.Common\Axh.Retro.CPU.Common.csproj", "{7881740A-89DE-438C-BEB0-CBF3D7DFBD58}"
 EndProject
@@ -35,7 +35,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{23A0A60C
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Axh.Retro.GameBoy.Tests", "Axh.Retro.GameBoy.Tests\Axh.Retro.GameBoy.Tests.csproj", "{6467DE9E-2C1E-4650-8201-5812326B26E2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Axh.Retro.CPU.Z80.Binding", "Axh.Retro.CPU.Z80.Binding\Axh.Retro.CPU.Z80.Binding.csproj", "{23BBD87E-C5A0-407D-B892-1F2718D05788}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Axh.Retro.CPU.Z80.Wiring", "Axh.Retro.CPU.Z80.Wiring\Axh.Retro.CPU.Z80.Wiring.csproj", "{23BBD87E-C5A0-407D-B892-1F2718D05788}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Axh.Retro.GameBoy.Console", "Axh.Retro.GameBoy.Console\Axh.Retro.GameBoy.Console.csproj", "{394154EE-CF2A-4B4C-BDC9-3B85604C5CF0}"
 EndProject

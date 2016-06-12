@@ -1,12 +1,12 @@
-﻿namespace Axh.Retro.GameBoy.Console
+﻿using Axh.Retro.CPU.Z80.Wiring;
+using Axh.Retro.GameBoy.Wiring;
+
+namespace Axh.Retro.GameBoy.Console
 {
     using System.Threading;
-
-    using Axh.Retro.CPU.Z80.Binding;
     using Axh.Retro.CPU.Z80.Contracts.Core;
     using Axh.Retro.CPU.Z80.Contracts.Registers;
     using Axh.Retro.CPU.Z80.Contracts.State;
-    using Axh.Retro.GameBoy.Binding;
     using Axh.Retro.GameBoy.Console.Config;
     using Axh.Retro.GameBoy.Contracts.Devices;
     using Axh.Retro.GameBoy.Contracts.Peripherals;

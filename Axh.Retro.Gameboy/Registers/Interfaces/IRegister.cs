@@ -1,38 +1,40 @@
 ﻿namespace Axh.Retro.GameBoy.Registers.Interfaces
 {
     /// <summary>
-    /// Gameboy memory mapped register.
+    /// GameBoy memory mapped register.
     /// </summary>
     public interface IRegister
     {
+        /// <summary>
+        /// Gets the address.
+        /// </summary>
+        /// <value>
+        /// The address.
+        /// </value>
         ushort Address { get; }
 
+        /// <summary>
+        /// Gets the name.
+        /// </summary>
+        /// <value>
+        /// The name.
+        /// </value>
         string Name { get; }
 
+        /// <summary>
+        /// Gets or sets the raw register value.
+        /// </summary>
+        /// <value>
+        /// The raw register value.
+        /// </value>
         byte Register { get; set; }
 
+        /// <summary>
+        /// Gets the debug view.
+        /// </summary>
+        /// <value>
+        /// The debug view.
+        /// </value>
         string DebugView { get; }
-    }
-
-    internal class SimpleRegister : IRegister
-    {
-        public SimpleRegister(ushort address, string name)
-        {
-            Address = address;
-            Name = name;
-        }
-
-        public ushort Address { get; }
-
-        public string Name { get; }
-
-        public byte Register { get; set; }
-
-        public string DebugView => this.ToString();
-
-        public override string ToString()
-        {
-            return $"{Name} ({Address}) = {Register}"; ;
-        }
     }
 }

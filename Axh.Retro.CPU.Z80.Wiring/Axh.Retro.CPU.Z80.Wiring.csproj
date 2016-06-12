@@ -7,8 +7,8 @@
     <ProjectGuid>{23BBD87E-C5A0-407D-B892-1F2718D05788}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Axh.Retro.CPU.Z80.Binding</RootNamespace>
-    <AssemblyName>Axh.Retro.CPU.Z80.Binding</AssemblyName>
+    <RootNamespace>Axh.Retro.CPU.Z80.Wiring</RootNamespace>
+    <AssemblyName>Axh.Retro.CPU.Z80.Wiring</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />

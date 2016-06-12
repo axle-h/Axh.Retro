@@ -70,17 +70,17 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Axh.Retro.CPU.Z80.Binding\Axh.Retro.CPU.Z80.Binding.csproj">
+    <ProjectReference Include="..\Axh.Retro.CPU.Z80.Binding\Axh.Retro.CPU.Z80.Wiring.csproj">
       <Project>{23bbd87e-c5a0-407d-b892-1f2718d05788}</Project>
-      <Name>Axh.Retro.CPU.Z80.Binding</Name>
+      <Name>Axh.Retro.CPU.Z80.Wiring</Name>
     </ProjectReference>
     <ProjectReference Include="..\Axh.Retro.CPU.Z80.Contracts\Axh.Retro.CPU.Z80.Contracts.csproj">
       <Project>{15e8bff0-aa13-420f-8527-9187a37f6360}</Project>
       <Name>Axh.Retro.CPU.Z80.Contracts</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Axh.Retro.GameBoy.Binding\Axh.Retro.GameBoy.Binding.csproj">
+    <ProjectReference Include="..\Axh.Retro.GameBoy.Binding\Axh.Retro.GameBoy.Wiring.csproj">
       <Project>{f09f977e-69d3-434c-b5d2-c95efd9294fb}</Project>
-      <Name>Axh.Retro.GameBoy.Binding</Name>
+      <Name>Axh.Retro.GameBoy.Wiring</Name>
     </ProjectReference>
     <ProjectReference Include="..\Axh.Retro.GameBoy.Contracts\Axh.Retro.GameBoy.Contracts.csproj">
       <Project>{5bcb273c-063e-466f-b397-550a97547f2f}</Project>

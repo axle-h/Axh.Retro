@@ -271,15 +271,4 @@
             }
         }
     }
-
-    public enum Palette : byte
-    {
-        Colour0 = 0,
-
-        Colour1 = 1,
-
-        Colour2 = 2,
-
-        Colour3 = 3
-    }
 }
