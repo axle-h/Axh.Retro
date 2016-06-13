@@ -6,7 +6,7 @@
     using Axh.Retro.CPU.Common.Contracts.Memory;
     using Axh.Retro.GameBoy.Contracts.Graphics;
 
-    public interface ICoreGpu : IGpu
+    public interface ICoreGpu : IGpu, IDisposable
     {
         IEnumerable<IAddressSegment> AddressSegments { get; }
 

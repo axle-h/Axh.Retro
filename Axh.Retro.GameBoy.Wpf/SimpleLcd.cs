@@ -1,43 +1,45 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
+using System.Drawing.Imaging;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using Axh.Retro.GameBoy.Contracts.Graphics;
+using System.Drawing;
+using System.Linq;
+using System.Runtime.InteropServices;
+
+using Image = System.Windows.Controls.Image;
+using Color = System.Windows.Media.Color;
 
 namespace Axh.Retro.GameBoy.Wpf
 {
-    using System;
-    using System.Drawing;
-    using System.Drawing.Imaging;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using System.Windows;
-    using System.Windows.Media;
-    using System.Windows.Media.Imaging;
-    using Axh.Retro.GameBoy.Contracts.Graphics;
-    using Image = System.Windows.Controls.Image;
+    
 
     internal class SimpleLcd : IRenderHandler
     {
+        private readonly CancellationTokenSource cancellationTokenSource;
         private WriteableBitmap writeableBitmap;
         private Window window;
+        private Image image;
 
-        public SimpleLcd()
+        public SimpleLcd(CancellationTokenSource cancellationTokenSource)
         {
+            this.cancellationTokenSource = cancellationTokenSource;
             StartStaTask(Init);
         }
 
         private void Init()
         {
-            var image = new Image
+            
+            image = new Image
             {
-                Stretch = Stretch.None,
+                Stretch = Stretch.Fill,
                 HorizontalAlignment = HorizontalAlignment.Left,
                 VerticalAlignment = VerticalAlignment.Top
             };
-
             window = new Window { Content = image };
-
-            writeableBitmap = new WriteableBitmap(160, 144, 96, 96, PixelFormats.Bgr32, null);
-
-
-            image.Source = writeableBitmap;
 
             RenderOptions.SetBitmapScalingMode(image, BitmapScalingMode.NearestNeighbor);
             RenderOptions.SetEdgeMode(image, EdgeMode.Aliased);
@@ -45,6 +47,8 @@ namespace Axh.Retro.GameBoy.Wpf
             window.Show();
 
             var app = new Application();
+            app.Exit += (sender, args) => cancellationTokenSource.Cancel();
+
             app.Run(window);
         }
 
@@ -73,24 +77,34 @@ namespace Axh.Retro.GameBoy.Wpf
         /// Don't hang on to frame instances.
         /// </summary>
         /// <param name="frame"></param>
-        public void Paint(Bitmap frame)
-        {
-            window.Dispatcher.Invoke(() => UpdateUi(frame));
-        }
+        public void Paint(Bitmap frame) => window.Dispatcher.Invoke(() => UpdateUi(frame));
+
+        private static Color GetColor(System.Drawing.Color color) => Color.FromRgb(color.R, color.G, color.B);
 
         public void UpdateUi(Bitmap frame)
         {
+            if (image.Source == null)
+            {
+                var palette = frame.Palette.Entries.Select(GetColor).ToList();
+                writeableBitmap = new WriteableBitmap(frame.Width, frame.Height, 96, 96, PixelFormats.Indexed8, new BitmapPalette(palette));
+                image.Width = frame.Width * 4;
+                image.Height = frame.Height * 4;
+                image.Source = writeableBitmap;
+            }
+            
             // Reserve the back buffer for updates.
             writeableBitmap.Lock();
             var srcData = frame.LockBits(new Rectangle(0, 0, frame.Width, frame.Height), ImageLockMode.ReadOnly, frame.PixelFormat);
-            var srcScan0 = srcData.Scan0;            
-            var buffer = new byte[srcData.Stride * srcData.Height];
-            Marshal.Copy(srcScan0, buffer, 0, buffer.Length);
-            Marshal.Copy(buffer, 0, writeableBitmap.BackBuffer, buffer.Length);
+            var srcPtr = srcData.Scan0;
+            var targetPtr = writeableBitmap.BackBuffer;
+
+            var buffer = new byte[srcData.Stride * frame.Height];
+            Marshal.Copy(srcPtr, buffer, 0, buffer.Length);
+            Marshal.Copy(buffer, 0, targetPtr, buffer.Length);
 
             // Specify the area of the bitmap that changed.
             writeableBitmap.AddDirtyRect(new Int32Rect(0, 0, frame.Width, frame.Height));
-
+            
             // Release the back buffer and make it available for display.
             writeableBitmap.Unlock();
             frame.UnlockBits(srcData);

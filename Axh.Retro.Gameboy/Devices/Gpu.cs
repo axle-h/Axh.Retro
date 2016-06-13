@@ -1,4 +1,7 @@
-﻿namespace Axh.Retro.GameBoy.Devices
+﻿using System.Diagnostics;
+using System.Threading.Tasks;
+
+namespace Axh.Retro.GameBoy.Devices
 {
     using System;
     using System.Collections.Generic;
@@ -32,7 +35,6 @@
 
         private const int LcdWidth = 160;
         private const int LcdHeight = 144;
-        private const int FrameBufferDimension = 32 * 8;
         
         /// <summary>
         /// $FE00-$FE9F	OAM - Object Attribute Memory
@@ -55,27 +57,11 @@
         private readonly IRenderHandler renderhandler;
 
         private readonly IGameBoyConfig gameBoyConfig;
-
-        /// <summary>
-        /// We expect the GPU to reuse tiles often. Better to cache the result of parsing tiles than process them every frame.
-        /// TODO: How big will this grow?
-        /// </summary>
-        private readonly IDictionary<Guid, Tile> tileCache;
-
+        
         /// <summary>
         /// Normal frame buffer.
         /// </summary>
-        private readonly Bitmap frameBuffer;
-
-        /// <summary>
-        /// Double width and height buffer for when scrolling overflows the frame buffer.
-        /// </summary>
-        private readonly Bitmap scrollOverflowFrameBuffer;
-
-        private static readonly Rectangle FrameBounds = new Rectangle(0, 0, FrameBufferDimension, FrameBufferDimension);
-        private static readonly Rectangle OverscanXBounds = new Rectangle(FrameBufferDimension, 0, FrameBufferDimension, FrameBufferDimension);
-        private static readonly Rectangle OverscanYBounds = new Rectangle(0, FrameBufferDimension, FrameBufferDimension, FrameBufferDimension);
-        private static readonly Rectangle OverscanXYBounds = new Rectangle(FrameBufferDimension, FrameBufferDimension, FrameBufferDimension, FrameBufferDimension);
+        private readonly Bitmap lcdBuffer;
 
         private GpuMode mode;
         
@@ -89,6 +75,9 @@
 
         private RenderSettings lastRenderSettings;
 
+        private TaskCompletionSource<bool> paintingTaskCompletionSource;
+        private bool disposed;
+
         public Gpu(IGameBoyConfig gameBoyConfig, IGameBoyInterruptManager interruptManager, IGpuRegisters gpuRegisters, IRenderHandler renderhandler, IInstructionTimer timer)
         {
             this.interruptManager = interruptManager;
@@ -98,7 +87,6 @@
             
             this.spriteRam = new ArrayBackedMemoryBank(SpriteRamConfig);
             this.tileRam = new ArrayBackedMemoryBank(MapRamConfig);
-            this.tileCache = new Dictionary<Guid, Tile>();
 
             this.isEnabled = false;
             this.mode = GpuMode.VerticalBlank;
@@ -108,9 +96,12 @@
             {
                 timer.TimingSync += Sync;
             }
+            
+            lcdBuffer = new Bitmap(LcdWidth, LcdHeight, PixelFormat.Format8bppIndexed);
+            paintingTaskCompletionSource = new TaskCompletionSource<bool>();
+            disposed = false;
 
-            frameBuffer = new Bitmap(FrameBufferDimension, FrameBufferDimension);
-            scrollOverflowFrameBuffer = new Bitmap(FrameBufferDimension * 2, FrameBufferDimension * 2);
+            Task.Factory.StartNew(() => PaintLoop().Wait(), TaskCreationOptions.LongRunning);
         }
 
         public IEnumerable<IAddressSegment> AddressSegments => new[] { spriteRam, tileRam };
@@ -180,7 +171,8 @@
                 case GpuMode.ReadingVram:
                     if (currentTimings >= ReadingVramClocks)
                     {
-                        Paint();
+                        paintingTaskCompletionSource?.TrySetResult(true);
+                        
                         mode = GpuMode.HorizonalBlank;
                         currentTimings -= ReadingVramClocks;
                     }
@@ -190,55 +182,22 @@
             }
         }
 
-        private void DrawScanline(int line)
+        private async Task PaintLoop()
         {
-            var renderSettings = this.gpuRegisters.LcdControlRegister.BackgroundTileMap
-                ? new RenderSettings(0x1c00, 0x800, true, this.gpuRegisters.ScrollXRegister.Register, this.gpuRegisters.ScrollYRegister.Register)
-                : new RenderSettings(0x1800, 0x0, false, this.gpuRegisters.ScrollXRegister.Register, this.gpuRegisters.ScrollYRegister.Register);
-
-            //var tileMapBytes = this.tileRam.ReadBytes(renderSettings.TileMapAddress, 0x400);
-            //var tileSetBytes = tileRam.ReadBytes(renderSettings.TileSetAddress, 0x1000);
-            
-            var tileMapLine = (line + renderSettings.ScrollY) % LcdHeight;
-            var tileMapBytes = this.tileRam.ReadBytes((ushort) (renderSettings.TileMapAddress + 32 * tileMapLine), 32);
-
-            var tileYOffset = (line + renderSettings.ScrollY) % 8;
-            var tileMapScrollOffset = renderSettings.ScrollX / LcdWidth;
-            for (var i = 0; i < LcdWidth / 8; i++)
+            while (!disposed)
             {
-                var tileMapIndex = tileMapBytes[(i + tileMapScrollOffset) % 32];
-                var tileSetIndex = renderSettings.TileSetIsSigned ? (sbyte)tileMapIndex + 128 : tileMapIndex;
-
-                // TODO: cache tile by tile set index here.
-                var tileBytes = tileRam.ReadBytes((ushort) (renderSettings.TileSetAddress + tileSetIndex * 16), 16);
-                var tile = GetTile(tileBytes);
-
-                var tileXOffset = i == 0 ? renderSettings.ScrollX % 8 : 0;
-
-
-            }
-
-            /*
-             * var address = 0;
-            var buffer = new byte[16];
-            for (var i = 0; i < 256; address += 16, i++)
-            {
-                Array.Copy(tileSetBytes, address, buffer, 0, 16);
-                var id = new Guid(buffer); // So happnes that a Guid stores 16 bytes nicely
-
-                if (this.tileCache.ContainsKey(id))
+                var result = await paintingTaskCompletionSource.Task;
+                if (!result)
                 {
-                    yield return this.tileCache[id];
+                    break;
                 }
-                else
-                {
-                    var tile = GetTile(buffer);
-                    yield return tile;
-                    this.tileCache[id] = tile;
-                }
+
+                paintingTaskCompletionSource = null;
+
+                Paint();
+
+                paintingTaskCompletionSource = new TaskCompletionSource<bool>();
             }
-             * 
-             */
         }
         
         private void Paint()
@@ -249,9 +208,11 @@
 
             var tileMapBytes = this.tileRam.ReadBytes(renderSettings.TileMapAddress, 0x400);
             var tileSetBytes = tileRam.ReadBytes(renderSettings.TileSetAddress, 0x1000);
+
             
             if (renderSettings.Equals(lastRenderSettings) && tileMapBytes.SequenceEquals(lastTileMapBytes) && tileSetBytes.SequenceEquals(lastTileSetBytes))
             {
+                // TODO: record this.
                 return;
             }
 
@@ -259,151 +220,125 @@
             lastTileMapBytes = tileMapBytes;
             lastTileSetBytes = tileSetBytes;
             
-            // Get colours from palette register and covnert to argb colours using config palette.
-            var colors = gpuRegisters.LcdMonochromePaletteRegister.Pallette.ToDictionary(x => x.Key,
-                                                                                         x =>
-                                                                                             gameBoyConfig
-                                                                                             .MonocromePalette[x.Value]);
+            var tileMap = new TileMap(renderSettings, tileSetBytes, tileMapBytes);
+            var frameBounds = new Rectangle(0, 0, LcdWidth, LcdHeight);
 
-            var tileSet = GetTileSet(tileSetBytes).ToArray();
-            var tileMap = GetTileMap(tileMapBytes, tileSet, renderSettings.TileSetIsSigned)
-                .GroupBy(x => x.Key, x => x.Value);
-            foreach (var tilePoints in tileMap)
+            var bitmapPalette = lcdBuffer.Palette;
+            foreach (var palette in gpuRegisters.LcdMonochromePaletteRegister.Pallette)
             {
-                // TODO: check if tile is visible.
-                // Draw the first tile.
-                var firstPoint = tilePoints.First();
-                DrawTile(tilePoints.Key, firstPoint.X, firstPoint.Y, colors);
-
-                // Copy first tile to all other locations.
-                var sourceRectangle = new Rectangle(firstPoint.X, firstPoint.Y, 8, 8);
-                var destinations = tilePoints.Skip(1).Select(p => new Rectangle(p.X, p.Y, 8, 8));
-                CopyRegion(frameBuffer, sourceRectangle, frameBuffer, destinations);
+                bitmapPalette.Entries[(int) palette.Key] = gameBoyConfig.MonocromePalette[palette.Value];
             }
+            lcdBuffer.Palette = bitmapPalette;
 
-            // Detect and fix scroll overflow.
-            var lcdBounds = new Rectangle(renderSettings.ScrollX, renderSettings.ScrollY, LcdWidth, LcdHeight);
-            var overscanX = renderSettings.ScrollX > FrameBufferDimension - LcdWidth;
-            var overscanY = renderSettings.ScrollY > FrameBufferDimension - LcdHeight;
-            if (overscanX || overscanY)
-            {
-                // Copy primary framebuffer to satisfy overlaps.
-                CopyRegion(frameBuffer, FrameBounds, scrollOverflowFrameBuffer, GetOverscanRectangles(overscanX, overscanY));
-                this.renderhandler.Paint(scrollOverflowFrameBuffer.Clone(lcdBounds,
-                                                                         scrollOverflowFrameBuffer.PixelFormat));
-            }
-            else
-            {
-                this.renderhandler.Paint(frameBuffer.Clone(lcdBounds, frameBuffer.PixelFormat));
-            }
-        }
+            var frameData = lcdBuffer.LockBits(frameBounds, ImageLockMode.ReadOnly, lcdBuffer.PixelFormat);
 
-        private static void CopyRegion(Bitmap source, Rectangle sourceRegion, Bitmap destination, IEnumerable<Rectangle> destinationRegions)
-        {
-            // Get source data into managed memory.
-            // We have to do this as we cannot lock the same bitmap for both read and write.
-            var frameData = source.LockBits(sourceRegion, ImageLockMode.ReadOnly, source.PixelFormat);
+            var buffer = new byte[frameData.Stride];
             var ptr = frameData.Scan0;
-            var bpp = Math.Abs(frameData.Stride) / source.Width;
-            var sourceStrideLength = bpp * sourceRegion.Width;
-            var buffers = new byte[source.Height][];
-            
-            // Read all source bytes.
-            for (var y = 0; y < frameData.Height; y++, ptr += frameData.Stride)
+            for (var y = 0; y < LcdHeight; y++)
             {
-                var buffer = new byte[sourceStrideLength];
-                Marshal.Copy(ptr, buffer, 0, buffer.Length);
-                buffers[y] = buffer;
-            }
-
-            source.UnlockBits(frameData);
-
-            // Write source bytes to all destination regions.
-            foreach (var region in destinationRegions)
-            {
-                frameData = destination.LockBits(region, ImageLockMode.WriteOnly, destination.PixelFormat);
-                ptr = frameData.Scan0;
-                for (var y = 0; y < frameData.Height; y++, ptr += frameData.Stride)
+                for (var x = 0; x < LcdWidth; x++)
                 {
-                    var buffer = buffers[y];
-                    Marshal.Copy(buffer, 0, ptr, buffer.Length);
+                    buffer[x] = (byte) tileMap.Get;
+
+                    if (x + 1 < LcdWidth)
+                    {
+                        tileMap.NextColumn();
+                    }
                 }
 
-                destination.UnlockBits(frameData);
-            }
-        }
+                // TODO: Sprites.
 
-        private static IEnumerable<Rectangle> GetOverscanRectangles(bool drawOverscanX, bool drawOverscanY)
-        {
-            yield return FrameBounds;
+                Marshal.Copy(buffer, 0, ptr, buffer.Length);
 
-            if (drawOverscanX)
-            {
-                yield return OverscanXBounds;
-            }
-
-            if (drawOverscanY)
-            {
-                yield return OverscanYBounds;
-            }
-
-            if (drawOverscanX && drawOverscanY)
-            {
-                yield return OverscanXYBounds;
-            }
-        }
-
-        private IEnumerable<Tile> GetTileSet(byte[] tileSetBytes)
-        {
-            var address = 0;
-            var buffer = new byte[16];
-            for (var i = 0; i < 256; address += 16, i++)
-            {
-                Array.Copy(tileSetBytes, address, buffer, 0, 16);
-                var id = new Guid(buffer); // So happnes that a Guid stores 16 bytes nicely
-
-                if (this.tileCache.ContainsKey(id))
+                if (y + 1 < LcdHeight)
                 {
-                    yield return this.tileCache[id];
+                    tileMap.NextRow();
+                    ptr += frameData.Stride;
+                }
+            }
+
+            lcdBuffer.UnlockBits(frameData);
+            this.renderhandler.Paint(lcdBuffer);
+        }
+
+        private class TileMap
+        {
+            private readonly byte[] tileSetBytes;
+            private readonly byte[] tileMapBytes;
+            private readonly bool isSigned;
+            private readonly IDictionary<int, Tile> tileCache;
+
+            private Tile currentTile;
+
+            private readonly int scrollX;
+
+            private int tileMapColumn;
+            private int tileColumn;
+            private int tileMapRow;
+            private int tileRow;
+
+            public TileMap(RenderSettings renderSettings, byte[] tileSetBytes, byte[] tileMapBytes)
+            {
+                this.scrollX = renderSettings.ScrollX;
+                tileMapColumn = renderSettings.ScrollX / 8;
+                tileColumn = renderSettings.ScrollX % 8;
+                tileMapRow = renderSettings.ScrollY / 8;
+                tileRow = renderSettings.ScrollY % 8;
+
+                this.tileSetBytes = tileSetBytes;
+                this.tileMapBytes = tileMapBytes;
+                this.isSigned = renderSettings.TileSetIsSigned;
+                this.tileCache = new Dictionary<int, Tile>();
+                UpdateCurrentTile();
+            }
+
+            public Palette Get => currentTile.Get(tileRow, tileColumn);
+            
+            public void NextColumn()
+            {
+                tileColumn = (tileColumn + 1) % 8;
+                if (tileColumn == 0)
+                {
+                    tileMapColumn++;
+                    UpdateCurrentTile();
+                }
+            }
+
+            public void NextRow()
+            {
+                tileRow = (tileRow + 1) % 8;
+                if (tileRow == 0)
+                {
+                    tileMapRow++;
+                    UpdateCurrentTile();
+                }
+
+                // Reset column.
+                tileMapColumn = scrollX / 8;
+                tileColumn = scrollX % 8;
+                UpdateCurrentTile();
+            }
+
+            private void UpdateCurrentTile()
+            {
+                var tileMapIndex = tileMapRow * 32 + tileMapColumn;
+                var tileMapValue = tileMapBytes[tileMapIndex];
+                var tileSetIndex = isSigned ? (sbyte)tileMapValue + 128 : tileMapValue;
+                if (tileCache.ContainsKey(tileSetIndex))
+                {
+                    currentTile = tileCache[tileSetIndex];
                 }
                 else
                 {
-                    var tile = GetTile(buffer);
-                    yield return tile;
-                    this.tileCache[id] = tile;
-                }
-            }
-        }
-
-        private void DrawTile(Tile tile, int x, int y, IDictionary<Palette, Color> colors)
-        {
-            for (var r = 0; r < 8; r++)
-            {
-                for (var c = 0; c < 8; c++)
-                {
-                    frameBuffer.SetPixel(x + c, y + r, colors[tile.Get(r, c)]);
+                    tileCache[tileSetIndex] = currentTile = GetTile(tileSetBytes, tileSetIndex * 16);
                 }
             }
         }
         
-        private static IEnumerable<KeyValuePair<Tile, Point>> GetTileMap(byte[] tileMapBytes, Tile[] tileSet, bool indexIsSigned)
-        {
-            var address = 0;
-            for (var r = 0; r < 32; r++)
-            {
-                for (var c = 0; c < 32; address += 1, c++)
-                {
-                    var index = tileMapBytes[address];
-                    var tile = tileSet[indexIsSigned ? (sbyte)index + 128 : index];
-                    yield return new KeyValuePair<Tile, Point>(tile, new Point(c * 8, r * 8));
-                }
-            }
-        }
-        
-        private static Tile GetTile(byte[] buffer)
+        private static Tile GetTile(byte[] buffer, int offset = 0)
         {
             var palette = new Palette[64];
-            var address = 0;
+            var address = offset;
             for (var row = 0; row < 8; row++, address += 2)
             {
                 var low = buffer[address];
@@ -413,14 +348,14 @@
                 for (var col = 0; col < 8; col++)
                 {
                     // Each value is a 2bit number stored in matching positions across low and high bytes
-                    var mask = 0x1 << (7- col);
+                    var mask = 0x1 << (7 - col);
                     palette[col + baseIndex] = (Palette)(((low & mask) > 0 ? 1 : 0) + ((high & mask) > 0 ? 2 : 0));
                 }
             }
-            
+
             return new Tile(palette);
         }
-        
+
         private struct RenderSettings
         {
             public readonly ushort TileMapAddress;
@@ -464,6 +399,15 @@
                     return hashCode;
                 }
             }
+        }
+
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public void Dispose()
+        {
+            disposed = true;
+            paintingTaskCompletionSource?.TrySetResult(false);
         }
     }
 }

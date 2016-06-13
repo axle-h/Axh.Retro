@@ -19,11 +19,12 @@ namespace Axh.Retro.GameBoy.Wpf
         [STAThread]
         static void Main(string[] args)
         {
-            using (var kernel = new StandardKernel(new GameBoyWpfModule(ScopeName, Resources.Tetris_W_Gb_Zip.UnZip()), new GameBoyModule(ScopeName), new Z80Module<IIntel8080Registers, Intel8080RegisterState>(ScopeName)))
+            var cancellationTokenSource = new CancellationTokenSource();
+            using (var kernel = new StandardKernel(new GameBoyWpfModule(cancellationTokenSource, ScopeName, Resources.Tetris_W_Gb_Zip.UnZip()), new GameBoyModule(ScopeName), new Z80Module<IIntel8080Registers, Intel8080RegisterState>(ScopeName)))
             {
                 var core = kernel.Get<ICpuCore<IIntel8080Registers, Intel8080RegisterState>>();
                 
-                core.StartCoreProcessAsync(CancellationToken.None).Wait();
+                core.StartCoreProcessAsync(cancellationTokenSource.Token).Wait();
             }
         }
     }
