@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Drawing;
 using Axh.Retro.GameBoy.Contracts.Graphics;
 using Axh.Retro.GameBoy.Registers.Interfaces;
 

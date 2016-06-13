@@ -67,7 +67,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Axh.Retro.CPU.Z80.Binding\Axh.Retro.CPU.Z80.Wiring.csproj">
+    <ProjectReference Include="..\Axh.Retro.CPU.Z80.Wiring\Axh.Retro.CPU.Z80.Wiring.csproj">
       <Project>{23BBD87E-C5A0-407D-B892-1F2718D05788}</Project>
       <Name>Axh.Retro.CPU.Z80.Wiring</Name>
     </ProjectReference>
@@ -75,7 +75,7 @@
       <Project>{15E8BFF0-AA13-420F-8527-9187A37F6360}</Project>
       <Name>Axh.Retro.CPU.Z80.Contracts</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Axh.Retro.GameBoy.Binding\Axh.Retro.GameBoy.Wiring.csproj">
+    <ProjectReference Include="..\Axh.Retro.GameBoy.Wiring\Axh.Retro.GameBoy.Wiring.csproj">
       <Project>{f09f977e-69d3-434c-b5d2-c95efd9294fb}</Project>
       <Name>Axh.Retro.GameBoy.Wiring</Name>
     </ProjectReference>

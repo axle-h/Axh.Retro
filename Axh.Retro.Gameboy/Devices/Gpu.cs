@@ -189,6 +189,57 @@
                     throw new ArgumentOutOfRangeException();
             }
         }
+
+        private void DrawScanline(int line)
+        {
+            var renderSettings = this.gpuRegisters.LcdControlRegister.BackgroundTileMap
+                ? new RenderSettings(0x1c00, 0x800, true, this.gpuRegisters.ScrollXRegister.Register, this.gpuRegisters.ScrollYRegister.Register)
+                : new RenderSettings(0x1800, 0x0, false, this.gpuRegisters.ScrollXRegister.Register, this.gpuRegisters.ScrollYRegister.Register);
+
+            //var tileMapBytes = this.tileRam.ReadBytes(renderSettings.TileMapAddress, 0x400);
+            //var tileSetBytes = tileRam.ReadBytes(renderSettings.TileSetAddress, 0x1000);
+            
+            var tileMapLine = (line + renderSettings.ScrollY) % LcdHeight;
+            var tileMapBytes = this.tileRam.ReadBytes((ushort) (renderSettings.TileMapAddress + 32 * tileMapLine), 32);
+
+            var tileYOffset = (line + renderSettings.ScrollY) % 8;
+            var tileMapScrollOffset = renderSettings.ScrollX / LcdWidth;
+            for (var i = 0; i < LcdWidth / 8; i++)
+            {
+                var tileMapIndex = tileMapBytes[(i + tileMapScrollOffset) % 32];
+                var tileSetIndex = renderSettings.TileSetIsSigned ? (sbyte)tileMapIndex + 128 : tileMapIndex;
+
+                // TODO: cache tile by tile set index here.
+                var tileBytes = tileRam.ReadBytes((ushort) (renderSettings.TileSetAddress + tileSetIndex * 16), 16);
+                var tile = GetTile(tileBytes);
+
+                var tileXOffset = i == 0 ? renderSettings.ScrollX % 8 : 0;
+
+
+            }
+
+            /*
+             * var address = 0;
+            var buffer = new byte[16];
+            for (var i = 0; i < 256; address += 16, i++)
+            {
+                Array.Copy(tileSetBytes, address, buffer, 0, 16);
+                var id = new Guid(buffer); // So happnes that a Guid stores 16 bytes nicely
+
+                if (this.tileCache.ContainsKey(id))
+                {
+                    yield return this.tileCache[id];
+                }
+                else
+                {
+                    var tile = GetTile(buffer);
+                    yield return tile;
+                    this.tileCache[id] = tile;
+                }
+            }
+             * 
+             */
+        }
         
         private void Paint()
         {
