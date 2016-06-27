@@ -7,12 +7,12 @@ namespace Axh.Retro.CPU.Z80.Timing
 {
     public class MachineCycleTimer : IInstructionTimer
     {
-        private readonly InstructionTimingSyncMode syncMode;
         private readonly double syncMagnitude;
+        private readonly InstructionTimingSyncMode syncMode;
 
         public MachineCycleTimer(IPlatformConfig platformConfig)
         {
-            this.syncMode = platformConfig.InstructionTimingSyncMode;
+            syncMode = platformConfig.InstructionTimingSyncMode;
 
             switch (syncMode)
             {

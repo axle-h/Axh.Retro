@@ -5,11 +5,13 @@ using Axh.Retro.GameBoy.Registers.Interfaces;
 namespace Axh.Retro.GameBoy.Registers
 {
     /// <summary>
-    /// FF46 - DMA - DMA Transfer and Start Address (W)
-    /// Writing to this register launches a DMA transfer from ROM or RAM to OAM memory (sprite attribute table). The written value specifies the transfer source address divided by 100h, ie. source & destination are:
-    /// Source:      XX00-XX9F; XX in range from 00-F1h
-    /// Destination: FE00-FE9F
-    /// It takes 160 microseconds until the transfer has completed (80 microseconds in CGB Double Speed Mode), during this time the CPU can access only HRAM (memory at FF80-FFFE).
+    ///     FF46 - DMA - DMA Transfer and Start Address (W)
+    ///     Writing to this register launches a DMA transfer from ROM or RAM to OAM memory (sprite attribute table). The
+    ///     written value specifies the transfer source address divided by 100h, ie. source & destination are:
+    ///     Source:      XX00-XX9F; XX in range from 00-F1h
+    ///     Destination: FE00-FE9F
+    ///     It takes 160 microseconds until the transfer has completed (80 microseconds in CGB Double Speed Mode), during this
+    ///     time the CPU can access only HRAM (memory at FF80-FFFE).
     /// </summary>
     public class LcdOamDmaTransferRegister : IRegister
     {
@@ -19,10 +21,11 @@ namespace Axh.Retro.GameBoy.Registers
             new AddressRange(0, 0xff79),
             new AddressRange(0xffff, 0xffff)
         };
+
         private readonly IDmaController dmaController;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="LcdOamDmaTransferRegister"/> class.
+        ///     Initializes a new instance of the <see cref="LcdOamDmaTransferRegister" /> class.
         /// </summary>
         /// <param name="dmaController">The dma controller.</param>
         public LcdOamDmaTransferRegister(IDmaController dmaController)
@@ -31,28 +34,29 @@ namespace Axh.Retro.GameBoy.Registers
         }
 
         /// <summary>
-        /// Gets the address.
+        ///     Gets the address.
         /// </summary>
         /// <value>
-        /// The address.
+        ///     The address.
         /// </value>
         public ushort Address => 0xff46;
 
         /// <summary>
-        /// Gets the name.
+        ///     Gets the name.
         /// </summary>
         /// <value>
-        /// The name.
+        ///     The name.
         /// </value>
         public string Name => "DMA Transfer and Start Address (W)";
 
         /// <summary>
-        /// Gets or sets the raw register value.
+        ///     Gets or sets the raw register value.
         /// </summary>
         /// <value>
-        /// The raw register value.
+        ///     The raw register value.
         /// </value>
-        public byte Register {
+        public byte Register
+        {
             get { return 0x00; }
             set
             {
@@ -64,10 +68,10 @@ namespace Axh.Retro.GameBoy.Registers
         }
 
         /// <summary>
-        /// Gets the debug view.
+        ///     Gets the debug view.
         /// </summary>
         /// <value>
-        /// The debug view.
+        ///     The debug view.
         /// </value>
         public string DebugView { get; }
     }

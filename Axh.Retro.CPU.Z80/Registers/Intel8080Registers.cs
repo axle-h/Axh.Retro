@@ -1,16 +1,18 @@
-﻿namespace Axh.Retro.CPU.Z80.Registers
-{
-    using Axh.Retro.CPU.Z80.Contracts.Config;
-    using Axh.Retro.CPU.Z80.Contracts.Registers;
-    using Axh.Retro.CPU.Z80.Contracts.State;
+﻿using Axh.Retro.CPU.Z80.Contracts.Config;
+using Axh.Retro.CPU.Z80.Contracts.Registers;
+using Axh.Retro.CPU.Z80.Contracts.State;
 
+namespace Axh.Retro.CPU.Z80.Registers
+{
     public class Intel8080Registers : IIntel8080Registers
     {
-        public Intel8080Registers(IGeneralPurposeRegisterSet generalPurposeRegisters, IAccumulatorAndFlagsRegisterSet accumulatorAndFlagsRegisters, IInitialStateFactory<Intel8080RegisterState> initialStateFactory)
+        public Intel8080Registers(IGeneralPurposeRegisterSet generalPurposeRegisters,
+                                  IAccumulatorAndFlagsRegisterSet accumulatorAndFlagsRegisters,
+                                  IInitialStateFactory<Intel8080RegisterState> initialStateFactory)
         {
             GeneralPurposeRegisters = generalPurposeRegisters;
             AccumulatorAndFlagsRegisters = accumulatorAndFlagsRegisters;
-            this.ResetToState(initialStateFactory.GetInitialRegisterState());
+            ResetToState(initialStateFactory.GetInitialRegisterState());
         }
 
         public IGeneralPurposeRegisterSet GeneralPurposeRegisters { get; }
@@ -28,9 +30,9 @@
 
         public void Reset()
         {
-            this.GeneralPurposeRegisters.Reset();
-            this.AccumulatorAndFlagsRegisters.Reset();
-            
+            GeneralPurposeRegisters.Reset();
+            AccumulatorAndFlagsRegisters.Reset();
+
             StackPointer = 0;
             ProgramCounter = 0;
             InterruptFlipFlop1 = InterruptFlipFlop2 = false;
@@ -39,28 +41,30 @@
 
         public void ResetToState(Intel8080RegisterState state)
         {
-            this.GeneralPurposeRegisters.ResetToState(state.GeneralPurposeRegisterState);
-            this.AccumulatorAndFlagsRegisters.ResetToState(state.AccumulatorAndFlagsRegisterState);
+            GeneralPurposeRegisters.ResetToState(state.GeneralPurposeRegisterState);
+            AccumulatorAndFlagsRegisters.ResetToState(state.AccumulatorAndFlagsRegisterState);
 
-            this.StackPointer = state.StackPointer;
-            this.ProgramCounter = state.ProgramCounter;
+            StackPointer = state.StackPointer;
+            ProgramCounter = state.ProgramCounter;
 
-            this.InterruptFlipFlop1 = state.InterruptFlipFlop1;
-            this.InterruptFlipFlop2 = state.InterruptFlipFlop2;
-            this.InterruptMode = state.InterruptMode;
+            InterruptFlipFlop1 = state.InterruptFlipFlop1;
+            InterruptFlipFlop2 = state.InterruptFlipFlop2;
+            InterruptMode = state.InterruptMode;
         }
 
         public Intel8080RegisterState GetRegisterState()
         {
             return new Intel8080RegisterState
                    {
-                       AccumulatorAndFlagsRegisterState = this.AccumulatorAndFlagsRegisters.GetRegisterState(),
-                       InterruptFlipFlop1 = this.InterruptFlipFlop1,
-                       InterruptFlipFlop2 = this.InterruptFlipFlop2,
-                       InterruptMode = this.InterruptMode,
-                       GeneralPurposeRegisterState = this.GeneralPurposeRegisters.GetRegisterState(),
-                       ProgramCounter = this.ProgramCounter,
-                       StackPointer = this.StackPointer
+                       AccumulatorAndFlagsRegisterState =
+                           AccumulatorAndFlagsRegisters.GetRegisterState(),
+                       InterruptFlipFlop1 = InterruptFlipFlop1,
+                       InterruptFlipFlop2 = InterruptFlipFlop2,
+                       InterruptMode = InterruptMode,
+                       GeneralPurposeRegisterState =
+                           GeneralPurposeRegisters.GetRegisterState(),
+                       ProgramCounter = ProgramCounter,
+                       StackPointer = StackPointer
                    };
         }
     }

@@ -1,9 +1,9 @@
-﻿namespace Axh.Retro.CPU.Z80.Registers
-{
-    using Axh.Retro.CPU.Z80.Contracts.Registers;
-    using Axh.Retro.CPU.Z80.Contracts.State;
-    using Axh.Retro.CPU.Z80.Util;
+﻿using Axh.Retro.CPU.Z80.Contracts.Registers;
+using Axh.Retro.CPU.Z80.Contracts.State;
+using Axh.Retro.CPU.Z80.Util;
 
+namespace Axh.Retro.CPU.Z80.Registers
+{
     public class GeneralPurposeRegisterSet : IGeneralPurposeRegisterSet
     {
         public byte B { get; set; }
@@ -16,46 +16,37 @@
         //16 Bit Registers
         public ushort BC
         {
-            get
-            {
-                return BitConverterHelpers.To16Bit(this.B, this.C);
-            }
+            get { return BitConverterHelpers.To16Bit(B, C); }
             set
             {
                 var bytes = BitConverterHelpers.To8Bit(value);
-                this.B = bytes[1];
-                this.C = bytes[0];
+                B = bytes[1];
+                C = bytes[0];
             }
         }
 
         public ushort DE
         {
-            get
-            {
-                return BitConverterHelpers.To16Bit(this.D, this.E);
-            }
+            get { return BitConverterHelpers.To16Bit(D, E); }
             set
             {
                 var bytes = BitConverterHelpers.To8Bit(value);
-                this.D = bytes[1];
-                this.E = bytes[0];
+                D = bytes[1];
+                E = bytes[0];
             }
         }
 
         public ushort HL
         {
-            get
-            {
-                return BitConverterHelpers.To16Bit(this.H, this.L);
-            }
+            get { return BitConverterHelpers.To16Bit(H, L); }
             set
             {
                 var bytes = BitConverterHelpers.To8Bit(value);
-                this.H = bytes[1];
-                this.L = bytes[0];
+                H = bytes[1];
+                L = bytes[0];
             }
         }
-        
+
         public void Reset()
         {
             B = C = D = E = H = L = 0;
@@ -73,15 +64,7 @@
 
         public GeneralPurposeRegisterState GetRegisterState()
         {
-            return new GeneralPurposeRegisterState
-            {
-                B = B,
-                C = C,
-                D = D,
-                E = E,
-                H = H,
-                L = L
-            };
+            return new GeneralPurposeRegisterState {B = B, C = C, D = D, E = E, H = H, L = L};
         }
     }
 }

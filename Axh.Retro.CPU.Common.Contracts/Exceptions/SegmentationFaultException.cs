@@ -1,7 +1,7 @@
-﻿namespace Axh.Retro.CPU.Common.Contracts.Exceptions
-{
-    using System;
+﻿using System;
 
+namespace Axh.Retro.CPU.Common.Contracts.Exceptions
+{
     public class SegmentationFaultException : Exception
     {
         private readonly ushort address;

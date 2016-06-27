@@ -1,11 +1,10 @@
-﻿namespace Axh.Retro.CPU.Common.Memory
+﻿using System;
+using Axh.Retro.CPU.Common.Contracts.Config;
+using Axh.Retro.CPU.Common.Contracts.Exceptions;
+using Axh.Retro.CPU.Common.Contracts.Memory;
+
+namespace Axh.Retro.CPU.Common.Memory
 {
-    using System;
-
-    using Axh.Retro.CPU.Common.Contracts.Config;
-    using Axh.Retro.CPU.Common.Contracts.Exceptions;
-    using Axh.Retro.CPU.Common.Contracts.Memory;
-
     public class ReadOnlyMemoryBank : IReadableAddressSegment
     {
         private readonly byte[] memory;
@@ -14,15 +13,17 @@
         {
             if (memoryBankConfig.State == null || memoryBankConfig.Length != memoryBankConfig.State.Length)
             {
-                throw new MemoryConfigStateException(memoryBankConfig.Address, memoryBankConfig.Length, memoryBankConfig.State?.Length ?? 0);
+                throw new MemoryConfigStateException(memoryBankConfig.Address,
+                                                     memoryBankConfig.Length,
+                                                     memoryBankConfig.State?.Length ?? 0);
             }
 
-            this.memory = new byte[memoryBankConfig.Length];
-            Array.Copy(memoryBankConfig.State, 0, this.memory, 0, memoryBankConfig.State.Length);
+            memory = new byte[memoryBankConfig.Length];
+            Array.Copy(memoryBankConfig.State, 0, memory, 0, memoryBankConfig.State.Length);
 
-            this.Type = memoryBankConfig.Type;
-            this.Address = memoryBankConfig.Address;
-            this.Length = memoryBankConfig.Length;
+            Type = memoryBankConfig.Type;
+            Address = memoryBankConfig.Address;
+            Length = memoryBankConfig.Length;
         }
 
         public MemoryBankType Type { get; }
@@ -33,7 +34,7 @@
 
         public byte ReadByte(ushort address)
         {
-            return this.memory[address];
+            return memory[address];
         }
 
         public ushort ReadWord(ushort address)

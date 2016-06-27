@@ -1,24 +1,19 @@
-﻿using Axh.Retro.CPU.Z80.Wiring;
+﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
+using Axh.Retro.CPU.Z80.Contracts.Core;
+using Axh.Retro.CPU.Z80.Contracts.Registers;
+using Axh.Retro.CPU.Z80.Contracts.State;
+using Axh.Retro.CPU.Z80.Wiring;
+using Axh.Retro.GameBoy.BlarggTests.Config;
+using Axh.Retro.GameBoy.Contracts.Config;
+using Axh.Retro.GameBoy.Contracts.Peripherals;
 using Axh.Retro.GameBoy.Wiring;
+using Ninject;
+using NUnit.Framework;
 
 namespace Axh.Retro.GameBoy.BlarggTests
 {
-    using System;
-    using System.Linq;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using Axh.Retro.CPU.Z80.Contracts.Core;
-    using Axh.Retro.CPU.Z80.Contracts.Registers;
-    using Axh.Retro.CPU.Z80.Contracts.State;
-    using Axh.Retro.GameBoy.BlarggTests.Config;
-    using Axh.Retro.GameBoy.Contracts.Config;
-    using Axh.Retro.GameBoy.Contracts.Devices;
-    using Axh.Retro.GameBoy.Contracts.Peripherals;
-
-    using Ninject;
-
-    using NUnit.Framework;
-
     [TestFixture]
     public class BlarggTestBase : IDisposable
     {
@@ -30,7 +25,9 @@ namespace Axh.Retro.GameBoy.BlarggTests
 
         public BlarggTestBase()
         {
-            kernel = new StandardKernel(new BlarggTestModule(ScopeName), new GameBoyModule(ScopeName), new Z80Module<IIntel8080Registers, Intel8080RegisterState>(ScopeName));
+            kernel = new StandardKernel(new BlarggTestModule(ScopeName),
+                                        new GameBoyModule(ScopeName),
+                                        new Z80Module<IIntel8080Registers, Intel8080RegisterState>(ScopeName));
             config = kernel.Get<IGameBoyConfig>() as BlarggTestGameBoyConfig;
         }
 
@@ -54,7 +51,7 @@ namespace Axh.Retro.GameBoy.BlarggTests
                     {
                         throw new Exception("Couldn't get next word");
                     }
-                    
+
                     if (word == "Failed" || word == "Passed")
                     {
                         Task.Delay(TimeSpan.FromSeconds(1), token).Wait(token);

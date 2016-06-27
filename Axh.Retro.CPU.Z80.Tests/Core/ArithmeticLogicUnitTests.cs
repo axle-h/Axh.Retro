@@ -1,17 +1,10 @@
-﻿namespace Axh.Retro.CPU.Z80.Tests.Core
+﻿using Axh.Retro.CPU.Z80.Contracts.Registers;
+using Axh.Retro.CPU.Z80.Core;
+using Moq;
+using NUnit.Framework;
+
+namespace Axh.Retro.CPU.Z80.Tests.Core
 {
-    using System;
-    using System.Linq.Expressions;
-    using System.Reflection;
-
-    using Axh.Retro.CPU.Z80.Contracts.Registers;
-    using Axh.Retro.CPU.Z80.Core;
-
-    using Moq;
-
-    using NUnit.Framework;
-    using NUnit.Framework.Constraints;
-
     [TestFixture]
     public class ArithmeticLogicUnitTests
     {
@@ -34,15 +27,15 @@
 
         private void Reset(bool carry = false)
         {
-            this.flags.ResetCalls();
-            this.flags.SetupProperty(x => x.Sign, false);
-            this.flags.SetupProperty(x => x.Zero, false);
-            this.flags.SetupProperty(x => x.Flag5, false);
-            this.flags.SetupProperty(x => x.HalfCarry, false);
-            this.flags.SetupProperty(x => x.ParityOverflow, false);
-            this.flags.SetupProperty(x => x.Flag3, false);
-            this.flags.SetupProperty(x => x.Subtract, false);
-            this.flags.SetupProperty(x => x.Carry, carry);
+            flags.ResetCalls();
+            flags.SetupProperty(x => x.Sign, false);
+            flags.SetupProperty(x => x.Zero, false);
+            flags.SetupProperty(x => x.Flag5, false);
+            flags.SetupProperty(x => x.HalfCarry, false);
+            flags.SetupProperty(x => x.ParityOverflow, false);
+            flags.SetupProperty(x => x.Flag3, false);
+            flags.SetupProperty(x => x.Subtract, false);
+            flags.SetupProperty(x => x.Carry, carry);
         }
 
         [TestCase(0x4e, 0x4f, false, false)]
@@ -71,7 +64,7 @@
 
             AssertFlags(result, null, null, halfCarry, overflow, true, null);
         }
-        
+
         [TestCase(0, 0, 0, false, false, false)]
         [TestCase(0, 1, 1, false, false, false)]
         [TestCase(0, 127, 127, false, false, false)]
@@ -118,7 +111,7 @@
 
             AssertFlags(result, null, null, halfCarry, overflow, false, carry);
         }
-        
+
         [TestCase(0, 0, 1, false, false, false)]
         [TestCase(0, 1, 2, false, false, false)]
         [TestCase(0, 127, 128, true, false, true)]
@@ -159,7 +152,7 @@
         {
             Reset();
 
-            this.flags.SetupProperty(x => x.Carry, true);
+            flags.SetupProperty(x => x.Carry, true);
 
             var result = alu.AddWithCarry(a, b);
 
@@ -255,7 +248,7 @@
         {
             Reset();
 
-            this.flags.SetupProperty(x => x.Carry, true);
+            flags.SetupProperty(x => x.Carry, true);
 
             var result = alu.SubtractWithCarry(a, b);
 
@@ -269,7 +262,7 @@
         [TestCase(0, 127, 129, true, false)]
         [TestCase(0, 128, 128, false, true)]
         [TestCase(0, 129, 127, true, false)]
-        [TestCase(0, 255, 1, true,  false)]
+        [TestCase(0, 255, 1, true, false)]
         [TestCase(1, 0, 1, false, false)]
         [TestCase(1, 1, 0, false, false)]
         [TestCase(1, 127, 130, true, false)]
@@ -305,7 +298,7 @@
             Reset();
 
             alu.Compare(a, b);
-            
+
             AssertFlags(expected, null, null, halfCarry, overflow, true, null);
         }
 
@@ -321,7 +314,7 @@
             flags.VerifySet(x => x.HalfCarry = true, Times.Once);
             flags.VerifySet(x => x.Carry = false, Times.Once);
         }
-        
+
         [TestCase(0x48, 0x12, 0x5a)]
         public void Or(byte a, byte b, byte expected)
         {
@@ -334,7 +327,7 @@
             flags.VerifySet(x => x.HalfCarry = false, Times.Once);
             flags.VerifySet(x => x.Carry = false, Times.Once);
         }
-        
+
         [TestCase(0x96, 0x5d, 0xcb)]
         public void Xor(byte a, byte b, byte expected)
         {
@@ -366,7 +359,7 @@
         public void DecimalAdjustSubraction(byte a, byte b, byte expected)
         {
             Reset();
-            
+
             var result = alu.Subtract(a, b);
             var daa = alu.DecimalAdjust(result, true);
 
@@ -374,10 +367,10 @@
             flags.Verify(x => x.SetResultFlags(expected), Times.AtLeastOnce);
         }
 
-        [TestCase((ushort)0x4242, (ushort)0x1111, (ushort)0x5353, false, false)]
-        [TestCase((ushort)0x0100, (ushort)0x7f00, (ushort)0x8000, true, false)]
-        [TestCase((ushort)0xffff, (ushort)0x0001, (ushort)0x0000, true, true)]
-        [TestCase((ushort)0xaaaa, (ushort)0xbbbb, (ushort)0x6665, true, true)]
+        [TestCase((ushort) 0x4242, (ushort) 0x1111, (ushort) 0x5353, false, false)]
+        [TestCase((ushort) 0x0100, (ushort) 0x7f00, (ushort) 0x8000, true, false)]
+        [TestCase((ushort) 0xffff, (ushort) 0x0001, (ushort) 0x0000, true, true)]
+        [TestCase((ushort) 0xaaaa, (ushort) 0xbbbb, (ushort) 0x6665, true, true)]
         public void Add16(ushort a, ushort b, ushort expected, bool halfCarry, bool carry)
         {
             Reset();
@@ -389,15 +382,15 @@
             AssertFlags(null, null, null, halfCarry, null, false, carry);
         }
 
-        [TestCase((ushort)0x4242, (ushort)0x1111, (ushort)0x5354, false, false, false)]
-        [TestCase((ushort)0x0100, (ushort)0x7f00, (ushort)0x8001, true, true, false)]
-        [TestCase((ushort)0xffff, (ushort)0x0001, (ushort)0x0001, true, false, true)]
-        [TestCase((ushort)0xaaaa, (ushort)0xbbbb, (ushort)0x6666, true, true, true)]
+        [TestCase((ushort) 0x4242, (ushort) 0x1111, (ushort) 0x5354, false, false, false)]
+        [TestCase((ushort) 0x0100, (ushort) 0x7f00, (ushort) 0x8001, true, true, false)]
+        [TestCase((ushort) 0xffff, (ushort) 0x0001, (ushort) 0x0001, true, false, true)]
+        [TestCase((ushort) 0xaaaa, (ushort) 0xbbbb, (ushort) 0x6666, true, true, true)]
         public void Add16WithCarry(ushort a, ushort b, ushort expected, bool halfCarry, bool overflow, bool carry)
         {
             Reset();
 
-            this.flags.SetupProperty(x => x.Carry, true);
+            flags.SetupProperty(x => x.Carry, true);
 
             var result = alu.AddWithCarry(a, b);
 
@@ -407,15 +400,15 @@
             flags.Verify(x => x.SetResultFlags(result), Times.Once);
         }
 
-        [TestCase((ushort)0x9999, (ushort)0x1111, (ushort)0x8887, false, false, false)]
-        [TestCase((ushort)0x4242, (ushort)0x1111, (ushort)0x3130, false, false, false)]
-        [TestCase((ushort)0x0100, (ushort)0x7f00, (ushort)0x81ff, true, false, true)]
-        [TestCase((ushort)0xaaaa, (ushort)0x4444, (ushort)0x6665, false, true, false)]
+        [TestCase((ushort) 0x9999, (ushort) 0x1111, (ushort) 0x8887, false, false, false)]
+        [TestCase((ushort) 0x4242, (ushort) 0x1111, (ushort) 0x3130, false, false, false)]
+        [TestCase((ushort) 0x0100, (ushort) 0x7f00, (ushort) 0x81ff, true, false, true)]
+        [TestCase((ushort) 0xaaaa, (ushort) 0x4444, (ushort) 0x6665, false, true, false)]
         public void Subtract16WithCarry(ushort a, ushort b, ushort expected, bool halfCarry, bool overflow, bool carry)
         {
             Reset();
 
-            this.flags.SetupProperty(x => x.Carry, true);
+            flags.SetupProperty(x => x.Carry, true);
 
             var result = alu.SubtractWithCarry(a, b);
 
@@ -471,7 +464,7 @@
 
             flags.Verify(x => x.SetResultFlags(result), Times.Once);
         }
-        
+
         [TestCase(false, 0x11, 0x08, true)]
         [TestCase(false, 0x22, 0x11, false)]
         [TestCase(true, 0x11, 0x88, true)]
@@ -549,7 +542,7 @@
 
             flags.Verify(x => x.SetParityFlags(result), Times.Once);
         }
-        
+
         [TestCase(0x7a, 0x31, 0x73, 0x1a)]
         public void RotateLeftDigit(byte accumulator, byte b, byte expectedAccumulator, byte expected)
         {
@@ -579,7 +572,50 @@
 
             flags.Verify(x => x.SetParityFlags(result.Accumulator), Times.Once);
         }
-        
+
+        private void AssertFlags(byte? result,
+                                 bool? sign,
+                                 bool? zero,
+                                 bool? halfCarry,
+                                 bool? parityOverflow,
+                                 bool? subtract,
+                                 bool? carry)
+        {
+            if (result.HasValue)
+            {
+                flags.Verify(x => x.SetResultFlags(result.Value), Times.Once);
+            }
+
+            FlagsHelpers.VerifyFlag(flags, x => x.Sign, sign);
+            FlagsHelpers.VerifyFlag(flags, x => x.Zero, zero);
+            FlagsHelpers.VerifyFlag(flags, x => x.HalfCarry, halfCarry);
+            FlagsHelpers.VerifyFlag(flags, x => x.ParityOverflow, parityOverflow);
+            FlagsHelpers.VerifyFlag(flags, x => x.Subtract, subtract);
+            FlagsHelpers.VerifyFlag(flags, x => x.Carry, carry);
+        }
+
+        [Test]
+        public void BitReset()
+        {
+            for (var i = 0; i < 8; i++)
+            {
+                Reset();
+                var result = alu.BitReset(0xff, i);
+                Assert.AreEqual((1 << i) ^ 0xff, result);
+            }
+        }
+
+        [Test]
+        public void BitSet()
+        {
+            for (var i = 0; i < 8; i++)
+            {
+                Reset();
+                var result = alu.BitSet(0x00, i);
+                Assert.AreEqual(1 << i, result);
+            }
+        }
+
         [Test]
         public void BitTest0()
         {
@@ -602,43 +638,6 @@
                 AssertFlags(null, false, false, true, false, false, null);
                 flags.Verify(x => x.SetUndocumentedFlags(0xff), Times.Once);
             }
-        }
-
-        [Test]
-        public void BitSet()
-        {
-            for (var i = 0; i < 8; i++)
-            {
-                Reset();
-                var result = alu.BitSet(0x00, i);
-                Assert.AreEqual(1 << i, result);
-            }
-        }
-
-        [Test]
-        public void BitReset()
-        {
-            for (var i = 0; i < 8; i++)
-            {
-                Reset();
-                var result = alu.BitReset(0xff, i);
-                Assert.AreEqual((1 << i) ^ 0xff, result);
-            }
-        }
-
-        private void AssertFlags(byte? result, bool? sign, bool? zero, bool? halfCarry, bool? parityOverflow, bool? subtract, bool? carry)
-        {
-            if (result.HasValue)
-            {
-                flags.Verify(x => x.SetResultFlags(result.Value), Times.Once);
-            }
-
-            FlagsHelpers.VerifyFlag(flags, x => x.Sign, sign);
-            FlagsHelpers.VerifyFlag(flags, x => x.Zero, zero);
-            FlagsHelpers.VerifyFlag(flags, x => x.HalfCarry, halfCarry);
-            FlagsHelpers.VerifyFlag(flags, x => x.ParityOverflow, parityOverflow);
-            FlagsHelpers.VerifyFlag(flags, x => x.Subtract, subtract);
-            FlagsHelpers.VerifyFlag(flags, x => x.Carry, carry);
         }
     }
 }

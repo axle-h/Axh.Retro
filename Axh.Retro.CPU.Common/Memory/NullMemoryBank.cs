@@ -1,15 +1,15 @@
-﻿namespace Axh.Retro.CPU.Common.Memory
-{
-    using Axh.Retro.CPU.Common.Contracts.Config;
-    using Axh.Retro.CPU.Common.Contracts.Memory;
+﻿using Axh.Retro.CPU.Common.Contracts.Config;
+using Axh.Retro.CPU.Common.Contracts.Memory;
 
+namespace Axh.Retro.CPU.Common.Memory
+{
     public class NullMemoryBank : IReadableAddressSegment, IWriteableAddressSegment
     {
         public NullMemoryBank(IMemoryBankConfig memoryBankConfig)
         {
-            this.Type = memoryBankConfig.Type;
-            this.Address = memoryBankConfig.Address;
-            this.Length = memoryBankConfig.Length;
+            Type = memoryBankConfig.Type;
+            Address = memoryBankConfig.Address;
+            Length = memoryBankConfig.Length;
         }
 
         public MemoryBankType Type { get; }
@@ -48,6 +48,7 @@
         public void WriteBytes(ushort address, byte[] values)
         {
         }
+
         public override string ToString()
         {
             return $"{Type}: 0x{Address:x4} - 0x{Address + Length - 1:x4}";

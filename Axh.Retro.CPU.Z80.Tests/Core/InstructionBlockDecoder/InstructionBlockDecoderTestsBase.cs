@@ -1,30 +1,20 @@
-﻿namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
+﻿using System;
+using System.Collections;
+using System.Linq;
+using Axh.Retro.CPU.Common.Contracts.Memory;
+using Axh.Retro.CPU.Z80.Contracts.Config;
+using Axh.Retro.CPU.Z80.Contracts.Core;
+using Axh.Retro.CPU.Z80.Contracts.OpCodes;
+using Axh.Retro.CPU.Z80.Contracts.Peripherals;
+using Axh.Retro.CPU.Z80.Contracts.Registers;
+using Axh.Retro.CPU.Z80.Core.DynaRec;
+using Moq;
+using NUnit.Framework;
+
+namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
 {
-    using System;
-    using System.Collections;
-    using System.Linq;
-
-    using Axh.Retro.CPU.Common.Contracts.Memory;
-    using Axh.Retro.CPU.Z80.Contracts.Config;
-    using Axh.Retro.CPU.Z80.Contracts.Core;
-    using Axh.Retro.CPU.Z80.Contracts.OpCodes;
-    using Axh.Retro.CPU.Z80.Contracts.Peripherals;
-    using Axh.Retro.CPU.Z80.Contracts.Registers;
-    using Axh.Retro.CPU.Z80.Core.DynaRec;
-
-    using Moq;
-
-    using NUnit.Framework;
-
     public abstract class InstructionBlockDecoderTestsBase<TRegisters> where TRegisters : class, IRegisters
     {
-        private readonly CpuMode cpuMode;
-
-        protected InstructionBlockDecoderTestsBase(CpuMode cpuMode)
-        {
-            this.cpuMode = cpuMode;
-        }
-
         protected const ushort Address = 0x0000;
 
         protected const byte A = 0xaa;
@@ -57,88 +47,94 @@
 
         protected const bool IFF1 = false;
         protected const bool IFF2 = true;
-
-        protected IInstructionBlockDecoder<TRegisters> DynaRecBlockDecoder;
-
-        protected Mock<TRegisters> Registers;
-
-        protected Mock<IMmu> Mmu;
-
-        protected Mock<IAlu> Alu;
-
-        protected Mock<IPeripheralManager> Io;
-
-        protected Mock<IGeneralPurposeRegisterSet> GpRegisters;
+        private readonly CpuMode cpuMode;
 
         protected Mock<IAccumulatorAndFlagsRegisterSet> AfRegisters;
 
-        protected Mock<IFlagsRegister> FlagsRegister;
+        protected Mock<IAlu> Alu;
 
         protected Mock<IPrefetchQueue> Cache;
+
+        protected IInstructionBlockDecoder<TRegisters> DynaRecBlockDecoder;
+
+        protected Mock<IFlagsRegister> FlagsRegister;
+
+        protected Mock<IGeneralPurposeRegisterSet> GpRegisters;
+
+        protected Mock<IPeripheralManager> Io;
+
+        protected Mock<IMmu> Mmu;
+
+        protected Mock<TRegisters> Registers;
+
+        protected InstructionBlockDecoderTestsBase(CpuMode cpuMode)
+        {
+            this.cpuMode = cpuMode;
+        }
 
         [TestFixtureSetUp]
         public void TestFixtureSetUp()
         {
-            this.Registers = new Mock<TRegisters>();
-            this.GpRegisters = new Mock<IGeneralPurposeRegisterSet>();
-            this.AfRegisters = new Mock<IAccumulatorAndFlagsRegisterSet>();
-            this.FlagsRegister = new Mock<IFlagsRegister>();
+            Registers = new Mock<TRegisters>();
+            GpRegisters = new Mock<IGeneralPurposeRegisterSet>();
+            AfRegisters = new Mock<IAccumulatorAndFlagsRegisterSet>();
+            FlagsRegister = new Mock<IFlagsRegister>();
 
-            this.AfRegisters.Setup(x => x.Flags).Returns(this.FlagsRegister.Object);
-            this.Registers.Setup(x => x.GeneralPurposeRegisters).Returns(this.GpRegisters.Object);
-            this.Registers.Setup(x => x.AccumulatorAndFlagsRegisters).Returns(this.AfRegisters.Object);
+            AfRegisters.Setup(x => x.Flags).Returns(FlagsRegister.Object);
+            Registers.Setup(x => x.GeneralPurposeRegisters).Returns(GpRegisters.Object);
+            Registers.Setup(x => x.AccumulatorAndFlagsRegisters).Returns(AfRegisters.Object);
 
-            this.Mmu = new Mock<IMmu>();
+            Mmu = new Mock<IMmu>();
 
-            this.Cache = new Mock<IPrefetchQueue>();
-            
-            this.Alu = new Mock<IAlu>();
+            Cache = new Mock<IPrefetchQueue>();
 
-            this.Io = new Mock<IPeripheralManager>();
+            Alu = new Mock<IAlu>();
+
+            Io = new Mock<IPeripheralManager>();
 
             var platformConfig = new Mock<IPlatformConfig>();
-            platformConfig.Setup(x => x.CpuMode).Returns(this.cpuMode);
+            platformConfig.Setup(x => x.CpuMode).Returns(cpuMode);
 
             var runtimeConfig = new Mock<IRuntimeConfig>();
             runtimeConfig.Setup(x => x.DebugMode).Returns(true);
-            this.DynaRecBlockDecoder = new DynaRec<TRegisters>(platformConfig.Object, runtimeConfig.Object, this.Cache.Object);
+            DynaRecBlockDecoder = new DynaRec<TRegisters>(platformConfig.Object, runtimeConfig.Object, Cache.Object);
         }
 
         protected void SetupRegisters(ushort? bc = null)
         {
-            this.GpRegisters.SetupProperty(x => x.B, B);
-            this.GpRegisters.SetupProperty(x => x.C, C);
-            this.GpRegisters.SetupProperty(x => x.D, D);
-            this.GpRegisters.SetupProperty(x => x.E, E);
-            this.GpRegisters.SetupProperty(x => x.H, H);
-            this.GpRegisters.SetupProperty(x => x.L, L);
+            GpRegisters.SetupProperty(x => x.B, B);
+            GpRegisters.SetupProperty(x => x.C, C);
+            GpRegisters.SetupProperty(x => x.D, D);
+            GpRegisters.SetupProperty(x => x.E, E);
+            GpRegisters.SetupProperty(x => x.H, H);
+            GpRegisters.SetupProperty(x => x.L, L);
 
-            this.GpRegisters.SetupProperty(x => x.BC, bc ?? BC);
-            this.GpRegisters.SetupProperty(x => x.DE, DE);
+            GpRegisters.SetupProperty(x => x.BC, bc ?? BC);
+            GpRegisters.SetupProperty(x => x.DE, DE);
 
-            this.GpRegisters.SetupProperty(x => x.HL, HL);
+            GpRegisters.SetupProperty(x => x.HL, HL);
 
-            this.Registers.SetupProperty(x => x.InterruptFlipFlop1, IFF1);
-            this.Registers.SetupProperty(x => x.InterruptFlipFlop2, IFF2);
+            Registers.SetupProperty(x => x.InterruptFlipFlop1, IFF1);
+            Registers.SetupProperty(x => x.InterruptFlipFlop2, IFF2);
 
-            this.Registers.SetupProperty(x => x.ProgramCounter, PC);
-            this.Registers.SetupProperty(x => x.StackPointer, SP);
+            Registers.SetupProperty(x => x.ProgramCounter, PC);
+            Registers.SetupProperty(x => x.StackPointer, SP);
 
-            this.AfRegisters.SetupProperty(x => x.A, A);
-            this.AfRegisters.SetupProperty(x => x.AF, AF);
+            AfRegisters.SetupProperty(x => x.A, A);
+            AfRegisters.SetupProperty(x => x.AF, AF);
 
-            this.FlagsRegister.SetupProperty(x => x.Register, F);
-            this.FlagsRegister.SetupProperty(x => x.Sign, false);
-            this.FlagsRegister.SetupProperty(x => x.Zero, false);
-            this.FlagsRegister.SetupProperty(x => x.Flag5, false);
-            this.FlagsRegister.SetupProperty(x => x.HalfCarry, false);
-            this.FlagsRegister.SetupProperty(x => x.ParityOverflow, false);
-            this.FlagsRegister.SetupProperty(x => x.Flag3, false);
-            this.FlagsRegister.SetupProperty(x => x.Subtract, false);
-            this.FlagsRegister.SetupProperty(x => x.Carry, false);
+            FlagsRegister.SetupProperty(x => x.Register, F);
+            FlagsRegister.SetupProperty(x => x.Sign, false);
+            FlagsRegister.SetupProperty(x => x.Zero, false);
+            FlagsRegister.SetupProperty(x => x.Flag5, false);
+            FlagsRegister.SetupProperty(x => x.HalfCarry, false);
+            FlagsRegister.SetupProperty(x => x.ParityOverflow, false);
+            FlagsRegister.SetupProperty(x => x.Flag3, false);
+            FlagsRegister.SetupProperty(x => x.Subtract, false);
+            FlagsRegister.SetupProperty(x => x.Carry, false);
 
             // Z80 Specific
-            var z80Mock = this.Registers as Mock<IZ80Registers>;
+            var z80Mock = Registers as Mock<IZ80Registers>;
             if (z80Mock != null)
             {
                 z80Mock.SetupProperty(x => x.I, I);
@@ -154,40 +150,38 @@
 
         protected void ResetMocks()
         {
-            this.Registers.ResetCalls();
-            this.GpRegisters.ResetCalls();
-            this.AfRegisters.ResetCalls();
-            this.FlagsRegister.ResetCalls();
-            this.Cache.ResetCalls();
-            this.Mmu.ResetCalls();
-            this.Alu.ResetCalls();
-            this.Io.ResetCalls();
+            Registers.ResetCalls();
+            GpRegisters.ResetCalls();
+            AfRegisters.ResetCalls();
+            FlagsRegister.ResetCalls();
+            Cache.ResetCalls();
+            Mmu.ResetCalls();
+            Alu.ResetCalls();
+            Io.ResetCalls();
         }
 
         protected void Run(int expectedMachineCycles, int? expectedThrottlingStates, params object[] bytes)
         {
             var length = 0;
             var queue = new Queue(bytes);
-            this.Cache.Setup(x => x.NextByte()).Returns(
-                () =>
-                {
-                    length++;
-                    return (byte)queue.Dequeue();
-                });
+            Cache.Setup(x => x.NextByte()).Returns(() =>
+                                                   {
+                                                       length++;
+                                                       return (byte) queue.Dequeue();
+                                                   });
 
-            this.Cache.Setup(x => x.NextWord()).Returns(
-                () =>
-                {
-                    length += 2;
-                    return (ushort)queue.Dequeue();
-                });
+            Cache.Setup(x => x.NextWord()).Returns(() =>
+                                                   {
+                                                       length += 2;
+                                                       return (ushort) queue.Dequeue();
+                                                   });
 
-            this.Cache.Setup(x => x.TotalBytesRead).Returns(() => length);
+            Cache.Setup(x => x.TotalBytesRead).Returns(() => length);
 
-            var block = this.DynaRecBlockDecoder.DecodeNextBlock(Address);
+            var block = DynaRecBlockDecoder.DecodeNextBlock(Address);
             Assert.IsNotNull(block);
 
-            var timings = block.ExecuteInstructionBlock(this.Registers.Object, this.Mmu.Object, this.Alu.Object, this.Io.Object);
+            var timings = block.ExecuteInstructionBlock(Registers.Object, Mmu.Object, Alu.Object, Io.Object);
 
             Assert.AreEqual(expectedMachineCycles, timings.MachineCycles);
 
@@ -197,12 +191,16 @@
             }
 
             // Make sure all bytes were read
-            this.Cache.Verify(
-                x => x.NextByte(),
-                Times.Exactly(bytes.Count(x => x is byte || x is PrimaryOpCode || x is PrefixEdOpCode || x is PrefixCbOpCode || x is GameBoyPrimaryOpCode || x is GameBoyPrefixCbOpCode)));
-            this.Cache.Verify(x => x.NextWord(), Times.Exactly(bytes.Count(x => x is ushort)));
+            Cache.Verify(x => x.NextByte(),
+                         Times.Exactly(
+                                       bytes.Count(
+                                                   x =>
+                                                       x is byte || x is PrimaryOpCode || x is PrefixEdOpCode ||
+                                                       x is PrefixCbOpCode || x is GameBoyPrimaryOpCode ||
+                                                       x is GameBoyPrefixCbOpCode)));
+            Cache.Verify(x => x.NextWord(), Times.Exactly(bytes.Count(x => x is ushort)));
         }
-        
+
         protected void RunWithHalt(int expectedMachineCycles, int? expectedThrottlingStates, params object[] bytes)
         {
             // Add halt

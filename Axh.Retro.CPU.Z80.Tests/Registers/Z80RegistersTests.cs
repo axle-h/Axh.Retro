@@ -1,17 +1,12 @@
-﻿namespace Axh.Retro.CPU.Z80.Tests.Registers
+﻿using Axh.Retro.CPU.Z80.Contracts.Config;
+using Axh.Retro.CPU.Z80.Contracts.Registers;
+using Axh.Retro.CPU.Z80.Contracts.State;
+using Axh.Retro.CPU.Z80.Registers;
+using Moq;
+using NUnit.Framework;
+
+namespace Axh.Retro.CPU.Z80.Tests.Registers
 {
-    using Axh.Retro.CPU.Z80.Contracts.Config;
-    using Axh.Retro.CPU.Z80.Contracts.Registers;
-    using Axh.Retro.CPU.Z80.Contracts.State;
-    using Axh.Retro.CPU.Z80.Registers;
-
-    using Moq;
-    using NUnit.Framework;
-
-    using IAccumulatorAndFlagsRegisterSet = Axh.Retro.CPU.Z80.Contracts.Registers.IAccumulatorAndFlagsRegisterSet;
-    using IGeneralPurposeRegisterSet = Contracts.Registers.IGeneralPurposeRegisterSet;
-    using IZ80Registers = Contracts.Registers.IZ80Registers;
-
     [TestFixture]
     public class Z80RegistersTests
     {
@@ -34,60 +29,33 @@
             alternativeAccumulatorAndFlagsRegisters = new Mock<IAccumulatorAndFlagsRegisterSet>();
             var initialStateFactory = new Mock<IInitialStateFactory<Z80RegisterState>>();
 
-            this.z80Registers = new Z80Registers(
-                primaryGeneralPurposeRegisters.Object,
-                alternativeGeneralPurposeRegisters.Object,
-                primaryAccumulatorAndFlagsRegisters.Object,
-                alternativeAccumulatorAndFlagsRegisters.Object,
-                initialStateFactory.Object);
+            z80Registers = new Z80Registers(primaryGeneralPurposeRegisters.Object,
+                                            alternativeGeneralPurposeRegisters.Object,
+                                            primaryAccumulatorAndFlagsRegisters.Object,
+                                            alternativeAccumulatorAndFlagsRegisters.Object,
+                                            initialStateFactory.Object);
         }
 
         [Test]
-        public void SwitchToAlternativeGeneralPurposeRegistersTest()
+        public void GetIxRegisterTest()
         {
-            this.z80Registers.Reset();
+            z80Registers.IXl = 0x34;
+            z80Registers.IXh = 0x12;
 
-            Assert.AreSame(this.primaryGeneralPurposeRegisters.Object, z80Registers.GeneralPurposeRegisters);
-
-            this.z80Registers.SwitchToAlternativeGeneralPurposeRegisters();
-
-            Assert.AreSame(this.alternativeGeneralPurposeRegisters.Object, z80Registers.GeneralPurposeRegisters);
+            Assert.AreEqual(0x12, z80Registers.IXh);
+            Assert.AreEqual(0x34, z80Registers.IXl);
+            Assert.AreEqual(0x1234, z80Registers.IX);
         }
 
         [Test]
-        public void SwitchToAlternativeAccumulatorAndFlagsRegistersTest()
+        public void GetIyRegisterTest()
         {
-            this.z80Registers.Reset();
+            z80Registers.IYl = 0x34;
+            z80Registers.IYh = 0x12;
 
-            Assert.AreSame(this.primaryAccumulatorAndFlagsRegisters.Object, z80Registers.AccumulatorAndFlagsRegisters);
-
-            this.z80Registers.SwitchToAlternativeAccumulatorAndFlagsRegisters();
-
-            Assert.AreSame(this.alternativeAccumulatorAndFlagsRegisters.Object, z80Registers.AccumulatorAndFlagsRegisters);
-        }
-
-        [Test]
-        public void ResetToStateTest()
-        {
-            var state = RegisterTestObjects.Z80RegisterState;
-
-            this.z80Registers.ResetToState(state);
-
-            Assert.AreEqual(state.I, z80Registers.I);
-            Assert.AreEqual(state.R, z80Registers.R);
-            Assert.AreEqual(state.IX, z80Registers.IX);
-            Assert.AreEqual(state.IY, z80Registers.IY);
-            Assert.AreEqual(state.InterruptFlipFlop1, z80Registers.InterruptFlipFlop1);
-            Assert.AreEqual(state.InterruptFlipFlop2, z80Registers.InterruptFlipFlop2);
-            Assert.AreEqual(state.InterruptMode, z80Registers.InterruptMode);
-            Assert.AreEqual(state.ProgramCounter, z80Registers.ProgramCounter);
-            Assert.AreEqual(state.StackPointer, z80Registers.StackPointer);
-
-            this.primaryGeneralPurposeRegisters.Verify(x => x.ResetToState(state.PrimaryGeneralPurposeRegisterState));
-            this.alternativeGeneralPurposeRegisters.Verify(x => x.ResetToState(state.AlternativeGeneralPurposeRegisterState));
-
-            this.primaryAccumulatorAndFlagsRegisters.Verify(x => x.ResetToState(state.PrimaryAccumulatorAndFlagsRegisterState));
-            this.alternativeAccumulatorAndFlagsRegisters.Verify(x => x.ResetToState(state.AlternativeAccumulatorAndFlagsRegisterState));
+            Assert.AreEqual(0x12, z80Registers.IYh);
+            Assert.AreEqual(0x34, z80Registers.IYl);
+            Assert.AreEqual(0x1234, z80Registers.IY);
         }
 
         [Test]
@@ -95,19 +63,19 @@
         {
             const byte I = 0x11, R = 0x22, IX = 0x33, IY = 0x44, ProgramCounter = 0x55, StackPointer = 0x66;
             const bool InterruptFlipFlop1 = true, InterruptFlipFlop2 = false;
-            const Contracts.Registers.InterruptMode InterruptMode = InterruptMode.InterruptMode1;
+            const InterruptMode InterruptMode = InterruptMode.InterruptMode1;
 
-            this.z80Registers.I = I;
-            this.z80Registers.R = R;
-            this.z80Registers.IX = IX;
-            this.z80Registers.IY = IY;
-            this.z80Registers.InterruptFlipFlop1 = InterruptFlipFlop1;
-            this.z80Registers.InterruptFlipFlop2 = InterruptFlipFlop2;
-            this.z80Registers.InterruptMode = InterruptMode;
-            this.z80Registers.ProgramCounter = ProgramCounter;
-            this.z80Registers.StackPointer = StackPointer;
+            z80Registers.I = I;
+            z80Registers.R = R;
+            z80Registers.IX = IX;
+            z80Registers.IY = IY;
+            z80Registers.InterruptFlipFlop1 = InterruptFlipFlop1;
+            z80Registers.InterruptFlipFlop2 = InterruptFlipFlop2;
+            z80Registers.InterruptMode = InterruptMode;
+            z80Registers.ProgramCounter = ProgramCounter;
+            z80Registers.StackPointer = StackPointer;
 
-            var state = this.z80Registers.GetRegisterState();
+            var state = z80Registers.GetRegisterState();
 
             Assert.AreEqual(I, state.I);
             Assert.AreEqual(R, state.R);
@@ -119,55 +87,85 @@
             Assert.AreEqual(ProgramCounter, z80Registers.ProgramCounter);
             Assert.AreEqual(StackPointer, z80Registers.StackPointer);
 
-            this.primaryGeneralPurposeRegisters.Verify(x => x.GetRegisterState(), Times.Once);
-            this.alternativeGeneralPurposeRegisters.Verify(x => x.GetRegisterState(), Times.Once);
+            primaryGeneralPurposeRegisters.Verify(x => x.GetRegisterState(), Times.Once);
+            alternativeGeneralPurposeRegisters.Verify(x => x.GetRegisterState(), Times.Once);
 
-            this.primaryAccumulatorAndFlagsRegisters.Verify(x => x.GetRegisterState(), Times.Once);
-            this.alternativeAccumulatorAndFlagsRegisters.Verify(x => x.GetRegisterState(), Times.Once);
-
+            primaryAccumulatorAndFlagsRegisters.Verify(x => x.GetRegisterState(), Times.Once);
+            alternativeAccumulatorAndFlagsRegisters.Verify(x => x.GetRegisterState(), Times.Once);
         }
-        
+
+        [Test]
+        public void ResetToStateTest()
+        {
+            var state = RegisterTestObjects.Z80RegisterState;
+
+            z80Registers.ResetToState(state);
+
+            Assert.AreEqual(state.I, z80Registers.I);
+            Assert.AreEqual(state.R, z80Registers.R);
+            Assert.AreEqual(state.IX, z80Registers.IX);
+            Assert.AreEqual(state.IY, z80Registers.IY);
+            Assert.AreEqual(state.InterruptFlipFlop1, z80Registers.InterruptFlipFlop1);
+            Assert.AreEqual(state.InterruptFlipFlop2, z80Registers.InterruptFlipFlop2);
+            Assert.AreEqual(state.InterruptMode, z80Registers.InterruptMode);
+            Assert.AreEqual(state.ProgramCounter, z80Registers.ProgramCounter);
+            Assert.AreEqual(state.StackPointer, z80Registers.StackPointer);
+
+            primaryGeneralPurposeRegisters.Verify(x => x.ResetToState(state.PrimaryGeneralPurposeRegisterState));
+            alternativeGeneralPurposeRegisters.Verify(x => x.ResetToState(state.AlternativeGeneralPurposeRegisterState));
+
+            primaryAccumulatorAndFlagsRegisters.Verify(
+                                                       x =>
+                                                           x.ResetToState(state.PrimaryAccumulatorAndFlagsRegisterState));
+            alternativeAccumulatorAndFlagsRegisters.Verify(
+                                                           x =>
+                                                               x.ResetToState(
+                                                                              state
+                                                                                  .AlternativeAccumulatorAndFlagsRegisterState));
+        }
+
         [Test]
         public void SetIxRegisterTest()
         {
-            this.z80Registers.IX = 0x1234;
+            z80Registers.IX = 0x1234;
 
-            Assert.AreEqual(0x12, this.z80Registers.IXh);
-            Assert.AreEqual(0x34, this.z80Registers.IXl);
-            Assert.AreEqual(0x1234, this.z80Registers.IX);
+            Assert.AreEqual(0x12, z80Registers.IXh);
+            Assert.AreEqual(0x34, z80Registers.IXl);
+            Assert.AreEqual(0x1234, z80Registers.IX);
         }
 
         [Test]
         public void SetIyRegisterTest()
         {
-            this.z80Registers.IY = 0x1234;
+            z80Registers.IY = 0x1234;
 
-            Assert.AreEqual(0x12, this.z80Registers.IYh);
-            Assert.AreEqual(0x34, this.z80Registers.IYl);
-            Assert.AreEqual(0x1234, this.z80Registers.IY);
+            Assert.AreEqual(0x12, z80Registers.IYh);
+            Assert.AreEqual(0x34, z80Registers.IYl);
+            Assert.AreEqual(0x1234, z80Registers.IY);
         }
 
         [Test]
-        public void GetIxRegisterTest()
+        public void SwitchToAlternativeAccumulatorAndFlagsRegistersTest()
         {
-            this.z80Registers.IXl = 0x34;
-            this.z80Registers.IXh = 0x12;
+            z80Registers.Reset();
 
-            Assert.AreEqual(0x12, this.z80Registers.IXh);
-            Assert.AreEqual(0x34, this.z80Registers.IXl);
-            Assert.AreEqual(0x1234, this.z80Registers.IX);
+            Assert.AreSame(primaryAccumulatorAndFlagsRegisters.Object, z80Registers.AccumulatorAndFlagsRegisters);
+
+            z80Registers.SwitchToAlternativeAccumulatorAndFlagsRegisters();
+
+            Assert.AreSame(alternativeAccumulatorAndFlagsRegisters.Object, z80Registers.AccumulatorAndFlagsRegisters);
         }
 
         [Test]
-        public void GetIyRegisterTest()
+        public void SwitchToAlternativeGeneralPurposeRegistersTest()
         {
-            this.z80Registers.IYl = 0x34;
-            this.z80Registers.IYh = 0x12;
+            z80Registers.Reset();
 
-            Assert.AreEqual(0x12, this.z80Registers.IYh);
-            Assert.AreEqual(0x34, this.z80Registers.IYl);
-            Assert.AreEqual(0x1234, this.z80Registers.IY);
+            Assert.AreSame(primaryGeneralPurposeRegisters.Object, z80Registers.GeneralPurposeRegisters);
+
+            z80Registers.SwitchToAlternativeGeneralPurposeRegisters();
+
+            Assert.AreSame(alternativeGeneralPurposeRegisters.Object, z80Registers.GeneralPurposeRegisters);
         }
-
     }
 }

@@ -1,55 +1,55 @@
 ﻿namespace Axh.Retro.GameBoy.Registers.Interfaces
 {
     /// <summary>
-    /// GameBoy GPU registers.
+    ///     GameBoy GPU registers.
     /// </summary>
     public interface IGpuRegisters
     {
         /// <summary>
-        /// Gets the scroll x register.
+        ///     Gets the scroll x register.
         /// </summary>
         /// <value>
-        /// The scroll x register.
+        ///     The scroll x register.
         /// </value>
         IRegister ScrollXRegister { get; }
 
         /// <summary>
-        /// Gets the scroll y register.
+        ///     Gets the scroll y register.
         /// </summary>
         /// <value>
-        /// The scroll y register.
+        ///     The scroll y register.
         /// </value>
         IRegister ScrollYRegister { get; }
 
         /// <summary>
-        /// Gets the LCD control register.
+        ///     Gets the LCD control register.
         /// </summary>
         /// <value>
-        /// The LCD control register.
+        ///     The LCD control register.
         /// </value>
         ILcdControlRegister LcdControlRegister { get; }
 
         /// <summary>
-        /// Gets the current scanline register.
+        ///     Gets the current scanline register.
         /// </summary>
         /// <value>
-        /// The current scanline register.
+        ///     The current scanline register.
         /// </value>
         ICurrentScanlineRegister CurrentScanlineRegister { get; }
 
         /// <summary>
-        /// Gets the LCD monochrome palette register.
+        ///     Gets the LCD monochrome palette register.
         /// </summary>
         /// <value>
-        /// The LCD monochrome palette register.
+        ///     The LCD monochrome palette register.
         /// </value>
         ILcdMonochromePaletteRegister LcdMonochromePaletteRegister { get; }
 
         /// <summary>
-        /// Gets the LCD status register.
+        ///     Gets the LCD status register.
         /// </summary>
         /// <value>
-        /// The LCD status register.
+        ///     The LCD status register.
         /// </value>
         ILcdStatusRegister LcdStatusRegister { get; }
     }

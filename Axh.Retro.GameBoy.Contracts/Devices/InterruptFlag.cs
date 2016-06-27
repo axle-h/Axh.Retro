@@ -1,7 +1,7 @@
-﻿namespace Axh.Retro.GameBoy.Contracts.Devices
-{
-    using System;
+﻿using System;
 
+namespace Axh.Retro.GameBoy.Contracts.Devices
+{
     [Flags]
     public enum InterruptFlag : byte
     {

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-
 using Axh.Retro.CPU.Z80.Contracts.Core;
 using Axh.Retro.CPU.Z80.Contracts.Peripherals;
 using Axh.Retro.CPU.Z80.Contracts.Registers;
@@ -9,12 +8,11 @@ using Axh.Retro.CPU.Z80.Contracts.Registers;
 namespace Axh.Retro.CPU.Z80.Core
 {
     public class CachingCpuCore<TRegisters, TRegisterState> : ICpuCore<TRegisters, TRegisterState>
-        where TRegisters : IStateBackedRegisters<TRegisterState>
-        where TRegisterState : struct
+        where TRegisters : IStateBackedRegisters<TRegisterState> where TRegisterState : struct
     {
         public CachingCpuCore(ICoreContext<TRegisters, TRegisterState> context)
         {
-            this.Context = context;
+            Context = context;
         }
 
         public ICoreContext<TRegisters, TRegisterState> Context { get; }
@@ -70,7 +68,7 @@ namespace Axh.Retro.CPU.Z80.Core
                         interruptAddress = await interruptManager.WaitForNextInterrupt().ConfigureAwait(false);
 
                         // Push the program counter onto the stack
-                        registers.StackPointer = unchecked((ushort)(registers.StackPointer - 2));
+                        registers.StackPointer = unchecked((ushort) (registers.StackPointer - 2));
                         mmu.WriteWord(registers.StackPointer, registers.ProgramCounter);
                     }
                     else
@@ -78,14 +76,14 @@ namespace Axh.Retro.CPU.Z80.Core
                         // Dummy halt so we don't block threads trigerring interrupts when disabled.
                         interruptManager.NotifyHalt();
                     }
-                    
+
                     interruptManager.NotifyResume();
                 }
                 else
                 {
                     interruptAddress = null;
                 }
-                
+
                 await timer.SyncToTimings(timings).ConfigureAwait(false);
             }
         }

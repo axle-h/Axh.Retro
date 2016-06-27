@@ -1,19 +1,19 @@
-﻿namespace Axh.Retro.CPU.Z80.Core
-{
-    using Axh.Retro.CPU.Z80.Util;
-    using Axh.Retro.CPU.Z80.Contracts.Core;
-    using Axh.Retro.CPU.Z80.Contracts.Registers;
+﻿using Axh.Retro.CPU.Z80.Contracts.Core;
+using Axh.Retro.CPU.Z80.Contracts.Registers;
+using Axh.Retro.CPU.Z80.Util;
 
+namespace Axh.Retro.CPU.Z80.Core
+{
     public class Alu<TRegisters> : IAlu where TRegisters : IRegisters
     {
         private readonly TRegisters registers;
-
-        private IFlagsRegister Flags => registers.AccumulatorAndFlagsRegisters.Flags;
 
         public Alu(TRegisters registers)
         {
             this.registers = registers;
         }
+
+        private IFlagsRegister Flags => registers.AccumulatorAndFlagsRegisters.Flags;
 
         public byte Increment(byte b)
         {
@@ -24,11 +24,11 @@
             flags.ParityOverflow = b == 0x7f;
             flags.Subtract = false;
 
-            b = unchecked((byte)result);
+            b = unchecked((byte) result);
             flags.SetResultFlags(b);
             return b;
         }
-        
+
         public byte Decrement(byte b)
         {
             var result = b - 1;
@@ -38,7 +38,7 @@
             flags.ParityOverflow = b == 0x80;
             flags.Subtract = true;
 
-            b = unchecked((byte)result);
+            b = unchecked((byte) result);
             flags.SetResultFlags(b);
             return b;
         }
@@ -52,7 +52,7 @@
         {
             return Add(a, b, Flags.Carry);
         }
-        
+
         public ushort Add(ushort a, ushort b)
         {
             return Add(a, b, false);
@@ -72,7 +72,7 @@
         {
             return Subtract(a, b, Flags.Carry);
         }
-        
+
         public ushort SubtractWithCarry(ushort a, ushort b)
         {
             var flags = Flags;
@@ -87,7 +87,7 @@
 
             // Overflow = (added signs are same) && (result sign differs from the sign of either of operands)
             flags.ParityOverflow = (((a ^ ~b) & 0x8000) == 0) && (((result ^ a) & 0x8000) != 0);
-            b = unchecked((ushort)result);
+            b = unchecked((ushort) result);
             flags.SetResultFlags(b);
 
             return b;
@@ -132,49 +132,34 @@
             return a;
         }
 
-        ///  <summary>
-        ///  http://www.worldofspectrum.org/faq/reference/z80reference.htm#DAA
-        /// - If the A register is greater than 0x99, OR the Carry flag is SET, then
-        /// 
+        /// <summary>
+        ///     http://www.worldofspectrum.org/faq/reference/z80reference.htm#DAA
+        ///     - If the A register is greater than 0x99, OR the Carry flag is SET, then
         ///     The upper four bits of the Correction Factor are set to 6,
         ///     and the Carry flag will be SET.
-        ///   Else
+        ///     Else
         ///     The upper four bits of the Correction Factor are set to 0,
         ///     and the Carry flag will be CLEARED.
-        /// 
-        /// 
-        /// - If the lower four bits of the A register (A AND 0x0F) is greater than 9,
-        ///   OR the Half-Carry(H) flag is SET, then
-        /// 
-        ///    The lower four bits of the Correction Factor are set to 6.
-        ///   Else
+        ///     - If the lower four bits of the A register (A AND 0x0F) is greater than 9,
+        ///     OR the Half-Carry(H) flag is SET, then
+        ///     The lower four bits of the Correction Factor are set to 6.
+        ///     Else
         ///     The lower four bits of the Correction Factor are set to 0.
-        /// 
-        /// 
-        /// - This results in a Correction Factor of 0x00, 0x06, 0x60 or 0x66.
-        /// 
-        /// 
-        /// - If the N flag is CLEAR, then
-        /// 
+        ///     - This results in a Correction Factor of 0x00, 0x06, 0x60 or 0x66.
+        ///     - If the N flag is CLEAR, then
         ///     ADD the Correction Factor to the A register.
-        ///   Else
+        ///     Else
         ///     SUBTRACT the Correction Factor from the A register.
-        /// 
-        /// 
-        /// - The Flags are set as follows:
-        /// 
-        ///   Carry:      Set/clear as in the first step above.
-        /// 
-        ///   Half-Carry: Set if the correction operation caused a binary carry/borrow
-        ///               from bit 3 to bit 4.
-        ///               For this purpose, may be calculated as:
-        ///               Bit 4 of: A(before) XOR A(after).
-        /// 
-        ///   S,Z,P,5,3:  Set as for simple logic operations on the resultant A value.
-        /// 
-        ///   N:          Leave.
-        ///  </summary>
-        ///  <param name="a"></param>
+        ///     - The Flags are set as follows:
+        ///     Carry:      Set/clear as in the first step above.
+        ///     Half-Carry: Set if the correction operation caused a binary carry/borrow
+        ///     from bit 3 to bit 4.
+        ///     For this purpose, may be calculated as:
+        ///     Bit 4 of: A(before) XOR A(after).
+        ///     S,Z,P,5,3:  Set as for simple logic operations on the resultant A value.
+        ///     N:          Leave.
+        /// </summary>
+        /// <param name="a"></param>
         /// <param name="setHalfCarry"></param>
         /// <returns></returns>
         public byte DecimalAdjust(byte a, bool setHalfCarry)
@@ -188,7 +173,7 @@
                 {
                     result += 0x06;
                 }
-                
+
                 if (flags.Carry || (result > 0x9F))
                 {
                     result += 0x60;
@@ -200,19 +185,19 @@
                 {
                     result = (result - 6) & 0xFF;
                 }
-                
+
                 if (flags.Carry)
                 {
                     result -= 0x60;
-                }    
+                }
             }
-            
+
             if ((result & 0x100) == 0x100)
             {
                 flags.Carry = true;
             }
-            
-            a = (byte)(result & 0xFF);
+
+            a = (byte) (result & 0xFF);
             flags.HalfCarry = setHalfCarry && (((flags.HalfCarry ? 1 : 0) ^ (a >> 4)) & 1) > 0;
             flags.ParityOverflow = a.IsEvenParity();
             flags.SetResultFlags(a);
@@ -221,15 +206,15 @@
         }
 
         /// <summary>
-        /// The value a is rotated left 1 bit position.
-        /// The sign bit (bit 7) is copied to the Carry flag and also to bit 0. Bit 0 is the least-significant bit.
+        ///     The value a is rotated left 1 bit position.
+        ///     The sign bit (bit 7) is copied to the Carry flag and also to bit 0. Bit 0 is the least-significant bit.
         /// </summary>
         /// <param name="a"></param>
         /// <returns></returns>
         public byte RotateLeftWithCarry(byte a)
         {
             var carry = (a & 0x80) > 0;
-            var result = unchecked((byte)((a << 1) | (carry ? 1 : 0)));
+            var result = unchecked((byte) ((a << 1) | (carry ? 1 : 0)));
 
             var flags = Flags;
             flags.Carry = carry;
@@ -241,15 +226,15 @@
         }
 
         /// <summary>
-        /// The value a is rotated left 1 bit position through the Carry flag.
-        /// The previous contents of the Carry flag are copied to bit 0. Bit 0 is the least-significant bit.
+        ///     The value a is rotated left 1 bit position through the Carry flag.
+        ///     The previous contents of the Carry flag are copied to bit 0. Bit 0 is the least-significant bit.
         /// </summary>
         /// <param name="a"></param>
         public byte RotateLeft(byte a)
         {
             var flags = Flags;
-            var result = unchecked((byte)((a << 1) | (flags.Carry ? 1 : 0)));
-            
+            var result = unchecked((byte) ((a << 1) | (flags.Carry ? 1 : 0)));
+
             flags.Carry = (a & 0x80) > 0;
             flags.HalfCarry = false;
             flags.Subtract = false;
@@ -259,15 +244,15 @@
         }
 
         /// <summary>
-        /// The value a is rotated right 1 bit position.
-        /// Bit 0 is copied to the Carry flag and also to bit 7. Bit 0 is the least-significant bit.
+        ///     The value a is rotated right 1 bit position.
+        ///     Bit 0 is copied to the Carry flag and also to bit 7. Bit 0 is the least-significant bit.
         /// </summary>
         /// <param name="a"></param>
         /// <returns></returns>
         public byte RotateRightWithCarry(byte a)
         {
             var carry = (a & 1) > 0;
-            var result = unchecked((byte)((a >> 1) | (carry ? 0x80 : 0)));
+            var result = unchecked((byte) ((a >> 1) | (carry ? 0x80 : 0)));
 
             var flags = Flags;
             flags.Carry = carry;
@@ -279,16 +264,16 @@
         }
 
         /// <summary>
-        /// The value a is rotated right 1 bit position through the Carry flag.
-        /// The previous contents of the Carry flag are copied to bit 7. Bit 0 is the leastsignificant bit.
+        ///     The value a is rotated right 1 bit position through the Carry flag.
+        ///     The previous contents of the Carry flag are copied to bit 7. Bit 0 is the leastsignificant bit.
         /// </summary>
         /// <param name="a"></param>
         /// <returns></returns>
         public byte RotateRight(byte a)
         {
             var flags = Flags;
-            var result = unchecked((byte)((a >> 1) | (flags.Carry ? 0x80 : 0)));
-            
+            var result = unchecked((byte) ((a >> 1) | (flags.Carry ? 0x80 : 0)));
+
             flags.Carry = (a & 1) > 0;
             flags.HalfCarry = false;
             flags.Subtract = false;
@@ -298,9 +283,9 @@
         }
 
         /// <summary>
-        /// An arithmetic shift left 1 bit position is performed on the contents of operand m.
-        /// The contents of bit 7 are copied to the Carry flag.
-        /// Bit 0 is the least-significant bit.
+        ///     An arithmetic shift left 1 bit position is performed on the contents of operand m.
+        ///     The contents of bit 7 are copied to the Carry flag.
+        ///     Bit 0 is the least-significant bit.
         /// </summary>
         /// <param name="a"></param>
         /// <returns></returns>
@@ -308,7 +293,7 @@
         {
             var flags = Flags;
             flags.Carry = (a & 0x80) > 0;
-            var result = unchecked((byte)(a << 1));
+            var result = unchecked((byte) (a << 1));
 
             flags.SetParityFlags(result);
             flags.HalfCarry = false;
@@ -316,10 +301,10 @@
         }
 
         /// <summary>
-        /// Undocumented Z80 instruction known as SLS, SLL or SL1.
-        /// An arithmetic shift left 1 bit position is performed on the contents of operand m.
-        /// The contents of bit 7 are copied to the Carry flag, and bit 0 is set.
-        /// Bit 0 is the least-significant bit.
+        ///     Undocumented Z80 instruction known as SLS, SLL or SL1.
+        ///     An arithmetic shift left 1 bit position is performed on the contents of operand m.
+        ///     The contents of bit 7 are copied to the Carry flag, and bit 0 is set.
+        ///     Bit 0 is the least-significant bit.
         /// </summary>
         /// <param name="a"></param>
         /// <returns></returns>
@@ -327,7 +312,7 @@
         {
             var flags = Flags;
             flags.Carry = (a & 0x80) > 0;
-            var result = unchecked((byte)((a << 1) | 0x01));
+            var result = unchecked((byte) ((a << 1) | 0x01));
 
             flags.SetParityFlags(result);
             flags.HalfCarry = false;
@@ -335,9 +320,9 @@
         }
 
         /// <summary>
-        /// An arithmetic shift right 1 bit position is performed on the contents of operand m.
-        /// The contents of bit 0 are copied to the Carry flag and the previous contents of bit 7 remain unchanged.
-        /// Bit 0 is the least-significant bit.
+        ///     An arithmetic shift right 1 bit position is performed on the contents of operand m.
+        ///     The contents of bit 0 are copied to the Carry flag and the previous contents of bit 7 remain unchanged.
+        ///     Bit 0 is the least-significant bit.
         /// </summary>
         /// <param name="a"></param>
         /// <returns></returns>
@@ -345,17 +330,17 @@
         {
             var flags = Flags;
             flags.Carry = (a & 0x01) > 0;
-            var result = unchecked((byte)((a >> 1) | (a & 0x80)));
-            
+            var result = unchecked((byte) ((a >> 1) | (a & 0x80)));
+
             flags.SetParityFlags(result);
             flags.HalfCarry = false;
             return result;
         }
 
         /// <summary>
-        /// The contents of operand m are shifted right 1 bit position.
-        /// The contents of bit 0 are copied to the Carry flag, and bit 7 is reset.
-        /// Bit 0 is the least-significant bit.
+        ///     The contents of operand m are shifted right 1 bit position.
+        ///     The contents of bit 0 are copied to the Carry flag, and bit 7 is reset.
+        ///     Bit 0 is the least-significant bit.
         /// </summary>
         /// <param name="a"></param>
         /// <returns></returns>
@@ -363,7 +348,7 @@
         {
             var flags = Flags;
             flags.Carry = (a & 0x01) > 0;
-            var result = unchecked((byte)(a >> 1));
+            var result = unchecked((byte) (a >> 1));
 
             flags.SetParityFlags(result);
             flags.HalfCarry = false;
@@ -371,7 +356,8 @@
         }
 
         /// <summary>
-        /// Performs a 4-bit clockwise (right) rotation of the 12-bit number whose 4 most signigifcant bits are the 4 least significant bits of accumulator, and its 8 least significant bits are b.
+        ///     Performs a 4-bit clockwise (right) rotation of the 12-bit number whose 4 most signigifcant bits are the 4 least
+        ///     significant bits of accumulator, and its 8 least significant bits are b.
         /// </summary>
         /// <param name="accumulator"></param>
         /// <param name="b"></param>
@@ -380,8 +366,8 @@
         {
             var result = new AccumulatorAndResult
                          {
-                             Accumulator = (byte)((accumulator & 0xf0) | ((b & 0xf0) >> 4)),
-                             Result = (byte)(((b & 0x0f) << 4) | (accumulator & 0x0f))
+                             Accumulator = (byte) ((accumulator & 0xf0) | ((b & 0xf0) >> 4)),
+                             Result = (byte) (((b & 0x0f) << 4) | (accumulator & 0x0f))
                          };
 
             var flags = Flags;
@@ -391,7 +377,8 @@
         }
 
         /// <summary>
-        /// Performs a 4-bit anti-clockwise (left) rotation of the 12-bit number whose 4 most signigifcant bits are the 4 least significant bits of accumulator, and its 8 least significant bits are b.
+        ///     Performs a 4-bit anti-clockwise (left) rotation of the 12-bit number whose 4 most signigifcant bits are the 4 least
+        ///     significant bits of accumulator, and its 8 least significant bits are b.
         /// </summary>
         /// <param name="accumulator"></param>
         /// <param name="b"></param>
@@ -400,8 +387,8 @@
         {
             var result = new AccumulatorAndResult
                          {
-                             Accumulator = (byte)((accumulator & 0xf0) | (b & 0x0f)),
-                             Result = (byte)(((accumulator & 0x0f) << 4) | ((b & 0xf0) >> 4))
+                             Accumulator = (byte) ((accumulator & 0xf0) | (b & 0x0f)),
+                             Result = (byte) (((accumulator & 0x0f) << 4) | ((b & 0xf0) >> 4))
                          };
 
             var flags = Flags;
@@ -411,7 +398,7 @@
         }
 
         /// <summary>
-        /// Tests bit 'bit' in byte a and sets the Z flag accordingly.
+        ///     Tests bit 'bit' in byte a and sets the Z flag accordingly.
         /// </summary>
         /// <param name="a"></param>
         /// <param name="bit"></param>
@@ -427,15 +414,15 @@
             flags.ParityOverflow = flags.Zero;
             flags.Sign = bit == 7 && flags.Zero;
         }
-        
+
         public byte BitSet(byte a, int bit)
         {
-            return (byte)(a | (0x1 << bit));
+            return (byte) (a | (0x1 << bit));
         }
 
         public byte BitReset(byte a, int bit)
         {
-            return (byte)(a & ~(0x1 << bit));
+            return (byte) (a & ~(0x1 << bit));
         }
 
         public ushort AddDisplacement(ushort a, sbyte d)
@@ -450,12 +437,12 @@
             flags.Zero = false;
             flags.Subtract = false;
 
-            return unchecked ((ushort)result);
+            return unchecked ((ushort) result);
         }
 
         public byte Swap(byte a)
         {
-            var result = (byte)(((a & 0xf) << 4) | ((a & 0xf0) >> 4));
+            var result = (byte) (((a & 0xf) << 4) | ((a & 0xf0) >> 4));
 
             var flags = Flags;
             flags.Zero = result == 0;
@@ -481,7 +468,7 @@
 
             flags.Subtract = false;
 
-            b = unchecked((byte)result);
+            b = unchecked((byte) result);
             flags.SetResultFlags(b);
             return b;
         }
@@ -494,7 +481,7 @@
 
             // Half carry is carry from bit 11
             flags.HalfCarry = (((a & 0x0fff) + (b & 0x0fff) + carry) & 0xf000) > 0;
-            
+
             flags.Carry = (result & 0x10000) == 0x10000;
 
             flags.Subtract = false;
@@ -503,17 +490,17 @@
             {
                 // Overflow = (added signs are same) && (result sign differs from the sign of either of operands)
                 flags.ParityOverflow = (((a ^ b) & 0x8000) == 0) && (((result ^ a) & 0x8000) != 0);
-                b = unchecked((ushort)result);
+                b = unchecked((ushort) result);
                 flags.SetResultFlags(b);
             }
             else
             {
                 // S & Z are unaffected so we're only setting the undocumented flags from the last 8-bit addition
                 var b0 = (result & 0xff00) >> 8;
-                flags.SetUndocumentedFlags((byte)b0);
-                b = unchecked((ushort)result);
+                flags.SetUndocumentedFlags((byte) b0);
+                b = unchecked((ushort) result);
             }
-                
+
             return b;
         }
 
@@ -533,7 +520,7 @@
             flags.Carry = result < 0;
             flags.Subtract = true;
 
-            b = unchecked((byte)result);
+            b = unchecked((byte) result);
             flags.SetResultFlags(b);
             return b;
         }

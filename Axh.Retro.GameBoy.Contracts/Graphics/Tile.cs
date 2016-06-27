@@ -1,24 +1,79 @@
-﻿namespace Axh.Retro.GameBoy.Contracts.Graphics
-{
-    using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
+namespace Axh.Retro.GameBoy.Contracts.Graphics
+{
     /// <summary>
     ///     Stack allocated 8*8=64 byte tile structure.
     ///     TODO: Is this worth it?!
     /// </summary>
     public struct Tile
     {
-        private readonly Palette palette00, palette01, palette02, palette03, palette04, palette05, palette06, palette07,
-                                 palette10, palette11, palette12, palette13, palette14, palette15, palette16, palette17,
-                                 palette20, palette21, palette22, palette23, palette24, palette25, palette26, palette27,
-                                 palette30, palette31, palette32, palette33, palette34, palette35, palette36, palette37,
-                                 palette40, palette41, palette42, palette43, palette44, palette45, palette46, palette47,
-                                 palette50, palette51, palette52, palette53, palette54, palette55, palette56, palette57,
-                                 palette60, palette61, palette62, palette63, palette64, palette65, palette66, palette67,
-                                 palette70, palette71, palette72, palette73, palette74, palette75, palette76, palette77;
+        private readonly Palette palette00,
+                                 palette01,
+                                 palette02,
+                                 palette03,
+                                 palette04,
+                                 palette05,
+                                 palette06,
+                                 palette07,
+                                 palette10,
+                                 palette11,
+                                 palette12,
+                                 palette13,
+                                 palette14,
+                                 palette15,
+                                 palette16,
+                                 palette17,
+                                 palette20,
+                                 palette21,
+                                 palette22,
+                                 palette23,
+                                 palette24,
+                                 palette25,
+                                 palette26,
+                                 palette27,
+                                 palette30,
+                                 palette31,
+                                 palette32,
+                                 palette33,
+                                 palette34,
+                                 palette35,
+                                 palette36,
+                                 palette37,
+                                 palette40,
+                                 palette41,
+                                 palette42,
+                                 palette43,
+                                 palette44,
+                                 palette45,
+                                 palette46,
+                                 palette47,
+                                 palette50,
+                                 palette51,
+                                 palette52,
+                                 palette53,
+                                 palette54,
+                                 palette55,
+                                 palette56,
+                                 palette57,
+                                 palette60,
+                                 palette61,
+                                 palette62,
+                                 palette63,
+                                 palette64,
+                                 palette65,
+                                 palette66,
+                                 palette67,
+                                 palette70,
+                                 palette71,
+                                 palette72,
+                                 palette73,
+                                 palette74,
+                                 palette75,
+                                 palette76,
+                                 palette77;
 
-        public Tile(IReadOnlyList<Palette> paletteMap)
-            : this()
+        public Tile(IReadOnlyList<Palette> paletteMap) : this()
         {
             palette00 = paletteMap[0];
             palette01 = paletteMap[1];

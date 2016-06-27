@@ -1,11 +1,10 @@
-﻿namespace Axh.Retro.GameBoy.BlarggTests.Config
+﻿using Axh.Retro.GameBoy.Contracts.Config;
+using Axh.Retro.GameBoy.Contracts.Graphics;
+using Ninject.Extensions.NamedScope;
+using Ninject.Modules;
+
+namespace Axh.Retro.GameBoy.BlarggTests.Config
 {
-    using Axh.Retro.GameBoy.Contracts.Config;
-    using Axh.Retro.GameBoy.Contracts.Graphics;
-
-    using Ninject.Extensions.NamedScope;
-    using Ninject.Modules;
-
     internal class BlarggTestModule : NinjectModule
     {
         private readonly string cpuContextScope;
@@ -17,8 +16,8 @@
 
         public override void Load()
         {
-            this.Kernel.Bind<IRenderHandler>().To<NullRenderHandler>().InNamedScope(cpuContextScope);
-            this.Kernel.Bind<IGameBoyConfig>().To<BlarggTestGameBoyConfig>().InSingletonScope();
+            Kernel.Bind<IRenderHandler>().To<NullRenderHandler>().InNamedScope(cpuContextScope);
+            Kernel.Bind<IGameBoyConfig>().To<BlarggTestGameBoyConfig>().InSingletonScope();
         }
     }
 }

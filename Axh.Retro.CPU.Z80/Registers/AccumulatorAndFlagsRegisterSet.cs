@@ -1,38 +1,35 @@
-﻿namespace Axh.Retro.CPU.Z80.Registers
-{
-    using Axh.Retro.CPU.Z80.Contracts.Registers;
-    using Axh.Retro.CPU.Z80.Contracts.State;
-    using Axh.Retro.CPU.Z80.Util;
+﻿using Axh.Retro.CPU.Z80.Contracts.Registers;
+using Axh.Retro.CPU.Z80.Contracts.State;
+using Axh.Retro.CPU.Z80.Util;
 
+namespace Axh.Retro.CPU.Z80.Registers
+{
     public class AccumulatorAndFlagsRegisterSet : IAccumulatorAndFlagsRegisterSet
     {
         public AccumulatorAndFlagsRegisterSet(IFlagsRegister flagsRegister)
         {
-            this.Flags = flagsRegister;
+            Flags = flagsRegister;
         }
 
         public byte A { get; set; }
-        
+
         public IFlagsRegister Flags { get; }
 
         public ushort AF
         {
-            get
-            {
-                return BitConverterHelpers.To16Bit(this.A, this.Flags.Register);
-            }
+            get { return BitConverterHelpers.To16Bit(A, Flags.Register); }
             set
             {
                 var bytes = BitConverterHelpers.To8Bit(value);
-                this.A = bytes[1];
-                this.Flags.Register = bytes[0];
+                A = bytes[1];
+                Flags.Register = bytes[0];
             }
         }
 
         public void Reset()
         {
             A = 0;
-            this.Flags.ResetFlags();
+            Flags.ResetFlags();
         }
 
         public void ResetToState(AccumulatorAndFlagsRegisterState state)
@@ -43,7 +40,7 @@
 
         public AccumulatorAndFlagsRegisterState GetRegisterState()
         {
-            return new AccumulatorAndFlagsRegisterState { A = A, F = Flags.Register };
+            return new AccumulatorAndFlagsRegisterState {A = A, F = Flags.Register};
         }
     }
 }

@@ -1,31 +1,31 @@
-﻿namespace Axh.Retro.CPU.Common.Contracts.Memory
-{
-    using System;
+﻿using System;
 
+namespace Axh.Retro.CPU.Common.Contracts.Memory
+{
     public class MemoryBankControllerEventArgs : EventArgs
     {
         public MemoryBankControllerEventArgs(MemoryBankControllerEventTarget target)
         {
             Target = target;
         }
-        
+
         public MemoryBankControllerEventTarget Target { get; }
     }
 
     public enum MemoryBankControllerEventTarget
     {
         /// <summary>
-        /// A RAM bank switch has occurred.
+        ///     A RAM bank switch has occurred.
         /// </summary>
         RamBankSwitch,
 
         /// <summary>
-        /// A ROM bank switch has occurred.
+        ///     A ROM bank switch has occurred.
         /// </summary>
         RomBankSwitch,
 
         /// <summary>
-        /// RAM has been enabled.
+        ///     RAM has been enabled.
         /// </summary>
         RamEnable
     }

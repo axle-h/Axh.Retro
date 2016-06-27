@@ -9,15 +9,15 @@ namespace Axh.Retro.GameBoy.Util
         private const uint Prime323 = 3266489917U;
         private const uint Prime324 = 668265263U;
         private const uint Prime325 = 374761393U;
+        private readonly byte[] memory;
+        private readonly uint seed;
+        private int memsize;
 
         private ulong totalLen;
-        private readonly uint seed;
         private uint v1;
         private uint v2;
         private uint v3;
         private uint v4;
-        private int memsize;
-        private readonly byte[] memory;
 
         public XxHash(uint seed)
         {
@@ -44,12 +44,12 @@ namespace Axh.Retro.GameBoy.Util
             totalLen = 0;
             memsize = 0;
         }
-        
+
         public bool Update(byte[] input, int len)
         {
             var index = 0;
 
-            totalLen += (uint)len;
+            totalLen += (uint) len;
 
             if (memsize + len < 16)
             {
@@ -122,7 +122,7 @@ namespace Axh.Retro.GameBoy.Util
                 h32 = seed + Prime325;
             }
 
-            h32 += (uint)totalLen;
+            h32 += (uint) totalLen;
 
             while (index <= memsize - 4)
             {
@@ -146,6 +146,7 @@ namespace Axh.Retro.GameBoy.Util
 
             return h32;
         }
+
         private static uint CalcSubHash(uint value, byte[] buf, int index)
         {
             var readValue = BitConverter.ToUInt32(buf, index);
@@ -159,6 +160,5 @@ namespace Axh.Retro.GameBoy.Util
         {
             return (value << count) | (value >> (32 - count));
         }
-
     }
 }

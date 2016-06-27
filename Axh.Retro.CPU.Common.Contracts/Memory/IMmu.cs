@@ -1,7 +1,7 @@
-﻿namespace Axh.Retro.CPU.Common.Contracts.Memory
-{
-    using System;
+﻿using System;
 
+namespace Axh.Retro.CPU.Common.Contracts.Memory
+{
     public interface IMmu : IDisposable
     {
         byte ReadByte(ushort address);

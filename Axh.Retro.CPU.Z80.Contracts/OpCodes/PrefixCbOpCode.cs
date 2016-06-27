@@ -271,6 +271,6 @@
         RES_4_A = 0xA7,
         RES_5_A = 0xAF,
         RES_6_A = 0xB7,
-        RES_7_A = 0xBF,
+        RES_7_A = 0xBF
     }
 }

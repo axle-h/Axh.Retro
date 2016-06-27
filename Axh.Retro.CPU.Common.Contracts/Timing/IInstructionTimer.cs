@@ -8,6 +8,5 @@ namespace Axh.Retro.CPU.Common.Contracts.Timing
         event Action<InstructionTimings> TimingSync;
 
         Task SyncToTimings(InstructionTimings timings);
-
     }
 }

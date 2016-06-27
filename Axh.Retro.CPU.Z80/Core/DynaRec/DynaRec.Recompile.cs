@@ -1,14 +1,12 @@
-﻿namespace Axh.Retro.CPU.Z80.Core.DynaRec
+﻿using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
+using Axh.Retro.CPU.Z80.Contracts.Config;
+using Axh.Retro.CPU.Z80.Contracts.Registers;
+using Axh.Retro.CPU.Z80.Core.Decode;
+
+namespace Axh.Retro.CPU.Z80.Core.DynaRec
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq.Expressions;
-
-    using Axh.Retro.CPU.Z80.Contracts.Config;
-    using Axh.Retro.CPU.Z80.Contracts.Registers;
-    using Axh.Retro.CPU.Z80.Core.Decode;
-    using Axh.Retro.CPU.Z80.Util;
-
     public partial class DynaRec<TRegisters> where TRegisters : IRegisters
     {
         private IEnumerable<Expression> Recompile(Operation operation)
@@ -63,7 +61,8 @@
                     break;
 
                 case OpCode.AddCarry:
-                    yield return Expression.Assign(A, Expression.Call(Alu, AluAddWithCarry, A, ReadOperand1(operation)));
+                    yield return Expression.Assign(A, Expression.Call(Alu, AluAddWithCarry, A, ReadOperand1(operation)))
+                        ;
                     break;
 
                 case OpCode.Subtract:
@@ -71,7 +70,8 @@
                     break;
 
                 case OpCode.SubtractCarry:
-                    yield return Expression.Assign(A, Expression.Call(Alu, AluSubtractWithCarry, A, ReadOperand1(operation)));
+                    yield return
+                        Expression.Assign(A, Expression.Call(Alu, AluSubtractWithCarry, A, ReadOperand1(operation)));
                     break;
 
                 case OpCode.And:
@@ -99,15 +99,33 @@
                     break;
 
                 case OpCode.Add16:
-                    yield return WriteOperand1(operation, Expression.Call(Alu, AluAdd16, ReadOperand1(operation, true), ReadOperand2(operation, true)), true);
+                    yield return
+                        WriteOperand1(operation,
+                                      Expression.Call(Alu,
+                                                      AluAdd16,
+                                                      ReadOperand1(operation, true),
+                                                      ReadOperand2(operation, true)),
+                                      true);
                     break;
 
                 case OpCode.AddCarry16:
-                    yield return WriteOperand1(operation, Expression.Call(Alu, AluAdd16WithCarry, ReadOperand1(operation, true), ReadOperand2(operation, true)), true);
+                    yield return
+                        WriteOperand1(operation,
+                                      Expression.Call(Alu,
+                                                      AluAdd16WithCarry,
+                                                      ReadOperand1(operation, true),
+                                                      ReadOperand2(operation, true)),
+                                      true);
                     break;
 
                 case OpCode.SubtractCarry16:
-                    yield return WriteOperand1(operation, Expression.Call(Alu, AluSubtract16WithCarry, ReadOperand1(operation, true), ReadOperand2(operation, true)), true);
+                    yield return
+                        WriteOperand1(operation,
+                                      Expression.Call(Alu,
+                                                      AluSubtract16WithCarry,
+                                                      ReadOperand1(operation, true),
+                                                      ReadOperand2(operation, true)),
+                                      true);
                     break;
 
                 case OpCode.Increment16:
@@ -121,7 +139,7 @@
                     break;
 
                 case OpCode.Exchange:
-                    this.usesLocalWord = true;
+                    usesLocalWord = true;
                     yield return Expression.Assign(LocalWord, ReadOperand2(operation, true));
                     yield return WriteOperand2(operation, ReadOperand1(operation, true), true);
                     yield return WriteOperand1(operation, LocalWord, true);
@@ -142,7 +160,10 @@
                     }
                     else
                     {
-                        yield return Expression.IfThenElse(GetFlagTestExpression(operation.FlagTest), Expression.Assign(PC, ReadOperand1(operation, true)), SyncProgramCounter);
+                        yield return
+                            Expression.IfThenElse(GetFlagTestExpression(operation.FlagTest),
+                                                  Expression.Assign(PC, ReadOperand1(operation, true)),
+                                                  SyncProgramCounter);
                     }
                     lastDecodeResult = DecodeResult.Finalize;
                     break;
@@ -154,16 +175,23 @@
                     }
                     else
                     {
-                        this.usesDynamicTimings = true;
-                        yield return Expression.IfThen(GetFlagTestExpression(operation.FlagTest), Expression.Block(JumpToDisplacement(operation), GetDynamicTimings(1, 5)));
+                        usesDynamicTimings = true;
+                        yield return
+                            Expression.IfThen(GetFlagTestExpression(operation.FlagTest),
+                                              Expression.Block(JumpToDisplacement(operation), GetDynamicTimings(1, 5)));
                     }
                     lastDecodeResult = DecodeResult.FinalizeAndSync;
                     break;
 
                 case OpCode.DecrementJumpRelativeIfNonZero:
-                    this.usesDynamicTimings = true;
-                    yield return Expression.Assign(B, Expression.Convert(Expression.Decrement(Expression.Convert(B, typeof(int))), typeof(byte)));
-                    yield return Expression.IfThen(Expression.NotEqual(B, Expression.Constant((byte)0)), Expression.Block(JumpToDisplacement(operation), GetDynamicTimings(1, 5)));
+                    usesDynamicTimings = true;
+                    yield return
+                        Expression.Assign(B,
+                                          Expression.Convert(Expression.Decrement(Expression.Convert(B, typeof (int))),
+                                                             typeof (byte)));
+                    yield return
+                        Expression.IfThen(Expression.NotEqual(B, Expression.Constant((byte) 0)),
+                                          Expression.Block(JumpToDisplacement(operation), GetDynamicTimings(1, 5)));
                     lastDecodeResult = DecodeResult.FinalizeAndSync;
                     break;
 
@@ -178,11 +206,13 @@
                     }
                     else
                     {
-                        this.usesDynamicTimings = true;
+                        usesDynamicTimings = true;
                         yield return
-                            Expression.IfThen(
-                                GetFlagTestExpression(operation.FlagTest),
-                                Expression.Block(PushSP, WritePCToStack, Expression.Assign(PC, ReadOperand1(operation)), GetDynamicTimings(2, 7)));
+                            Expression.IfThen(GetFlagTestExpression(operation.FlagTest),
+                                              Expression.Block(PushSP,
+                                                               WritePCToStack,
+                                                               Expression.Assign(PC, ReadOperand1(operation)),
+                                                               GetDynamicTimings(2, 7)));
                     }
                     lastDecodeResult = DecodeResult.Finalize;
                     break;
@@ -195,8 +225,11 @@
                     }
                     else
                     {
-                        this.usesDynamicTimings = true;
-                        yield return Expression.IfThenElse(GetFlagTestExpression(operation.FlagTest), Expression.Block(ReadPCFromStack, PopSP, GetDynamicTimings(2, 6)), SyncProgramCounter);
+                        usesDynamicTimings = true;
+                        yield return
+                            Expression.IfThenElse(GetFlagTestExpression(operation.FlagTest),
+                                                  Expression.Block(ReadPCFromStack, PopSP, GetDynamicTimings(2, 6)),
+                                                  SyncProgramCounter);
                     }
                     lastDecodeResult = DecodeResult.Finalize;
                     break;
@@ -224,15 +257,26 @@
                     break;
 
                 case OpCode.Input:
-                    yield return WriteOperand1(operation, Expression.Call(IO, IoReadByte, ReadOperand2(operation), operation.Operand2 == Operand.n ? A : B));
+                    yield return
+                        WriteOperand1(operation,
+                                      Expression.Call(IO,
+                                                      IoReadByte,
+                                                      ReadOperand2(operation),
+                                                      operation.Operand2 == Operand.n ? A : B));
                     break;
 
                 case OpCode.Output:
-                    yield return Expression.Call(IO, IoWriteByte, ReadOperand2(operation), operation.Operand2 == Operand.n ? A : B, ReadOperand1(operation));
+                    yield return
+                        Expression.Call(IO,
+                                        IoWriteByte,
+                                        ReadOperand2(operation),
+                                        operation.Operand2 == Operand.n ? A : B,
+                                        ReadOperand1(operation));
                     break;
 
                 case OpCode.RotateLeftWithCarry:
-                    yield return WriteOperand1(operation, Expression.Call(Alu, AluRotateLeftWithCarry, ReadOperand1(operation)));
+                    yield return
+                        WriteOperand1(operation, Expression.Call(Alu, AluRotateLeftWithCarry, ReadOperand1(operation)));
                     if (operation.OpCodeMeta.HasFlag(OpCodeMeta.UseAlternativeFlagAffection))
                     {
                         yield return Expression.Assign(Zero, Expression.Constant(false));
@@ -250,7 +294,9 @@
                     break;
 
                 case OpCode.RotateRightWithCarry:
-                    yield return WriteOperand1(operation, Expression.Call(Alu, AluRotateRightWithCarry, ReadOperand1(operation)));
+                    yield return
+                        WriteOperand1(operation, Expression.Call(Alu, AluRotateRightWithCarry, ReadOperand1(operation)))
+                        ;
                     if (operation.OpCodeMeta.HasFlag(OpCodeMeta.UseAlternativeFlagAffection))
                     {
                         yield return Expression.Assign(Zero, Expression.Constant(false));
@@ -259,7 +305,8 @@
                     break;
 
                 case OpCode.RotateRight:
-                    yield return WriteOperand1(operation, Expression.Call(Alu, AluRotateRight, ReadOperand1(operation)));
+                    yield return WriteOperand1(operation, Expression.Call(Alu, AluRotateRight, ReadOperand1(operation)))
+                        ;
                     if (operation.OpCodeMeta.HasFlag(OpCodeMeta.UseAlternativeFlagAffection))
                     {
                         yield return Expression.Assign(Zero, Expression.Constant(false));
@@ -268,15 +315,19 @@
                     break;
 
                 case OpCode.RotateLeftDigit:
-                    this.usesAccumulatorAndResult = true;
-                    yield return Expression.Assign(AccumulatorAndResult, Expression.Call(Alu, AluRotateLeftDigit, A, ReadByteAtHL));
+                    usesAccumulatorAndResult = true;
+                    yield return
+                        Expression.Assign(AccumulatorAndResult,
+                                          Expression.Call(Alu, AluRotateLeftDigit, A, ReadByteAtHL));
                     yield return Expression.Assign(A, AccumulatorAndResult_Accumulator);
                     yield return Expression.Call(Mmu, MmuWriteByte, HL, AccumulatorAndResult_Result);
                     break;
 
                 case OpCode.RotateRightDigit:
-                    this.usesAccumulatorAndResult = true;
-                    yield return Expression.Assign(AccumulatorAndResult, Expression.Call(Alu, AluRotateRightDigit, A, ReadByteAtHL));
+                    usesAccumulatorAndResult = true;
+                    yield return
+                        Expression.Assign(AccumulatorAndResult,
+                                          Expression.Call(Alu, AluRotateRightDigit, A, ReadByteAtHL));
                     yield return Expression.Assign(A, AccumulatorAndResult_Accumulator);
                     yield return Expression.Call(Mmu, MmuWriteByte, HL, AccumulatorAndResult_Result);
                     break;
@@ -286,7 +337,8 @@
                     break;
 
                 case OpCode.ShiftLeftSet:
-                    yield return WriteOperand1(operation, Expression.Call(Alu, AluShiftLeftSet, ReadOperand1(operation)));
+                    yield return
+                        WriteOperand1(operation, Expression.Call(Alu, AluShiftLeftSet, ReadOperand1(operation)));
                     break;
 
                 case OpCode.ShiftRight:
@@ -294,19 +346,34 @@
                     break;
 
                 case OpCode.ShiftRightLogical:
-                    yield return WriteOperand1(operation, Expression.Call(Alu, AluShiftRightLogical, ReadOperand1(operation)));
+                    yield return
+                        WriteOperand1(operation, Expression.Call(Alu, AluShiftRightLogical, ReadOperand1(operation)));
                     break;
 
                 case OpCode.BitTest:
-                    yield return Expression.Call(Alu, AluBitTest, ReadOperand1(operation), Expression.Constant((int)operation.ByteLiteral));
+                    yield return
+                        Expression.Call(Alu,
+                                        AluBitTest,
+                                        ReadOperand1(operation),
+                                        Expression.Constant((int) operation.ByteLiteral));
                     break;
 
                 case OpCode.BitSet:
-                    yield return WriteOperand1(operation, Expression.Call(Alu, AluBitSet, ReadOperand1(operation), Expression.Constant((int)operation.ByteLiteral)));
+                    yield return
+                        WriteOperand1(operation,
+                                      Expression.Call(Alu,
+                                                      AluBitSet,
+                                                      ReadOperand1(operation),
+                                                      Expression.Constant((int) operation.ByteLiteral)));
                     break;
 
                 case OpCode.BitReset:
-                    yield return WriteOperand1(operation, Expression.Call(Alu, AluBitReset, ReadOperand1(operation), Expression.Constant((int)operation.ByteLiteral)));
+                    yield return
+                        WriteOperand1(operation,
+                                      Expression.Call(Alu,
+                                                      AluBitReset,
+                                                      ReadOperand1(operation),
+                                                      Expression.Constant((int) operation.ByteLiteral)));
                     break;
 
                 case OpCode.TransferIncrement:
@@ -314,7 +381,7 @@
                     break;
 
                 case OpCode.TransferIncrementRepeat:
-                    this.usesDynamicTimings = true;
+                    usesDynamicTimings = true;
                     yield return Expression.Block(GetLdrExpressions());
                     break;
 
@@ -323,7 +390,7 @@
                     break;
 
                 case OpCode.TransferDecrementRepeat:
-                    this.usesDynamicTimings = true;
+                    usesDynamicTimings = true;
                     yield return Expression.Block(GetLdrExpressions(true));
                     break;
 
@@ -332,7 +399,7 @@
                     break;
 
                 case OpCode.SearchIncrementRepeat:
-                    this.usesDynamicTimings = true;
+                    usesDynamicTimings = true;
                     yield return GetCprExpression();
                     break;
 
@@ -341,7 +408,7 @@
                     break;
 
                 case OpCode.SearchDecrementRepeat:
-                    this.usesDynamicTimings = true;
+                    usesDynamicTimings = true;
                     yield return GetCprExpression(true);
                     break;
 
@@ -350,7 +417,7 @@
                     break;
 
                 case OpCode.InputTransferIncrementRepeat:
-                    this.usesDynamicTimings = true;
+                    usesDynamicTimings = true;
                     yield return GetInrExpression();
                     break;
 
@@ -359,7 +426,7 @@
                     break;
 
                 case OpCode.InputTransferDecrementRepeat:
-                    this.usesDynamicTimings = true;
+                    usesDynamicTimings = true;
                     yield return GetInrExpression(true);
                     break;
 
@@ -368,7 +435,7 @@
                     break;
 
                 case OpCode.OutputTransferIncrementRepeat:
-                    this.usesDynamicTimings = true;
+                    usesDynamicTimings = true;
                     yield return GetOutrExpression();
                     break;
 
@@ -377,12 +444,17 @@
                     break;
 
                 case OpCode.OutputTransferDecrementRepeat:
-                    this.usesDynamicTimings = true;
+                    usesDynamicTimings = true;
                     yield return GetOutrExpression(true);
                     break;
 
                 case OpCode.DecimalArithmeticAdjust:
-                    yield return Expression.Assign(A, Expression.Call(Alu, AluDecimalAdjust, A, Expression.Constant(cpuMode == CpuMode.Z80)));
+                    yield return
+                        Expression.Assign(A,
+                                          Expression.Call(Alu,
+                                                          AluDecimalAdjust,
+                                                          A,
+                                                          Expression.Constant(cpuMode == CpuMode.Z80)));
                     break;
 
                 case OpCode.NegateOnesComplement:
@@ -393,7 +465,8 @@
                     break;
 
                 case OpCode.NegateTwosComplement:
-                    yield return Expression.Assign(A, Expression.Call(Alu, AluSubtract, Expression.Constant((byte)0), A));
+                    yield return
+                        Expression.Assign(A, Expression.Call(Alu, AluSubtract, Expression.Constant((byte) 0), A));
                     break;
 
                 case OpCode.InvertCarryFlag:
@@ -406,7 +479,7 @@
                     {
                         yield return Expression.Assign(HalfCarry, Carry);
                     }
-                    
+
                     yield return Expression.Assign(Subtract, Expression.Constant(false));
                     yield return Expression.Assign(Carry, Expression.Not(Carry));
                     break;

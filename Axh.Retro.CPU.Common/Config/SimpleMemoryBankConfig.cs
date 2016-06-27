@@ -1,10 +1,9 @@
-﻿namespace Axh.Retro.CPU.Common.Config
+﻿using System;
+using Axh.Retro.CPU.Common.Contracts.Config;
+using Axh.Retro.CPU.Common.Contracts.Memory;
+
+namespace Axh.Retro.CPU.Common.Config
 {
-    using System;
-
-    using Axh.Retro.CPU.Common.Contracts.Config;
-    using Axh.Retro.CPU.Common.Contracts.Memory;
-
     public class SimpleMemoryBankConfig : IMemoryBankConfig
     {
         public SimpleMemoryBankConfig(MemoryBankType type, byte? bankId, ushort address, ushort length)
@@ -19,7 +18,7 @@
             Address = address;
             Length = length;
             State = new byte[length];
-            Array.Copy(state, 0, this.State, 0, length);
+            Array.Copy(state, 0, State, 0, length);
         }
 
         public MemoryBankType Type { get; }

@@ -1,7 +1,7 @@
-﻿namespace Axh.Retro.GameBoy.Registers
-{
-    using Axh.Retro.GameBoy.Registers.Interfaces;
+﻿using Axh.Retro.GameBoy.Registers.Interfaces;
 
+namespace Axh.Retro.GameBoy.Registers
+{
     public class SimpleRegister : IRegister
     {
         public SimpleRegister(ushort address, string name)

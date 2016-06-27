@@ -1,14 +1,13 @@
-﻿namespace Axh.Retro.Z80Console.Infrastructure
+﻿using Axh.Retro.CPU.Z80.Contracts.Config;
+using Axh.Retro.CPU.Z80.Contracts.Peripherals;
+using Axh.Retro.CPU.Z80.Contracts.State;
+using Axh.Retro.CPU.Z80.Peripherals;
+using Axh.Retro.Z80Console.Config;
+using Ninject.Extensions.NamedScope;
+using Ninject.Modules;
+
+namespace Axh.Retro.Z80Console.Infrastructure
 {
-    using Axh.Retro.CPU.Z80.Contracts.Config;
-    using Axh.Retro.CPU.Z80.Contracts.Peripherals;
-    using Axh.Retro.CPU.Z80.Contracts.State;
-    using Axh.Retro.CPU.Z80.Peripherals;
-    using Axh.Retro.Z80Console.Config;
-
-    using Ninject.Extensions.NamedScope;
-    using Ninject.Modules;
-
     internal class Z80ConsoleModule : NinjectModule
     {
         private readonly string cpuContextScope;

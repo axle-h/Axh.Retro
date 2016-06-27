@@ -1,7 +1,7 @@
-﻿namespace Axh.Retro.CPU.Z80.Contracts.State
-{
-    using Axh.Retro.CPU.Z80.Contracts.Registers;
+﻿using Axh.Retro.CPU.Z80.Contracts.Registers;
 
+namespace Axh.Retro.CPU.Z80.Contracts.State
+{
     public struct Z80RegisterState
     {
         public GeneralPurposeRegisterState PrimaryGeneralPurposeRegisterState { get; set; }
@@ -21,12 +21,12 @@
         public ushort IY { get; set; }
 
         /// <summary>
-        /// Interrupt vector
+        ///     Interrupt vector
         /// </summary>
         public byte I { get; set; }
 
         /// <summary>
-        /// Memory refresh
+        ///     Memory refresh
         /// </summary>
         public byte R { get; set; }
 

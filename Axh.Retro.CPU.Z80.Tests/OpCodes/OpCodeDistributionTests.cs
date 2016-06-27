@@ -1,19 +1,26 @@
-﻿namespace Axh.Retro.CPU.Z80.Tests.OpCodes
+﻿using System;
+using System.Linq;
+using Axh.Retro.CPU.Z80.Contracts.OpCodes;
+using NUnit.Framework;
+
+namespace Axh.Retro.CPU.Z80.Tests.OpCodes
 {
-    using System;
-    using System.Linq;
-
-    using Axh.Retro.CPU.Z80.Contracts.OpCodes;
-
-    using NUnit.Framework;
-
     [TestFixture]
     public class OpCodeDistributionTests
     {
-        [Test]
-        public void PrimaryOpCode()
+        private static void AssertOpCodes<TOpCode>()
         {
-            AssertOpCodes<PrimaryOpCode>();
+            var opCodes = Enum.GetValues(typeof (TOpCode)).Cast<byte>().OrderBy(x => x).ToArray();
+            var allBytes = Enumerable.Range(0, 0x100).Select(x => (byte) x).ToArray();
+
+            Assert.AreEqual(allBytes.Length, opCodes.Length);
+            CollectionAssert.AreEquivalent(allBytes, opCodes);
+        }
+
+        [Test]
+        public void PrefixCbOpCode()
+        {
+            AssertOpCodes<PrefixCbOpCode>();
         }
 
         [Test]
@@ -24,18 +31,9 @@
         }
 
         [Test]
-        public void PrefixCbOpCode()
+        public void PrimaryOpCode()
         {
-            AssertOpCodes<PrefixCbOpCode>();
-        }
-
-        private static void AssertOpCodes<TOpCode>()
-        {
-            var opCodes = Enum.GetValues(typeof(TOpCode)).Cast<byte>().OrderBy(x => x).ToArray();
-            var allBytes = Enumerable.Range(0, 0x100).Select(x => (byte)x).ToArray();
-
-            Assert.AreEqual(allBytes.Length, opCodes.Length);
-            CollectionAssert.AreEquivalent(allBytes, opCodes);
+            AssertOpCodes<PrimaryOpCode>();
         }
     }
 }

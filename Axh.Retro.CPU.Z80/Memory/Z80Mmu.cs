@@ -1,21 +1,19 @@
-﻿using Axh.Retro.CPU.Common.Contracts.Timing;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Axh.Retro.CPU.Common.Contracts.Config;
+using Axh.Retro.CPU.Common.Contracts.Memory;
+using Axh.Retro.CPU.Common.Contracts.Timing;
+using Axh.Retro.CPU.Common.Memory;
+using Axh.Retro.CPU.Z80.Contracts.Cache;
+using Axh.Retro.CPU.Z80.Contracts.Config;
+using Axh.Retro.CPU.Z80.Contracts.Peripherals;
+using Axh.Retro.CPU.Z80.Contracts.Registers;
 
 namespace Axh.Retro.CPU.Z80.Memory
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-
-    using Axh.Retro.CPU.Common.Contracts.Config;
-    using Axh.Retro.CPU.Common.Contracts.Memory;
-    using Axh.Retro.CPU.Common.Memory;
-    using Axh.Retro.CPU.Z80.Contracts.Config;
-    using Axh.Retro.CPU.Z80.Contracts.Peripherals;
-    using Contracts.Cache;
-    using Contracts.Registers;
-
     /// <summary>
-    /// Z80 MMU builds a segment MMU taking memory bank configs from IPlatformConfig and IPeripheralManager
+    ///     Z80 MMU builds a segment MMU taking memory bank configs from IPlatformConfig and IPeripheralManager
     /// </summary>
     public class Z80Mmu<TRegisters> : SegmentMmu where TRegisters : IRegisters
     {
@@ -27,18 +25,28 @@ namespace Axh.Retro.CPU.Z80.Memory
                       IInstructionBlockCache<TRegisters> instructionBlockCache,
                       IDmaController dmaController,
                       IInstructionTimer instructionTimer)
-            : base(GetAddressSegments(peripheralManager, platformConfig, memoryBankController), dmaController, instructionTimer)
+            : base(
+                GetAddressSegments(peripheralManager, platformConfig, memoryBankController),
+                dmaController,
+                instructionTimer)
         {
             this.instructionBlockCache = instructionBlockCache;
         }
 
-        private static IEnumerable<IAddressSegment> GetAddressSegments(IPeripheralManager peripheralManager, IPlatformConfig platformConfig, IMemoryBankController memoryBankController)
+        private static IEnumerable<IAddressSegment> GetAddressSegments(IPeripheralManager peripheralManager,
+                                                                       IPlatformConfig platformConfig,
+                                                                       IMemoryBankController memoryBankController)
         {
-            var memoryBanks = platformConfig.MemoryBanks.GroupBy(x => x.Address).Select(x => GetAddressSegment(x.ToArray(), memoryBankController)).ToArray();
-            return memoryBanks.Concat(peripheralManager.GetAllMemoryMappedPeripherals().SelectMany(x => x.AddressSegments));
+            var memoryBanks =
+                platformConfig.MemoryBanks.GroupBy(x => x.Address)
+                              .Select(x => GetAddressSegment(x.ToArray(), memoryBankController))
+                              .ToArray();
+            return
+                memoryBanks.Concat(peripheralManager.GetAllMemoryMappedPeripherals().SelectMany(x => x.AddressSegments));
         }
 
-        private static IAddressSegment GetAddressSegment(ICollection<IMemoryBankConfig> configs, IMemoryBankController memoryBankController)
+        private static IAddressSegment GetAddressSegment(ICollection<IMemoryBankConfig> configs,
+                                                         IMemoryBankController memoryBankController)
         {
             var config = configs.First();
             if (configs.Count == 1)

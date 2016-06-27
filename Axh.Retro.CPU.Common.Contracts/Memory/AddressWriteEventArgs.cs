@@ -1,13 +1,13 @@
-﻿namespace Axh.Retro.CPU.Common.Contracts.Memory
-{
-    using System;
+﻿using System;
 
+namespace Axh.Retro.CPU.Common.Contracts.Memory
+{
     public class AddressWriteEventArgs : EventArgs
     {
         public AddressWriteEventArgs(ushort address, ushort length)
         {
-            this.Address = address;
-            this.Length = length;
+            Address = address;
+            Length = length;
         }
 
         public ushort Address { get; }

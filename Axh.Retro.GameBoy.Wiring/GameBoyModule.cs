@@ -27,37 +27,37 @@ namespace Axh.Retro.GameBoy.Wiring
 
         public override void Load()
         {
-            this.Bind<IInterruptFlagsRegister>().To<InterruptFlagsRegister>().InNamedScope(cpuContextScope);
-            this.Bind<ICoreHardwareRegisters>().To<HardwareRegisters>().InNamedScope(cpuContextScope);
+            Bind<IInterruptFlagsRegister>().To<InterruptFlagsRegister>().InNamedScope(cpuContextScope);
+            Bind<ICoreHardwareRegisters>().To<HardwareRegisters>().InNamedScope(cpuContextScope);
 
             // Named registers
-            this.Bind<IInterruptEnableRegister>().To<InterruptEnableRegister>().InNamedScope(cpuContextScope);
-            this.Bind<ICoreJoyPad>().To<JoyPad>().InNamedScope(cpuContextScope);
-            this.Bind<ISerialPort, ICoreSerialPort>().To<SyncSerialPort>().InNamedScope(cpuContextScope);
-            this.Bind<IMemoryBankController>().To<MemoryBankController1>().InNamedScope(cpuContextScope);
+            Bind<IInterruptEnableRegister>().To<InterruptEnableRegister>().InNamedScope(cpuContextScope);
+            Bind<ICoreJoyPad>().To<JoyPad>().InNamedScope(cpuContextScope);
+            Bind<ISerialPort, ICoreSerialPort>().To<SyncSerialPort>().InNamedScope(cpuContextScope);
+            Bind<IMemoryBankController>().To<MemoryBankController1>().InNamedScope(cpuContextScope);
 
 
             // GPU registers.
-            this.Bind<IGpuRegisters>().To<GpuRegisters>().InNamedScope(cpuContextScope);
-            this.Bind<ILcdControlRegister>().To<LcdControlRegister>().InNamedScope(cpuContextScope);
-            this.Bind<ICurrentScanlineRegister>().To<CurrentScanlineRegister>().InNamedScope(cpuContextScope);
-            this.Bind<ILcdMonochromePaletteRegister>().To<LcdMonochromePaletteRegister>().InNamedScope(cpuContextScope);
-            this.Bind<ILcdStatusRegister>().To<LcdStatusRegister>().InNamedScope(cpuContextScope);
+            Bind<IGpuRegisters>().To<GpuRegisters>().InNamedScope(cpuContextScope);
+            Bind<ILcdControlRegister>().To<LcdControlRegister>().InNamedScope(cpuContextScope);
+            Bind<ICurrentScanlineRegister>().To<CurrentScanlineRegister>().InNamedScope(cpuContextScope);
+            Bind<ILcdMonochromePaletteRegister>().To<LcdMonochromePaletteRegister>().InNamedScope(cpuContextScope);
+            Bind<ILcdStatusRegister>().To<LcdStatusRegister>().InNamedScope(cpuContextScope);
 
             // Un-named registers
-            this.Bind<IRegister>().To<LazyDividerRegister>().InNamedScope(cpuContextScope);
-            this.Bind<IRegister>().To<LcdOamDmaTransferRegister>().InNamedScope(cpuContextScope);
+            Bind<IRegister>().To<LazyDividerRegister>().InNamedScope(cpuContextScope);
+            Bind<IRegister>().To<LcdOamDmaTransferRegister>().InNamedScope(cpuContextScope);
 
             // Peripherals, no IO mapped peripherals on GB, only memory mapped
-            this.Bind<IMemoryMappedPeripheral>().To<GameBoyMemoryMappedIO>().InNamedScope(cpuContextScope);
+            Bind<IMemoryMappedPeripheral>().To<GameBoyMemoryMappedIO>().InNamedScope(cpuContextScope);
 
             // GPU
-            this.Bind<ICoreGpu>().To<Gpu>().InNamedScope(cpuContextScope);
+            Bind<ICoreGpu>().To<Gpu>().InNamedScope(cpuContextScope);
 
-            this.Bind<IInitialStateFactory<Intel8080RegisterState>>().To<GameBoyInitialStateFactory>().InSingletonScope();
-            this.Bind<IPlatformConfig>().To<GameBoyPlatformConfig>().InSingletonScope();
-            this.Bind<IRuntimeConfig>().To<GameBoyRuntimeConfig>().InSingletonScope();
-            this.Bind<ICartridgeFactory>().To<CartridgeFactory>().InSingletonScope();
+            Bind<IInitialStateFactory<Intel8080RegisterState>>().To<GameBoyInitialStateFactory>().InSingletonScope();
+            Bind<IPlatformConfig>().To<GameBoyPlatformConfig>().InSingletonScope();
+            Bind<IRuntimeConfig>().To<GameBoyRuntimeConfig>().InSingletonScope();
+            Bind<ICartridgeFactory>().To<CartridgeFactory>().InSingletonScope();
 
 
             // Remaining

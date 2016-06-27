@@ -1,29 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Drawing.Imaging;
+using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Axh.Retro.GameBoy.Contracts.Graphics;
-using System.Drawing;
-using System.Linq;
-using System.Runtime.InteropServices;
-
-using Image = System.Windows.Controls.Image;
 using Color = System.Windows.Media.Color;
+using Image = System.Windows.Controls.Image;
 
 namespace Axh.Retro.GameBoy.Wpf
 {
-    
-
     internal class SimpleLcd : IRenderHandler
     {
         private readonly CancellationTokenSource cancellationTokenSource;
-        private WriteableBitmap writeableBitmap;
-        private Window window;
         private Image image;
+        private Window window;
+        private WriteableBitmap writeableBitmap;
 
         public SimpleLcd(CancellationTokenSource cancellationTokenSource)
         {
@@ -31,16 +28,22 @@ namespace Axh.Retro.GameBoy.Wpf
             StartStaTask(Init);
         }
 
+        /// <summary>
+        ///     Called every time the GB LCD is updated.
+        ///     Don't hang on to frame instances.
+        /// </summary>
+        /// <param name="frame"></param>
+        public void Paint(Bitmap frame) => window.Dispatcher.Invoke(() => UpdateUi(frame));
+
         private void Init()
         {
-            
             image = new Image
-            {
-                Stretch = Stretch.Fill,
-                HorizontalAlignment = HorizontalAlignment.Left,
-                VerticalAlignment = VerticalAlignment.Top
-            };
-            window = new Window { Content = image };
+                    {
+                        Stretch = Stretch.Fill,
+                        HorizontalAlignment = HorizontalAlignment.Left,
+                        VerticalAlignment = VerticalAlignment.Top
+                    };
+            window = new Window {Content = image};
 
             RenderOptions.SetBitmapScalingMode(image, BitmapScalingMode.NearestNeighbor);
             RenderOptions.SetEdgeMode(image, EdgeMode.Aliased);
@@ -57,28 +60,21 @@ namespace Axh.Retro.GameBoy.Wpf
         {
             var tcs = new TaskCompletionSource<bool>();
             var thread = new Thread(() =>
-            {
-                try
-                {
-                    func();
-                    tcs.SetResult(true);
-                }
-                catch (Exception e)
-                {
-                    tcs.SetException(e);
-                }
-            });
+                                    {
+                                        try
+                                        {
+                                            func();
+                                            tcs.SetResult(true);
+                                        }
+                                        catch (Exception e)
+                                        {
+                                            tcs.SetException(e);
+                                        }
+                                    });
             thread.SetApartmentState(ApartmentState.STA);
             thread.Start();
             return tcs.Task;
         }
-        
-        /// <summary>
-        /// Called every time the GB LCD is updated.
-        /// Don't hang on to frame instances.
-        /// </summary>
-        /// <param name="frame"></param>
-        public void Paint(Bitmap frame) => window.Dispatcher.Invoke(() => UpdateUi(frame));
 
         private static Color GetColor(System.Drawing.Color color) => Color.FromRgb(color.R, color.G, color.B);
 
@@ -98,10 +94,12 @@ namespace Axh.Retro.GameBoy.Wpf
                 image.Height = frame.Height * 4;
                 image.Source = writeableBitmap;
             }
-            
+
             // Reserve the back buffer for updates.
             writeableBitmap.Lock();
-            var srcData = frame.LockBits(new Rectangle(0, 0, frame.Width, frame.Height), ImageLockMode.ReadOnly, frame.PixelFormat);
+            var srcData = frame.LockBits(new Rectangle(0, 0, frame.Width, frame.Height),
+                                         ImageLockMode.ReadOnly,
+                                         frame.PixelFormat);
             var srcPtr = srcData.Scan0;
             var targetPtr = writeableBitmap.BackBuffer;
 
@@ -111,12 +109,13 @@ namespace Axh.Retro.GameBoy.Wpf
 
             // Specify the area of the bitmap that changed.
             writeableBitmap.AddDirtyRect(new Int32Rect(0, 0, frame.Width, frame.Height));
-            
+
             // Release the back buffer and make it available for display.
             writeableBitmap.Unlock();
             frame.UnlockBits(srcData);
         }
 
-        private bool IsPaletteOk(IEnumerable<Color> expected) => writeableBitmap?.Palette?.Colors.SequenceEqual(expected) ?? false;
+        private bool IsPaletteOk(IEnumerable<Color> expected)
+            => writeableBitmap?.Palette?.Colors.SequenceEqual(expected) ?? false;
     }
 }

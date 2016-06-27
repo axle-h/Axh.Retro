@@ -12,17 +12,18 @@ namespace Axh.Retro.GameBoy.Registers
         private const ushort SerialLinkAddress = 0x0058;
         private const ushort JoyPadPressAddress = 0x0060;
 
+        private readonly IInterruptEnableRegister interruptEnableRegister;
+
         private readonly IInterruptManager interruptManager;
 
-        private readonly IInterruptEnableRegister interruptEnableRegister;
-        
         private InterruptFlag interruptFlag;
 
-        public InterruptFlagsRegister(IInterruptManager interruptManager, IInterruptEnableRegister interruptEnableRegister)
+        public InterruptFlagsRegister(IInterruptManager interruptManager,
+                                      IInterruptEnableRegister interruptEnableRegister)
         {
             this.interruptManager = interruptManager;
             this.interruptEnableRegister = interruptEnableRegister;
-            this.interruptFlag = InterruptFlag.None;
+            interruptFlag = InterruptFlag.None;
         }
 
         public ushort Address => 0xff0f;
@@ -30,19 +31,19 @@ namespace Axh.Retro.GameBoy.Registers
         public string Name => "Interrupt Flag (IF R/W)";
 
         /// <summary>
-        /// FF0F - IF - Interrupt Flags (R/W)
-        /// Bit 0: V-Blank Interrupt Request(INT 40h)  (1=Requested)
-        /// Bit 1: LCD STAT Interrupt Request(INT 48h)  (1=Requested)
-        /// Bit 2: Timer Interrupt Request(INT 50h)  (1=Requested)
-        /// Bit 3: Serial Interrupt Request(INT 58h)  (1=Requested)
-        /// Bit 4: Joypad Interrupt Request(INT 60h)  (1=Requested)
+        ///     FF0F - IF - Interrupt Flags (R/W)
+        ///     Bit 0: V-Blank Interrupt Request(INT 40h)  (1=Requested)
+        ///     Bit 1: LCD STAT Interrupt Request(INT 48h)  (1=Requested)
+        ///     Bit 2: Timer Interrupt Request(INT 50h)  (1=Requested)
+        ///     Bit 3: Serial Interrupt Request(INT 58h)  (1=Requested)
+        ///     Bit 4: Joypad Interrupt Request(INT 60h)  (1=Requested)
         /// </summary>
         public byte Register
         {
-            get { return (byte) this.interruptFlag; }
+            get { return (byte) interruptFlag; }
             set
             {
-                var newInterruptFlag = (InterruptFlag)value;
+                var newInterruptFlag = (InterruptFlag) value;
                 var changedFlags = interruptFlag ^ newInterruptFlag;
 
                 if (changedFlags != InterruptFlag.None)
@@ -50,13 +51,11 @@ namespace Axh.Retro.GameBoy.Registers
                     UpdateInterrupts(changedFlags);
                 }
 
-                this.interruptFlag = newInterruptFlag;
+                interruptFlag = newInterruptFlag;
             }
         }
 
-        public string DebugView => this.ToString();
-
-        public override string ToString() => $"{Name} ({Address}) = {Register}";
+        public string DebugView => ToString();
 
         public void UpdateInterrupts(InterruptFlag interrupts)
         {
@@ -97,16 +96,18 @@ namespace Axh.Retro.GameBoy.Registers
             CheckInterrupt(InterruptFlag.JoyPadPress, JoyPadPressAddress);
         }
 
+        public override string ToString() => $"{Name} ({Address}) = {Register}";
+
         private bool CheckInterrupt(InterruptFlag interrupt, ushort address)
         {
-            if (!interruptFlag.HasFlag(interrupt) || !this.interruptEnableRegister.InterruptEnabled(interrupt))
+            if (!interruptFlag.HasFlag(interrupt) || !interruptEnableRegister.InterruptEnabled(interrupt))
             {
                 // Interrupt flag is not set or enabled.
                 return false;
             }
 
             // Do interrupt.
-            this.interruptManager.Interrupt(address);
+            interruptManager.Interrupt(address);
 
             // Clear the interrupt flag.
             interruptFlag &= ~interrupt;

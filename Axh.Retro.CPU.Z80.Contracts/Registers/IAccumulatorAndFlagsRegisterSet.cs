@@ -1,7 +1,7 @@
-﻿namespace Axh.Retro.CPU.Z80.Contracts.Registers
-{
-    using Axh.Retro.CPU.Z80.Contracts.State;
+﻿using Axh.Retro.CPU.Z80.Contracts.State;
 
+namespace Axh.Retro.CPU.Z80.Contracts.Registers
+{
     public interface IAccumulatorAndFlagsRegisterSet
     {
         byte A { get; set; }

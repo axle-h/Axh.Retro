@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-
 using Axh.Retro.CPU.Common.Config;
 using Axh.Retro.CPU.Common.Contracts.Config;
 using Axh.Retro.CPU.Common.Contracts.Memory;
@@ -12,7 +11,6 @@ using Axh.Retro.GameBoy.Contracts.Factories;
 
 namespace Axh.Retro.GameBoy.Config
 {
-
     public class GameBoyPlatformConfig : IPlatformConfig
     {
         private const double CpuFrequency = 4.194304;
@@ -28,42 +26,52 @@ namespace Axh.Retro.GameBoy.Config
         private const ushort CartridgeRamLength = 0x2000;
 
         /// <summary>
-        /// $E000-$FDFF	Echo RAM - Reserved, Do Not Use
-        /// TODO: Implement Echo RAM
+        ///     $E000-$FDFF	Echo RAM - Reserved, Do Not Use
+        ///     TODO: Implement Echo RAM
         /// </summary>
-        private static readonly IMemoryBankConfig EchoConfig = new SimpleMemoryBankConfig(MemoryBankType.Unused, null, 0xe000, 0x1e00);
+        private static readonly IMemoryBankConfig EchoConfig = new SimpleMemoryBankConfig(MemoryBankType.Unused,
+                                                                                          null,
+                                                                                          0xe000,
+                                                                                          0x1e00);
 
         /// <summary>
-        /// $FF80-$FFFE	Zero Page - 127 bytes
+        ///     $FF80-$FFFE	Zero Page - 127 bytes
         /// </summary>
-        private static readonly IMemoryBankConfig ZeroPageConfig = new SimpleMemoryBankConfig(MemoryBankType.RandomAccessMemory, null, 0xff80, 0x7f);
+        private static readonly IMemoryBankConfig ZeroPageConfig =
+            new SimpleMemoryBankConfig(MemoryBankType.RandomAccessMemory, null, 0xff80, 0x7f);
 
         /// <summary>
-        /// $FEA0-$FEFF	Unusable Memory
+        ///     $FEA0-$FEFF	Unusable Memory
         /// </summary>
-        private static readonly IMemoryBankConfig UnusedConfig = new SimpleMemoryBankConfig(MemoryBankType.Unused, null, 0xfea0, 0x60);
-        
-        /// <summary>
-        /// $C000-$CFFF	Internal RAM - Bank 0 (fixed)
-        /// </summary>
-        private static readonly IMemoryBankConfig SystemMemoryBank0Config = new SimpleMemoryBankConfig(MemoryBankType.RandomAccessMemory, null, 0xc000, 0x1000);
+        private static readonly IMemoryBankConfig UnusedConfig = new SimpleMemoryBankConfig(MemoryBankType.Unused,
+                                                                                            null,
+                                                                                            0xfea0,
+                                                                                            0x60);
 
-        private readonly IGameBoyConfig gameBoyConfig;
+        /// <summary>
+        ///     $C000-$CFFF	Internal RAM - Bank 0 (fixed)
+        /// </summary>
+        private static readonly IMemoryBankConfig SystemMemoryBank0Config =
+            new SimpleMemoryBankConfig(MemoryBankType.RandomAccessMemory, null, 0xc000, 0x1000);
 
         private readonly ICartridgeFactory cartridgeFactory;
+
+        private readonly IGameBoyConfig gameBoyConfig;
 
         public GameBoyPlatformConfig(IGameBoyConfig gameBoyConfig, ICartridgeFactory cartridgeFactory)
         {
             this.gameBoyConfig = gameBoyConfig;
             this.cartridgeFactory = cartridgeFactory;
-            InstructionTimingSyncMode = gameBoyConfig.UseGameBoyTimings ? InstructionTimingSyncMode.MachineCycles : InstructionTimingSyncMode.Null;
+            InstructionTimingSyncMode = gameBoyConfig.UseGameBoyTimings
+                ? InstructionTimingSyncMode.MachineCycles
+                : InstructionTimingSyncMode.Null;
         }
-        
+
         public CpuMode CpuMode => CpuMode.GameBoy;
 
         /// <summary>
-        /// Build the memory banks every time they are requested.
-        /// Means we can change stuff in IGameBoyConfig at runtime and get a different system state running.
+        ///     Build the memory banks every time they are requested.
+        ///     Means we can change stuff in IGameBoyConfig at runtime and get a different system state running.
         /// </summary>
         public IEnumerable<IMemoryBankConfig> MemoryBanks
         {
@@ -78,10 +86,20 @@ namespace Axh.Retro.GameBoy.Config
                     throw new Exception("All cartridges must have 2 rom banks");
                 }
 
-                yield return new SimpleMemoryBankConfig(MemoryBankType.ReadOnlyMemory, null, CartridgeRomBank0Address, CartridgeRomBankLength, cartridge.RomBanks[0]);
+                yield return
+                    new SimpleMemoryBankConfig(MemoryBankType.ReadOnlyMemory,
+                                               null,
+                                               CartridgeRomBank0Address,
+                                               CartridgeRomBankLength,
+                                               cartridge.RomBanks[0]);
                 for (byte i = 1; i < cartridge.RomBanks.Length; i++)
                 {
-                    yield return new SimpleMemoryBankConfig(MemoryBankType.ReadOnlyMemory, i, CartridgeRomBank1Address, CartridgeRomBankLength, cartridge.RomBanks[i]);
+                    yield return
+                        new SimpleMemoryBankConfig(MemoryBankType.ReadOnlyMemory,
+                                                   i,
+                                                   CartridgeRomBank1Address,
+                                                   CartridgeRomBankLength,
+                                                   cartridge.RomBanks[i]);
                 }
 
                 if (cartridge.RamBankLengths.Any())
@@ -97,7 +115,9 @@ namespace Axh.Retro.GameBoy.Config
                 }
                 else
                 {
-                    yield return new SimpleMemoryBankConfig(MemoryBankType.Unused, null, CartridgeRamAddress, CartridgeRamLength);
+                    yield return
+                        new SimpleMemoryBankConfig(MemoryBankType.Unused, null, CartridgeRamAddress, CartridgeRamLength)
+                        ;
                 }
 
                 yield return SystemMemoryBank0Config;
@@ -105,12 +125,20 @@ namespace Axh.Retro.GameBoy.Config
                 switch (gameBoyType)
                 {
                     case GameBoyType.GameBoy:
-                        yield return new SimpleMemoryBankConfig(MemoryBankType.RandomAccessMemory, null, SystemMemoryBank1Address, SystemMemoryBank1Length);
+                        yield return
+                            new SimpleMemoryBankConfig(MemoryBankType.RandomAccessMemory,
+                                                       null,
+                                                       SystemMemoryBank1Address,
+                                                       SystemMemoryBank1Length);
                         break;
                     case GameBoyType.GameBoyColour:
                         for (byte i = 1; i < CgbSystemMemoryBanks; i++)
                         {
-                            yield return new SimpleMemoryBankConfig(MemoryBankType.RandomAccessMemory, i, SystemMemoryBank1Address, SystemMemoryBank1Length);
+                            yield return
+                                new SimpleMemoryBankConfig(MemoryBankType.RandomAccessMemory,
+                                                           i,
+                                                           SystemMemoryBank1Address,
+                                                           SystemMemoryBank1Length);
                         }
                         break;
                     default:
@@ -126,7 +154,7 @@ namespace Axh.Retro.GameBoy.Config
         double IPlatformConfig.MachineCycleSpeedMhz => CpuFrequency;
 
         /// <summary>
-        /// GB rounds all machine cycles to 4 throttling states. I.e. we need to run timing based on machine cycles.
+        ///     GB rounds all machine cycles to 4 throttling states. I.e. we need to run timing based on machine cycles.
         /// </summary>
         public InstructionTimingSyncMode InstructionTimingSyncMode { get; }
 
@@ -134,7 +162,11 @@ namespace Axh.Retro.GameBoy.Config
 
         private static IEnumerable<IMemoryBankConfig> GetCartridgeRamBankConfig(int? bankId, ushort length)
         {
-            yield return new SimpleMemoryBankConfig(MemoryBankType.RandomAccessMemory, bankId.HasValue ? (byte?)bankId.Value : null, CartridgeRamAddress, length);
+            yield return
+                new SimpleMemoryBankConfig(MemoryBankType.RandomAccessMemory,
+                                           bankId.HasValue ? (byte?) bankId.Value : null,
+                                           CartridgeRamAddress,
+                                           length);
             if (length >= CartridgeRamLength)
             {
                 yield break;
@@ -145,7 +177,11 @@ namespace Axh.Retro.GameBoy.Config
                 throw new Exception("Banked cartridge RAM must be " + CartridgeRamLength + " bytes");
             }
 
-            yield return new SimpleMemoryBankConfig(MemoryBankType.Unused, null, (ushort)(CartridgeRamAddress + length), (ushort)(CartridgeRamLength - length));
+            yield return
+                new SimpleMemoryBankConfig(MemoryBankType.Unused,
+                                           null,
+                                           (ushort) (CartridgeRamAddress + length),
+                                           (ushort) (CartridgeRamLength - length));
         }
     }
 }

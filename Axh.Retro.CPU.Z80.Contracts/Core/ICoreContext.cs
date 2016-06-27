@@ -1,18 +1,14 @@
-﻿using Axh.Retro.CPU.Common.Contracts.Timing;
+﻿using System;
+using Axh.Retro.CPU.Common.Contracts.Memory;
+using Axh.Retro.CPU.Common.Contracts.Timing;
+using Axh.Retro.CPU.Z80.Contracts.Cache;
+using Axh.Retro.CPU.Z80.Contracts.Peripherals;
+using Axh.Retro.CPU.Z80.Contracts.Registers;
 
 namespace Axh.Retro.CPU.Z80.Contracts.Core
 {
-    using System;
-
-    using Axh.Retro.CPU.Common.Contracts.Memory;
-    using Axh.Retro.CPU.Z80.Contracts.Cache;
-    using Axh.Retro.CPU.Z80.Contracts.Core.Timing;
-    using Axh.Retro.CPU.Z80.Contracts.Peripherals;
-    using Axh.Retro.CPU.Z80.Contracts.Registers;
-
     public interface ICoreContext<TRegisters, TRegisterState> : IDisposable
-        where TRegisters : IStateBackedRegisters<TRegisterState>
-        where TRegisterState : struct
+        where TRegisters : IStateBackedRegisters<TRegisterState> where TRegisterState : struct
     {
         TRegisters Registers { get; }
 

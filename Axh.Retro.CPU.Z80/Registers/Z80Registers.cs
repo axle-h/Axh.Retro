@@ -1,21 +1,35 @@
-﻿namespace Axh.Retro.CPU.Z80.Registers
-{
-    using Axh.Retro.CPU.Z80.Contracts.Config;
-    using Axh.Retro.CPU.Z80.Contracts.Registers;
-    using Axh.Retro.CPU.Z80.Contracts.State;
-    using Axh.Retro.CPU.Z80.Util;
+﻿using Axh.Retro.CPU.Z80.Contracts.Config;
+using Axh.Retro.CPU.Z80.Contracts.Registers;
+using Axh.Retro.CPU.Z80.Contracts.State;
+using Axh.Retro.CPU.Z80.Util;
 
+namespace Axh.Retro.CPU.Z80.Registers
+{
     public class Z80Registers : IZ80Registers
     {
-        private readonly IGeneralPurposeRegisterSet primaryGeneralPurposeRegisterSet;
+        private readonly object accumulatorAndFlagsLockingContext = new object();
+        private readonly IAccumulatorAndFlagsRegisterSet alternativeAccumulatorAndFlagsRegisterSet;
         private readonly IGeneralPurposeRegisterSet alternativeGeneralPurposeRegisterSet;
-        private bool isGeneralPurposeAlternative;
         private readonly object generalPurposeLockingContext = new object();
 
         private readonly IAccumulatorAndFlagsRegisterSet primaryAccumulatorAndFlagsRegisterSet;
-        private readonly IAccumulatorAndFlagsRegisterSet alternativeAccumulatorAndFlagsRegisterSet;
+        private readonly IGeneralPurposeRegisterSet primaryGeneralPurposeRegisterSet;
         private bool isAccumulatorAndFlagsAlternative;
-        private readonly object accumulatorAndFlagsLockingContext = new object();
+        private bool isGeneralPurposeAlternative;
+
+        public Z80Registers(IGeneralPurposeRegisterSet primaryGeneralPurposeRegisterSet,
+                            IGeneralPurposeRegisterSet alternativeGeneralPurposeRegisterSet,
+                            IAccumulatorAndFlagsRegisterSet primaryAccumulatorAndFlagsRegisterSet,
+                            IAccumulatorAndFlagsRegisterSet alternativeAccumulatorAndFlagsRegisterSet,
+                            IInitialStateFactory<Z80RegisterState> initialStateFactory)
+        {
+            this.primaryGeneralPurposeRegisterSet = primaryGeneralPurposeRegisterSet;
+            this.alternativeGeneralPurposeRegisterSet = alternativeGeneralPurposeRegisterSet;
+            this.primaryAccumulatorAndFlagsRegisterSet = primaryAccumulatorAndFlagsRegisterSet;
+            this.alternativeAccumulatorAndFlagsRegisterSet = alternativeAccumulatorAndFlagsRegisterSet;
+
+            ResetToState(initialStateFactory.GetInitialRegisterState());
+        }
 
         public IGeneralPurposeRegisterSet GeneralPurposeRegisters { get; private set; }
 
@@ -27,50 +41,26 @@
 
         public byte IXl
         {
-            get
-            {
-                return BitConverterHelpers.GetLowOrderByte(IX);
-            }
-            set
-            {
-                IX = BitConverterHelpers.SetLowOrderByte(IX, value);
-            }
+            get { return BitConverterHelpers.GetLowOrderByte(IX); }
+            set { IX = BitConverterHelpers.SetLowOrderByte(IX, value); }
         }
 
         public byte IXh
         {
-            get
-            {
-                return BitConverterHelpers.GetHighOrderByte(IX);
-            }
-            set
-            {
-                IX = BitConverterHelpers.SetHighOrderByte(IX, value);
-            }
+            get { return BitConverterHelpers.GetHighOrderByte(IX); }
+            set { IX = BitConverterHelpers.SetHighOrderByte(IX, value); }
         }
 
         public byte IYl
         {
-            get
-            {
-                return BitConverterHelpers.GetLowOrderByte(IY);
-            }
-            set
-            {
-                IY = BitConverterHelpers.SetLowOrderByte(IY, value);
-            }
+            get { return BitConverterHelpers.GetLowOrderByte(IY); }
+            set { IY = BitConverterHelpers.SetLowOrderByte(IY, value); }
         }
 
         public byte IYh
         {
-            get
-            {
-                return BitConverterHelpers.GetHighOrderByte(IY);
-            }
-            set
-            {
-                IY = BitConverterHelpers.SetHighOrderByte(IY, value);
-            }
+            get { return BitConverterHelpers.GetHighOrderByte(IY); }
+            set { IY = BitConverterHelpers.SetHighOrderByte(IY, value); }
         }
 
         // IR Flags
@@ -86,50 +76,39 @@
         public bool InterruptFlipFlop2 { get; set; }
         public InterruptMode InterruptMode { get; set; }
 
-        public Z80Registers(
-            IGeneralPurposeRegisterSet primaryGeneralPurposeRegisterSet,
-            IGeneralPurposeRegisterSet alternativeGeneralPurposeRegisterSet,
-            IAccumulatorAndFlagsRegisterSet primaryAccumulatorAndFlagsRegisterSet,
-            IAccumulatorAndFlagsRegisterSet alternativeAccumulatorAndFlagsRegisterSet,
-            IInitialStateFactory<Z80RegisterState> initialStateFactory)
-        {
-            this.primaryGeneralPurposeRegisterSet = primaryGeneralPurposeRegisterSet;
-            this.alternativeGeneralPurposeRegisterSet = alternativeGeneralPurposeRegisterSet;
-            this.primaryAccumulatorAndFlagsRegisterSet = primaryAccumulatorAndFlagsRegisterSet;
-            this.alternativeAccumulatorAndFlagsRegisterSet = alternativeAccumulatorAndFlagsRegisterSet;
-
-            this.ResetToState(initialStateFactory.GetInitialRegisterState());
-        }
-
         public void SwitchToAlternativeGeneralPurposeRegisters()
         {
-            lock (this.generalPurposeLockingContext)
+            lock (generalPurposeLockingContext)
             {
-                this.isGeneralPurposeAlternative = !isGeneralPurposeAlternative;
-                this.GeneralPurposeRegisters = isGeneralPurposeAlternative ? this.alternativeGeneralPurposeRegisterSet : this.primaryGeneralPurposeRegisterSet;
+                isGeneralPurposeAlternative = !isGeneralPurposeAlternative;
+                GeneralPurposeRegisters = isGeneralPurposeAlternative
+                    ? alternativeGeneralPurposeRegisterSet
+                    : primaryGeneralPurposeRegisterSet;
             }
         }
 
         public void SwitchToAlternativeAccumulatorAndFlagsRegisters()
         {
-            lock (this.accumulatorAndFlagsLockingContext)
+            lock (accumulatorAndFlagsLockingContext)
             {
-                this.isAccumulatorAndFlagsAlternative = !isAccumulatorAndFlagsAlternative;
-                this.AccumulatorAndFlagsRegisters = isAccumulatorAndFlagsAlternative ? this.alternativeAccumulatorAndFlagsRegisterSet : this.primaryAccumulatorAndFlagsRegisterSet;
+                isAccumulatorAndFlagsAlternative = !isAccumulatorAndFlagsAlternative;
+                AccumulatorAndFlagsRegisters = isAccumulatorAndFlagsAlternative
+                    ? alternativeAccumulatorAndFlagsRegisterSet
+                    : primaryAccumulatorAndFlagsRegisterSet;
             }
         }
 
         public void Reset()
         {
-            this.primaryGeneralPurposeRegisterSet.Reset();
-            this.alternativeGeneralPurposeRegisterSet.Reset();
-            this.GeneralPurposeRegisters = this.primaryGeneralPurposeRegisterSet;
-            this.isGeneralPurposeAlternative = false;
+            primaryGeneralPurposeRegisterSet.Reset();
+            alternativeGeneralPurposeRegisterSet.Reset();
+            GeneralPurposeRegisters = primaryGeneralPurposeRegisterSet;
+            isGeneralPurposeAlternative = false;
 
-            this.primaryAccumulatorAndFlagsRegisterSet.Reset();
-            this.alternativeAccumulatorAndFlagsRegisterSet.Reset();
-            this.AccumulatorAndFlagsRegisters = this.primaryAccumulatorAndFlagsRegisterSet;
-            this.isAccumulatorAndFlagsAlternative = false;
+            primaryAccumulatorAndFlagsRegisterSet.Reset();
+            alternativeAccumulatorAndFlagsRegisterSet.Reset();
+            AccumulatorAndFlagsRegisters = primaryAccumulatorAndFlagsRegisterSet;
+            isAccumulatorAndFlagsAlternative = false;
 
             IX = IY = 0;
             I = R = 0;
@@ -141,47 +120,55 @@
 
         public void ResetToState(Z80RegisterState state)
         {
-            this.primaryGeneralPurposeRegisterSet.ResetToState(state.PrimaryGeneralPurposeRegisterState);
-            this.alternativeGeneralPurposeRegisterSet.ResetToState(state.AlternativeGeneralPurposeRegisterState);
-            this.GeneralPurposeRegisters = state.IsGeneralPurposeAlternative ? this.alternativeGeneralPurposeRegisterSet : this.primaryGeneralPurposeRegisterSet;
-            this.isGeneralPurposeAlternative = state.IsGeneralPurposeAlternative;
+            primaryGeneralPurposeRegisterSet.ResetToState(state.PrimaryGeneralPurposeRegisterState);
+            alternativeGeneralPurposeRegisterSet.ResetToState(state.AlternativeGeneralPurposeRegisterState);
+            GeneralPurposeRegisters = state.IsGeneralPurposeAlternative
+                ? alternativeGeneralPurposeRegisterSet
+                : primaryGeneralPurposeRegisterSet;
+            isGeneralPurposeAlternative = state.IsGeneralPurposeAlternative;
 
-            this.primaryAccumulatorAndFlagsRegisterSet.ResetToState(state.PrimaryAccumulatorAndFlagsRegisterState);
-            this.alternativeAccumulatorAndFlagsRegisterSet.ResetToState(state.AlternativeAccumulatorAndFlagsRegisterState);
-            this.AccumulatorAndFlagsRegisters = state.IsAccumulatorAndFlagsAlternative ? this.alternativeAccumulatorAndFlagsRegisterSet : this.primaryAccumulatorAndFlagsRegisterSet;
-            this.isAccumulatorAndFlagsAlternative = state.IsAccumulatorAndFlagsAlternative;
+            primaryAccumulatorAndFlagsRegisterSet.ResetToState(state.PrimaryAccumulatorAndFlagsRegisterState);
+            alternativeAccumulatorAndFlagsRegisterSet.ResetToState(state.AlternativeAccumulatorAndFlagsRegisterState);
+            AccumulatorAndFlagsRegisters = state.IsAccumulatorAndFlagsAlternative
+                ? alternativeAccumulatorAndFlagsRegisterSet
+                : primaryAccumulatorAndFlagsRegisterSet;
+            isAccumulatorAndFlagsAlternative = state.IsAccumulatorAndFlagsAlternative;
 
-            this.IX = state.IX;
-            this.IY = state.IY;
-            this.I = state.I;
-            this.R = state.R;
-            this.StackPointer = state.StackPointer;
-            this.ProgramCounter = state.ProgramCounter;
+            IX = state.IX;
+            IY = state.IY;
+            I = state.I;
+            R = state.R;
+            StackPointer = state.StackPointer;
+            ProgramCounter = state.ProgramCounter;
 
-            this.InterruptFlipFlop1 = state.InterruptFlipFlop1;
-            this.InterruptFlipFlop2 = state.InterruptFlipFlop2;
-            this.InterruptMode = state.InterruptMode;
+            InterruptFlipFlop1 = state.InterruptFlipFlop1;
+            InterruptFlipFlop2 = state.InterruptFlipFlop2;
+            InterruptMode = state.InterruptMode;
         }
 
         public Z80RegisterState GetRegisterState()
         {
             return new Z80RegisterState
                    {
-                       AlternativeAccumulatorAndFlagsRegisterState = this.alternativeAccumulatorAndFlagsRegisterSet.GetRegisterState(),
-                       AlternativeGeneralPurposeRegisterState = this.alternativeGeneralPurposeRegisterSet.GetRegisterState(),
-                       I = this.I,
-                       IX = this.IX,
-                       IY = this.IY,
-                       InterruptFlipFlop1 = this.InterruptFlipFlop1,
-                       InterruptFlipFlop2 = this.InterruptFlipFlop2,
-                       InterruptMode = this.InterruptMode,
-                       IsAccumulatorAndFlagsAlternative = this.isAccumulatorAndFlagsAlternative,
-                       IsGeneralPurposeAlternative = this.isGeneralPurposeAlternative,
-                       PrimaryAccumulatorAndFlagsRegisterState = this.primaryAccumulatorAndFlagsRegisterSet.GetRegisterState(),
-                       PrimaryGeneralPurposeRegisterState = this.primaryGeneralPurposeRegisterSet.GetRegisterState(),
-                       ProgramCounter = this.ProgramCounter,
-                       R = this.R,
-                       StackPointer = this.StackPointer
+                       AlternativeAccumulatorAndFlagsRegisterState =
+                           alternativeAccumulatorAndFlagsRegisterSet.GetRegisterState(),
+                       AlternativeGeneralPurposeRegisterState =
+                           alternativeGeneralPurposeRegisterSet.GetRegisterState(),
+                       I = I,
+                       IX = IX,
+                       IY = IY,
+                       InterruptFlipFlop1 = InterruptFlipFlop1,
+                       InterruptFlipFlop2 = InterruptFlipFlop2,
+                       InterruptMode = InterruptMode,
+                       IsAccumulatorAndFlagsAlternative = isAccumulatorAndFlagsAlternative,
+                       IsGeneralPurposeAlternative = isGeneralPurposeAlternative,
+                       PrimaryAccumulatorAndFlagsRegisterState =
+                           primaryAccumulatorAndFlagsRegisterSet.GetRegisterState(),
+                       PrimaryGeneralPurposeRegisterState =
+                           primaryGeneralPurposeRegisterSet.GetRegisterState(),
+                       ProgramCounter = ProgramCounter,
+                       R = R,
+                       StackPointer = StackPointer
                    };
         }
     }

@@ -1,11 +1,19 @@
-﻿namespace Axh.Retro.CPU.Z80.Core.Decode
-{
-    using System;
-    using System.Text;
+﻿using System;
+using System.Text;
 
+namespace Axh.Retro.CPU.Z80.Core.Decode
+{
     internal struct Operation
     {
-        public Operation(ushort address, OpCode opCode, Operand operand1, Operand operand2, FlagTest flagTest, OpCodeMeta opCodeMeta, byte byteLiteral, ushort wordLiteral, sbyte displacement) : this()
+        public Operation(ushort address,
+                         OpCode opCode,
+                         Operand operand1,
+                         Operand operand2,
+                         FlagTest flagTest,
+                         OpCodeMeta opCodeMeta,
+                         byte byteLiteral,
+                         ushort wordLiteral,
+                         sbyte displacement) : this()
         {
             Address = address;
             OpCode = opCode;
@@ -19,7 +27,7 @@
         }
 
         public ushort Address { get; }
-        
+
         public OpCode OpCode { get; }
 
         public Operand Operand1 { get; }
@@ -35,13 +43,13 @@
         public ushort WordLiteral { get; }
 
         public sbyte Displacement { get; }
-        
+
         public override string ToString()
         {
-            var sb = new StringBuilder().AppendFormat("0x{0}   {1}", this.Address.ToString("x4"), OpCode.GetMnemonic());
-            if (this.FlagTest != FlagTest.None)
+            var sb = new StringBuilder().AppendFormat("0x{0}   {1}", Address.ToString("x4"), OpCode.GetMnemonic());
+            if (FlagTest != FlagTest.None)
             {
-                sb.AppendFormat(" {0}", GetFlagTestString(this.FlagTest));
+                sb.AppendFormat(" {0}", GetFlagTestString(FlagTest));
             }
 
             if (Operand1 != Operand.None)
@@ -117,23 +125,23 @@
                 case Operand.mSP:
                     return "(SP)";
                 case Operand.mnn:
-                    return $"(0x{this.WordLiteral.ToString("x4")})";
+                    return $"(0x{WordLiteral.ToString("x4")})";
                 case Operand.nn:
-                    return $"0x{this.WordLiteral.ToString("x4")}";
+                    return $"0x{WordLiteral.ToString("x4")}";
                 case Operand.n:
-                    return $"0x{this.ByteLiteral.ToString("x2")}";
+                    return $"0x{ByteLiteral.ToString("x2")}";
                 case Operand.d:
-                    return ((sbyte)this.ByteLiteral).ToString();
+                    return ((sbyte) ByteLiteral).ToString();
                 case Operand.mIXd:
-                    return this.Displacement > 0 ? $"(IX+{this.Displacement})" : $"(IX{this.Displacement})";
+                    return Displacement > 0 ? $"(IX+{Displacement})" : $"(IX{Displacement})";
                 case Operand.mIYd:
-                    return this.Displacement > 0 ? $"(IY+{this.Displacement})" : $"(IY{this.Displacement})";
+                    return Displacement > 0 ? $"(IY+{Displacement})" : $"(IY{Displacement})";
                 case Operand.mCl:
                     return "(0xff00 + C)";
                 case Operand.mnl:
-                    return $"(0xff00 + 0x{this.ByteLiteral:x2})";
+                    return $"(0xff00 + 0x{ByteLiteral:x2})";
                 case Operand.SPd:
-                    var d = (sbyte)this.ByteLiteral;
+                    var d = (sbyte) ByteLiteral;
                     return d > 0 ? $"SP+{d}" : $"SP{d}";
                 default:
                     throw new ArgumentOutOfRangeException(nameof(operand), operand, null);

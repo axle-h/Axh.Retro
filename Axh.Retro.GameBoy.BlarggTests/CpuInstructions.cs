@@ -1,7 +1,7 @@
-﻿namespace Axh.Retro.GameBoy.BlarggTests
-{
-    using NUnit.Framework;
+﻿using NUnit.Framework;
 
+namespace Axh.Retro.GameBoy.BlarggTests
+{
     public class CpuInstructions : BlarggTestBase
     {
         [Test]

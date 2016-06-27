@@ -22,7 +22,6 @@
         LD_A_mnn = PrimaryOpCode.JP_M,
 
         ADD_SP_d = PrimaryOpCode.RET_PE,
-        LD_HL_SPd = PrimaryOpCode.RET_M,
-        
+        LD_HL_SPd = PrimaryOpCode.RET_M
     }
 }

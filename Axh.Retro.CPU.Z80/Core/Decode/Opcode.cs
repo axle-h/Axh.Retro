@@ -1,7 +1,7 @@
-﻿namespace Axh.Retro.CPU.Z80.Core.Decode
-{
-    using System;
+﻿using System;
 
+namespace Axh.Retro.CPU.Z80.Core.Decode
+{
     internal enum OpCode : byte
     {
         NoOperation,
@@ -38,7 +38,7 @@
         Exchange,
         ExchangeAccumulatorAndFlags,
         ExchangeGeneralPurpose,
-        
+
         // Jump
         Jump,
         JumpRelative,
@@ -68,7 +68,7 @@
         ShiftLeftSet,
         ShiftRight,
         ShiftRightLogical,
-        
+
         // Bit test, set & reset
         BitTest,
         BitSet,
@@ -101,7 +101,7 @@
 
         DisableInterrupts,
         EnableInterrupts,
-        
+
         InterruptMode0,
         InterruptMode1,
         InterruptMode2,
@@ -110,7 +110,7 @@
         Swap,
         LoadIncrement,
         LoadDecrement,
-        Stop,
+        Stop
     }
 
     internal static class OpcodeExtensions
@@ -135,83 +135,160 @@
         {
             switch (code)
             {
-                case OpCode.NoOperation: return "NOP";
-                case OpCode.Halt: return "HALT";
-                case OpCode.Load: return "LD";
-                case OpCode.Load16: return "LD";
-                case OpCode.Push: return "PUSH";
-                case OpCode.Pop: return "POP";
-                case OpCode.Add: return "ADD";
-                case OpCode.AddCarry: return "ADC";
-                case OpCode.Subtract: return "SUB";
-                case OpCode.SubtractCarry: return "SBC";
-                case OpCode.And: return "AND";
-                case OpCode.Or: return "OR";
-                case OpCode.Xor: return "XOR";
-                case OpCode.Compare: return "CP";
-                case OpCode.Increment: return "INC";
-                case OpCode.Decrement: return "DEC";
-                case OpCode.Add16: return "ADD";
-                case OpCode.AddCarry16: return "ADC";
-                case OpCode.SubtractCarry16: return "SBC";
-                case OpCode.Increment16: return "INC";
-                case OpCode.Decrement16: return "DEC";
-                case OpCode.Exchange: return "EX";
-                case OpCode.ExchangeAccumulatorAndFlags: return "EX AF, AF'";
-                case OpCode.ExchangeGeneralPurpose: return "EXX";
-                case OpCode.Jump: return "JP";
-                case OpCode.JumpRelative: return "JR";
-                case OpCode.DecrementJumpRelativeIfNonZero: return "DJNZ";
-                case OpCode.Call: return "CALL";
-                case OpCode.ReturnFromInterrupt: return "RETI";
-                case OpCode.ReturnFromNonmaskableInterrupt: return "RETN";
-                case OpCode.Return: return "RET";
-                case OpCode.Reset: return "RST";
-                case OpCode.Input: return "IN";
-                case OpCode.Output: return "OUT";
-                case OpCode.RotateLeftWithCarry: return "RLC";
-                case OpCode.RotateLeft: return "RL";
-                case OpCode.RotateRightWithCarry: return "RRC";
-                case OpCode.RotateRight: return "RR";
-                case OpCode.RotateLeftDigit: return "RLD";
-                case OpCode.RotateRightDigit: return "RRD";
-                case OpCode.ShiftLeft: return "SLA";
-                case OpCode.ShiftLeftSet: return "SLS";
-                case OpCode.ShiftRightLogical: return "SRL";
-                case OpCode.ShiftRight: return "SRA";
-                case OpCode.BitTest: return "BIT";
-                case OpCode.BitSet: return "SET";
-                case OpCode.BitReset: return "RES";
-                case OpCode.TransferIncrement: return "LDI";
-                case OpCode.TransferIncrementRepeat: return "LDIR";
-                case OpCode.TransferDecrement: return "LDD";
-                case OpCode.TransferDecrementRepeat: return "LDDR";
-                case OpCode.SearchIncrement: return "CPI";
-                case OpCode.SearchIncrementRepeat: return "CPIR";
-                case OpCode.SearchDecrement: return "CPD";
-                case OpCode.SearchDecrementRepeat: return "CPDR";
-                case OpCode.InputTransferIncrement: return "INI";
-                case OpCode.InputTransferIncrementRepeat: return "INIR";
-                case OpCode.InputTransferDecrement: return "IND";
-                case OpCode.InputTransferDecrementRepeat: return "INDR";
-                case OpCode.OutputTransferIncrement: return "OUTI";
-                case OpCode.OutputTransferIncrementRepeat: return "OUTIR";
-                case OpCode.OutputTransferDecrement: return "OUTD";
-                case OpCode.OutputTransferDecrementRepeat: return "OUTDR";
-                case OpCode.DecimalArithmeticAdjust: return "DAA";
-                case OpCode.NegateOnesComplement: return "CPL";
-                case OpCode.InvertCarryFlag: return "CCF";
-                case OpCode.SetCarryFlag: return "SCF";
-                case OpCode.DisableInterrupts: return "DI";
-                case OpCode.EnableInterrupts: return "EI";
-                case OpCode.NegateTwosComplement: return "NEG";
-                case OpCode.InterruptMode0: return "IM0";
-                case OpCode.InterruptMode1: return "IM1";
-                case OpCode.InterruptMode2: return "IM2";
-                case OpCode.Swap: return "SWAP";
-                case OpCode.LoadIncrement: return "LDI";
-                case OpCode.LoadDecrement: return "LDD";
-                case OpCode.Stop: return "STOP";
+                case OpCode.NoOperation:
+                    return "NOP";
+                case OpCode.Halt:
+                    return "HALT";
+                case OpCode.Load:
+                    return "LD";
+                case OpCode.Load16:
+                    return "LD";
+                case OpCode.Push:
+                    return "PUSH";
+                case OpCode.Pop:
+                    return "POP";
+                case OpCode.Add:
+                    return "ADD";
+                case OpCode.AddCarry:
+                    return "ADC";
+                case OpCode.Subtract:
+                    return "SUB";
+                case OpCode.SubtractCarry:
+                    return "SBC";
+                case OpCode.And:
+                    return "AND";
+                case OpCode.Or:
+                    return "OR";
+                case OpCode.Xor:
+                    return "XOR";
+                case OpCode.Compare:
+                    return "CP";
+                case OpCode.Increment:
+                    return "INC";
+                case OpCode.Decrement:
+                    return "DEC";
+                case OpCode.Add16:
+                    return "ADD";
+                case OpCode.AddCarry16:
+                    return "ADC";
+                case OpCode.SubtractCarry16:
+                    return "SBC";
+                case OpCode.Increment16:
+                    return "INC";
+                case OpCode.Decrement16:
+                    return "DEC";
+                case OpCode.Exchange:
+                    return "EX";
+                case OpCode.ExchangeAccumulatorAndFlags:
+                    return "EX AF, AF'";
+                case OpCode.ExchangeGeneralPurpose:
+                    return "EXX";
+                case OpCode.Jump:
+                    return "JP";
+                case OpCode.JumpRelative:
+                    return "JR";
+                case OpCode.DecrementJumpRelativeIfNonZero:
+                    return "DJNZ";
+                case OpCode.Call:
+                    return "CALL";
+                case OpCode.ReturnFromInterrupt:
+                    return "RETI";
+                case OpCode.ReturnFromNonmaskableInterrupt:
+                    return "RETN";
+                case OpCode.Return:
+                    return "RET";
+                case OpCode.Reset:
+                    return "RST";
+                case OpCode.Input:
+                    return "IN";
+                case OpCode.Output:
+                    return "OUT";
+                case OpCode.RotateLeftWithCarry:
+                    return "RLC";
+                case OpCode.RotateLeft:
+                    return "RL";
+                case OpCode.RotateRightWithCarry:
+                    return "RRC";
+                case OpCode.RotateRight:
+                    return "RR";
+                case OpCode.RotateLeftDigit:
+                    return "RLD";
+                case OpCode.RotateRightDigit:
+                    return "RRD";
+                case OpCode.ShiftLeft:
+                    return "SLA";
+                case OpCode.ShiftLeftSet:
+                    return "SLS";
+                case OpCode.ShiftRightLogical:
+                    return "SRL";
+                case OpCode.ShiftRight:
+                    return "SRA";
+                case OpCode.BitTest:
+                    return "BIT";
+                case OpCode.BitSet:
+                    return "SET";
+                case OpCode.BitReset:
+                    return "RES";
+                case OpCode.TransferIncrement:
+                    return "LDI";
+                case OpCode.TransferIncrementRepeat:
+                    return "LDIR";
+                case OpCode.TransferDecrement:
+                    return "LDD";
+                case OpCode.TransferDecrementRepeat:
+                    return "LDDR";
+                case OpCode.SearchIncrement:
+                    return "CPI";
+                case OpCode.SearchIncrementRepeat:
+                    return "CPIR";
+                case OpCode.SearchDecrement:
+                    return "CPD";
+                case OpCode.SearchDecrementRepeat:
+                    return "CPDR";
+                case OpCode.InputTransferIncrement:
+                    return "INI";
+                case OpCode.InputTransferIncrementRepeat:
+                    return "INIR";
+                case OpCode.InputTransferDecrement:
+                    return "IND";
+                case OpCode.InputTransferDecrementRepeat:
+                    return "INDR";
+                case OpCode.OutputTransferIncrement:
+                    return "OUTI";
+                case OpCode.OutputTransferIncrementRepeat:
+                    return "OUTIR";
+                case OpCode.OutputTransferDecrement:
+                    return "OUTD";
+                case OpCode.OutputTransferDecrementRepeat:
+                    return "OUTDR";
+                case OpCode.DecimalArithmeticAdjust:
+                    return "DAA";
+                case OpCode.NegateOnesComplement:
+                    return "CPL";
+                case OpCode.InvertCarryFlag:
+                    return "CCF";
+                case OpCode.SetCarryFlag:
+                    return "SCF";
+                case OpCode.DisableInterrupts:
+                    return "DI";
+                case OpCode.EnableInterrupts:
+                    return "EI";
+                case OpCode.NegateTwosComplement:
+                    return "NEG";
+                case OpCode.InterruptMode0:
+                    return "IM0";
+                case OpCode.InterruptMode1:
+                    return "IM1";
+                case OpCode.InterruptMode2:
+                    return "IM2";
+                case OpCode.Swap:
+                    return "SWAP";
+                case OpCode.LoadIncrement:
+                    return "LDI";
+                case OpCode.LoadDecrement:
+                    return "LDD";
+                case OpCode.Stop:
+                    return "STOP";
                 default:
                     throw new ArgumentOutOfRangeException(nameof(code), code, null);
             }

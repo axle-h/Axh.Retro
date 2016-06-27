@@ -8,7 +8,7 @@
         Halt = 3,
 
         /// <summary>
-        /// GB specific - halts all peripherals as well as CPU
+        ///     GB specific - halts all peripherals as well as CPU
         /// </summary>
         Stop = 4
     }

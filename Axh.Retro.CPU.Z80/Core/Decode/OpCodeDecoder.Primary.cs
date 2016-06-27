@@ -1,15 +1,14 @@
-﻿namespace Axh.Retro.CPU.Z80.Core.Decode
+﻿using System;
+using Axh.Retro.CPU.Z80.Contracts.Config;
+using Axh.Retro.CPU.Z80.Contracts.OpCodes;
+
+namespace Axh.Retro.CPU.Z80.Core.Decode
 {
-    using System;
-
-    using Axh.Retro.CPU.Z80.Contracts.Config;
-    using Axh.Retro.CPU.Z80.Contracts.OpCodes;
-
     internal partial class OpCodeDecoder
     {
         private OpCode? DecodePrimary()
         {
-            var code = (PrimaryOpCode)prefetch.NextByte();
+            var code = (PrimaryOpCode) prefetch.NextByte();
 
             // Add a NOP on every frame. Reduce timings by a NOP elsewhere.
             timer.Nop();
@@ -407,7 +406,7 @@
 
                 // LD A, (nn)
                 case PrimaryOpCode.LD_A_mnn:
-                    if (this.cpuMode == CpuMode.GameBoy)
+                    if (cpuMode == CpuMode.GameBoy)
                     {
                         // Runs as LDD  A, (HL) on GB
                         timer.MmuByte();
@@ -437,7 +436,7 @@
 
                 // LD (nn), A
                 case PrimaryOpCode.LD_mnn_A:
-                    if (this.cpuMode == CpuMode.GameBoy)
+                    if (cpuMode == CpuMode.GameBoy)
                     {
                         // Runs as LDD  (HL), A on GB
                         timer.MmuByte();
@@ -480,7 +479,7 @@
 
                 // LD HL, (nn)
                 case PrimaryOpCode.LD_HL_mnn:
-                    if (this.cpuMode == CpuMode.GameBoy)
+                    if (cpuMode == CpuMode.GameBoy)
                     {
                         // Runs as LDI  A, (HL) on GB
                         timer.MmuByte();
@@ -497,7 +496,7 @@
 
                 // LD (nn), HL
                 case PrimaryOpCode.LD_mnn_HL:
-                    if (this.cpuMode == CpuMode.GameBoy)
+                    if (cpuMode == CpuMode.GameBoy)
                     {
                         // Runs as LDI  (HL), A on GB
                         timer.MmuByte();
@@ -558,7 +557,7 @@
                 // ********* Exchange *********
                 // EX DE, HL
                 case PrimaryOpCode.EX_DE_HL:
-                    if (this.cpuMode == CpuMode.GameBoy)
+                    if (cpuMode == CpuMode.GameBoy)
                     {
                         // Instruction not on GBCPU
                         return undefinedInstruction;
@@ -571,7 +570,7 @@
 
                 // EX AF, AF′
                 case PrimaryOpCode.EX_AF:
-                    if (this.cpuMode == CpuMode.GameBoy)
+                    if (cpuMode == CpuMode.GameBoy)
                     {
                         // Runs as LD (nn),SP on GB
                         timer.IndexAndMmuWord();
@@ -585,7 +584,7 @@
 
                 // EXX
                 case PrimaryOpCode.EXX:
-                    if (this.cpuMode == CpuMode.GameBoy)
+                    if (cpuMode == CpuMode.GameBoy)
                     {
                         // Runs as RETI on GB, retains NOP timing
                         timer.MmuWord().Nop();
@@ -597,7 +596,7 @@
 
                 // EX (SP), HL
                 case PrimaryOpCode.EX_mSP_HL:
-                    if (this.cpuMode == CpuMode.GameBoy)
+                    if (cpuMode == CpuMode.GameBoy)
                     {
                         // Instruction not on GBCPU
                         return undefinedInstruction;
@@ -1068,7 +1067,7 @@
                     flagTest = FlagTest.Carry;
                     return OpCode.Jump;
                 case PrimaryOpCode.JP_PO:
-                    if (this.cpuMode == CpuMode.GameBoy)
+                    if (cpuMode == CpuMode.GameBoy)
                     {
                         // Runs as LD (FF00+C), A on GB
                         timer.MmuByte();
@@ -1082,7 +1081,7 @@
                     flagTest = FlagTest.ParityOdd;
                     return OpCode.Jump;
                 case PrimaryOpCode.JP_PE:
-                    if (this.cpuMode == CpuMode.GameBoy)
+                    if (cpuMode == CpuMode.GameBoy)
                     {
                         // Runs as LD (nn), A on GB
                         timer.MmuWord().MmuByte();
@@ -1097,7 +1096,7 @@
                     flagTest = FlagTest.ParityEven;
                     return OpCode.Jump;
                 case PrimaryOpCode.JP_P:
-                    if (this.cpuMode == CpuMode.GameBoy)
+                    if (cpuMode == CpuMode.GameBoy)
                     {
                         // Runs as LD A, (FF00+C) on GB
                         timer.MmuByte();
@@ -1111,7 +1110,7 @@
                     flagTest = FlagTest.Possitive;
                     return OpCode.Jump;
                 case PrimaryOpCode.JP_M:
-                    if (this.cpuMode == CpuMode.GameBoy)
+                    if (cpuMode == CpuMode.GameBoy)
                     {
                         // Runs as LD A, (nn) on GB
                         timer.MmuWord().MmuByte();
@@ -1125,7 +1124,7 @@
                     opCodeMeta = OpCodeMeta.WordLiteral | OpCodeMeta.EndBlock;
                     flagTest = FlagTest.Negative;
                     return OpCode.Jump;
-                    
+
                 case PrimaryOpCode.JR:
                     timer.MmuByte().ApplyDisplacement();
                     operand1 = Operand.d;
@@ -1162,7 +1161,7 @@
                     return OpCode.Jump;
 
                 case PrimaryOpCode.DJNZ:
-                    if (this.cpuMode == CpuMode.GameBoy)
+                    if (cpuMode == CpuMode.GameBoy)
                     {
                         // Runs as STOP on GB
                         opCodeMeta = OpCodeMeta.EndBlock;
@@ -1205,7 +1204,7 @@
                     flagTest = FlagTest.Carry;
                     return OpCode.Call;
                 case PrimaryOpCode.CALL_PO:
-                    if (this.cpuMode == CpuMode.GameBoy)
+                    if (cpuMode == CpuMode.GameBoy)
                     {
                         // Instruction not on GBCPU
                         return undefinedInstruction;
@@ -1216,7 +1215,7 @@
                     flagTest = FlagTest.ParityOdd;
                     return OpCode.Call;
                 case PrimaryOpCode.CALL_PE:
-                    if (this.cpuMode == CpuMode.GameBoy)
+                    if (cpuMode == CpuMode.GameBoy)
                     {
                         // Instruction not on GBCPU
                         return undefinedInstruction;
@@ -1227,7 +1226,7 @@
                     flagTest = FlagTest.ParityEven;
                     return OpCode.Call;
                 case PrimaryOpCode.CALL_P:
-                    if (this.cpuMode == CpuMode.GameBoy)
+                    if (cpuMode == CpuMode.GameBoy)
                     {
                         // Instruction not on GBCPU
                         return undefinedInstruction;
@@ -1238,7 +1237,7 @@
                     flagTest = FlagTest.Possitive;
                     return OpCode.Call;
                 case PrimaryOpCode.CALL_M:
-                    if (this.cpuMode == CpuMode.GameBoy)
+                    if (cpuMode == CpuMode.GameBoy)
                     {
                         // Instruction not on GBCPU
                         return undefinedInstruction;
@@ -1275,7 +1274,7 @@
                     flagTest = FlagTest.Carry;
                     return OpCode.Return;
                 case PrimaryOpCode.RET_PO:
-                    if (this.cpuMode == CpuMode.GameBoy)
+                    if (cpuMode == CpuMode.GameBoy)
                     {
                         // Runs as LD (FF00+n), A on GB
                         timer.MmuWord();
@@ -1290,7 +1289,7 @@
                     flagTest = FlagTest.ParityOdd;
                     return OpCode.Return;
                 case PrimaryOpCode.RET_PE:
-                    if (this.cpuMode == CpuMode.GameBoy)
+                    if (cpuMode == CpuMode.GameBoy)
                     {
                         // Runs as LD SP, SP+d on GB
                         timer.MmuByte().Arithmetic16();
@@ -1305,7 +1304,7 @@
                     flagTest = FlagTest.ParityEven;
                     return OpCode.Return;
                 case PrimaryOpCode.RET_P:
-                    if (this.cpuMode == CpuMode.GameBoy)
+                    if (cpuMode == CpuMode.GameBoy)
                     {
                         // Runs as LD A, (FF00+n) on GB
                         timer.MmuWord();
@@ -1320,7 +1319,7 @@
                     flagTest = FlagTest.Possitive;
                     return OpCode.Return;
                 case PrimaryOpCode.RET_M:
-                    if (this.cpuMode == CpuMode.GameBoy)
+                    if (cpuMode == CpuMode.GameBoy)
                     {
                         // Runs as LD HL, SP+dd on GB
                         timer.Arithmetic16();
@@ -1387,7 +1386,7 @@
 
                 // ********* IO *********
                 case PrimaryOpCode.IN_A_n:
-                    if (this.cpuMode == CpuMode.GameBoy)
+                    if (cpuMode == CpuMode.GameBoy)
                     {
                         // Instruction not on GBCPU
                         return undefinedInstruction;
@@ -1398,7 +1397,7 @@
                     opCodeMeta = OpCodeMeta.ByteLiteral;
                     return OpCode.Input;
                 case PrimaryOpCode.OUT_A_n:
-                    if (this.cpuMode == CpuMode.GameBoy)
+                    if (cpuMode == CpuMode.GameBoy)
                     {
                         // Instruction not on GBCPU
                         return undefinedInstruction;

@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Drawing;
-using Axh.Retro.GameBoy.Contracts.Graphics;
 using Axh.Retro.GameBoy.Contracts;
 using Axh.Retro.GameBoy.Contracts.Config;
+using Axh.Retro.GameBoy.Contracts.Graphics;
 
 namespace Axh.Retro.GameBoy.Console.Config
 {
@@ -10,7 +10,7 @@ namespace Axh.Retro.GameBoy.Console.Config
     {
         public StaticGameBoyConfig(byte[] cartridge)
         {
-            this.CartridgeData = cartridge;
+            CartridgeData = cartridge;
         }
 
         public byte[] CartridgeData { get; }

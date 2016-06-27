@@ -1,10 +1,9 @@
-﻿namespace Axh.Retro.CPU.Z80.Core.Decode
+﻿using System;
+using Axh.Retro.CPU.Z80.Contracts.Config;
+using Axh.Retro.CPU.Z80.Contracts.OpCodes;
+
+namespace Axh.Retro.CPU.Z80.Core.Decode
 {
-    using System;
-
-    using Axh.Retro.CPU.Z80.Contracts.Config;
-    using Axh.Retro.CPU.Z80.Contracts.OpCodes;
-
     internal partial class OpCodeDecoder
     {
         private OpCode FixPrefixDdFdPrefixCbResult(OpCode result)
@@ -26,14 +25,14 @@
                 opCodeMeta |= OpCodeMeta.AutoCopy;
                 timer.IndexAndMmuByte(true);
             }
-            
+
             timer.ApplyDisplacement().MmuByte();
             return result;
         }
 
         private OpCode DecodePrefixCb()
         {
-            var code = (PrefixCbOpCode)prefetch.NextByte();
+            var code = (PrefixCbOpCode) prefetch.NextByte();
 
             timer.Nop();
 
@@ -64,7 +63,10 @@
                     return OpCode.RotateLeftWithCarry;
                 case PrefixCbOpCode.RLC_mHL:
                     timer.IndexAndMmuByte(index.IsDisplaced);
-                    if (!index.IsDisplaced) timer.Extend(1);
+                    if (!index.IsDisplaced)
+                    {
+                        timer.Extend(1);
+                    }
                     operand1 = index.Index;
                     return OpCode.RotateLeftWithCarry;
 
@@ -92,7 +94,10 @@
                     return OpCode.RotateLeft;
                 case PrefixCbOpCode.RL_mHL:
                     timer.IndexAndMmuByte(index.IsDisplaced);
-                    if (!index.IsDisplaced) timer.Extend(1);
+                    if (!index.IsDisplaced)
+                    {
+                        timer.Extend(1);
+                    }
                     operand1 = index.Index;
                     return OpCode.RotateLeft;
 
@@ -120,7 +125,10 @@
                     return OpCode.RotateRightWithCarry;
                 case PrefixCbOpCode.RRC_mHL:
                     timer.IndexAndMmuByte(index.IsDisplaced);
-                    if (!index.IsDisplaced) timer.Extend(1);
+                    if (!index.IsDisplaced)
+                    {
+                        timer.Extend(1);
+                    }
                     operand1 = index.Index;
                     return OpCode.RotateRightWithCarry;
 
@@ -148,7 +156,10 @@
                     return OpCode.RotateRight;
                 case PrefixCbOpCode.RR_mHL:
                     timer.IndexAndMmuByte(index.IsDisplaced);
-                    if (!index.IsDisplaced) timer.Extend(1);
+                    if (!index.IsDisplaced)
+                    {
+                        timer.Extend(1);
+                    }
                     operand1 = index.Index;
                     return OpCode.RotateRight;
 
@@ -177,7 +188,10 @@
                     return OpCode.ShiftLeft;
                 case PrefixCbOpCode.SLA_mHL:
                     timer.IndexAndMmuByte(index.IsDisplaced);
-                    if (!index.IsDisplaced) timer.Extend(1);
+                    if (!index.IsDisplaced)
+                    {
+                        timer.Extend(1);
+                    }
                     operand1 = index.Index;
                     return OpCode.ShiftLeft;
 
@@ -185,30 +199,33 @@
                 // Runs as SWAP on GB
                 case PrefixCbOpCode.SLS_A:
                     operand1 = Operand.A;
-                    return this.cpuMode == CpuMode.GameBoy ? OpCode.Swap : OpCode.ShiftLeftSet;
+                    return cpuMode == CpuMode.GameBoy ? OpCode.Swap : OpCode.ShiftLeftSet;
                 case PrefixCbOpCode.SLS_B:
                     operand1 = Operand.B;
-                    return this.cpuMode == CpuMode.GameBoy ? OpCode.Swap : OpCode.ShiftLeftSet;
+                    return cpuMode == CpuMode.GameBoy ? OpCode.Swap : OpCode.ShiftLeftSet;
                 case PrefixCbOpCode.SLS_C:
                     operand1 = Operand.C;
-                    return this.cpuMode == CpuMode.GameBoy ? OpCode.Swap : OpCode.ShiftLeftSet;
+                    return cpuMode == CpuMode.GameBoy ? OpCode.Swap : OpCode.ShiftLeftSet;
                 case PrefixCbOpCode.SLS_D:
                     operand1 = Operand.D;
-                    return this.cpuMode == CpuMode.GameBoy ? OpCode.Swap : OpCode.ShiftLeftSet;
+                    return cpuMode == CpuMode.GameBoy ? OpCode.Swap : OpCode.ShiftLeftSet;
                 case PrefixCbOpCode.SLS_E:
                     operand1 = Operand.E;
-                    return this.cpuMode == CpuMode.GameBoy ? OpCode.Swap : OpCode.ShiftLeftSet;
+                    return cpuMode == CpuMode.GameBoy ? OpCode.Swap : OpCode.ShiftLeftSet;
                 case PrefixCbOpCode.SLS_H:
                     operand1 = Operand.H;
-                    return this.cpuMode == CpuMode.GameBoy ? OpCode.Swap : OpCode.ShiftLeftSet;
+                    return cpuMode == CpuMode.GameBoy ? OpCode.Swap : OpCode.ShiftLeftSet;
                 case PrefixCbOpCode.SLS_L:
                     operand1 = Operand.L;
-                    return this.cpuMode == CpuMode.GameBoy ? OpCode.Swap : OpCode.ShiftLeftSet;
+                    return cpuMode == CpuMode.GameBoy ? OpCode.Swap : OpCode.ShiftLeftSet;
                 case PrefixCbOpCode.SLS_mHL:
                     timer.IndexAndMmuByte(index.IsDisplaced);
-                    if (!index.IsDisplaced) timer.Extend(1);
+                    if (!index.IsDisplaced)
+                    {
+                        timer.Extend(1);
+                    }
                     operand1 = index.Index;
-                    return this.cpuMode == CpuMode.GameBoy ? OpCode.Swap : OpCode.ShiftLeftSet;
+                    return cpuMode == CpuMode.GameBoy ? OpCode.Swap : OpCode.ShiftLeftSet;
 
                 // SRA r
                 case PrefixCbOpCode.SRA_A:
@@ -234,7 +251,10 @@
                     return OpCode.ShiftRight;
                 case PrefixCbOpCode.SRA_mHL:
                     timer.IndexAndMmuByte(index.IsDisplaced);
-                    if (!index.IsDisplaced) timer.Extend(1);
+                    if (!index.IsDisplaced)
+                    {
+                        timer.Extend(1);
+                    }
                     operand1 = index.Index;
                     return OpCode.ShiftRight;
 
@@ -262,7 +282,10 @@
                     return OpCode.ShiftRightLogical;
                 case PrefixCbOpCode.SRL_mHL:
                     timer.IndexAndMmuByte(index.IsDisplaced);
-                    if (!index.IsDisplaced) timer.Extend(1);
+                    if (!index.IsDisplaced)
+                    {
+                        timer.Extend(1);
+                    }
                     operand1 = index.Index;
                     return OpCode.ShiftRightLogical;
 
@@ -665,10 +688,13 @@
         private OpCode BitResetFromIndex(int bit)
         {
             timer.IndexAndMmuByte(index.IsDisplaced);
-            if (!index.IsDisplaced) timer.Extend(1);
+            if (!index.IsDisplaced)
+            {
+                timer.Extend(1);
+            }
 
             operand1 = index.Index;
-            byteLiteral = (byte)bit;
+            byteLiteral = (byte) bit;
             return OpCode.BitReset;
         }
 
@@ -680,17 +706,20 @@
             }
 
             operand1 = register;
-            byteLiteral = (byte)bit;
+            byteLiteral = (byte) bit;
             return OpCode.BitReset;
         }
 
         private OpCode BitSetFromIndex(int bit)
         {
             timer.IndexAndMmuByte(index.IsDisplaced);
-            if (!index.IsDisplaced) timer.Extend(1);
+            if (!index.IsDisplaced)
+            {
+                timer.Extend(1);
+            }
 
             operand1 = index.Index;
-            byteLiteral = (byte)bit;
+            byteLiteral = (byte) bit;
             return OpCode.BitSet;
         }
 
@@ -702,7 +731,7 @@
             }
 
             operand1 = register;
-            byteLiteral = (byte)bit;
+            byteLiteral = (byte) bit;
             return OpCode.BitSet;
         }
 
@@ -718,14 +747,14 @@
             }
 
             operand1 = index.Index;
-            byteLiteral = (byte)bit;
+            byteLiteral = (byte) bit;
             return OpCode.BitTest;
         }
 
         private OpCode BitTest(Operand register, int bit)
         {
             operand1 = register;
-            byteLiteral = (byte)bit;
+            byteLiteral = (byte) bit;
             return OpCode.BitTest;
         }
     }

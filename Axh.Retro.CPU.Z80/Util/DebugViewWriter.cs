@@ -13,67 +13,55 @@
  *
  * ***************************************************************************/
 
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Dynamic;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
+using System.Runtime.CompilerServices;
+
 namespace Axh.Retro.CPU.Z80.Util
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Diagnostics;
-    using System.Dynamic;
-    using System.Globalization;
-    using System.IO;
-    using System.Linq;
-    using System.Linq.Expressions;
-    using System.Reflection;
-    using System.Runtime.CompilerServices;
-
     internal sealed class DebugViewWriter : ExpressionVisitor
     {
         public const int OperationDebugOperationStartLine = 0xabcdef;
-
-        [Flags]
-        private enum Flow
-        {
-            None,
-
-            Space,
-
-            NewLine,
-
-            Break = 0x8000 // newline if column > MaxColumn
-        };
 
         private const int Tab = 4;
 
         private const int MaxColumn = 120;
 
+        private readonly Stack<int> stack = new Stack<int>();
+
         private readonly TextWriter writer;
 
         private int column;
-
-        private readonly Stack<int> stack = new Stack<int>();
 
         private int delta;
 
         private Flow flow;
 
-        // All the unique lambda expressions in the ET, will be used for displaying all
-        // the lambda definitions.
-        private Queue<LambdaExpression> lambdas;
+        // Associate every unique anonymous LabelTarget in the tree with an integer.
+        // The id is used to create a name for the anonymous LabelTarget.
+        //
+        private Dictionary<LabelTarget, int> labelIds;
 
         // Associate every unique anonymous LambdaExpression in the tree with an integer.
         // The id is used to create a name for the anonymous lambda.
         //
         private Dictionary<LambdaExpression, int> lambdaIds;
 
+        // All the unique lambda expressions in the ET, will be used for displaying all
+        // the lambda definitions.
+        private Queue<LambdaExpression> lambdas;
+
         // Associate every unique anonymous parameter or variable in the tree with an integer.
         // The id is used to create a name for the anonymous parameter or variable.
         //
         private Dictionary<ParameterExpression, int> paramIds;
-
-        // Associate every unique anonymous LabelTarget in the tree with an integer.
-        // The id is used to create a name for the anonymous LabelTarget.
-        //
-        private Dictionary<LabelTarget, int> labelIds;
 
         private DebugViewWriter(TextWriter file)
         {
@@ -103,7 +91,7 @@ namespace Axh.Retro.CPU.Z80.Util
         {
             if (ids == null)
             {
-                ids = new Dictionary<T, int> { { e, 1 } };
+                ids = new Dictionary<T, int> {{e, 1}};
                 return 1;
             }
             int id;
@@ -171,6 +159,18 @@ namespace Axh.Retro.CPU.Z80.Util
             }
         }
 
+        [Flags]
+        private enum Flow
+        {
+            None,
+
+            Space,
+
+            NewLine,
+
+            Break = 0x8000 // newline if column > MaxColumn
+        }
+
         #region The printing code
 
         private void Out(string s)
@@ -219,7 +219,7 @@ namespace Axh.Retro.CPU.Z80.Util
             next = CheckBreak(next);
 
             // Get the biggest flow that is requested None < Space < NewLine
-            return (Flow)Math.Max((int)last, (int)next);
+            return (Flow) Math.Max((int) last, (int) next);
         }
 
         private Flow CheckBreak(Flow next)
@@ -228,7 +228,7 @@ namespace Axh.Retro.CPU.Z80.Util
             {
                 return next;
             }
-            if (column > (MaxColumn + Depth))
+            if (column > MaxColumn + Depth)
             {
                 next = Flow.NewLine;
             }
@@ -317,20 +317,19 @@ namespace Axh.Retro.CPU.Z80.Util
 
         private void VisitDeclarations(ICollection<ParameterExpression> expressions)
         {
-            VisitExpressions(
-                '(',
-                ',',
-                expressions,
-                variable =>
-                {
-                    Out(variable.Type.ToString());
-                    if (variable.IsByRef)
-                    {
-                        Out("&");
-                    }
-                    Out(" ");
-                    VisitParameter(variable);
-                });
+            VisitExpressions('(',
+                             ',',
+                             expressions,
+                             variable =>
+                             {
+                                 Out(variable.Type.ToString());
+                                 if (variable.IsByRef)
+                                 {
+                                     Out("&");
+                                 }
+                                 Out(" ");
+                                 VisitParameter(variable);
+                             });
         }
 
         private void VisitExpressions<T>(char open, char separator, ICollection<T> expressions, Action<T> visit)
@@ -592,7 +591,11 @@ namespace Axh.Retro.CPU.Z80.Util
 
         protected override Expression VisitLambda<T>(Expression<T> node)
         {
-            Out(string.Format(CultureInfo.CurrentCulture, "{0} {1}<{2}>", ".Lambda", GetLambdaName(node), node.Type.ToString()));
+            Out(string.Format(CultureInfo.CurrentCulture,
+                              "{0} {1}<{2}>",
+                              ".Lambda",
+                              GetLambdaName(node),
+                              node.Type.ToString()));
 
             if (lambdas == null)
             {
@@ -654,15 +657,15 @@ namespace Axh.Retro.CPU.Z80.Util
             {
                 Out("null");
             }
-            else if ((value is string) && node.Type == typeof(string))
+            else if (value is string && node.Type == typeof (string))
             {
                 Out(string.Format(CultureInfo.CurrentCulture, "\"{0}\"", value));
             }
-            else if ((value is char) && node.Type == typeof(char))
+            else if (value is char && node.Type == typeof (char))
             {
                 Out(string.Format(CultureInfo.CurrentCulture, "'{0}'", value));
             }
-            else if ((value is int) && node.Type == typeof(int) || (value is bool) && node.Type == typeof(bool))
+            else if (value is int && node.Type == typeof (int) || value is bool && node.Type == typeof (bool))
             {
                 Out(value.ToString());
             }
@@ -684,27 +687,27 @@ namespace Axh.Retro.CPU.Z80.Util
 
         private static string GetConstantValueSuffix(Type type)
         {
-            if (type == typeof(uint))
+            if (type == typeof (uint))
             {
                 return "U";
             }
-            if (type == typeof(long))
+            if (type == typeof (long))
             {
                 return "L";
             }
-            if (type == typeof(ulong))
+            if (type == typeof (ulong))
             {
                 return "UL";
             }
-            if (type == typeof(double))
+            if (type == typeof (double))
             {
                 return "D";
             }
-            if (type == typeof(float))
+            if (type == typeof (float))
             {
                 return "F";
             }
-            if (type == typeof(decimal))
+            if (type == typeof (decimal))
             {
                 return "M";
             }
@@ -814,7 +817,8 @@ namespace Axh.Retro.CPU.Z80.Util
 
             // Special case: negate of a constant needs parentheses, to
             // disambiguate it from a negative constant.
-            if (child.NodeType == ExpressionType.Constant && (parent.NodeType == ExpressionType.Negate || parent.NodeType == ExpressionType.NegateChecked))
+            if (child.NodeType == ExpressionType.Constant &&
+                (parent.NodeType == ExpressionType.Negate || parent.NodeType == ExpressionType.NegateChecked))
             {
                 return true;
             }
@@ -1081,7 +1085,7 @@ namespace Axh.Retro.CPU.Z80.Util
                 case ExpressionType.TypeAs:
                     break;
                 case ExpressionType.Not:
-                    Out(node.Type == typeof(bool) ? "!" : "~");
+                    Out(node.Type == typeof (bool) ? "!" : "~");
                     break;
                 case ExpressionType.OnesComplement:
                     Out("~");
@@ -1345,7 +1349,13 @@ namespace Axh.Retro.CPU.Z80.Util
             }
             else
             {
-                Out(string.Format(CultureInfo.CurrentCulture, ".DebugInfo({0}: {1}, {2} - {3}, {4})", node.Document.FileName, node.StartLine, node.StartColumn, node.EndLine, node.EndColumn));
+                Out(string.Format(CultureInfo.CurrentCulture,
+                                  ".DebugInfo({0}: {1}, {2} - {3}, {4})",
+                                  node.Document.FileName,
+                                  node.StartLine,
+                                  node.StartColumn,
+                                  node.EndLine,
+                                  node.EndColumn));
             }
             return node;
         }
@@ -1357,12 +1367,17 @@ namespace Axh.Retro.CPU.Z80.Util
 
         private string GetLabelTargetName(LabelTarget target)
         {
-            return string.IsNullOrEmpty(target.Name) ? string.Format(CultureInfo.CurrentCulture, "#Label{0}", GetLabelTargetId(target)) : GetDisplayName(target.Name);
+            return string.IsNullOrEmpty(target.Name)
+                ? string.Format(CultureInfo.CurrentCulture, "#Label{0}", GetLabelTargetId(target))
+                : GetDisplayName(target.Name);
         }
 
         private void WriteLambda(LambdaExpression lambda)
         {
-            Out(string.Format(CultureInfo.CurrentCulture, ".Lambda {0}<{1}>", GetLambdaName(lambda), lambda.Type.ToString()));
+            Out(string.Format(CultureInfo.CurrentCulture,
+                              ".Lambda {0}<{1}>",
+                              GetLambdaName(lambda),
+                              lambda.Type.ToString()));
 
             VisitDeclarations(lambda.Parameters);
 

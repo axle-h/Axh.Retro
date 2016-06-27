@@ -1,11 +1,8 @@
-﻿using Axh.Retro.CPU.Common.Contracts.Memory;
+﻿using System;
+using Axh.Retro.CPU.Common.Contracts.Memory;
 
 namespace Axh.Retro.GameBoy.Devices
 {
-    using System;
-
-    using Axh.Retro.GameBoy.Devices.CoreInterfaces;
-
     public class MemoryBankController1 : IMemoryBankController
     {
         private const ushort Address = 0x0000;
@@ -20,8 +17,8 @@ namespace Axh.Retro.GameBoy.Devices
 
         public MemoryBankController1()
         {
-            this.ramBankingMode = false;
-            this.RomBankNumber = 1;
+            ramBankingMode = false;
+            RomBankNumber = 1;
         }
 
         public MemoryBankType Type => MemoryBankType.Peripheral;
@@ -40,7 +37,7 @@ namespace Axh.Retro.GameBoy.Devices
                 return;
             }
 
-            if(address < RamBankNumberAddress)
+            if (address < RamBankNumberAddress)
             {
                 // ROM Bank Number
                 RomBankNumber &= 0xe0; // Clear 0x17
@@ -54,25 +51,43 @@ namespace Axh.Retro.GameBoy.Devices
             {
                 // RAM Bank Number
                 // TODO this should select the low 2 bits of the ROM bank number when romBankingMode is false
-                if (this.ramBankingMode)
+                if (ramBankingMode)
                 {
-                    RamBankNumber = (byte)(value & 0x3);
+                    RamBankNumber = (byte) (value & 0x3);
                     OnEvent(MemoryBankControllerEventTarget.RamBankSwitch);
-                }
-                else
-                {
-                    
                 }
                 return;
             }
 
             // ROM / RAM Mode Select
-            this.ramBankingMode = (value & 0x1) == 0x1;
+            ramBankingMode = (value & 0x1) == 0x1;
         }
+
+        public void WriteWord(ushort address, ushort word)
+        {
+            WriteByte(address, (byte) (word & 0xff));
+            WriteByte(address, (byte) ((word & 0xff00) >> 8));
+        }
+
+        public void WriteBytes(ushort address, byte[] values)
+        {
+            for (var i = 0; i < values.Length; i++, address++)
+            {
+                WriteByte(address, values[i]);
+            }
+        }
+
+        public bool RamEnable { get; private set; }
+
+        public byte RomBankNumber { get; private set; }
+
+        public byte RamBankNumber { get; private set; }
+
+        public event EventHandler<MemoryBankControllerEventArgs> MemoryBankSwitch;
 
         private static byte GetRomBankNumber(byte value)
         {
-            value = (byte)(value & 0x1f);
+            value = (byte) (value & 0x1f);
             switch (value)
             {
                 case 0x00:
@@ -88,28 +103,6 @@ namespace Axh.Retro.GameBoy.Devices
             return value;
         }
 
-        public void WriteWord(ushort address, ushort word)
-        {
-            this.WriteByte(address, (byte)(word & 0xff));
-            this.WriteByte(address, (byte)((word & 0xff00) >> 8));
-        }
-
-        public void WriteBytes(ushort address, byte[] values)
-        {
-            for (var i = 0; i < values.Length; i++, address++)
-            {
-                this.WriteByte(address, values[i]);
-            }
-        }
-
-        public bool RamEnable { get; private set; }
-
-        public byte RomBankNumber { get; private set; }
-
-        public byte RamBankNumber { get; private set; }
-
-        public event EventHandler<MemoryBankControllerEventArgs> MemoryBankSwitch;
-        
         protected void OnEvent(MemoryBankControllerEventTarget eventTarget)
         {
             MemoryBankSwitch?.Invoke(this, new MemoryBankControllerEventArgs(eventTarget));

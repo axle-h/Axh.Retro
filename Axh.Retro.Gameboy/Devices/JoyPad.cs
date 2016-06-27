@@ -1,134 +1,108 @@
-﻿using Axh.Retro.GameBoy.Registers.Interfaces;
+﻿using System;
+using Axh.Retro.GameBoy.Contracts.Devices;
+using Axh.Retro.GameBoy.Devices.CoreInterfaces;
+using Axh.Retro.GameBoy.Registers.Interfaces;
 
 namespace Axh.Retro.GameBoy.Devices
 {
-    using System;
-
-    using Axh.Retro.GameBoy.Contracts.Devices;
-    using Axh.Retro.GameBoy.Devices.CoreInterfaces;
-
     public class JoyPad : ICoreJoyPad
     {
         private readonly IInterruptFlagsRegister interruptFlagsRegister;
-
-        private MatrixColumn matrixColumn;
-
-        private bool up;
-        private bool down;
-        private bool left;
-        private bool right;
         private bool a;
         private bool b;
+        private bool down;
+        private bool left;
+
+        private MatrixColumn matrixColumn;
+        private bool right;
         private bool select;
         private bool start;
+
+        private bool up;
 
         public JoyPad(IInterruptFlagsRegister interruptFlagsRegister)
         {
             this.interruptFlagsRegister = interruptFlagsRegister;
-            this.matrixColumn = MatrixColumn.None;
+            matrixColumn = MatrixColumn.None;
         }
 
         public bool Up
         {
-            get
-            {
-                return this.up;
-            }
+            get { return up; }
             set
             {
-                this.up = value;
-                this.interruptFlagsRegister.UpdateInterrupts(InterruptFlag.JoyPadPress);
+                up = value;
+                interruptFlagsRegister.UpdateInterrupts(InterruptFlag.JoyPadPress);
             }
         }
 
         public bool Down
         {
-            get
-            {
-                return this.down;
-            }
+            get { return down; }
             set
             {
-                this.down = value;
-                this.interruptFlagsRegister.UpdateInterrupts(InterruptFlag.JoyPadPress);
+                down = value;
+                interruptFlagsRegister.UpdateInterrupts(InterruptFlag.JoyPadPress);
             }
         }
 
         public bool Left
         {
-            get
-            {
-                return this.left;
-            }
+            get { return left; }
             set
             {
-                this.left = value;
-                this.interruptFlagsRegister.UpdateInterrupts(InterruptFlag.JoyPadPress);
+                left = value;
+                interruptFlagsRegister.UpdateInterrupts(InterruptFlag.JoyPadPress);
             }
         }
 
         public bool Right
         {
-            get
-            {
-                return this.right;
-            }
+            get { return right; }
             set
             {
-                this.right = value;
-                this.interruptFlagsRegister.UpdateInterrupts(InterruptFlag.JoyPadPress);
+                right = value;
+                interruptFlagsRegister.UpdateInterrupts(InterruptFlag.JoyPadPress);
             }
         }
 
         public bool A
         {
-            get
-            {
-                return this.a;
-            }
+            get { return a; }
             set
             {
-                this.a = value;
-                this.interruptFlagsRegister.UpdateInterrupts(InterruptFlag.JoyPadPress);
+                a = value;
+                interruptFlagsRegister.UpdateInterrupts(InterruptFlag.JoyPadPress);
             }
         }
 
         public bool B
         {
-            get
-            {
-                return this.b;
-            }
+            get { return b; }
             set
             {
-                this.b = value;
-                this.interruptFlagsRegister.UpdateInterrupts(InterruptFlag.JoyPadPress);
+                b = value;
+                interruptFlagsRegister.UpdateInterrupts(InterruptFlag.JoyPadPress);
             }
         }
 
         public bool Select
         {
-            get
-            {
-                return this.select;
-            }
+            get { return select; }
             set
             {
-                this.select = value;
-                this.interruptFlagsRegister.UpdateInterrupts(InterruptFlag.JoyPadPress);
+                select = value;
+                interruptFlagsRegister.UpdateInterrupts(InterruptFlag.JoyPadPress);
             }
         }
 
         public bool Start
         {
-            get
-            {
-                return this.start;
-            }
+            get { return start; }
             set
             {
-                this.start = value;
-                this.interruptFlagsRegister.UpdateInterrupts(InterruptFlag.JoyPadPress);
+                start = value;
+                interruptFlagsRegister.UpdateInterrupts(InterruptFlag.JoyPadPress);
             }
         }
 
@@ -137,28 +111,26 @@ namespace Axh.Retro.GameBoy.Devices
         public string Name => "Joypad Port (JOYPAD R/W)";
 
         /// <summary>
-        ///  Bit 7 - Not used
-        ///  Bit 6 - Not used
-        ///  Bit 5 - P15 out port
-        ///  Bit 4 - P14 out port
-        ///  Bit 3 - P13 in port
-        ///  Bit 2 - P12 in port
-        ///  Bit 1 - P11 in port
-        ///  Bit 0 - P10 in port
-        /// 
-        ///           P14        P15
-        ///            |          |
-        ///  P10-------O-Right----O-A
-        ///            |          |
-        ///  P11-------O-Left-----O-B
-        ///            |          |
-        ///  P12-------O-Up-------O-Select
-        ///            |          |
-        ///  P13-------O-Down-----O-Start
-        ///            |          |
-        /// 
-        /// To read a button you must set P14 or P15 to select the column
-        /// Then read P10 - P13 to select the row
+        ///     Bit 7 - Not used
+        ///     Bit 6 - Not used
+        ///     Bit 5 - P15 out port
+        ///     Bit 4 - P14 out port
+        ///     Bit 3 - P13 in port
+        ///     Bit 2 - P12 in port
+        ///     Bit 1 - P11 in port
+        ///     Bit 0 - P10 in port
+        ///     P14        P15
+        ///     |          |
+        ///     P10-------O-Right----O-A
+        ///     |          |
+        ///     P11-------O-Left-----O-B
+        ///     |          |
+        ///     P12-------O-Up-------O-Select
+        ///     |          |
+        ///     P13-------O-Down-----O-Start
+        ///     |          |
+        ///     To read a button you must set P14 or P15 to select the column
+        ///     Then read P10 - P13 to select the row
         /// </summary>
         public byte Register
         {
@@ -182,17 +154,17 @@ namespace Axh.Retro.GameBoy.Devices
                 // No idea what happens when both are set...
                 if ((value & 0x10) > 0)
                 {
-                    this.matrixColumn = MatrixColumn.P14;
+                    matrixColumn = MatrixColumn.P14;
                     return;
                 }
 
                 if ((value & 0x20) > 0)
                 {
-                    this.matrixColumn = MatrixColumn.P15;
+                    matrixColumn = MatrixColumn.P15;
                     return;
                 }
 
-                this.matrixColumn = MatrixColumn.None;
+                matrixColumn = MatrixColumn.None;
             }
         }
 
@@ -221,7 +193,7 @@ namespace Axh.Retro.GameBoy.Devices
                 value |= 0x1;
             }
 
-            return (byte)~value;
+            return (byte) ~value;
         }
 
         private enum MatrixColumn

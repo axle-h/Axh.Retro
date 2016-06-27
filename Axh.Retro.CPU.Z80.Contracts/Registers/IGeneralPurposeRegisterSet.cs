@@ -1,7 +1,7 @@
+using Axh.Retro.CPU.Z80.Contracts.State;
+
 namespace Axh.Retro.CPU.Z80.Contracts.Registers
 {
-    using Axh.Retro.CPU.Z80.Contracts.State;
-
     public interface IGeneralPurposeRegisterSet
     {
         byte B { get; set; }

@@ -1,11 +1,9 @@
-﻿namespace Axh.Retro.GameBoy.Contracts.Media
-{
-    using System;
+﻿using System;
 
+namespace Axh.Retro.GameBoy.Contracts.Media
+{
     public static class MediaExtensions
     {
-
-
         public static int NumberOfBanks(this CartridgeRomSize cartridgeRomSize)
         {
             switch (cartridgeRomSize)

@@ -1,7 +1,7 @@
-﻿namespace Axh.Retro.CPU.Z80.Util
-{
-    using System;
+﻿using System;
 
+namespace Axh.Retro.CPU.Z80.Util
+{
     internal static class ByteExtensions
     {
         private static readonly bool[] EvenParityTable = P8(true);
@@ -18,7 +18,7 @@
 
         private static bool[] P2(bool n)
         {
-            return new[] { n, !n, !n, n };
+            return new[] {n, !n, !n, n};
         }
 
         private static bool[] P4(bool n)
@@ -47,6 +47,5 @@
 
             return ans;
         }
-
     }
 }

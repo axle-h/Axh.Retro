@@ -1,46 +1,48 @@
-﻿using Axh.Retro.CPU.Common.Contracts.Memory;
-using Axh.Retro.CPU.Common.Memory;
+﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
+using System.Timers;
+using Axh.Retro.CPU.Common.Contracts.Memory;
+using Axh.Retro.CPU.Z80.Contracts.Cache;
+using Axh.Retro.CPU.Z80.Contracts.Core;
+using Axh.Retro.CPU.Z80.Contracts.Registers;
 
 namespace Axh.Retro.CPU.Z80.Cache
 {
-    using System;
-    using System.Collections.Concurrent;
-    using System.Collections.Generic;
-    using System.Linq;
-
-    using Axh.Retro.CPU.Z80.Contracts.Cache;
-    using Axh.Retro.CPU.Z80.Contracts.Core;
-    using Axh.Retro.CPU.Z80.Contracts.Registers;
-
-    using Timer = System.Timers.Timer;
-
-    public class InstructionBlockCache<TRegisters> : IInstructionBlockCache<TRegisters>, IDisposable where TRegisters : IRegisters
+    public class InstructionBlockCache<TRegisters> : IInstructionBlockCache<TRegisters>, IDisposable
+        where TRegisters : IRegisters
     {
+        private readonly ConcurrentDictionary<ushort, ICacheItem> cache;
         private readonly TimeSpan garbageCollectionInterval = TimeSpan.FromMinutes(10);
 
-        private readonly ConcurrentDictionary<ushort, ICacheItem> cache;
-        
         private readonly Timer timer;
 
         public InstructionBlockCache()
         {
-            this.cache = new ConcurrentDictionary<ushort, ICacheItem>();
+            cache = new ConcurrentDictionary<ushort, ICacheItem>();
 
             // Psuedo garbage collection. Meh... will create a proper implementation another day.
             timer = new Timer(garbageCollectionInterval.TotalMilliseconds);
             timer.Elapsed += (sender, args) => GarbageCollection();
         }
 
+        public void Dispose()
+        {
+            timer?.Dispose();
+        }
+
         /// <summary>
-        /// Get an instruction block from the cache at address. If not present then call getInstanceFunc and add to the cache.
+        ///     Get an instruction block from the cache at address. If not present then call getInstanceFunc and add to the cache.
         /// </summary>
         /// <param name="address"></param>
         /// <param name="getInstanceFunc"></param>
         /// <returns></returns>
-        public IInstructionBlock<TRegisters> GetOrSet(ushort address, Func<IInstructionBlock<TRegisters>> getInstanceFunc)
+        public IInstructionBlock<TRegisters> GetOrSet(ushort address,
+                                                      Func<IInstructionBlock<TRegisters>> getInstanceFunc)
         {
             ICacheItem cacheItem;
-            if (this.cache.TryGetValue(address, out cacheItem))
+            if (cache.TryGetValue(address, out cacheItem))
             {
                 cacheItem.Accessed++;
             }
@@ -56,15 +58,15 @@ namespace Axh.Retro.CPU.Z80.Cache
                 {
                     cacheItem = new InstructionBlockCacheItem(ranges, block);
                 }
-                
-                this.cache.TryAdd(block.Address, cacheItem);
+
+                cache.TryAdd(block.Address, cacheItem);
             }
-            
+
             return cacheItem.InstructionBlock;
         }
 
         /// <summary>
-        /// Invalidates all cache from address for length
+        ///     Invalidates all cache from address for length
         /// </summary>
         /// <param name="address"></param>
         /// <param name="length"></param>
@@ -74,6 +76,7 @@ namespace Axh.Retro.CPU.Z80.Cache
             if (ranges.Length == 1)
             {
                 var range = ranges[0];
+                // TODO: this is a hot path. Need a better way of invalidating the cache.
                 foreach (var kvp in cache.Where(x => x.Value.Intersects(range)).ToArray())
                 {
                     ICacheItem dummy;
@@ -106,19 +109,19 @@ namespace Axh.Retro.CPU.Z80.Cache
         }
 
         /// <summary>
-        /// Instruction block cache wrapper with a single normal range.
+        ///     Instruction block cache wrapper with a single normal range.
         /// </summary>
         private class NormalInstructionBlockCacheItem : ICacheItem
         {
             private readonly AddressRange addressRange;
 
-            public uint Accessed { get; set; }
-            
             public NormalInstructionBlockCacheItem(AddressRange range, IInstructionBlock<TRegisters> instructionBlock)
             {
-                this.InstructionBlock = instructionBlock;
-                this.addressRange = range;
+                InstructionBlock = instructionBlock;
+                addressRange = range;
             }
+
+            public uint Accessed { get; set; }
 
             public IInstructionBlock<TRegisters> InstructionBlock { get; }
 
@@ -129,18 +132,19 @@ namespace Axh.Retro.CPU.Z80.Cache
         }
 
         /// <summary>
-        /// Instruction block cache wrapper with two ranges.
+        ///     Instruction block cache wrapper with two ranges.
         /// </summary>
         private class InstructionBlockCacheItem : ICacheItem
         {
             private readonly AddressRange addressRange0;
             private readonly AddressRange addressRange1;
 
-            public InstructionBlockCacheItem(IReadOnlyList<AddressRange> addressRanges, IInstructionBlock<TRegisters> instructionBlock)
+            public InstructionBlockCacheItem(IReadOnlyList<AddressRange> addressRanges,
+                                             IInstructionBlock<TRegisters> instructionBlock)
             {
                 InstructionBlock = instructionBlock;
-                this.addressRange0 = addressRanges[0];
-                this.addressRange1 = addressRanges[1];
+                addressRange0 = addressRanges[0];
+                addressRange1 = addressRanges[1];
             }
 
             public IInstructionBlock<TRegisters> InstructionBlock { get; }
@@ -160,11 +164,6 @@ namespace Axh.Retro.CPU.Z80.Cache
             uint Accessed { get; set; }
 
             bool Intersects(AddressRange range);
-        }
-
-        public void Dispose()
-        {
-            timer?.Dispose();
         }
     }
 }

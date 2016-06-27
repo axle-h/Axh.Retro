@@ -6,7 +6,6 @@
         RandomAccessMemory,
         ReadOnlyMemory,
         Peripheral,
-        BankedReadOnlyMemory,
-
+        BankedReadOnlyMemory
     }
 }

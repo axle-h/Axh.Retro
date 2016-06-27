@@ -1,7 +1,7 @@
-﻿namespace Axh.Retro.GameBoy.Media
-{
-    using Axh.Retro.GameBoy.Contracts.Media;
+﻿using Axh.Retro.GameBoy.Contracts.Media;
 
+namespace Axh.Retro.GameBoy.Media
+{
     internal class Cartridge : ICartridge
     {
         public Cartridge(byte[][] romBanks, ushort[] ramBankLengths, ICartridgeHeader header)
@@ -20,20 +20,19 @@
 
     internal class CartridgeHeader : ICartridgeHeader
     {
-        public CartridgeHeader(
-            byte[] entryPoint,
-            bool nintendoLogoValid,
-            string title,
-            bool isGameBoyColour,
-            string licenseCode,
-            bool isSuperGameBoy,
-            CartridgeType cartridgeType,
-            CartridgeRomSize romSize,
-            CartridgeRamSize ramSize,
-            DestinationCode destinationCode,
-            byte romVersion,
-            byte headerChecksum,
-            ushort romChecksum)
+        public CartridgeHeader(byte[] entryPoint,
+                               bool nintendoLogoValid,
+                               string title,
+                               bool isGameBoyColour,
+                               string licenseCode,
+                               bool isSuperGameBoy,
+                               CartridgeType cartridgeType,
+                               CartridgeRomSize romSize,
+                               CartridgeRamSize ramSize,
+                               DestinationCode destinationCode,
+                               byte romVersion,
+                               byte headerChecksum,
+                               ushort romChecksum)
         {
             EntryPoint = entryPoint;
             NintendoLogoValid = nintendoLogoValid;
@@ -66,7 +65,8 @@
 
         public override string ToString()
         {
-            return $"Title: {Title}, IsGameBoyColour: {IsGameBoyColour}, LicenseCode: {LicenseCode}, IsSuperGameBoy: {IsSuperGameBoy}, CartridgeType: {CartridgeType}, RomSize: {RomSize}, RamSize: {RamSize}, DestinationCode: {DestinationCode}, RomVersion: {RomVersion}, HeaderChecksum: {HeaderChecksum}, RomChecksum: {RomChecksum}";
+            return
+                $"Title: {Title}, IsGameBoyColour: {IsGameBoyColour}, LicenseCode: {LicenseCode}, IsSuperGameBoy: {IsSuperGameBoy}, CartridgeType: {CartridgeType}, RomSize: {RomSize}, RamSize: {RamSize}, DestinationCode: {DestinationCode}, RomVersion: {RomVersion}, HeaderChecksum: {HeaderChecksum}, RomChecksum: {RomChecksum}";
         }
     }
 }

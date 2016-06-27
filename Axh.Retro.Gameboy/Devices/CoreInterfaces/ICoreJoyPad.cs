@@ -1,8 +1,8 @@
-﻿namespace Axh.Retro.GameBoy.Devices.CoreInterfaces
-{
-    using Axh.Retro.GameBoy.Contracts.Devices;
-    using Axh.Retro.GameBoy.Registers.Interfaces;
+﻿using Axh.Retro.GameBoy.Contracts.Devices;
+using Axh.Retro.GameBoy.Registers.Interfaces;
 
+namespace Axh.Retro.GameBoy.Devices.CoreInterfaces
+{
     public interface ICoreJoyPad : IJoyPad, IRegister
     {
     }

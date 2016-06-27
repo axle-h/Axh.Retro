@@ -1,78 +1,71 @@
-﻿namespace Axh.Retro.GameBoy.Registers
-{
-    using Axh.Retro.GameBoy.Registers.Interfaces;
+﻿using Axh.Retro.GameBoy.Registers.Interfaces;
 
+namespace Axh.Retro.GameBoy.Registers
+{
     /// <summary>
-    /// FF44 - LY - LCDC Y-Coordinate (R)
-    /// The LY indicates the vertical line to which the present data is transferred to the LCD
-    /// Driver.The LY can take on any value between 0 through 153. The values between 144
-    /// and 153 indicate the V-Blank period.Writing will reset the counter.
-    /// 
+    ///     FF44 - LY - LCDC Y-Coordinate (R)
+    ///     The LY indicates the vertical line to which the present data is transferred to the LCD
+    ///     Driver.The LY can take on any value between 0 through 153. The values between 144
+    ///     and 153 indicate the V-Blank period.Writing will reset the counter.
     /// </summary>
     /// <seealso cref="Axh.Retro.GameBoy.Registers.Interfaces.ICurrentScanlineRegister" />
     public class CurrentScanlineRegister : ICurrentScanlineRegister
     {
         /// <summary>
-        /// Gets the address.
+        ///     Gets the address.
         /// </summary>
         /// <value>
-        /// The address.
+        ///     The address.
         /// </value>
         public ushort Address => 0xff44;
 
         /// <summary>
-        /// Gets the name.
+        ///     Gets the name.
         /// </summary>
         /// <value>
-        /// The name.
+        ///     The name.
         /// </value>
         public string Name => "Current Scanline (LY R)";
 
         /// <summary>
-        /// Gets or sets the raw register value.
+        ///     Gets or sets the raw register value.
         /// </summary>
         /// <value>
-        /// The raw register value.
+        ///     The raw register value.
         /// </value>
         public byte Register
         {
-            get
-            {
-                return Scanline;
-            }
-            set
-            {
-                Scanline = 0x00;
-            }
+            get { return Scanline; }
+            set { Scanline = 0x00; }
         }
 
         /// <summary>
-        /// Gets the debug view.
+        ///     Gets the debug view.
         /// </summary>
         /// <value>
-        /// The debug view.
+        ///     The debug view.
         /// </value>
-        public string DebugView => this.ToString();
+        public string DebugView => ToString();
 
         /// <summary>
-        /// Returns a <see cref="System.String" /> that represents this instance.
+        ///     Increments the scanline.
         /// </summary>
-        /// <returns>
-        /// A <see cref="System.String" /> that represents this instance.
-        /// </returns>
-        public override string ToString() => $"{Name} ({Address}) = {Register}";
-        
+        public void IncrementScanline() => Scanline = (byte) ((Scanline + 1) % 154);
+
         /// <summary>
-        /// Increments the scanline.
-        /// </summary>
-        public void IncrementScanline() => Scanline = (byte)((Scanline + 1) % 154);
-        
-        /// <summary>
-        /// Gets the scanline.
+        ///     Gets the scanline.
         /// </summary>
         /// <value>
-        /// The scanline.
+        ///     The scanline.
         /// </value>
         public byte Scanline { get; private set; }
+
+        /// <summary>
+        ///     Returns a <see cref="System.String" /> that represents this instance.
+        /// </summary>
+        /// <returns>
+        ///     A <see cref="System.String" /> that represents this instance.
+        /// </returns>
+        public override string ToString() => $"{Name} ({Address}) = {Register}";
     }
 }

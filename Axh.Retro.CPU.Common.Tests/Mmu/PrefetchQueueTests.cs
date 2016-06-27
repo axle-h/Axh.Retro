@@ -1,20 +1,17 @@
-﻿namespace Axh.Retro.CPU.Common.Tests.Mmu
+﻿using System;
+using System.Linq;
+using Axh.Retro.CPU.Common.Contracts.Memory;
+using Axh.Retro.CPU.Common.Memory;
+using Moq;
+using NUnit.Framework;
+
+namespace Axh.Retro.CPU.Common.Tests.Mmu
 {
-    using System;
-    using System.Linq;
-
-    using Axh.Retro.CPU.Common.Contracts.Memory;
-    using Axh.Retro.CPU.Common.Memory;
-
-    using Moq;
-
-    using NUnit.Framework;
-
     [TestFixture]
     public class PrefetchQueueTests
     {
         private const int Address = 0x1000;
-        
+
         private Mock<IMmu> mmu;
 
         private static readonly byte[] Bytes;
@@ -38,10 +35,11 @@
         public void TestFixtureSetUp()
         {
             mmu = new Mock<IMmu>();
-            mmu.Setup(x => x.ReadBytes(It.IsAny<ushort>(), It.IsAny<int>())).Returns((ushort address, int length) => Bytes.Skip(address).Take(length).ToArray());
-            mmu.Setup(x => x.ReadWord(It.IsAny<ushort>())).Returns((ushort address) => BitConverter.ToUInt16(Bytes, address));
+            mmu.Setup(x => x.ReadBytes(It.IsAny<ushort>(), It.IsAny<int>()))
+               .Returns((ushort address, int length) => Bytes.Skip(address).Take(length).ToArray());
+            mmu.Setup(x => x.ReadWord(It.IsAny<ushort>()))
+               .Returns((ushort address) => BitConverter.ToUInt16(Bytes, address));
             mmu.Setup(x => x.ReadByte(It.IsAny<ushort>())).Returns((ushort address) => Bytes[address]);
-            
         }
 
         [Test]
@@ -91,7 +89,6 @@
             expected = Bytes.Skip(Address + 1000).Take(1000).ToArray();
 
             CollectionAssert.AreEqual(expected, bytes);
-
         }
 
         [Test]

@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Drawing;
-using Axh.Retro.GameBoy.Contracts.Graphics;
 using Axh.Retro.GameBoy.Contracts;
 using Axh.Retro.GameBoy.Contracts.Config;
+using Axh.Retro.GameBoy.Contracts.Graphics;
 
 namespace Axh.Retro.GameBoy.BlarggTests.Config
 {
@@ -15,7 +15,7 @@ namespace Axh.Retro.GameBoy.BlarggTests.Config
         public bool RunGpu => false;
 
         public bool UseGameBoyTimings => false;
-        
+
         public IDictionary<MonocromeShade, Color> MonocromePalette
             =>
                 new Dictionary<MonocromeShade, Color>

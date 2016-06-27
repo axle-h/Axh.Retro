@@ -1,7 +1,5 @@
 ﻿namespace Axh.Retro.CPU.Z80.Core.Decode
 {
-    using System;
-
     internal enum Operand : byte
     {
         None = 0,
@@ -28,7 +26,7 @@
         mBC,
         mDE,
         mSP,
-        
+
         // Literals
         mnn,
         nn,
@@ -51,18 +49,18 @@
 
         // Gameboy Specific
         /// <summary>
-        /// (0xFF00+C)
+        ///     (0xFF00+C)
         /// </summary>
         mCl,
 
         /// <summary>
-        /// (0xFF00+n)
+        ///     (0xFF00+n)
         /// </summary>
         mnl,
 
         /// <summary>
-        /// SP + signed byte literal
+        ///     SP + signed byte literal
         /// </summary>
-        SPd,
+        SPd
     }
 }

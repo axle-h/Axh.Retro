@@ -80,7 +80,6 @@
         OUTI = 0xA3,
         OUTIR = 0xB3,
         OUTD = 0xAB,
-        OUTDR = 0xBB,
-
+        OUTDR = 0xBB
     }
 }

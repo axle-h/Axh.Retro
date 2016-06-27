@@ -9,6 +9,6 @@
         SWAP_H = PrefixCbOpCode.SLS_H,
         SWAP_L = PrefixCbOpCode.SLS_L,
         SWAP_mHL = PrefixCbOpCode.SLS_mHL,
-        SWAP_A = PrefixCbOpCode.SLS_A,
+        SWAP_A = PrefixCbOpCode.SLS_A
     }
 }

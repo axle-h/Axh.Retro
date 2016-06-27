@@ -1,14 +1,13 @@
-﻿namespace Axh.Retro.Z80Console.Config
+﻿using System;
+using System.Collections.Generic;
+using Axh.Retro.CPU.Common.Config;
+using Axh.Retro.CPU.Common.Contracts.Config;
+using Axh.Retro.CPU.Common.Contracts.Memory;
+using Axh.Retro.CPU.Z80.Contracts.Config;
+using Axh.Retro.Z80Console.Properties;
+
+namespace Axh.Retro.Z80Console.Config
 {
-    using System;
-    using System.Collections.Generic;
-
-    using Axh.Retro.CPU.Common.Config;
-    using Axh.Retro.CPU.Common.Contracts.Config;
-    using Axh.Retro.CPU.Common.Contracts.Memory;
-    using Axh.Retro.CPU.Z80.Contracts.Config;
-    using Axh.Retro.Z80Console.Properties;
-
     internal class Z8064KBootstrappedConfig : IPlatformConfig
     {
         private const ushort MemoryStart = 0x0000;
@@ -16,14 +15,17 @@
 
         public Z8064KBootstrappedConfig()
         {
-            var ramConfig = new SimpleMemoryBankConfig(MemoryBankType.RandomAccessMemory, null, MemoryStart, MemoryLength);
+            var ramConfig = new SimpleMemoryBankConfig(MemoryBankType.RandomAccessMemory,
+                                                       null,
+                                                       MemoryStart,
+                                                       MemoryLength);
 
             // Bootstrap from Resources/code.bin
             // This is a simple hello world program that was built using sdcc
             var code = Resources.code;
             Array.Copy(code, 0, ramConfig.State, 0, code.Length);
 
-            this.MemoryBanks = new[] { ramConfig };
+            MemoryBanks = new[] {ramConfig};
         }
 
         public CpuMode CpuMode => CpuMode.Z80;

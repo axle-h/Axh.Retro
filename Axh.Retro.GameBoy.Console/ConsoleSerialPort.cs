@@ -1,9 +1,7 @@
-﻿namespace Axh.Retro.GameBoy.Console
+﻿using Axh.Retro.GameBoy.Contracts.Devices;
+
+namespace Axh.Retro.GameBoy.Console
 {
-    using System;
-
-    using Axh.Retro.GameBoy.Contracts.Devices;
-
     public class ConsoleSerialPort : ISerialPort
     {
         public void Connect(ISerialPort serialPort)
@@ -16,8 +14,8 @@
 
         public byte Transfer(byte value)
         {
-            var c = (char)value;
-            Console.Write(c);
+            var c = (char) value;
+            System.Console.Write(c);
             return 0x00;
         }
     }

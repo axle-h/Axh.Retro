@@ -1,15 +1,17 @@
-﻿namespace Axh.Retro.GameBoy.Util
-{
-    using System;
-    using System.IO;
-    using System.Linq;
-    using System.Text;
+﻿using System;
+using System.IO;
+using System.Linq;
+using System.Text;
 
+namespace Axh.Retro.GameBoy.Util
+{
     internal static class StreamExtensions
     {
         public static string ReadAscii(this Stream stream, int len)
         {
-            return 0 != len ? Encoding.ASCII.GetString(stream.ReadBuffer(len).TakeWhile(b => 0 != b).ToArray()) : string.Empty;
+            return 0 != len
+                ? Encoding.ASCII.GetString(stream.ReadBuffer(len).TakeWhile(b => 0 != b).ToArray())
+                : string.Empty;
         }
 
         public static byte[] ReadBuffer(this Stream stream, int len)
@@ -27,18 +29,18 @@
         {
             var msb = stream.ReadByte();
             var lsb = stream.ReadByte();
-            return (ushort)((msb << 8) | lsb);
+            return (ushort) ((msb << 8) | lsb);
         }
 
         public static TEnum ReadEnum<TEnum>(this Stream stream)
         {
-            var value = (byte)stream.ReadByte();
-            if (!Enum.IsDefined(typeof(TEnum), value))
+            var value = (byte) stream.ReadByte();
+            if (!Enum.IsDefined(typeof (TEnum), value))
             {
-                throw new Exception($"Bad {typeof(TEnum)}: 0x{value:x2}");
+                throw new Exception($"Bad {typeof (TEnum)}: 0x{value:x2}");
             }
 
-            return (TEnum)Enum.ToObject(typeof(TEnum), value);
+            return (TEnum) Enum.ToObject(typeof (TEnum), value);
         }
     }
 }

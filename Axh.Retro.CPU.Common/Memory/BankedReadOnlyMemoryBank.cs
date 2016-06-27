@@ -1,22 +1,21 @@
-﻿namespace Axh.Retro.CPU.Common.Memory
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Axh.Retro.CPU.Common.Contracts.Config;
+using Axh.Retro.CPU.Common.Contracts.Exceptions;
+using Axh.Retro.CPU.Common.Contracts.Memory;
+
+namespace Axh.Retro.CPU.Common.Memory
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-
-    using Axh.Retro.CPU.Common.Contracts.Config;
-    using Axh.Retro.CPU.Common.Contracts.Exceptions;
-    using Axh.Retro.CPU.Common.Contracts.Memory;
-
     public class BankedReadOnlyMemoryBank : IReadableAddressSegment
     {
-        private readonly IMemoryBankController memoryBankController;
-
         private readonly IDictionary<byte, byte[]> banks;
+        private readonly IMemoryBankController memoryBankController;
 
         private byte[] bank;
 
-        public BankedReadOnlyMemoryBank(ICollection<IMemoryBankConfig> bankConfigs, IMemoryBankController memoryBankController)
+        public BankedReadOnlyMemoryBank(ICollection<IMemoryBankConfig> bankConfigs,
+                                        IMemoryBankController memoryBankController)
         {
             this.memoryBankController = memoryBankController;
             if (bankConfigs == null)
@@ -39,7 +38,7 @@
                 throw new ArgumentException("All bank id's must be unique");
             }
 
-            var distinct = bankConfigs.Select(x => new { x.Address, x.Length }).Distinct().ToArray();
+            var distinct = bankConfigs.Select(x => new {x.Address, x.Length}).Distinct().ToArray();
             if (distinct.Length > 1)
             {
                 throw new ArgumentException("All configs must have same address and length.");
@@ -54,14 +53,13 @@
                 throw new MemoryConfigStateException(Address, Length, badBank.State?.Length ?? 0);
             }
 
-            banks = bankConfigs.ToDictionary(
-                x => x.BankId.Value,
-                x =>
-                {
-                    var memory = new byte[Length];
-                    Array.Copy(x.State, 0, memory, 0, Length);
-                    return memory;
-                });
+            banks = bankConfigs.ToDictionary(x => x.BankId.Value,
+                                             x =>
+                                             {
+                                                 var memory = new byte[Length];
+                                                 Array.Copy(x.State, 0, memory, 0, Length);
+                                                 return memory;
+                                             });
 
             bank = banks[memoryBankController.RomBankNumber];
 
@@ -76,7 +74,7 @@
 
         public byte ReadByte(ushort address)
         {
-            return this.bank[address];
+            return bank[address];
         }
 
         public ushort ReadWord(ushort address)

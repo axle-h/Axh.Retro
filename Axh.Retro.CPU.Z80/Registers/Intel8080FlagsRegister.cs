@@ -1,10 +1,10 @@
-﻿namespace Axh.Retro.CPU.Z80.Registers
-{
-    using Axh.Retro.CPU.Z80.Util;
-    using Axh.Retro.CPU.Z80.Contracts.Registers;
+﻿using Axh.Retro.CPU.Z80.Contracts.Registers;
+using Axh.Retro.CPU.Z80.Util;
 
+namespace Axh.Retro.CPU.Z80.Registers
+{
     /// <summary>
-    /// Flags register used by the Z80 & Intel 8080 (I think)
+    ///     Flags register used by the Z80 & Intel 8080 (I think)
     /// </summary>
     public class Intel8080FlagsRegister : IFlagsRegister
     {
@@ -17,48 +17,53 @@
         private const byte SubtractMask = 1 << 1;
         private const byte CarryMask = 1;
 
+        public Intel8080FlagsRegister()
+        {
+            ResetFlags();
+        }
+
         public byte Register
         {
             get
             {
                 byte ans = 0x00;
 
-                if (this.Sign)
+                if (Sign)
                 {
                     ans |= SignMask;
                 }
 
-                if (this.Zero)
+                if (Zero)
                 {
                     ans |= ZeroMask;
                 }
 
-                if (this.Flag5)
+                if (Flag5)
                 {
                     ans |= Flag5Mask;
                 }
 
-                if (this.HalfCarry)
+                if (HalfCarry)
                 {
                     ans |= HalfCarryMask;
                 }
 
-                if (this.Flag3)
+                if (Flag3)
                 {
                     ans |= Flag3Mask;
                 }
 
-                if (this.ParityOverflow)
+                if (ParityOverflow)
                 {
                     ans |= ParityOverflowMask;
                 }
 
-                if (this.Subtract)
+                if (Subtract)
                 {
                     ans |= SubtractMask;
                 }
 
-                if (this.Carry)
+                if (Carry)
                 {
                     ans |= CarryMask;
                 }
@@ -67,17 +72,17 @@
             }
             set
             {
-                this.Sign = (value & SignMask) > 0;
-                this.Zero = (value & ZeroMask) > 0;
-                this.Flag5 = (value & Flag5Mask) > 0;
-                this.HalfCarry = (value & HalfCarryMask) > 0;
-                this.Flag3 = (value & Flag3Mask) > 0;
-                this.ParityOverflow = (value & ParityOverflowMask) > 0;
-                this.Subtract = (value & SubtractMask) > 0;
-                this.Carry = (value & CarryMask) > 0;
+                Sign = (value & SignMask) > 0;
+                Zero = (value & ZeroMask) > 0;
+                Flag5 = (value & Flag5Mask) > 0;
+                HalfCarry = (value & HalfCarryMask) > 0;
+                Flag3 = (value & Flag3Mask) > 0;
+                ParityOverflow = (value & ParityOverflowMask) > 0;
+                Subtract = (value & SubtractMask) > 0;
+                Carry = (value & CarryMask) > 0;
             }
         }
-        
+
         // Flags
         public bool Sign { get; set; }
         public bool Zero { get; set; }
@@ -88,77 +93,72 @@
         public bool Subtract { get; set; }
         public bool Carry { get; set; }
 
-        public Intel8080FlagsRegister()
-        {
-            ResetFlags();
-        }
-
         public void SetUndocumentedFlags(byte result)
         {
             // Undocumented flags are set from corresponding result bits.
-            this.Flag5 = (result & Flag5Mask) > 0;
-            this.Flag3 = (result & Flag3Mask) > 0;
+            Flag5 = (result & Flag5Mask) > 0;
+            Flag3 = (result & Flag3Mask) > 0;
         }
 
         public void SetResultFlags(byte result)
         {
             // Sign flag is a copy of the sign bit.
-            this.Sign = (result & SignMask) > 0;
-            
-            // Set Zero flag is result = 0
-            this.Zero = result == 0;
+            Sign = (result & SignMask) > 0;
 
-            this.SetUndocumentedFlags(result);
+            // Set Zero flag is result = 0
+            Zero = result == 0;
+
+            SetUndocumentedFlags(result);
         }
 
         public void SetResultFlags(ushort result)
         {
             // Sign flag is a copy of the sign bit.
-            this.Sign = (result & (SignMask << 8)) > 0;
+            Sign = (result & (SignMask << 8)) > 0;
 
             // Set Zero flag is result = 0
-            this.Zero = result == 0;
+            Zero = result == 0;
 
             // Flag is affected by the high - byte addition.
-            this.SetUndocumentedFlags((byte)(result >> 8));
-        }
-
-        public void SetCompareFlags(byte result, ushort byteCounter)
-        {
-            this.SetResultFlags(result);
-            this.ParityOverflow = byteCounter != 0;
-            this.Subtract = true;
+            SetUndocumentedFlags((byte) (result >> 8));
         }
 
         public void SetParityFlags(byte result)
         {
-            this.SetResultFlags(result);
-            this.ParityOverflow = result.IsEvenParity();
-            this.Subtract = false;
+            SetResultFlags(result);
+            ParityOverflow = result.IsEvenParity();
+            Subtract = false;
         }
 
         public void ResetFlags()
         {
-            this.Sign = false;
-            this.Zero = false;
-            this.Flag5 = false;
-            this.HalfCarry = false;
-            this.Flag3 = false;
-            this.ParityOverflow = false;
-            this.Subtract = false;
-            this.Carry = false;
+            Sign = false;
+            Zero = false;
+            Flag5 = false;
+            HalfCarry = false;
+            Flag3 = false;
+            ParityOverflow = false;
+            Subtract = false;
+            Carry = false;
         }
 
         public void SetFlags()
         {
-            this.Sign = true;
-            this.Zero = true;
-            this.Flag5 = true;
-            this.HalfCarry = true;
-            this.Flag3 = true;
-            this.ParityOverflow = true;
-            this.Subtract = true;
-            this.Carry = true;
+            Sign = true;
+            Zero = true;
+            Flag5 = true;
+            HalfCarry = true;
+            Flag3 = true;
+            ParityOverflow = true;
+            Subtract = true;
+            Carry = true;
+        }
+
+        public void SetCompareFlags(byte result, ushort byteCounter)
+        {
+            SetResultFlags(result);
+            ParityOverflow = byteCounter != 0;
+            Subtract = true;
         }
     }
 }

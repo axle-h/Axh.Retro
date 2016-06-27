@@ -1,28 +1,24 @@
 ﻿namespace Axh.Retro.CPU.Z80.Contracts.Peripherals
 {
-    using Axh.Retro.CPU.Common.Contracts.Memory;
-
     public interface IIOPeripheral : IPeripheral
     {
         /// <summary>
-        /// The IO port of this peripheral
+        ///     The IO port of this peripheral
         /// </summary>
         byte Port { get; }
 
         /// <summary>
-        /// Read the next byte from this IO device
+        ///     Read the next byte from this IO device
         /// </summary>
         /// <param name="addressMsb">The most significant byte of the address bus (the LSB is used as the IO port)</param>
         /// <returns></returns>
         byte ReadByte(byte addressMsb);
 
         /// <summary>
-        /// Write a byte to this device
+        ///     Write a byte to this device
         /// </summary>
         /// <param name="addressMsb">The most significant byte of the address bus (the LSB is used as the IO port)</param>
         /// <param name="value">The byte to write</param>
         void WriteByte(byte addressMsb, byte value);
-
-        
     }
 }

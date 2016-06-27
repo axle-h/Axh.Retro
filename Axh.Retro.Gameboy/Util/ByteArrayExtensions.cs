@@ -1,7 +1,7 @@
-﻿namespace Axh.Retro.GameBoy.Util
-{
-    using System;
+﻿using System;
 
+namespace Axh.Retro.GameBoy.Util
+{
     internal static class ByteArrayExtensions
     {
         public static bool SequenceEquals(this byte[] bytes0, byte[] bytes1)

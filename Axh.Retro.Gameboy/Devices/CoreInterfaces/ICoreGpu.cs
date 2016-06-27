@@ -1,11 +1,10 @@
-﻿namespace Axh.Retro.GameBoy.Devices.CoreInterfaces
+﻿using System;
+using System.Collections.Generic;
+using Axh.Retro.CPU.Common.Contracts.Memory;
+using Axh.Retro.GameBoy.Contracts.Graphics;
+
+namespace Axh.Retro.GameBoy.Devices.CoreInterfaces
 {
-    using System;
-    using System.Collections.Generic;
-
-    using Axh.Retro.CPU.Common.Contracts.Memory;
-    using Axh.Retro.GameBoy.Contracts.Graphics;
-
     public interface ICoreGpu : IGpu, IDisposable
     {
         IEnumerable<IAddressSegment> AddressSegments { get; }

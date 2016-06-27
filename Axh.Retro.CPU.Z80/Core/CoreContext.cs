@@ -1,29 +1,23 @@
-﻿using Axh.Retro.CPU.Common.Contracts.Timing;
+﻿using Axh.Retro.CPU.Common.Contracts.Memory;
+using Axh.Retro.CPU.Common.Contracts.Timing;
+using Axh.Retro.CPU.Z80.Contracts.Cache;
+using Axh.Retro.CPU.Z80.Contracts.Core;
+using Axh.Retro.CPU.Z80.Contracts.Peripherals;
+using Axh.Retro.CPU.Z80.Contracts.Registers;
 
 namespace Axh.Retro.CPU.Z80.Core
 {
-    using System;
-
-    using Axh.Retro.CPU.Common.Contracts.Memory;
-    using Axh.Retro.CPU.Z80.Contracts.Cache;
-    using Axh.Retro.CPU.Z80.Contracts.Core;
-    using Axh.Retro.CPU.Z80.Contracts.Core.Timing;
-    using Axh.Retro.CPU.Z80.Contracts.Peripherals;
-    using Axh.Retro.CPU.Z80.Contracts.Registers;
-
     public class CoreContext<TRegisters, TRegisterState> : ICoreContext<TRegisters, TRegisterState>
-        where TRegisters : IStateBackedRegisters<TRegisterState>
-        where TRegisterState : struct
+        where TRegisters : IStateBackedRegisters<TRegisterState> where TRegisterState : struct
     {
-        public CoreContext(
-            TRegisters registers,
-            IInterruptManager interruptManager,
-            IPeripheralManager peripheralManager,
-            IMmu mmu,
-            IInstructionTimer instructionTimer,
-            IAlu alu,
-            IInstructionBlockCache<TRegisters> instructionBlockCache,
-            IInstructionBlockDecoder<TRegisters> instructionBlockDecoder)
+        public CoreContext(TRegisters registers,
+                           IInterruptManager interruptManager,
+                           IPeripheralManager peripheralManager,
+                           IMmu mmu,
+                           IInstructionTimer instructionTimer,
+                           IAlu alu,
+                           IInstructionBlockCache<TRegisters> instructionBlockCache,
+                           IInstructionBlockDecoder<TRegisters> instructionBlockDecoder)
         {
             Registers = registers;
             InterruptManager = interruptManager;

@@ -1,16 +1,13 @@
-﻿namespace Axh.Retro.CPU.Common.Tests.Memory
+﻿using System;
+using System.Linq;
+using Axh.Retro.CPU.Common.Contracts.Config;
+using Axh.Retro.CPU.Common.Contracts.Exceptions;
+using Axh.Retro.CPU.Common.Memory;
+using Moq;
+using NUnit.Framework;
+
+namespace Axh.Retro.CPU.Common.Tests.Memory
 {
-    using System;
-    using System.Linq;
-
-    using Axh.Retro.CPU.Common.Contracts.Config;
-    using Axh.Retro.CPU.Common.Contracts.Exceptions;
-    using Axh.Retro.CPU.Common.Memory;
-
-    using Moq;
-
-    using NUnit.Framework;
-
     [TestFixture]
     public class ReadOnlyMemoryBankTests
     {
@@ -43,49 +40,13 @@
         }
 
         [Test]
-        public void StateArrayTooSmallThrowsMemoryConfigStateException()
-        {
-            const ushort BadLength = Length - 1;
-            var memoryBankConfig = SetupMemoryBankConfigMock();
-            memoryBankConfig.Setup(x => x.State).Returns(new byte[BadLength]);
-            var exception = Assert.Throws<MemoryConfigStateException>(() => new ArrayBackedMemoryBank(memoryBankConfig.Object));
-
-            Assert.AreEqual(Address, exception.Adddress);
-            Assert.AreEqual(Length, exception.SegmentLength);
-            Assert.AreEqual(BadLength, exception.StateLength);
-        }
-
-        [Test]
-        public void StateArrayTooBigThrowsMemoryConfigStateException()
-        {
-            const ushort BadLength = Length + 1;
-            var memoryBankConfig = SetupMemoryBankConfigMock();
-            memoryBankConfig.Setup(x => x.State).Returns(new byte[BadLength]);
-            var exception = Assert.Throws<MemoryConfigStateException>(() => new ArrayBackedMemoryBank(memoryBankConfig.Object));
-
-            Assert.AreEqual(Address, exception.Adddress);
-            Assert.AreEqual(Length, exception.SegmentLength);
-            Assert.AreEqual(BadLength, exception.StateLength);
-        }
-
-        [Test]
         public void ReadByteReturnsCorrectContent()
         {
             var memoryBankConfig = SetupMemoryBankConfigMock();
             var memory = new ReadOnlyMemoryBank(memoryBankConfig.Object);
 
-            var readAllBytes = Enumerable.Range(0, Length).Select(i => memory.ReadByte((ushort)i)).ToArray();
+            var readAllBytes = Enumerable.Range(0, Length).Select(i => memory.ReadByte((ushort) i)).ToArray();
             CollectionAssert.AreEqual(ByteContent, readAllBytes);
-        }
-
-        [Test]
-        public void ReadWordReturnsCorrectContent()
-        {
-            var memoryBankConfig = SetupMemoryBankConfigMock();
-            var memory = new ReadOnlyMemoryBank(memoryBankConfig.Object);
-
-            var readAllWords = Enumerable.Range(0, Length / 2).Select(i => memory.ReadWord((ushort)(i * 2))).ToArray();
-            CollectionAssert.AreEqual(WordContent, readAllWords);
         }
 
         [Test]
@@ -98,5 +59,42 @@
             CollectionAssert.AreEqual(ByteContent, readAllBytes);
         }
 
+        [Test]
+        public void ReadWordReturnsCorrectContent()
+        {
+            var memoryBankConfig = SetupMemoryBankConfigMock();
+            var memory = new ReadOnlyMemoryBank(memoryBankConfig.Object);
+
+            var readAllWords = Enumerable.Range(0, Length / 2).Select(i => memory.ReadWord((ushort) (i * 2))).ToArray();
+            CollectionAssert.AreEqual(WordContent, readAllWords);
+        }
+
+        [Test]
+        public void StateArrayTooBigThrowsMemoryConfigStateException()
+        {
+            const ushort BadLength = Length + 1;
+            var memoryBankConfig = SetupMemoryBankConfigMock();
+            memoryBankConfig.Setup(x => x.State).Returns(new byte[BadLength]);
+            var exception =
+                Assert.Throws<MemoryConfigStateException>(() => new ArrayBackedMemoryBank(memoryBankConfig.Object));
+
+            Assert.AreEqual(Address, exception.Adddress);
+            Assert.AreEqual(Length, exception.SegmentLength);
+            Assert.AreEqual(BadLength, exception.StateLength);
+        }
+
+        [Test]
+        public void StateArrayTooSmallThrowsMemoryConfigStateException()
+        {
+            const ushort BadLength = Length - 1;
+            var memoryBankConfig = SetupMemoryBankConfigMock();
+            memoryBankConfig.Setup(x => x.State).Returns(new byte[BadLength]);
+            var exception =
+                Assert.Throws<MemoryConfigStateException>(() => new ArrayBackedMemoryBank(memoryBankConfig.Object));
+
+            Assert.AreEqual(Address, exception.Adddress);
+            Assert.AreEqual(Length, exception.SegmentLength);
+            Assert.AreEqual(BadLength, exception.StateLength);
+        }
     }
 }

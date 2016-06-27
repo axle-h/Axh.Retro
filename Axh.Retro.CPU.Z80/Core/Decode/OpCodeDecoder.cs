@@ -1,62 +1,80 @@
-﻿using Axh.Retro.CPU.Z80.Timing;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Axh.Retro.CPU.Common.Contracts.Memory;
+using Axh.Retro.CPU.Z80.Contracts.Config;
+using Axh.Retro.CPU.Z80.Contracts.Core.Timing;
+using Axh.Retro.CPU.Z80.Timing;
 
 namespace Axh.Retro.CPU.Z80.Core.Decode
 {
-    using System.Collections.Generic;
-    using System.Linq;
-
-    using Axh.Retro.CPU.Common.Contracts.Memory;
-    using Axh.Retro.CPU.Z80.Contracts.Config;
-    using Axh.Retro.CPU.Z80.Contracts.Core.Timing;
-
     internal partial class OpCodeDecoder
     {
-        private readonly IDictionary<IndexRegister, IndexRegisterOperands> indexRegisterOperands;
-
         private readonly CpuMode cpuMode;
-
-        private readonly OpCode undefinedInstruction;
-
-        private readonly IInstructionTimingsBuilder timer;
+        private readonly IDictionary<IndexRegister, IndexRegisterOperands> indexRegisterOperands;
 
         private readonly IPrefetchQueue prefetch;
 
+        private readonly IInstructionTimingsBuilder timer;
+
+        private readonly OpCode undefinedInstruction;
+        private byte byteLiteral;
+        private byte displacement;
+        private FlagTest flagTest;
+
         private IndexRegisterOperands index;
-        
+        private OpCodeMeta opCodeMeta;
+
         private Operand operand1;
         private Operand operand2;
-        private FlagTest flagTest;
-        private OpCodeMeta opCodeMeta;
-        private byte byteLiteral;
         private ushort wordLiteral;
-        private byte displacement;
-        
+
         public OpCodeDecoder(IPlatformConfig platformConfig, IPrefetchQueue prefetch)
         {
-            this.cpuMode = platformConfig.CpuMode;
-            this.undefinedInstruction = platformConfig.LockOnUndefinedInstruction ? OpCode.Halt : OpCode.NoOperation;
+            cpuMode = platformConfig.CpuMode;
+            undefinedInstruction = platformConfig.LockOnUndefinedInstruction ? OpCode.Halt : OpCode.NoOperation;
             this.prefetch = prefetch;
-            this.timer = new InstructionTimingsBuilder();
-            this.indexRegisterOperands = new Dictionary<IndexRegister, IndexRegisterOperands> { { IndexRegister.HL, new IndexRegisterOperands(Operand.HL, Operand.mHL, Operand.L, Operand.H, false) } };
+            timer = new InstructionTimingsBuilder();
+            indexRegisterOperands = new Dictionary<IndexRegister, IndexRegisterOperands>
+                                    {
+                                        {
+                                            IndexRegister.HL,
+                                            new IndexRegisterOperands(
+                                            Operand.HL,
+                                            Operand.mHL,
+                                            Operand.L,
+                                            Operand.H,
+                                            false)
+                                        }
+                                    };
 
             if (cpuMode == CpuMode.Z80)
             {
-                indexRegisterOperands.Add(IndexRegister.IX, new IndexRegisterOperands(Operand.IX, Operand.mIXd, Operand.IXl, Operand.IXh, true));
-                indexRegisterOperands.Add(IndexRegister.IY, new IndexRegisterOperands(Operand.IY, Operand.mIYd, Operand.IYl, Operand.IYh, true));
+                indexRegisterOperands.Add(IndexRegister.IX,
+                                          new IndexRegisterOperands(Operand.IX,
+                                                                    Operand.mIXd,
+                                                                    Operand.IXl,
+                                                                    Operand.IXh,
+                                                                    true));
+                indexRegisterOperands.Add(IndexRegister.IY,
+                                          new IndexRegisterOperands(Operand.IY,
+                                                                    Operand.mIYd,
+                                                                    Operand.IYl,
+                                                                    Operand.IYh,
+                                                                    true));
             }
         }
 
         public DecodedBlock GetNextBlock(ushort address)
         {
-            var operations = this.DecodeOperations(address);
-            return new DecodedBlock(operations.ToArray(), this.timer.GetInstructionTimings());
+            var operations = DecodeOperations(address);
+            return new DecodedBlock(operations.ToArray(), timer.GetInstructionTimings());
         }
 
         public IEnumerable<Operation> DecodeOperations(ushort address)
         {
             timer.Reset();
             index = indexRegisterOperands[IndexRegister.HL];
-            this.prefetch.ReBuildCache(address);
+            prefetch.ReBuildCache(address);
             var totalBytesRead = 0;
 
             while (true)
@@ -69,7 +87,7 @@ namespace Axh.Retro.CPU.Z80.Core.Decode
                 byteLiteral = 0x00;
                 wordLiteral = 0x0000;
                 displacement = 0x00;
-                
+
                 var result = DecodePrimary();
 
                 if (!result.HasValue)
@@ -91,24 +109,37 @@ namespace Axh.Retro.CPU.Z80.Core.Decode
                 {
                     wordLiteral = prefetch.NextWord();
                 }
-                
-                yield return new Operation(address, result.Value, operand1, operand2, flagTest, opCodeMeta, byteLiteral, wordLiteral, (sbyte)displacement);
+
+                yield return
+                    new Operation(address,
+                                  result.Value,
+                                  operand1,
+                                  operand2,
+                                  flagTest,
+                                  opCodeMeta,
+                                  byteLiteral,
+                                  wordLiteral,
+                                  (sbyte) displacement);
 
                 if (opCodeMeta.HasFlag(OpCodeMeta.EndBlock))
                 {
                     yield break;
                 }
-                
-                index = this.indexRegisterOperands[IndexRegister.HL];
+
+                index = indexRegisterOperands[IndexRegister.HL];
                 var opBytes = prefetch.TotalBytesRead - totalBytesRead;
-                address += (ushort)(opBytes);
+                address += (ushort) opBytes;
                 totalBytesRead += opBytes;
             }
         }
-        
+
         private struct IndexRegisterOperands
         {
-            public IndexRegisterOperands(Operand register, Operand index, Operand lowRegister, Operand highRegister, bool isDisplaced) : this()
+            public IndexRegisterOperands(Operand register,
+                                         Operand index,
+                                         Operand lowRegister,
+                                         Operand highRegister,
+                                         bool isDisplaced) : this()
             {
                 Register = register;
                 Index = index;

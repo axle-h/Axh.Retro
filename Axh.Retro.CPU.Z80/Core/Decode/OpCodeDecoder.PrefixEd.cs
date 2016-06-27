@@ -1,12 +1,12 @@
-﻿namespace Axh.Retro.CPU.Z80.Core.Decode
-{
-    using Axh.Retro.CPU.Z80.Contracts.OpCodes;
+﻿using Axh.Retro.CPU.Z80.Contracts.OpCodes;
 
+namespace Axh.Retro.CPU.Z80.Core.Decode
+{
     internal partial class OpCodeDecoder
     {
         private OpCode DecodePrefixEd()
         {
-            var opCode = (PrefixEdOpCode)prefetch.NextByte();
+            var opCode = (PrefixEdOpCode) prefetch.NextByte();
 
             timer.Nop();
 
@@ -168,7 +168,7 @@
                     return OpCode.SubtractCarry16;
                 case PrefixEdOpCode.SBC_HL_HL:
                     timer.Arithmetic16();
-                    operand1 = operand2 =  Operand.HL;
+                    operand1 = operand2 = Operand.HL;
                     return OpCode.SubtractCarry16;
                 case PrefixEdOpCode.SBC_HL_SP:
                     timer.Arithmetic16();
