@@ -1,4 +1,7 @@
-﻿namespace Axh.Retro.CPU.Z80.Core.DynaRec
+﻿using Axh.Retro.CPU.Common.Contracts.Timing;
+using Axh.Retro.CPU.Z80.Timing;
+
+namespace Axh.Retro.CPU.Z80.Core.DynaRec
 {
     using System;
     using System.Collections.Generic;
@@ -12,7 +15,6 @@
     using Axh.Retro.CPU.Z80.Contracts.Peripherals;
     using Axh.Retro.CPU.Z80.Contracts.Registers;
     using Axh.Retro.CPU.Z80.Core.Decode;
-    using Axh.Retro.CPU.Z80.Core.Timing;
     using Axh.Retro.CPU.Z80.Util;
 
     public partial class DynaRec<TRegisters> : IInstructionBlockDecoder<TRegisters> where TRegisters : IRegisters

@@ -1,4 +1,5 @@
 ﻿using System;
+using Axh.Retro.CPU.Common.Contracts.Memory;
 
 namespace Axh.Retro.CPU.Z80.Contracts.Peripherals
 {
@@ -10,5 +11,6 @@ namespace Axh.Retro.CPU.Z80.Contracts.Peripherals
     public interface IPeripheral : IDisposable
     {
         void Signal(ControlSignal signal);
+        
     }
 }

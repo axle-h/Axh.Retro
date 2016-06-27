@@ -26,12 +26,6 @@
         /// Signal all peripherals
         /// </summary>
         void Signal(ControlSignal signal);
-        
-        /// <summary>
-        /// Register the an mmu for use in dma peripherals
-        /// </summary>
-        /// <param name="mmu"></param>
-        void RegisterDma(IMmu mmu);
     }
 
     public interface IPeripheralManager : ICorePeripheralManager

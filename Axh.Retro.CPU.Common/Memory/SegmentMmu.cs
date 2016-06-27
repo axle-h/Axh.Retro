@@ -1,22 +1,31 @@
-﻿namespace Axh.Retro.CPU.Common.Memory
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Axh.Retro.CPU.Common.Contracts.Exceptions;
+using Axh.Retro.CPU.Common.Contracts.Memory;
+using Axh.Retro.CPU.Common.Contracts.Timing;
+
+namespace Axh.Retro.CPU.Common.Memory
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-
-    using Axh.Retro.CPU.Common.Contracts.Exceptions;
-    using Axh.Retro.CPU.Common.Contracts.Memory;
-
     public class SegmentMmu : IMmu
     {
+        private readonly IDmaController dmaController;
+        private readonly IInstructionTimer instructionTimer;
         private readonly ushort[] readSegmentAddresses;
         private readonly IReadableAddressSegment[] readSegments;
 
         private readonly ushort[] writeSegmentAddresses;
         private readonly IWriteableAddressSegment[] writeSegments;
 
-        public SegmentMmu(IEnumerable<IAddressSegment> addressSegments)
+        private readonly List<AddressRange> lockedAddressRanges; // TODO: respect these.
+
+        private bool disposed;
+        
+        public SegmentMmu(IEnumerable<IAddressSegment> addressSegments, IDmaController dmaController, IInstructionTimer instructionTimer)
         {
+            this.dmaController = dmaController;
+            this.instructionTimer = instructionTimer;
             var sortedSegments = addressSegments.OrderBy(x => x.Address).ToArray();
 
             this.readSegments = sortedSegments.OfType<IReadableAddressSegment>().ToArray();
@@ -27,6 +36,35 @@
             
             CheckSegments(this.readSegments);
             CheckSegments(this.writeSegments);
+
+            lockedAddressRanges = new List<AddressRange>();
+
+            // Dma task.
+            Task.Factory.StartNew(DmaTask, TaskCreationOptions.LongRunning);
+        }
+
+        private void DmaTask()
+        {
+            while (!disposed)
+            {
+                IDmaOperation operation;
+                if (!dmaController.TryGet(out operation))
+                {
+                    continue;
+                }
+
+                // Check if we need lock any address ranges.
+                lockedAddressRanges.AddRange(operation.LockedAddressesRanges);
+
+                // Execute the operation.
+                operation.Execute(this);
+                
+                instructionTimer.SyncToTimings(operation.Timings).Wait();
+
+                // Unlock the locked address ranges.
+                lockedAddressRanges.Clear();
+            }
+            
         }
         
         public byte ReadByte(ushort address)
@@ -180,6 +218,12 @@
             this.WriteByte(addressTo, b);
         }
 
+        public void TransferBytes(ushort addressFrom, ushort addressTo, int length)
+        {
+            var bytes = ReadBytes(addressFrom, length);
+            WriteBytes(addressTo, bytes);
+        }
+
         /// <summary>
         /// When overridden in a derived class, registers an address write event.
         /// </summary>
@@ -257,9 +301,19 @@
             }
         }
 
-        private static bool TriggerWriteEventForMemoryBankType(MemoryBankType type)
+        /// <summary>
+        /// Determines whether to trigger an address write event when writing to the specified memory bank type.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        private static bool TriggerWriteEventForMemoryBankType(MemoryBankType type) => type == MemoryBankType.RandomAccessMemory;
+
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public void Dispose()
         {
-            return type == MemoryBankType.RandomAccessMemory;
+            disposed = true;
         }
     }
 }

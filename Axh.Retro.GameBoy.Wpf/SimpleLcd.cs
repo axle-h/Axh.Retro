@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing.Imaging;
 using System.Threading;
 using System.Threading.Tasks;
@@ -83,10 +84,16 @@ namespace Axh.Retro.GameBoy.Wpf
 
         public void UpdateUi(Bitmap frame)
         {
-            if (image.Source == null)
+            var palette = frame.Palette.Entries.Select(GetColor).ToList();
+
+            if (image.Source == null || !IsPaletteOk(palette))
             {
-                var palette = frame.Palette.Entries.Select(GetColor).ToList();
-                writeableBitmap = new WriteableBitmap(frame.Width, frame.Height, 96, 96, PixelFormats.Indexed8, new BitmapPalette(palette));
+                writeableBitmap = new WriteableBitmap(frame.Width,
+                                                      frame.Height,
+                                                      96,
+                                                      96,
+                                                      PixelFormats.Indexed8,
+                                                      new BitmapPalette(palette));
                 image.Width = frame.Width * 4;
                 image.Height = frame.Height * 4;
                 image.Source = writeableBitmap;
@@ -109,5 +116,7 @@ namespace Axh.Retro.GameBoy.Wpf
             writeableBitmap.Unlock();
             frame.UnlockBits(srcData);
         }
+
+        private bool IsPaletteOk(IEnumerable<Color> expected) => writeableBitmap?.Palette?.Colors.SequenceEqual(expected) ?? false;
     }
 }

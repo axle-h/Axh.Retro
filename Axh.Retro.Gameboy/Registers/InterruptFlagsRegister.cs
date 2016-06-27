@@ -1,19 +1,27 @@
+using Axh.Retro.CPU.Z80.Contracts.Core;
+using Axh.Retro.GameBoy.Contracts.Devices;
+using Axh.Retro.GameBoy.Registers.Interfaces;
+
 namespace Axh.Retro.GameBoy.Registers
 {
-    using System;
-
-    using Axh.Retro.GameBoy.Contracts.Devices;
-    using Axh.Retro.GameBoy.Registers.Interfaces;
-
-    public class InterruptFlagsRegister : IRegister
+    public class InterruptFlagsRegister : IInterruptFlagsRegister
     {
-        private readonly Func<InterruptFlag, bool> updateInterruptsAction;
+        private const ushort VerticalBlankAddress = 0x0040;
+        private const ushort LcdStatusTriggersAddress = 0x0048;
+        private const ushort TimerOverflowAddress = 0x0050;
+        private const ushort SerialLinkAddress = 0x0058;
+        private const ushort JoyPadPressAddress = 0x0060;
 
+        private readonly IInterruptManager interruptManager;
+
+        private readonly IInterruptEnableRegister interruptEnableRegister;
+        
         private InterruptFlag interruptFlag;
 
-        public InterruptFlagsRegister(Func<InterruptFlag, bool> updateInterruptsAction)
+        public InterruptFlagsRegister(IInterruptManager interruptManager, IInterruptEnableRegister interruptEnableRegister)
         {
-            this.updateInterruptsAction = updateInterruptsAction;
+            this.interruptManager = interruptManager;
+            this.interruptEnableRegister = interruptEnableRegister;
             this.interruptFlag = InterruptFlag.None;
         }
 
@@ -31,10 +39,7 @@ namespace Axh.Retro.GameBoy.Registers
         /// </summary>
         public byte Register
         {
-            get
-            {
-                return (byte)this.interruptFlag;
-            }
+            get { return (byte) this.interruptFlag; }
             set
             {
                 var newInterruptFlag = (InterruptFlag)value;
@@ -42,7 +47,7 @@ namespace Axh.Retro.GameBoy.Registers
 
                 if (changedFlags != InterruptFlag.None)
                 {
-                    updateInterruptsAction(changedFlags);
+                    UpdateInterrupts(changedFlags);
                 }
 
                 this.interruptFlag = newInterruptFlag;
@@ -51,9 +56,61 @@ namespace Axh.Retro.GameBoy.Registers
 
         public string DebugView => this.ToString();
 
-        public override string ToString()
+        public override string ToString() => $"{Name} ({Address}) = {Register}";
+
+        public void UpdateInterrupts(InterruptFlag interrupts)
         {
-            return $"{Name} ({Address}) = {Register}";
+            // Combine with delayed interrupts.
+            interruptFlag |= interrupts;
+
+            if (interruptFlag == InterruptFlag.None)
+            {
+                return;
+            }
+
+            if (!interruptManager.InterruptsEnabled)
+            {
+                // Interrupts disabled.
+                return;
+            }
+
+            if (CheckInterrupt(InterruptFlag.VerticalBlank, VerticalBlankAddress))
+            {
+                return;
+            }
+
+            if (CheckInterrupt(InterruptFlag.LcdStatusTriggers, LcdStatusTriggersAddress))
+            {
+                return;
+            }
+
+            if (CheckInterrupt(InterruptFlag.TimerOverflow, TimerOverflowAddress))
+            {
+                return;
+            }
+
+            if (CheckInterrupt(InterruptFlag.SerialLink, SerialLinkAddress))
+            {
+                return;
+            }
+
+            CheckInterrupt(InterruptFlag.JoyPadPress, JoyPadPressAddress);
+        }
+
+        private bool CheckInterrupt(InterruptFlag interrupt, ushort address)
+        {
+            if (!interruptFlag.HasFlag(interrupt) || !this.interruptEnableRegister.InterruptEnabled(interrupt))
+            {
+                // Interrupt flag is not set or enabled.
+                return false;
+            }
+
+            // Do interrupt.
+            this.interruptManager.Interrupt(address);
+
+            // Clear the interrupt flag.
+            interruptFlag &= ~interrupt;
+            return true;
         }
     }
 }

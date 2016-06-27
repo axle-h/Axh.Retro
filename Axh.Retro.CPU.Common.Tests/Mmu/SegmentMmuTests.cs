@@ -1,4 +1,6 @@
-﻿namespace Axh.Retro.CPU.Common.Tests.Mmu
+﻿using Axh.Retro.CPU.Common.Contracts.Timing;
+
+namespace Axh.Retro.CPU.Common.Tests.Mmu
 {
     using System;
     using System.Collections.Generic;
@@ -49,8 +51,11 @@
             SetupSegmentForRead(segment1, Address1, Length1);
 
             SetupSegmentForRead(segment2, Address2, Length2);
+            
+            var dmaController = new Mock<IDmaController>();
+            var instructionTimer = new Mock<IInstructionTimer>();
 
-            this.mmu = new SegmentMmu(new IAddressSegment[] { this.segment0R.Object, this.segment0W.Object, this.segment1.Object, this.segment2.Object });
+            this.mmu = new SegmentMmu(new IAddressSegment[] { this.segment0R.Object, this.segment0W.Object, this.segment1.Object, this.segment2.Object }, dmaController.Object, instructionTimer.Object);
         }
 
         private static void SetupSegment<TAddressSegment>(Mock<TAddressSegment> segment, ushort address, ushort length)

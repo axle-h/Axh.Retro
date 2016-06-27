@@ -5,6 +5,6 @@
 
     public interface ICoreHardwareRegisters : IHardwareRegisters, IReadableAddressSegment, IWriteableAddressSegment
     {
-
+        
     }
 }

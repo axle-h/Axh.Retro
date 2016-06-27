@@ -1,7 +1,8 @@
-﻿namespace Axh.Retro.CPU.Z80.Core.Timing
-{
-    using Axh.Retro.CPU.Z80.Contracts.Core.Timing;
+﻿using Axh.Retro.CPU.Common.Contracts.Timing;
+using Axh.Retro.CPU.Z80.Contracts.Core.Timing;
 
+namespace Axh.Retro.CPU.Z80.Timing
+{
     /// <summary>
     /// This is just to clean up incrementing the cycle counters per instruction. Calls to Add 'should' be inlined by the JIT compiler.
     /// </summary>
@@ -116,10 +117,7 @@
             return this;
         }
         
-        public InstructionTimings GetInstructionTimings()
-        {
-            return new InstructionTimings { MachineCycles = MachineCycles, ThrottlingStates = ThrottlingStates };
-        }
+        public InstructionTimings GetInstructionTimings() => new InstructionTimings(MachineCycles, ThrottlingStates);
 
         public void Reset()
         {

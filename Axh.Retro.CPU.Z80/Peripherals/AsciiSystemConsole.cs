@@ -21,11 +21,6 @@
             Console.Write(c);
         }
         
-        public void RegisterDma(IMmu mmu)
-        {
-            // No DMA.
-        }
-
         public void Signal(ControlSignal signal)
         {
             // Don't listen.

@@ -1,4 +1,6 @@
-﻿namespace Axh.Retro.CPU.Z80.Contracts.Core
+﻿using Axh.Retro.CPU.Common.Contracts.Timing;
+
+namespace Axh.Retro.CPU.Z80.Contracts.Core
 {
     using System;
 

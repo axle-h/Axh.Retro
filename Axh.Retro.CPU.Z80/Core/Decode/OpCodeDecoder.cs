@@ -1,4 +1,6 @@
-﻿namespace Axh.Retro.CPU.Z80.Core.Decode
+﻿using Axh.Retro.CPU.Z80.Timing;
+
+namespace Axh.Retro.CPU.Z80.Core.Decode
 {
     using System.Collections.Generic;
     using System.Linq;
@@ -6,7 +8,6 @@
     using Axh.Retro.CPU.Common.Contracts.Memory;
     using Axh.Retro.CPU.Z80.Contracts.Config;
     using Axh.Retro.CPU.Z80.Contracts.Core.Timing;
-    using Axh.Retro.CPU.Z80.Core.Timing;
 
     internal partial class OpCodeDecoder
     {

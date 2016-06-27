@@ -19,7 +19,7 @@
         private const byte IsInternalClockMask = 0x01;
         private static readonly TimeSpan ExternalTransferTimeout = TimeSpan.FromSeconds(1); // Real GB doesn't have timeout but we can't lock this thread forever.
 
-        private readonly IGameBoyInterruptManager gameBoyInterruptManager;
+        private readonly IInterruptFlagsRegister interruptFlagsRegister;
 
         private bool isFastMode;
         private bool transferStartFlag;
@@ -27,9 +27,9 @@
 
         private TaskCompletionSource<bool> transferredTaskSource;
         
-        public SyncSerialPort(IGameBoyInterruptManager gameBoyInterruptManager)
+        public SyncSerialPort(IInterruptFlagsRegister interruptFlagsRegister)
         {
-            this.gameBoyInterruptManager = gameBoyInterruptManager;
+            this.interruptFlagsRegister = interruptFlagsRegister;
         }
 
         /// <summary>
@@ -111,7 +111,7 @@
 
             this.transferredTaskSource?.TrySetResult(true);
 
-            this.gameBoyInterruptManager.UpdateInterrupts(InterruptFlag.SerialLink);
+            this.interruptFlagsRegister.UpdateInterrupts(InterruptFlag.SerialLink);
             return tmp;
         }
         

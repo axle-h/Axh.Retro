@@ -1,4 +1,6 @@
-﻿namespace Axh.Retro.CPU.Z80.Memory
+﻿using Axh.Retro.CPU.Common.Contracts.Timing;
+
+namespace Axh.Retro.CPU.Z80.Memory
 {
     using System;
     using System.Collections.Generic;
@@ -18,9 +20,14 @@
     public class Z80Mmu<TRegisters> : SegmentMmu where TRegisters : IRegisters
     {
         private readonly IInstructionBlockCache<TRegisters> instructionBlockCache;
-        
-        public Z80Mmu(IPeripheralManager peripheralManager, IPlatformConfig platformConfig, IMemoryBankController memoryBankController, IInstructionBlockCache<TRegisters> instructionBlockCache)
-            : base(GetAddressSegments(peripheralManager, platformConfig, memoryBankController))
+
+        public Z80Mmu(IPeripheralManager peripheralManager,
+                      IPlatformConfig platformConfig,
+                      IMemoryBankController memoryBankController,
+                      IInstructionBlockCache<TRegisters> instructionBlockCache,
+                      IDmaController dmaController,
+                      IInstructionTimer instructionTimer)
+            : base(GetAddressSegments(peripheralManager, platformConfig, memoryBankController), dmaController, instructionTimer)
         {
             this.instructionBlockCache = instructionBlockCache;
         }

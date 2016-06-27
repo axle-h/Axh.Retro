@@ -1,4 +1,6 @@
-﻿namespace Axh.Retro.CPU.Z80.Core
+﻿using Axh.Retro.CPU.Common.Contracts.Timing;
+
+namespace Axh.Retro.CPU.Z80.Core
 {
     using System;
 
@@ -31,8 +33,6 @@
             Alu = alu;
             InstructionBlockCache = instructionBlockCache;
             InstructionBlockDecoder = instructionBlockDecoder;
-
-            peripheralManager.RegisterDma(mmu);
         }
 
         public TRegisters Registers { get; }

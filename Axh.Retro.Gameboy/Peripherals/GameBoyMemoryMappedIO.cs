@@ -1,18 +1,18 @@
-﻿namespace Axh.Retro.GameBoy.Peripherals
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+
+using Axh.Retro.CPU.Common.Contracts.Memory;
+using Axh.Retro.CPU.Z80.Contracts.Peripherals;
+using Axh.Retro.GameBoy.Contracts.Devices;
+using Axh.Retro.GameBoy.Contracts.Graphics;
+using Axh.Retro.GameBoy.Contracts.Peripherals;
+using Axh.Retro.GameBoy.Devices;
+using Axh.Retro.GameBoy.Devices.CoreInterfaces;
+using Axh.Retro.GameBoy.Registers.Interfaces;
+
+namespace Axh.Retro.GameBoy.Peripherals
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-
-    using Axh.Retro.CPU.Common.Contracts.Memory;
-    using Axh.Retro.CPU.Z80.Contracts.Peripherals;
-    using Axh.Retro.GameBoy.Contracts.Devices;
-    using Axh.Retro.GameBoy.Contracts.Graphics;
-    using Axh.Retro.GameBoy.Contracts.Peripherals;
-    using Axh.Retro.GameBoy.Devices;
-    using Axh.Retro.GameBoy.Devices.CoreInterfaces;
-    using Axh.Retro.GameBoy.Registers.Interfaces;
-
     public class GameBoyMemoryMappedIO : IGameBoyMemoryMappedIO
     {
         private readonly ICoreGpu gpu;
@@ -45,7 +45,7 @@
                     throw new ArgumentOutOfRangeException(nameof(signal), signal, null);
             }
         }
-        
+
         public IEnumerable<IAddressSegment> AddressSegments => new IAddressSegment[] { hardwareRegisters, interruptRegister, memoryBankController }.Concat(gpu.AddressSegments).ToArray();
 
         public IHardwareRegisters HardwareRegisters => hardwareRegisters;

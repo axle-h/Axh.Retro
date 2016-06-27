@@ -24,11 +24,6 @@
             // Don't listen.
         }
 
-        public void RegisterDma(IMmu mmu)
-        {
-            // No DMA.
-        }
-
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>

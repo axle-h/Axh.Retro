@@ -62,10 +62,10 @@
     <Compile Include="Core\DynaRec\DynaRecInstructionBlock.cs" />
     <Compile Include="Core\Decode\IndexRegister.cs" />
     <Compile Include="Core\InterruptManager.cs" />
-    <Compile Include="Core\Timing\InstructionTimingsBuilder.cs" />
+    <Compile Include="Timing\InstructionTimingsBuilder.cs" />
     <Compile Include="Core\DynaRec\DynaRec.Expressions.cs" />
     <Compile Include="Core\Interpreted\InterpretedInstructionBlockDecoder.cs" />
-    <Compile Include="Core\Timing\MachineCycleTimer.cs" />
+    <Compile Include="Timing\MachineCycleTimer.cs" />
     <Compile Include="Memory\Z80Mmu.cs" />
     <Compile Include="Peripherals\AsciiSystemConsole.cs" />
     <Compile Include="Peripherals\SystemConsoleStatus.cs" />

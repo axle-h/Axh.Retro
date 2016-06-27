@@ -14,8 +14,10 @@
         /// <param name="lcdControlRegister">The LCD control register.</param>
         /// <param name="currentScanlineRegister">The current scanline register.</param>
         /// <param name="lcdMonochromePaletteRegister">The LCD monochrome palette register.</param>
-        public GpuRegisters(ILcdControlRegister lcdControlRegister, ICurrentScanlineRegister currentScanlineRegister, ILcdMonochromePaletteRegister lcdMonochromePaletteRegister)
+        /// <param name="lcdStatusRegister">The LCD status register.</param>
+        public GpuRegisters(ILcdControlRegister lcdControlRegister, ICurrentScanlineRegister currentScanlineRegister, ILcdMonochromePaletteRegister lcdMonochromePaletteRegister, ILcdStatusRegister lcdStatusRegister)
         {
+            LcdStatusRegister = lcdStatusRegister;
             LcdControlRegister = lcdControlRegister;
             CurrentScanlineRegister = currentScanlineRegister;
             LcdMonochromePaletteRegister = lcdMonochromePaletteRegister;
@@ -62,5 +64,13 @@
         /// The LCD monochrome palette register.
         /// </value>
         public ILcdMonochromePaletteRegister LcdMonochromePaletteRegister { get; }
+
+        /// <summary>
+        /// Gets the LCD status register.
+        /// </summary>
+        /// <value>
+        /// The LCD status register.
+        /// </value>
+        public ILcdStatusRegister LcdStatusRegister { get; }
     }
 }

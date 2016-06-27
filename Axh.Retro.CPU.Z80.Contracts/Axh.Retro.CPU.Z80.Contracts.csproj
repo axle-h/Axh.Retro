@@ -51,11 +51,8 @@
     <Compile Include="Core\ICoreContext.cs" />
     <Compile Include="Core\IInstructionBlock.cs" />
     <Compile Include="Core\IInterruptManager.cs" />
-    <Compile Include="Core\Timing\IInstructionTimer.cs" />
-    <Compile Include="Core\Timing\IInstructionTimingsBuilder.cs" />
-    <Compile Include="Core\Timing\InstructionTimings.cs" />
+    <Compile Include="Timing\IInstructionTimingsBuilder.cs" />
     <Compile Include="Config\CpuMode.cs" />
-    <Compile Include="Core\Timing\TimingSyncEventArgs.cs" />
     <Compile Include="Core\ICpuCore.cs" />
     <Compile Include="OpCodes\GameBoyPrefixCbOpCode.cs" />
     <Compile Include="OpCodes\GameBoyPrimaryOpCode.cs" />

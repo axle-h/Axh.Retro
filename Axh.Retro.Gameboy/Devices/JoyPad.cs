@@ -1,4 +1,6 @@
-﻿namespace Axh.Retro.GameBoy.Devices
+﻿using Axh.Retro.GameBoy.Registers.Interfaces;
+
+namespace Axh.Retro.GameBoy.Devices
 {
     using System;
 
@@ -7,7 +9,7 @@
 
     public class JoyPad : ICoreJoyPad
     {
-        private readonly IGameBoyInterruptManager gameBoyInterruptManager;
+        private readonly IInterruptFlagsRegister interruptFlagsRegister;
 
         private MatrixColumn matrixColumn;
 
@@ -20,9 +22,9 @@
         private bool select;
         private bool start;
 
-        public JoyPad(IGameBoyInterruptManager gameBoyInterruptManager)
+        public JoyPad(IInterruptFlagsRegister interruptFlagsRegister)
         {
-            this.gameBoyInterruptManager = gameBoyInterruptManager;
+            this.interruptFlagsRegister = interruptFlagsRegister;
             this.matrixColumn = MatrixColumn.None;
         }
 
@@ -35,7 +37,7 @@
             set
             {
                 this.up = value;
-                this.gameBoyInterruptManager.UpdateInterrupts(InterruptFlag.JoyPadPress);
+                this.interruptFlagsRegister.UpdateInterrupts(InterruptFlag.JoyPadPress);
             }
         }
 
@@ -48,7 +50,7 @@
             set
             {
                 this.down = value;
-                this.gameBoyInterruptManager.UpdateInterrupts(InterruptFlag.JoyPadPress);
+                this.interruptFlagsRegister.UpdateInterrupts(InterruptFlag.JoyPadPress);
             }
         }
 
@@ -61,7 +63,7 @@
             set
             {
                 this.left = value;
-                this.gameBoyInterruptManager.UpdateInterrupts(InterruptFlag.JoyPadPress);
+                this.interruptFlagsRegister.UpdateInterrupts(InterruptFlag.JoyPadPress);
             }
         }
 
@@ -74,7 +76,7 @@
             set
             {
                 this.right = value;
-                this.gameBoyInterruptManager.UpdateInterrupts(InterruptFlag.JoyPadPress);
+                this.interruptFlagsRegister.UpdateInterrupts(InterruptFlag.JoyPadPress);
             }
         }
 
@@ -87,7 +89,7 @@
             set
             {
                 this.a = value;
-                this.gameBoyInterruptManager.UpdateInterrupts(InterruptFlag.JoyPadPress);
+                this.interruptFlagsRegister.UpdateInterrupts(InterruptFlag.JoyPadPress);
             }
         }
 
@@ -100,7 +102,7 @@
             set
             {
                 this.b = value;
-                this.gameBoyInterruptManager.UpdateInterrupts(InterruptFlag.JoyPadPress);
+                this.interruptFlagsRegister.UpdateInterrupts(InterruptFlag.JoyPadPress);
             }
         }
 
@@ -113,7 +115,7 @@
             set
             {
                 this.select = value;
-                this.gameBoyInterruptManager.UpdateInterrupts(InterruptFlag.JoyPadPress);
+                this.interruptFlagsRegister.UpdateInterrupts(InterruptFlag.JoyPadPress);
             }
         }
 
@@ -126,7 +128,7 @@
             set
             {
                 this.start = value;
-                this.gameBoyInterruptManager.UpdateInterrupts(InterruptFlag.JoyPadPress);
+                this.interruptFlagsRegister.UpdateInterrupts(InterruptFlag.JoyPadPress);
             }
         }
 

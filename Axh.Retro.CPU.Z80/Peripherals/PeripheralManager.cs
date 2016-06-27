@@ -40,14 +40,6 @@
                 peripheral.Signal(signal);
             }
         }
-        
-        public void RegisterDma(IMmu mmu)
-        {
-            foreach (var peripheral in this.ioPeripherals.Values)
-            {
-                peripheral.RegisterDma(mmu);
-            }
-        }
 
         public IEnumerable<IMemoryMappedPeripheral> GetAllMemoryMappedPeripherals()
         {

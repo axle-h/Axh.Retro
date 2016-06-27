@@ -86,12 +86,12 @@
             palette77 = paletteMap[63];
         }
 
-        public Palette Get(int x, int y)
+        public Palette Get(int row, int column)
         {
-            switch (x)
+            switch (row)
             {
                 case 0:
-                    switch (y)
+                    switch (column)
                     {
                         case 0:
                             return palette00;
@@ -113,7 +113,7 @@
                             return 0;
                     }
                 case 1:
-                    switch (y)
+                    switch (column)
                     {
                         case 0:
                             return palette10;
@@ -135,7 +135,7 @@
                             return 0;
                     }
                 case 2:
-                    switch (y)
+                    switch (column)
                     {
                         case 0:
                             return palette20;
@@ -157,7 +157,7 @@
                             return 0;
                     }
                 case 3:
-                    switch (y)
+                    switch (column)
                     {
                         case 0:
                             return palette30;
@@ -179,7 +179,7 @@
                             return 0;
                     }
                 case 4:
-                    switch (y)
+                    switch (column)
                     {
                         case 0:
                             return palette40;
@@ -201,7 +201,7 @@
                             return 0;
                     }
                 case 5:
-                    switch (y)
+                    switch (column)
                     {
                         case 0:
                             return palette50;
@@ -223,7 +223,7 @@
                             return 0;
                     }
                 case 6:
-                    switch (y)
+                    switch (column)
                     {
                         case 0:
                             return palette60;
@@ -245,7 +245,7 @@
                             return 0;
                     }
                 case 7:
-                    switch (y)
+                    switch (column)
                     {
                         case 0:
                             return palette70;

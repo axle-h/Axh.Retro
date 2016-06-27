@@ -3,7 +3,7 @@
     using System;
     using System.Threading.Tasks;
 
-    public interface ICoreInterruptManager : IInterruptManager
+    public interface ICoreInterruptManager : IInterruptManager, IDisposable
     {
         void AddResumeTask(Action task);
 
@@ -21,7 +21,7 @@
 
     public interface IInterruptManager
     {
-        Task Interrupt(ushort address);
+        void Interrupt(ushort address);
 
         void Halt();
 

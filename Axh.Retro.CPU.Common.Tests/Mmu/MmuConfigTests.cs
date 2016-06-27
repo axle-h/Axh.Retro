@@ -1,4 +1,6 @@
-﻿namespace Axh.Retro.CPU.Common.Tests.Mmu
+﻿using Axh.Retro.CPU.Common.Contracts.Timing;
+
+namespace Axh.Retro.CPU.Common.Tests.Mmu
 {
     using Axh.Retro.CPU.Common.Contracts.Exceptions;
     using Axh.Retro.CPU.Common.Contracts.Memory;
@@ -38,7 +40,10 @@
             this.segment2.Setup(x => x.Address).Returns(address2);
             this.segment2.Setup(x => x.Length).Returns(length2);
 
-            return new SegmentMmu(new IAddressSegment[] { this.segment0R.Object, this.segment0W.Object, this.segment1.Object, this.segment2.Object });
+            var dmaController = new Mock<IDmaController>();
+            var instructionTimer = new Mock<IInstructionTimer>();
+
+            return new SegmentMmu(new IAddressSegment[] { this.segment0R.Object, this.segment0W.Object, this.segment1.Object, this.segment2.Object }, dmaController.Object, instructionTimer.Object);
         }
 
         [Test]

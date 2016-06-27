@@ -1,12 +1,11 @@
-﻿namespace Axh.Retro.CPU.Z80.Core.Timing
+﻿using System;
+using System.Threading.Tasks;
+using Axh.Retro.CPU.Common.Contracts.Timing;
+using Axh.Retro.CPU.Z80.Contracts.Config;
+
+namespace Axh.Retro.CPU.Z80.Timing
 {
-    using System;
-    using System.Threading.Tasks;
-
-    using Axh.Retro.CPU.Z80.Contracts.Config;
-    using Axh.Retro.CPU.Z80.Contracts.Core.Timing;
-
-    public class MachineCycleTimer : ICoreInstructionTimer
+    public class MachineCycleTimer : IInstructionTimer
     {
         private readonly InstructionTimingSyncMode syncMode;
         private readonly double syncMagnitude;
@@ -35,7 +34,7 @@
 
         public Task SyncToTimings(InstructionTimings timings)
         {
-            TimingSync?.Invoke(this, new TimingSyncEventArgs(timings));
+            TimingSync?.Invoke(timings);
 
             switch (syncMode)
             {
@@ -50,6 +49,6 @@
             }
         }
 
-        public event EventHandler<TimingSyncEventArgs> TimingSync;
+        public event Action<InstructionTimings> TimingSync;
     }
 }

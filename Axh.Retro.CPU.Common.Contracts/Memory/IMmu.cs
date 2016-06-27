@@ -2,7 +2,7 @@
 {
     using System;
 
-    public interface IMmu
+    public interface IMmu : IDisposable
     {
         byte ReadByte(ushort address);
 
@@ -17,5 +17,7 @@
         void WriteBytes(ushort address, byte[] bytes);
 
         void TransferByte(ushort addressFrom, ushort addressTo);
+
+        void TransferBytes(ushort addressFrom, ushort addressTo, int length);
     }
 }

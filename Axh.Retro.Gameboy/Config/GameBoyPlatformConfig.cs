@@ -1,17 +1,17 @@
-﻿namespace Axh.Retro.GameBoy.Config
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
-    using Axh.Retro.CPU.Common.Config;
-    using Axh.Retro.CPU.Common.Contracts.Config;
-    using Axh.Retro.CPU.Common.Contracts.Memory;
-    using Axh.Retro.CPU.Z80.Contracts.Config;
-    using Axh.Retro.GameBoy.Contracts;
-    using Axh.Retro.GameBoy.Contracts.Config;
-    using Axh.Retro.GameBoy.Contracts.Factories;
-    using Axh.Retro.GameBoy.Contracts.Media;
+using Axh.Retro.CPU.Common.Config;
+using Axh.Retro.CPU.Common.Contracts.Config;
+using Axh.Retro.CPU.Common.Contracts.Memory;
+using Axh.Retro.CPU.Z80.Contracts.Config;
+using Axh.Retro.GameBoy.Contracts;
+using Axh.Retro.GameBoy.Contracts.Config;
+using Axh.Retro.GameBoy.Contracts.Factories;
+
+namespace Axh.Retro.GameBoy.Config
+{
 
     public class GameBoyPlatformConfig : IPlatformConfig
     {

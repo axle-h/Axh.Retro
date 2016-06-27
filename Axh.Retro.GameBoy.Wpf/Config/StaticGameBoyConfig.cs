@@ -51,7 +51,7 @@ namespace Axh.Retro.GameBoy.Wpf.Config
         /// <value>
         /// <c>true</c> if [use game boy timings]; otherwise, <c>false</c>.
         /// </value>
-        public bool UseGameBoyTimings => false;
+        public bool UseGameBoyTimings => true;
 
         /// <summary>
         /// Gets the monocrome palette.

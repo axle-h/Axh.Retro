@@ -1,12 +1,13 @@
-﻿namespace Axh.Retro.CPU.Z80.Core
+﻿using System;
+using System.Threading.Tasks;
+
+using Axh.Retro.CPU.Z80.Contracts.Core;
+using Axh.Retro.CPU.Z80.Contracts.Registers;
+using System.Collections.Concurrent;
+using System.Linq;
+
+namespace Axh.Retro.CPU.Z80.Core
 {
-    using System;
-    using System.Diagnostics;
-    using System.Threading.Tasks;
-
-    using Axh.Retro.CPU.Z80.Contracts.Core;
-    using Axh.Retro.CPU.Z80.Contracts.Registers;
-
     public class InterruptManager : ICoreInterruptManager
     {
         private readonly IRegisters registers;
@@ -15,66 +16,69 @@
 
         private TaskCompletionSource<ushort> interruptTaskSource;
         private Task<ushort> interruptTask;
+        
+        private readonly BlockingCollection<ushort> interruptQueue;
 
-        private readonly object interruptSyncContext;
+        private readonly object disposingContext = new object();
+        private bool disposed, disposing;
 
         public InterruptManager(IRegisters registers)
         {
             this.registers = registers;
-            this.haltTaskSource = new TaskCompletionSource<bool>();
-            this.IsHalted = false;
-            this.IsInterrupted = false;
-            this.interruptSyncContext = new object();
+            haltTaskSource = new TaskCompletionSource<bool>();
+            interruptQueue = new BlockingCollection<ushort>();
+            Task.Factory.StartNew(InterruptTask, TaskCreationOptions.LongRunning);
         }
 
-        public bool InterruptsEnabled => this.registers.InterruptFlipFlop1 && !IsInterrupted;
-
-        public async Task Interrupt(ushort address)
+        private async Task InterruptTask()
         {
-            if (!this.registers.InterruptFlipFlop1)
+            while (!disposing)
             {
-                // Interrupts disabled.
-                return;
-            }
-
-            if (IsInterrupted)
-            {
-                // TODO: support nested interrupts
-                return;
-            }
-
-            lock (this.interruptSyncContext)
-            {
-                if (IsInterrupted)
+                ushort address;
+                if (!interruptQueue.TryTake(out address, 100))
                 {
-                    // TODO: support nested interrupts
-                    return;
+                    continue;
                 }
-                this.IsInterrupted = true;
+
+                if (!this.registers.InterruptFlipFlop1)
+                {
+                    // Interrupts disabled. Discard this interrupt.
+                    continue;
+                }
+                
+                IsInterrupted = true;
+
+                // Disable interrupts whilst we're... interrupting.
+                this.registers.InterruptFlipFlop1 = false;
+
+                // Halt the CPU if not already halted
+                if (!IsHalted)
+                {
+                    Halt();
+                }
+
+                // Wait for the halt to be confirmed
+                await this.haltTaskSource.Task.ConfigureAwait(false);
+                this.haltTaskSource = new TaskCompletionSource<bool>();
+
+                // Resume the CPU with the program counter set to address
+                Task.Run(() => this.interruptTaskSource.TrySetResult(address));
+                this.IsInterrupted = false;
+
+                IsInterrupted = false;
             }
-
-            this.registers.InterruptFlipFlop1 = false;
-
-            // Halt the CPU if not already halted
-            if (!IsHalted)
-            {
-                Halt();
-            }
-            
-            // Wait for the halt to be confirmed
-            await this.haltTaskSource.Task;
-            this.haltTaskSource = new TaskCompletionSource<bool>();
-
-            // Resume the CPU with the program counter set to address
-            this.interruptTaskSource.TrySetResult(address);
-            this.IsInterrupted = false;
         }
+
+
+        public bool InterruptsEnabled => this.registers.InterruptFlipFlop1;
+
+        public void Interrupt(ushort address) => interruptQueue.TryAdd(address);
 
         public void Halt()
         {
-            this.interruptTaskSource = new TaskCompletionSource<ushort>();
-            this.IsHalted = true;
-            this.interruptTask = this.interruptTaskSource.Task;
+            interruptTaskSource = new TaskCompletionSource<ushort>();
+            IsHalted = true;
+            interruptTask = interruptTaskSource.Task;
         }
 
         public bool IsHalted { get; private set; }
@@ -83,27 +87,55 @@
 
         public void AddResumeTask(Action task)
         {
-            this.interruptTask = this.interruptTask.ContinueWith(
-                        x =>
-                        {
-                            task();
-                            return x.Result;
-                        });
+            interruptTask = interruptTask.ContinueWith(x =>
+                                                       {
+                                                           task();
+                                                           return x.Result;
+                                                       });
         }
 
-        public void NotifyHalt()
-        {
-            this.haltTaskSource.TrySetResult(true);
-        }
+        public void NotifyHalt() => Task.Run(() => haltTaskSource.TrySetResult(true));
 
-        public void NotifyResume()
-        {
-            this.IsHalted = false;
-        }
+        public void NotifyResume() => this.IsHalted = false;
 
-        public async Task<ushort> WaitForNextInterrupt()
+        public async Task<ushort> WaitForNextInterrupt() => await this.interruptTask.ConfigureAwait(false);
+
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public void Dispose()
         {
-            return await this.interruptTask;
+            if (disposed || disposing)
+            {
+                return;
+            }
+
+            lock (disposingContext)
+            {
+                if (disposed || disposing)
+                {
+                    return;
+                }
+
+                disposing = true;
+            }
+            
+            interruptQueue.CompleteAdding();
+
+            var timeout = Task.Delay(1000);
+            while (interruptQueue.Any())
+            {
+                var iteration = Task.Delay(100);
+                var completedTask = Task.WhenAny(timeout, iteration).Result;
+
+                if (completedTask == timeout)
+                {
+                    throw new Exception("Cannot dispose");
+                }
+            }
+
+            interruptQueue.Dispose();
+            disposed = true;
         }
     }
 }

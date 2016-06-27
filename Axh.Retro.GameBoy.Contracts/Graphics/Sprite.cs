@@ -6,6 +6,27 @@
     public struct Sprite
     {
         /// <summary>
+        /// Initializes a new instance of the <see cref="Sprite"/> struct.
+        /// </summary>
+        /// <param name="x">The x.</param>
+        /// <param name="y">The y.</param>
+        /// <param name="tileNumber">The tile number.</param>
+        /// <param name="backgroundPriority">if set to <c>true</c> [background priority].</param>
+        /// <param name="yFlip">if set to <c>true</c> [y flip].</param>
+        /// <param name="xFlip">if set to <c>true</c> [x flip].</param>
+        /// <param name="usePalette1">if set to <c>true</c> [use palette1].</param>
+        public Sprite(byte x, byte y, byte tileNumber, bool backgroundPriority, bool yFlip, bool xFlip, bool usePalette1) : this()
+        {
+            X = x;
+            Y = y;
+            TileNumber = tileNumber;
+            BackgroundPriority = backgroundPriority;
+            YFlip = yFlip;
+            XFlip = xFlip;
+            UsePalette1 = usePalette1;
+        }
+
+        /// <summary>
         /// Gets the X-coordinate of top-left corner.
         /// </summary>
         /// <value>

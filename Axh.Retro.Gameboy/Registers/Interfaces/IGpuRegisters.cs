@@ -44,5 +44,13 @@
         /// The LCD monochrome palette register.
         /// </value>
         ILcdMonochromePaletteRegister LcdMonochromePaletteRegister { get; }
+
+        /// <summary>
+        /// Gets the LCD status register.
+        /// </summary>
+        /// <value>
+        /// The LCD status register.
+        /// </value>
+        ILcdStatusRegister LcdStatusRegister { get; }
     }
 }

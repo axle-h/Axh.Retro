@@ -45,11 +45,11 @@ namespace Axh.Retro.GameBoy.Registers.Interfaces
         bool SpriteSize { get; }
 
         /// <summary>
-        /// Sets the transparency of colour 0 on the window
-        /// True: SOLID
-        /// False: TRANSPARENT
+        /// Sets whether sprites are diaplayed.
+        /// True: Displayed.
+        /// False: Not displayed.
         /// </summary>
-        bool WindowColor0Transparent { get; }
+        bool SpriteDisplayEnable { get; }
 
         /// <summary>
         /// Background status

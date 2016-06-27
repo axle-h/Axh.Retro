@@ -27,7 +27,7 @@ namespace Axh.Retro.GameBoy.Wiring
 
         public override void Load()
         {
-            this.Bind<IGameBoyInterruptManager>().To<GameBoyInterruptManager>().InNamedScope(cpuContextScope);
+            this.Bind<IInterruptFlagsRegister>().To<InterruptFlagsRegister>().InNamedScope(cpuContextScope);
             this.Bind<ICoreHardwareRegisters>().To<HardwareRegisters>().InNamedScope(cpuContextScope);
 
             // Named registers
@@ -42,9 +42,11 @@ namespace Axh.Retro.GameBoy.Wiring
             this.Bind<ILcdControlRegister>().To<LcdControlRegister>().InNamedScope(cpuContextScope);
             this.Bind<ICurrentScanlineRegister>().To<CurrentScanlineRegister>().InNamedScope(cpuContextScope);
             this.Bind<ILcdMonochromePaletteRegister>().To<LcdMonochromePaletteRegister>().InNamedScope(cpuContextScope);
+            this.Bind<ILcdStatusRegister>().To<LcdStatusRegister>().InNamedScope(cpuContextScope);
 
             // Un-named registers
             this.Bind<IRegister>().To<LazyDividerRegister>().InNamedScope(cpuContextScope);
+            this.Bind<IRegister>().To<LcdOamDmaTransferRegister>().InNamedScope(cpuContextScope);
 
             // Peripherals, no IO mapped peripherals on GB, only memory mapped
             this.Bind<IMemoryMappedPeripheral>().To<GameBoyMemoryMappedIO>().InNamedScope(cpuContextScope);

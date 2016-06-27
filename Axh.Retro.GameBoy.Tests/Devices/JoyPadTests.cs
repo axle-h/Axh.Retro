@@ -1,4 +1,6 @@
-﻿namespace Axh.Retro.GameBoy.Tests.Devices
+﻿using Axh.Retro.GameBoy.Registers.Interfaces;
+
+namespace Axh.Retro.GameBoy.Tests.Devices
 {
     using System;
     using System.Linq.Expressions;
@@ -28,7 +30,7 @@
         [TestFixtureSetUp]
         public void TestFixtureSetUp()
         {
-            var mockInterruptManager = new Mock<IGameBoyInterruptManager>();
+            var mockInterruptManager = new Mock<IInterruptFlagsRegister>();
             joyPad = new JoyPad(mockInterruptManager.Object);
         }
 

@@ -48,6 +48,7 @@
     <Compile Include="Devices\CoreInterfaces\ICoreJoyPad.cs" />
     <Compile Include="Devices\CoreInterfaces\ICoreSerialPort.cs" />
     <Compile Include="Devices\GpuMode.cs" />
+    <Compile Include="Registers\Interfaces\ILcdStatusRegister.cs" />
     <Compile Include="Registers\Interfaces\ILcdMonochromePaletteRegister.cs" />
     <Compile Include="Registers\Interfaces\SimpleRegister.cs" />
     <Compile Include="Registers\InterruptFlagsRegister.cs" />
@@ -59,13 +60,12 @@
     <Compile Include="Registers\Interfaces\IGpuRegisters.cs" />
     <Compile Include="Registers\Interfaces\ILcdControlRegister.cs" />
     <Compile Include="Registers\Interfaces\DividerRegisterBase.cs" />
-    <Compile Include="Devices\CoreInterfaces\IGameBoyInterruptManager.cs" />
+    <Compile Include="Registers\Interfaces\IInterruptFlagsRegister.cs" />
     <Compile Include="Registers\Interfaces\IInterruptEnableRegister.cs" />
     <Compile Include="Registers\Interfaces\IRegister.cs" />
     <Compile Include="Devices\Gpu.cs" />
     <Compile Include="Devices\CoreInterfaces\ICoreGpu.cs" />
     <Compile Include="Registers\LazyDividerRegister.cs" />
-    <Compile Include="Devices\GameBoyInterruptManager.cs" />
     <Compile Include="Registers\LcdControlRegister.cs" />
     <Compile Include="Devices\SyncSerialPort.cs" />
     <Compile Include="Media\Cartridge.cs" />
@@ -76,6 +76,8 @@
     <Compile Include="Devices\JoyPad.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Registers\LcdMonochromePaletteRegister.cs" />
+    <Compile Include="Registers\LcdOamDmaTransferRegister.cs" />
+    <Compile Include="Registers\LcdStatusRegister.cs" />
     <Compile Include="Registers\SimpleRegister.cs" />
     <Compile Include="Util\ByteArrayExtensions.cs" />
     <Compile Include="Util\StreamExtensions.cs" />

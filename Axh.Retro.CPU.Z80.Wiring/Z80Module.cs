@@ -1,5 +1,6 @@
 ﻿using System;
 using Axh.Retro.CPU.Common.Contracts.Memory;
+using Axh.Retro.CPU.Common.Contracts.Timing;
 using Axh.Retro.CPU.Common.Memory;
 using Axh.Retro.CPU.Z80.Cache;
 using Axh.Retro.CPU.Z80.Contracts.Cache;
@@ -10,10 +11,10 @@ using Axh.Retro.CPU.Z80.Contracts.Peripherals;
 using Axh.Retro.CPU.Z80.Contracts.Registers;
 using Axh.Retro.CPU.Z80.Core;
 using Axh.Retro.CPU.Z80.Core.DynaRec;
-using Axh.Retro.CPU.Z80.Core.Timing;
 using Axh.Retro.CPU.Z80.Memory;
 using Axh.Retro.CPU.Z80.Peripherals;
 using Axh.Retro.CPU.Z80.Registers;
+using Axh.Retro.CPU.Z80.Timing;
 using Ninject;
 using Ninject.Extensions.NamedScope;
 using Ninject.Modules;
@@ -58,6 +59,7 @@ namespace Axh.Retro.CPU.Z80.Wiring
 
             this.Kernel.Bind<IInterruptManager>().To<InterruptManager>().InNamedScope(cpuContextScope);
             this.Kernel.Bind<IInstructionTimer>().To<MachineCycleTimer>().InNamedScope(cpuContextScope);
+            this.Kernel.Bind<IDmaController>().To<DmaController>().InNamedScope(cpuContextScope);
 
             var runtimeConfig = Kernel.Get<IRuntimeConfig>();
             switch (runtimeConfig.CoreMode)

@@ -47,7 +47,10 @@
     <Compile Include="Exceptions\MmuAddressSegmentOverlapException.cs" />
     <Compile Include="Exceptions\PlatformConfigurationException.cs" />
     <Compile Include="Exceptions\SegmentationFaultException.cs" />
+    <Compile Include="Memory\AddressRange.cs" />
     <Compile Include="Memory\AddressWriteEventArgs.cs" />
+    <Compile Include="Memory\IDmaController.cs" />
+    <Compile Include="Memory\IDmaOperation.cs" />
     <Compile Include="Memory\MemoryBankControllerEventArgs.cs" />
     <Compile Include="Memory\IAddressSegment.cs" />
     <Compile Include="Memory\IMemoryBankController.cs" />
@@ -57,7 +60,10 @@
     <Compile Include="Memory\IWriteableAddressSegment.cs" />
     <Compile Include="Memory\MemoryBankType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Timing\IInstructionTimer.cs" />
+    <Compile Include="Timing\InstructionTimings.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

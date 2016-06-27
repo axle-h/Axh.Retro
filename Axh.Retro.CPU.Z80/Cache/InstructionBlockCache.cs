@@ -1,4 +1,7 @@
-﻿namespace Axh.Retro.CPU.Z80.Cache
+﻿using Axh.Retro.CPU.Common.Contracts.Memory;
+using Axh.Retro.CPU.Common.Memory;
+
+namespace Axh.Retro.CPU.Z80.Cache
 {
     using System;
     using System.Collections.Concurrent;
@@ -44,7 +47,7 @@
             else
             {
                 var block = getInstanceFunc();
-                var ranges = NormalRange.GetRanges(block.Address, block.Length).ToArray();
+                var ranges = AddressRange.GetRanges(block.Address, block.Length).ToArray();
                 if (ranges.Length == 1)
                 {
                     cacheItem = new NormalInstructionBlockCacheItem(ranges[0], block);
@@ -67,7 +70,7 @@
         /// <param name="length"></param>
         public void InvalidateCache(ushort address, ushort length)
         {
-            var ranges = NormalRange.GetRanges(address, length).ToArray();
+            var ranges = AddressRange.GetRanges(address, length).ToArray();
             if (ranges.Length == 1)
             {
                 var range = ranges[0];
@@ -103,58 +106,15 @@
         }
 
         /// <summary>
-        /// Normal: min > max due to mod ushort
-        /// </summary>
-        private struct NormalRange
-        {
-            private readonly ushort address;
-            private readonly ushort maxAddress;
-
-            private NormalRange(ushort address, ushort maxAddress) : this()
-            {
-                if (address > maxAddress)
-                {
-                    throw new ArgumentException($"Cannot create normal range: {maxAddress} > {address}");
-                }
-                this.address = address;
-                this.maxAddress = maxAddress;
-            }
-            
-            public bool Intersects(NormalRange range)
-            {
-                return Math.Max(range.address, this.address) <= Math.Min(range.maxAddress, this.maxAddress);
-            }
-
-            public static IEnumerable<NormalRange> GetRanges(ushort address, ushort length)
-            {
-                var maxAddress = unchecked((ushort)(address + length - 1));
-                if (maxAddress >= address)
-                {
-                    yield return new NormalRange(address, maxAddress);
-                }
-                else
-                {
-                    yield return new NormalRange(ushort.MinValue, maxAddress);
-                    yield return new NormalRange(address, ushort.MaxValue);
-                }
-            }
-
-            public override string ToString()
-            {
-                return $"({address}, {maxAddress})";
-            }
-        }
-
-        /// <summary>
         /// Instruction block cache wrapper with a single normal range.
         /// </summary>
         private class NormalInstructionBlockCacheItem : ICacheItem
         {
-            private readonly NormalRange addressRange;
+            private readonly AddressRange addressRange;
 
             public uint Accessed { get; set; }
             
-            public NormalInstructionBlockCacheItem(NormalRange range, IInstructionBlock<TRegisters> instructionBlock)
+            public NormalInstructionBlockCacheItem(AddressRange range, IInstructionBlock<TRegisters> instructionBlock)
             {
                 this.InstructionBlock = instructionBlock;
                 this.addressRange = range;
@@ -162,7 +122,7 @@
 
             public IInstructionBlock<TRegisters> InstructionBlock { get; }
 
-            public bool Intersects(NormalRange range)
+            public bool Intersects(AddressRange range)
             {
                 return range.Intersects(addressRange);
             }
@@ -173,10 +133,10 @@
         /// </summary>
         private class InstructionBlockCacheItem : ICacheItem
         {
-            private readonly NormalRange addressRange0;
-            private readonly NormalRange addressRange1;
+            private readonly AddressRange addressRange0;
+            private readonly AddressRange addressRange1;
 
-            public InstructionBlockCacheItem(IReadOnlyList<NormalRange> addressRanges, IInstructionBlock<TRegisters> instructionBlock)
+            public InstructionBlockCacheItem(IReadOnlyList<AddressRange> addressRanges, IInstructionBlock<TRegisters> instructionBlock)
             {
                 InstructionBlock = instructionBlock;
                 this.addressRange0 = addressRanges[0];
@@ -187,7 +147,7 @@
 
             public uint Accessed { get; set; }
 
-            public bool Intersects(NormalRange range)
+            public bool Intersects(AddressRange range)
             {
                 return range.Intersects(addressRange0) || range.Intersects(addressRange1);
             }
@@ -199,7 +159,7 @@
 
             uint Accessed { get; set; }
 
-            bool Intersects(NormalRange range);
+            bool Intersects(AddressRange range);
         }
 
         public void Dispose()

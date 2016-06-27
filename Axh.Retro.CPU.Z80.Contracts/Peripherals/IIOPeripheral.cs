@@ -23,6 +23,6 @@
         /// <param name="value">The byte to write</param>
         void WriteByte(byte addressMsb, byte value);
 
-        void RegisterDma(IMmu mmu);
+        
     }
 }

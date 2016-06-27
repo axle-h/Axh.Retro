@@ -1,20 +1,20 @@
-﻿namespace Axh.Retro.GameBoy.Devices
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+
+using Axh.Retro.CPU.Common.Contracts.Memory;
+using Axh.Retro.GameBoy.Contracts.Devices;
+using Axh.Retro.GameBoy.Devices.CoreInterfaces;
+using Axh.Retro.GameBoy.Registers.Interfaces;
+
+namespace Axh.Retro.GameBoy.Devices
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Diagnostics;
-    using System.Linq;
-
-    using Axh.Retro.CPU.Common.Contracts.Memory;
-    using Axh.Retro.GameBoy.Contracts.Devices;
-    using Axh.Retro.GameBoy.Devices.CoreInterfaces;
-    using Axh.Retro.GameBoy.Registers.Interfaces;
-
     public class HardwareRegisters : ICoreHardwareRegisters
     {
         private readonly IDictionary<ushort, IRegister> registers;
 
-        public HardwareRegisters(IEnumerable<IRegister> registers, ICoreJoyPad joyPad, ICoreSerialPort serialPort, IGpuRegisters gpuRegisters, IGameBoyInterruptManager interruptManager)
+        public HardwareRegisters(IEnumerable<IRegister> registers, ICoreJoyPad joyPad, ICoreSerialPort serialPort, IGpuRegisters gpuRegisters, IInterruptFlagsRegister interruptFlagsRegister)
         {
             JoyPad = joyPad;
             SerialPort = serialPort;
@@ -29,7 +29,8 @@
                                      gpuRegisters.CurrentScanlineRegister,
                                      gpuRegisters.LcdControlRegister,
                                      gpuRegisters.LcdMonochromePaletteRegister,
-                                     interruptManager.InterruptFlagsRegister
+                                     gpuRegisters.LcdStatusRegister,
+                                     interruptFlagsRegister
                                  })
                          .ToDictionary(x => (ushort) (x.Address - Address));
         }
@@ -45,11 +46,12 @@
 
         public byte ReadByte(ushort address)
         {
+            // TODO: remove check once all registers implemented.
             if (this.registers.ContainsKey(address))
             {
                 return this.registers[address].Register;
             }
-            Debug.WriteLine("Missing Hardware Register: " + address);
+            Debug.WriteLine("Missing Hardware Register: 0x" + (address + Address).ToString("x4"));
             return 0x00;
         }
 
@@ -76,10 +78,16 @@
 
         public void WriteByte(ushort address, byte value)
         {
+            // TODO: remove check once all registers implemented.
             if (this.registers.ContainsKey(address))
             {
                 this.registers[address].Register = value;
             }
+            /*
+            else
+            {
+                Debug.WriteLine("Missing Hardware Register: 0x" + (address + Address).ToString("x4"));
+            }*/
         }
 
         public void WriteWord(ushort address, ushort word)

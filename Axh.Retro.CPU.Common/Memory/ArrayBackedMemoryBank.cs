@@ -35,16 +35,10 @@
 
         public ushort Length { get; }
         
-        public byte ReadByte(ushort address)
-        {
-            return this.Memory[address];
-        }
+        public byte ReadByte(ushort address) => this.Memory[address];
 
-        public ushort ReadWord(ushort address)
-        {
-            // Construct 16 bit value in little endian.
-            return BitConverter.ToUInt16(Memory, address);
-        }
+
+        public ushort ReadWord(ushort address) => BitConverter.ToUInt16(Memory, address);
 
         public byte[] ReadBytes(ushort address, int length)
         {
@@ -53,15 +47,9 @@
             return bytes;
         }
 
-        public void ReadBytes(ushort address, byte[] buffer)
-        {
-            Array.Copy(Memory, address, buffer, 0, buffer.Length);
-        }
+        public void ReadBytes(ushort address, byte[] buffer) => Array.Copy(Memory, address, buffer, 0, buffer.Length);
 
-        public void WriteByte(ushort address, byte value)
-        {
-            this.Memory[address] = value;
-        }
+        public void WriteByte(ushort address, byte value) => this.Memory[address] = value;
 
         public void WriteWord(ushort address, ushort word)
         {
@@ -70,14 +58,8 @@
             Memory[address + 1] = bytes[1];
         }
 
-        public void WriteBytes(ushort address, byte[] values)
-        {
-            Array.Copy(values, 0, Memory, address, values.Length);
-        }
+        public void WriteBytes(ushort address, byte[] values) => Array.Copy(values, 0, Memory, address, values.Length);
 
-        public override string ToString()
-        {
-            return $"{Type}: 0x{Address:x4} - 0x{Address + Length - 1:x4}";
-        }
+        public override string ToString() => $"{Type}: 0x{Address:x4} - 0x{Address + Length - 1:x4}";
     }
 }

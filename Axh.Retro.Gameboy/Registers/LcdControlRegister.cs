@@ -46,7 +46,7 @@
         {
             None = 0,
             BackgroundDisplay = 0x01,
-            WindowColor0Transparent = 0x02,
+            SpriteDisplayEnable = 0x02,
             SpriteSize = 0x04,
             BackgroundTileMap = 0x08,
             TilePatternTable = 0x10,
@@ -100,11 +100,11 @@
         public bool SpriteSize => this.lcdControl.HasFlag(LcdControl.SpriteSize);
 
         /// <summary>
-        /// Sets the transparency of colour 0 on the window
-        /// True: SOLID
-        /// False: TRANSPARENT
+        /// Sets whether sprites are diaplayed.
+        /// True: Displayed.
+        /// False: Not displayed.
         /// </summary>
-        public bool WindowColor0Transparent => this.lcdControl.HasFlag(LcdControl.WindowColor0Transparent);
+        public bool SpriteDisplayEnable => this.lcdControl.HasFlag(LcdControl.SpriteDisplayEnable);
 
         /// <summary>
         /// Background status
@@ -115,7 +115,7 @@
 
         public override string ToString()
         {
-            return $"{Name} ({Address}) = {Register}\n\tLcdOperation: {LcdOperation}\n\tWindowTileMap: {WindowTileMap}\n\tWindowDisplay: {WindowDisplay}\n\tTilePatternTable: {TilePatternTable}\n\tBackgroundTileMap: {BackgroundTileMap}\n\tSpriteSize: {SpriteSize}\n\tWindowColor0Transparent: {WindowColor0Transparent}\n\tBackgroundDisplay: {BackgroundDisplay}";
+            return $"{Name} ({Address}) = {Register}\n\tLcdOperation: {LcdOperation}\n\tWindowTileMap: {WindowTileMap}\n\tWindowDisplay: {WindowDisplay}\n\tTilePatternTable: {TilePatternTable}\n\tBackgroundTileMap: {BackgroundTileMap}\n\tSpriteSize: {SpriteSize}\n\tWindowColor0Transparent: {SpriteDisplayEnable}\n\tBackgroundDisplay: {BackgroundDisplay}";
         }
     }
     
