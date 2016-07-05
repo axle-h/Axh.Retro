@@ -272,7 +272,7 @@ namespace Axh.Retro.GameBoy.Devices
             _lastSpriteBytes = spriteBytes;
             _lastSpriteTileSetBytes = spriteTileSetBytes;
 
-            var tileMap = new TileMap(renderSettings, tileSetBytes, tileMapBytes, spriteBytes, spriteTileSetBytes);
+            var tileMap = new TileMapPointer(renderSettings, tileSetBytes, tileMapBytes, spriteBytes, spriteTileSetBytes);
             var frameBounds = new Rectangle(0, 0, LcdWidth, LcdHeight);
 
             var bitmapPalette = _lcdBuffer.Palette;

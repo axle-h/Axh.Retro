@@ -44,6 +44,8 @@
     <Compile Include="Config\GameBoyInitialStateFactory.cs" />
     <Compile Include="Config\GameBoyPlatformConfig.cs" />
     <Compile Include="Config\GameBoyRuntimeConfig.cs" />
+    <Compile Include="Devices\RenderSettings.cs" />
+    <Compile Include="Devices\TileMapPointer.cs" />
     <Compile Include="Registers\Interfaces\ISerialPortRegister.cs" />
     <Compile Include="Devices\GpuMode.cs" />
     <Compile Include="Registers\Interfaces\IJoyPadRegister.cs" />
