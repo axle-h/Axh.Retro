@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Axh.Retro.GameBoy.Contracts.Devices;
 using Axh.Retro.GameBoy.Registers.Interfaces;
 
-namespace Axh.Retro.GameBoy.Devices
+namespace Axh.Retro.GameBoy.Registers
 {
     /// <summary>
     ///     Serial port that will transfer bytes synchronously.

@@ -10,7 +10,7 @@ using Axh.Retro.CPU.Z80.Contracts.Registers;
 
 namespace Axh.Retro.CPU.Z80.Cache
 {
-    public class InstructionBlockCache<TRegisters> : IInstructionBlockCache<TRegisters>, IDisposable
+    public class InstructionBlockCache<TRegisters> : IInstructionBlockCache<TRegisters>
         where TRegisters : IRegisters
     {
         private readonly ConcurrentDictionary<ushort, ICacheItem> cache;
@@ -21,7 +21,7 @@ namespace Axh.Retro.CPU.Z80.Cache
         public InstructionBlockCache()
         {
             cache = new ConcurrentDictionary<ushort, ICacheItem>();
-
+            
             // Psuedo garbage collection. Meh... will create a proper implementation another day.
             timer = new Timer(garbageCollectionInterval.TotalMilliseconds);
             timer.Elapsed += (sender, args) => GarbageCollection();

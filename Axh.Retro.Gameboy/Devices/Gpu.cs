@@ -14,13 +14,12 @@ using Axh.Retro.CPU.Common.Memory;
 using Axh.Retro.GameBoy.Contracts.Config;
 using Axh.Retro.GameBoy.Contracts.Devices;
 using Axh.Retro.GameBoy.Contracts.Graphics;
-using Axh.Retro.GameBoy.Devices.CoreInterfaces;
 using Axh.Retro.GameBoy.Registers.Interfaces;
 using Axh.Retro.GameBoy.Util;
 
 namespace Axh.Retro.GameBoy.Devices
 {
-    public class Gpu : ICoreGpu
+    public class Gpu : IGpu
     {
         private const int Scanlines = 144;
         private const int VertaicalBlankScanlines = 153;

@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Axh.Retro.CPU.Z80.Contracts.Core
 {
-    public interface ICoreInterruptManager : IInterruptManager, IDisposable
+    public interface ICoreInterruptManager : IInterruptManager
     {
         bool IsHalted { get; }
 
@@ -17,7 +17,7 @@ namespace Axh.Retro.CPU.Z80.Contracts.Core
         Task<ushort> WaitForNextInterrupt();
     }
 
-    public interface IInterruptManager
+    public interface IInterruptManager : IDisposable
     {
         bool InterruptsEnabled { get; }
         void Interrupt(ushort address);

@@ -38,16 +38,16 @@ namespace Axh.Retro.GameBoy.Wpf
         private void Init()
         {
             image = new Image
-                    {
-                        Stretch = Stretch.Fill,
-                        HorizontalAlignment = HorizontalAlignment.Left,
-                        VerticalAlignment = VerticalAlignment.Top
-                    };
+            {
+                Stretch = Stretch.Fill,
+                HorizontalAlignment = HorizontalAlignment.Left,
+                VerticalAlignment = VerticalAlignment.Top
+            };
             window = new Window {Content = image};
 
             RenderOptions.SetBitmapScalingMode(image, BitmapScalingMode.NearestNeighbor);
             RenderOptions.SetEdgeMode(image, EdgeMode.Aliased);
-
+            
             window.Show();
 
             var app = new Application();
@@ -60,17 +60,18 @@ namespace Axh.Retro.GameBoy.Wpf
         {
             var tcs = new TaskCompletionSource<bool>();
             var thread = new Thread(() =>
-                                    {
-                                        try
-                                        {
-                                            func();
-                                            tcs.SetResult(true);
-                                        }
-                                        catch (Exception e)
-                                        {
-                                            tcs.SetException(e);
-                                        }
-                                    });
+            {
+                try
+                {
+                    func();
+                    tcs.SetResult(true);
+                }
+                catch (Exception e)
+                {
+                    tcs.SetException(e);
+                }
+            });
+
             thread.SetApartmentState(ApartmentState.STA);
             thread.Start();
             return tcs.Task;

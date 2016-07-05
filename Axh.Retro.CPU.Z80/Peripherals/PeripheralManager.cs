@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Axh.Retro.CPU.Common.Contracts.Memory;
 using Axh.Retro.CPU.Z80.Contracts.Peripherals;
 
 namespace Axh.Retro.CPU.Z80.Peripherals
@@ -10,11 +11,13 @@ namespace Axh.Retro.CPU.Z80.Peripherals
 
         private readonly IMemoryMappedPeripheral[] memoryMappedPeripherals;
 
-        public PeripheralManager(IEnumerable<IIOPeripheral> ioPeripherals,
-                                 IEnumerable<IMemoryMappedPeripheral> memoryMappedPeripherals)
+        private readonly ICollection<IPeripheral> peripherals;
+
+        public PeripheralManager(ICollection<IPeripheral> peripherals)
         {
-            this.ioPeripherals = ioPeripherals.ToDictionary(x => x.Port);
-            this.memoryMappedPeripherals = memoryMappedPeripherals.ToArray();
+            this.peripherals = peripherals;
+            this.ioPeripherals = peripherals.OfType<IIOPeripheral>().ToDictionary(x => x.Port);
+            this.memoryMappedPeripherals = peripherals.OfType<IMemoryMappedPeripheral>().ToArray();
         }
 
         public byte ReadByteFromPort(byte port, byte addressMsb)
@@ -34,20 +37,25 @@ namespace Axh.Retro.CPU.Z80.Peripherals
 
         public void Signal(ControlSignal signal)
         {
-            foreach (var peripheral in ioPeripherals.Values.Cast<IPeripheral>().Concat(memoryMappedPeripherals))
+            foreach (var peripheral in peripherals)
             {
                 peripheral.Signal(signal);
             }
         }
 
-        public IEnumerable<IMemoryMappedPeripheral> GetAllMemoryMappedPeripherals()
-        {
-            return memoryMappedPeripherals;
-        }
+        public IEnumerable<IAddressSegment> MemoryMap => memoryMappedPeripherals.SelectMany(x => x.AddressSegments);
 
-        public TPeripheral GetMemoryMappedPeripherals<TPeripheral>() where TPeripheral : IMemoryMappedPeripheral
+        public TPeripheral PeripheralOfType<TPeripheral>() where TPeripheral : IPeripheral =>  peripherals.OfType<TPeripheral>().FirstOrDefault();
+
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public void Dispose()
         {
-            return memoryMappedPeripherals.OfType<TPeripheral>().FirstOrDefault();
+            foreach (var peripheral in peripherals)
+            {
+                peripheral.Dispose();
+            }
         }
     }
 }

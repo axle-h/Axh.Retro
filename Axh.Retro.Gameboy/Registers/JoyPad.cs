@@ -1,11 +1,10 @@
 ﻿using System;
 using Axh.Retro.GameBoy.Contracts.Devices;
-using Axh.Retro.GameBoy.Devices.CoreInterfaces;
 using Axh.Retro.GameBoy.Registers.Interfaces;
 
-namespace Axh.Retro.GameBoy.Devices
+namespace Axh.Retro.GameBoy.Registers
 {
-    public class JoyPad : ICoreJoyPad
+    public class JoyPad : IJoyPadRegister
     {
         private readonly IInterruptFlagsRegister interruptFlagsRegister;
         private bool a;

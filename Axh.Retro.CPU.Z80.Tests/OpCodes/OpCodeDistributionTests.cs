@@ -24,13 +24,6 @@ namespace Axh.Retro.CPU.Z80.Tests.OpCodes
         }
 
         [Test]
-        [Ignore]
-        public void PrefixEdOpCode()
-        {
-            AssertOpCodes<PrefixEdOpCode>();
-        }
-
-        [Test]
         public void PrimaryOpCode()
         {
             AssertOpCodes<PrimaryOpCode>();

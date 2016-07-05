@@ -2,30 +2,28 @@
 using Axh.Retro.CPU.Z80.Contracts.Peripherals;
 using Axh.Retro.CPU.Z80.Contracts.State;
 using Axh.Retro.CPU.Z80.Peripherals;
-using Axh.Retro.Z80Console.Config;
-using Ninject.Extensions.NamedScope;
-using Ninject.Modules;
+using Axh.Retro.CPU.Z80.Wiring;
+using DryIoc;
 
-namespace Axh.Retro.Z80Console.Infrastructure
+namespace Axh.Retro.Z80Console.Config
 {
-    internal class Z80ConsoleModule : NinjectModule
+    internal class Z80ConsoleModule : IZ80Module
     {
-        private readonly string cpuContextScope;
-
-        public Z80ConsoleModule(string cpuContextScope)
-        {
-            this.cpuContextScope = cpuContextScope;
-        }
-
-        public override void Load()
+        /// <summary>
+        /// Registers all hardware in this module.
+        /// </summary>
+        /// <param name="container">The container.</param>
+        /// <param name="scope">The reuse scope.</param>
+        /// <exception cref="System.NotImplementedException"></exception>
+        public void Register(IContainer container, IReuse scope)
         {
             // Z80 Console specific
-            Bind<IIOPeripheral>().To<AsciiSystemConsole>().InNamedScope(cpuContextScope);
-            Bind<IIOPeripheral>().To<SystemConsoleStatus>().InNamedScope(cpuContextScope);
+            container.Register<IPeripheral, AsciiSystemConsole>(Reuse.Singleton);
+            container.Register<IPeripheral, SystemConsoleStatus>(Reuse.Singleton);
 
-            Bind<IInitialStateFactory<Z80RegisterState>>().To<Z80InitialStateFactory>().InSingletonScope();
-            Bind<IPlatformConfig>().To<Z8064KBootstrappedConfig>().InSingletonScope();
-            Bind<IRuntimeConfig>().To<RuntimeConfig>().InSingletonScope();
+            container.Register<IInitialStateFactory<Z80RegisterState>, Z80InitialStateFactory>(Reuse.Singleton);
+            container.Register<IPlatformConfig, Z8064KBootstrappedConfig>(Reuse.Singleton);
+            container.Register<IRuntimeConfig, RuntimeConfig>(Reuse.Singleton);
         }
     }
 }

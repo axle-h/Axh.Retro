@@ -8,7 +8,7 @@ namespace Axh.Retro.CPU.Z80.Contracts.Cache
     ///     Doesn't need to be thread safe
     /// </summary>
     /// <typeparam name="TRegisters"></typeparam>
-    public interface IInstructionBlockCache<TRegisters> where TRegisters : IRegisters
+    public interface IInstructionBlockCache<TRegisters> : IDisposable where TRegisters : IRegisters
     {
         /// <summary>
         ///     Get an instruction block from the cache at address. If not present then call getInstanceFunc and add to the cache.

@@ -6,24 +6,23 @@ using Axh.Retro.CPU.Z80.Contracts.Peripherals;
 using Axh.Retro.GameBoy.Contracts.Devices;
 using Axh.Retro.GameBoy.Contracts.Graphics;
 using Axh.Retro.GameBoy.Contracts.Peripherals;
-using Axh.Retro.GameBoy.Devices.CoreInterfaces;
 using Axh.Retro.GameBoy.Registers.Interfaces;
 
 namespace Axh.Retro.GameBoy.Peripherals
 {
     public class GameBoyMemoryMappedIO : IGameBoyMemoryMappedIO
     {
-        private readonly ICoreGpu gpu;
+        private readonly IGpu gpu;
 
-        private readonly ICoreHardwareRegisters hardwareRegisters;
+        private readonly IHardwareRegisters hardwareRegisters;
 
         private readonly IInterruptEnableRegister interruptRegister;
 
         private readonly IMemoryBankController memoryBankController;
 
-        public GameBoyMemoryMappedIO(ICoreHardwareRegisters hardwareRegisters,
+        public GameBoyMemoryMappedIO(IHardwareRegisters hardwareRegisters,
                                      IInterruptEnableRegister interruptRegister,
-                                     ICoreGpu gpu,
+                                     IGpu gpu,
                                      IMemoryBankController memoryBankController)
         {
             this.hardwareRegisters = hardwareRegisters;

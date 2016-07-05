@@ -1,19 +1,18 @@
 ﻿using Axh.Retro.GameBoy.Contracts.Devices;
-using Axh.Retro.GameBoy.Devices.CoreInterfaces;
 using Axh.Retro.GameBoy.Registers.Interfaces;
 
-namespace Axh.Retro.GameBoy.Devices
+namespace Axh.Retro.GameBoy.Registers
 {
     /// <summary>
     ///     FF01 - SB - Serial transfer data (R/W)
     /// </summary>
-    public abstract class SerialPortBase : ICoreSerialPort
+    public abstract class SerialPortBase : ISerialPortRegister
     {
         protected ISerialPort ConnectedSerialPort;
 
         protected SerialPortBase()
         {
-            SerialData = new SimpleRegister(0xff01, "Serial data (SIODATA R/W)");
+            SerialData = new Interfaces.SimpleRegister(0xff01, "Serial data (SIODATA R/W)");
         }
 
         /// <summary>

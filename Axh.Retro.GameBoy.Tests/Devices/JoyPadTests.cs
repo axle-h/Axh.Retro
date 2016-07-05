@@ -3,7 +3,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Axh.Retro.GameBoy.Contracts.Devices;
 using Axh.Retro.GameBoy.Devices;
-using Axh.Retro.GameBoy.Devices.CoreInterfaces;
+using Axh.Retro.GameBoy.Registers;
 using Axh.Retro.GameBoy.Registers.Interfaces;
 using Moq;
 using NUnit.Framework;
@@ -21,7 +21,7 @@ namespace Axh.Retro.GameBoy.Tests.Devices
         private const byte P14 = 0x10;
         private const byte P15 = 0x20;
 
-        private ICoreJoyPad joyPad;
+        private IJoyPadRegister joyPad;
 
         [TestFixtureSetUp]
         public void TestFixtureSetUp()

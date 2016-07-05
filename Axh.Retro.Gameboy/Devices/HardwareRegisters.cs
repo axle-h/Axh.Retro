@@ -4,20 +4,19 @@ using System.Diagnostics;
 using System.Linq;
 using Axh.Retro.CPU.Common.Contracts.Memory;
 using Axh.Retro.GameBoy.Contracts.Devices;
-using Axh.Retro.GameBoy.Devices.CoreInterfaces;
 using Axh.Retro.GameBoy.Registers.Interfaces;
 
 namespace Axh.Retro.GameBoy.Devices
 {
-    public class HardwareRegisters : ICoreHardwareRegisters
+    public class HardwareRegisters : IHardwareRegisters
     {
         private const ushort Address = 0xff00;
         private const ushort Length = 0x80;
         private readonly IDictionary<ushort, IRegister> registers;
 
         public HardwareRegisters(IEnumerable<IRegister> registers,
-                                 ICoreJoyPad joyPad,
-                                 ICoreSerialPort serialPort,
+                                 IJoyPadRegister joyPad,
+                                 ISerialPortRegister serialPort,
                                  IGpuRegisters gpuRegisters,
                                  IInterruptFlagsRegister interruptFlagsRegister)
         {

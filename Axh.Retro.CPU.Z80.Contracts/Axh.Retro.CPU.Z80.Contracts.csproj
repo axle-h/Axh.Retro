@@ -51,6 +51,7 @@
     <Compile Include="Core\ICoreContext.cs" />
     <Compile Include="Core\IInstructionBlock.cs" />
     <Compile Include="Core\IInterruptManager.cs" />
+    <Compile Include="Peripherals\IPeripheral.cs" />
     <Compile Include="Timing\IInstructionTimingsBuilder.cs" />
     <Compile Include="Config\CpuMode.cs" />
     <Compile Include="Core\ICpuCore.cs" />
@@ -59,7 +60,6 @@
     <Compile Include="Peripherals\IIOPeripheral.cs" />
     <Compile Include="Peripherals\IMemoryMappedPeripheral.cs" />
     <Compile Include="Peripherals\IPeripheralManager.cs" />
-    <Compile Include="Peripherals\IPeripheral.cs" />
     <Compile Include="OpCodes\PrefixCbOpCode.cs" />
     <Compile Include="OpCodes\PrefixEdOpCode.cs" />
     <Compile Include="OpCodes\PrimaryOpCode.cs" />

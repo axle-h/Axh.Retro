@@ -9,7 +9,6 @@ using Axh.Retro.GameBoy.BlarggTests.Config;
 using Axh.Retro.GameBoy.Contracts.Config;
 using Axh.Retro.GameBoy.Contracts.Peripherals;
 using Axh.Retro.GameBoy.Wiring;
-using Ninject;
 using NUnit.Framework;
 
 namespace Axh.Retro.GameBoy.BlarggTests
@@ -19,24 +18,23 @@ namespace Axh.Retro.GameBoy.BlarggTests
     {
         private const string ScopeName = "GameBoy-Blargg";
 
-        private readonly IKernel kernel;
+        private readonly Z80<IIntel8080Registers, Intel8080RegisterState> z80;
 
         private readonly BlarggTestGameBoyConfig config;
 
         public BlarggTestBase()
         {
-            kernel = new StandardKernel(new BlarggTestModule(ScopeName),
-                                        new GameBoyModule(ScopeName),
-                                        new Z80Module<IIntel8080Registers, Intel8080RegisterState>(ScopeName));
-            config = kernel.Get<IGameBoyConfig>() as BlarggTestGameBoyConfig;
+            var blarggTest = new BlarggTest();
+            z80 = new Z80<IIntel8080Registers, Intel8080RegisterState>().With<GameBoyHardware>().With(blarggTest).Init();
+            config = blarggTest.Config;
         }
 
         protected void Run(byte[] cartridge)
         {
             config.CartridgeData = cartridge;
-            var core = kernel.Get<ICpuCore<IIntel8080Registers, Intel8080RegisterState>>();
+            var core = z80.GetNewCore();
 
-            var io = core.Context.PeripheralManager.GetMemoryMappedPeripherals<IGameBoyMemoryMappedIO>();
+            var io = core.Context.PeripheralManager.PeripheralOfType<IGameBoyMemoryMappedIO>();
             var serialPort = new BlarggTestSerialPort();
             io.HardwareRegisters.SerialPort.Connect(serialPort);
 
@@ -65,7 +63,7 @@ namespace Axh.Retro.GameBoy.BlarggTests
 
         public void Dispose()
         {
-            kernel.Dispose();
+            z80.Dispose();
         }
     }
 }

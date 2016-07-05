@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using Axh.Retro.CPU.Common.Contracts.Memory;
 
 namespace Axh.Retro.CPU.Z80.Contracts.Peripherals
 {
-    public interface ICorePeripheralManager
+    public interface IPeripheralManager : IDisposable
     {
         /// <summary>
         ///     Read the next byte from the peripheral at IO port
@@ -24,17 +26,18 @@ namespace Axh.Retro.CPU.Z80.Contracts.Peripherals
         ///     Signal all peripherals
         /// </summary>
         void Signal(ControlSignal signal);
-    }
 
-    public interface IPeripheralManager : ICorePeripheralManager
-    {
         /// <summary>
         ///     Retrieve peripheral of specified type.
         /// </summary>
         /// <typeparam name="TPeripheral"></typeparam>
         /// <returns></returns>
-        TPeripheral GetMemoryMappedPeripherals<TPeripheral>() where TPeripheral : IMemoryMappedPeripheral;
+        TPeripheral PeripheralOfType<TPeripheral>() where TPeripheral : IPeripheral;
 
-        IEnumerable<IMemoryMappedPeripheral> GetAllMemoryMappedPeripherals();
+        /// <summary>
+        /// Gets all memory mapped peripherals.
+        /// </summary>
+        /// <returns></returns>
+        IEnumerable<IAddressSegment> MemoryMap { get; }
     }
 }

@@ -17,7 +17,8 @@ namespace Axh.Retro.CPU.Z80.Core
                            IInstructionTimer instructionTimer,
                            IAlu alu,
                            IInstructionBlockCache<TRegisters> instructionBlockCache,
-                           IInstructionBlockDecoder<TRegisters> instructionBlockDecoder)
+                           IInstructionBlockDecoder<TRegisters> instructionBlockDecoder,
+                           IDmaController dmaController)
         {
             Registers = registers;
             InterruptManager = interruptManager;
@@ -27,6 +28,7 @@ namespace Axh.Retro.CPU.Z80.Core
             Alu = alu;
             InstructionBlockCache = instructionBlockCache;
             InstructionBlockDecoder = instructionBlockDecoder;
+            DmaController = dmaController;
         }
 
         public TRegisters Registers { get; }
@@ -36,6 +38,8 @@ namespace Axh.Retro.CPU.Z80.Core
         public IPeripheralManager PeripheralManager { get; }
 
         public IMmu Mmu { get; }
+
+        public IDmaController DmaController { get; }
 
         public IInstructionTimer InstructionTimer { get; }
 
@@ -47,7 +51,11 @@ namespace Axh.Retro.CPU.Z80.Core
 
         public void Dispose()
         {
-            // TODO.
+            InterruptManager.Dispose();
+            PeripheralManager.Dispose();
+            Mmu.Dispose();
+            DmaController.Dispose();
+            InstructionBlockCache.Dispose();
         }
     }
 }

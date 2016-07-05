@@ -41,8 +41,7 @@ namespace Axh.Retro.CPU.Z80.Memory
                 platformConfig.MemoryBanks.GroupBy(x => x.Address)
                               .Select(x => GetAddressSegment(x.ToArray(), memoryBankController))
                               .ToArray();
-            return
-                memoryBanks.Concat(peripheralManager.GetAllMemoryMappedPeripherals().SelectMany(x => x.AddressSegments));
+            return memoryBanks.Concat(peripheralManager.MemoryMap);
         }
 
         private static IAddressSegment GetAddressSegment(ICollection<IMemoryBankConfig> configs,
