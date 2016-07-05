@@ -9,15 +9,15 @@ namespace Axh.Retro.CPU.Common.Memory
 {
     public class BankedReadOnlyMemoryBank : IReadableAddressSegment
     {
-        private readonly IDictionary<byte, byte[]> banks;
-        private readonly IMemoryBankController memoryBankController;
+        private readonly IDictionary<byte, byte[]> _banks;
+        private readonly IMemoryBankController _memoryBankController;
 
-        private byte[] bank;
+        private byte[] _bank;
 
         public BankedReadOnlyMemoryBank(ICollection<IMemoryBankConfig> bankConfigs,
-                                        IMemoryBankController memoryBankController)
+            IMemoryBankController memoryBankController)
         {
-            this.memoryBankController = memoryBankController;
+            _memoryBankController = memoryBankController;
             if (bankConfigs == null)
             {
                 throw new ArgumentNullException(nameof(bankConfigs));
@@ -53,15 +53,15 @@ namespace Axh.Retro.CPU.Common.Memory
                 throw new MemoryConfigStateException(Address, Length, badBank.State?.Length ?? 0);
             }
 
-            banks = bankConfigs.ToDictionary(x => x.BankId.Value,
-                                             x =>
-                                             {
-                                                 var memory = new byte[Length];
-                                                 Array.Copy(x.State, 0, memory, 0, Length);
-                                                 return memory;
-                                             });
+            _banks = bankConfigs.ToDictionary(x => x.BankId.Value,
+                x =>
+                {
+                    var memory = new byte[Length];
+                    Array.Copy(x.State, 0, memory, 0, Length);
+                    return memory;
+                });
 
-            bank = banks[memoryBankController.RomBankNumber];
+            _bank = _banks[memoryBankController.RomBankNumber];
 
             memoryBankController.MemoryBankSwitch += MemoryBankControllerEventHandler;
         }
@@ -74,25 +74,25 @@ namespace Axh.Retro.CPU.Common.Memory
 
         public byte ReadByte(ushort address)
         {
-            return bank[address];
+            return _bank[address];
         }
 
         public ushort ReadWord(ushort address)
         {
             // Construct 16 bit value in little endian.
-            return BitConverter.ToUInt16(bank, address);
+            return BitConverter.ToUInt16(_bank, address);
         }
 
         public byte[] ReadBytes(ushort address, int length)
         {
             var bytes = new byte[length];
-            Array.Copy(bank, address, bytes, 0, length);
+            Array.Copy(_bank, address, bytes, 0, length);
             return bytes;
         }
 
         public void ReadBytes(ushort address, byte[] buffer)
         {
-            Array.Copy(bank, address, buffer, 0, buffer.Length);
+            Array.Copy(_bank, address, buffer, 0, buffer.Length);
         }
 
         public override string ToString()
@@ -107,7 +107,7 @@ namespace Axh.Retro.CPU.Common.Memory
                 return;
             }
 
-            bank = banks[memoryBankController.RomBankNumber];
+            _bank = _banks[_memoryBankController.RomBankNumber];
         }
     }
 }

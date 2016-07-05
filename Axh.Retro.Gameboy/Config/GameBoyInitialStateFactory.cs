@@ -12,17 +12,17 @@ namespace Axh.Retro.GameBoy.Config
         public Intel8080RegisterState GetInitialRegisterState()
         {
             var state = new Intel8080RegisterState
-                        {
-                            GeneralPurposeRegisterState =
-                                GetInitialGeneralPurposeRegisterState(),
-                            AccumulatorAndFlagsRegisterState =
-                                GetInitialAccumulatorAndFlagsRegisterState(),
-                            StackPointer = InitialStackPointer,
-                            ProgramCounter = InitialProgramCounter,
-                            InterruptFlipFlop1 = true,
-                            InterruptFlipFlop2 = true,
-                            InterruptMode = InterruptMode.InterruptMode0
-                        };
+            {
+                GeneralPurposeRegisterState =
+                    GetInitialGeneralPurposeRegisterState(),
+                AccumulatorAndFlagsRegisterState =
+                    GetInitialAccumulatorAndFlagsRegisterState(),
+                StackPointer = InitialStackPointer,
+                ProgramCounter = InitialProgramCounter,
+                InterruptFlipFlop1 = true,
+                InterruptFlipFlop2 = true,
+                InterruptMode = InterruptMode.InterruptMode0
+            };
             return state;
         }
 

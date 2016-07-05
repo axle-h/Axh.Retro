@@ -165,16 +165,16 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             var length = 0;
             var queue = new Queue(bytes);
             Cache.Setup(x => x.NextByte()).Returns(() =>
-                                                   {
-                                                       length++;
-                                                       return (byte) queue.Dequeue();
-                                                   });
+            {
+                length++;
+                return (byte) queue.Dequeue();
+            });
 
             Cache.Setup(x => x.NextWord()).Returns(() =>
-                                                   {
-                                                       length += 2;
-                                                       return (ushort) queue.Dequeue();
-                                                   });
+            {
+                length += 2;
+                return (ushort) queue.Dequeue();
+            });
 
             Cache.Setup(x => x.TotalBytesRead).Returns(() => length);
 
@@ -192,12 +192,12 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
 
             // Make sure all bytes were read
             Cache.Verify(x => x.NextByte(),
-                         Times.Exactly(
-                                       bytes.Count(
-                                                   x =>
-                                                       x is byte || x is PrimaryOpCode || x is PrefixEdOpCode ||
-                                                       x is PrefixCbOpCode || x is GameBoyPrimaryOpCode ||
-                                                       x is GameBoyPrefixCbOpCode)));
+                Times.Exactly(
+                    bytes.Count(
+                        x =>
+                            x is byte || x is PrimaryOpCode || x is PrefixEdOpCode ||
+                            x is PrefixCbOpCode || x is GameBoyPrimaryOpCode ||
+                            x is GameBoyPrefixCbOpCode)));
             Cache.Verify(x => x.NextWord(), Times.Exactly(bytes.Count(x => x is ushort)));
         }
 

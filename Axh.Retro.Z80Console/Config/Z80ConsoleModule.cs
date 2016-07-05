@@ -10,12 +10,11 @@ namespace Axh.Retro.Z80Console.Config
     internal class Z80ConsoleModule : IZ80Module
     {
         /// <summary>
-        /// Registers all hardware in this module.
+        ///     Registers all hardware in this module.
         /// </summary>
         /// <param name="container">The container.</param>
-        /// <param name="scope">The reuse scope.</param>
         /// <exception cref="System.NotImplementedException"></exception>
-        public void Register(IContainer container, IReuse scope)
+        public void Register(IContainer container)
         {
             // Z80 Console specific
             container.Register<IPeripheral, AsciiSystemConsole>(Reuse.Singleton);

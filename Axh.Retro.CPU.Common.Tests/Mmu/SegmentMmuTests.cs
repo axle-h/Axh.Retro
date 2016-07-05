@@ -23,37 +23,37 @@ namespace Axh.Retro.CPU.Common.Tests.Mmu
         private const int MinByteLength = 24;
         private const int MaxByteLength = 32;
 
-        private Mock<IReadableAddressSegment> segment0R;
-        private Mock<IWriteableAddressSegment> segment0W;
-        private Mock<IReadableWriteableAddressSegment> segment1;
-        private Mock<IReadableWriteableAddressSegment> segment2;
+        private Mock<IReadableAddressSegment> _segment0R;
+        private Mock<IWriteableAddressSegment> _segment0W;
+        private Mock<IReadableWriteableAddressSegment> _segment1;
+        private Mock<IReadableWriteableAddressSegment> _segment2;
 
-        private readonly Random random = new Random(1234);
+        private readonly Random _random = new Random(1234);
 
-        private IMmu mmu;
+        private IMmu _mmu;
 
         [TestFixtureSetUp]
         public void TestFixtureSetUp()
         {
-            segment0R = new Mock<IReadableAddressSegment>();
-            segment0W = new Mock<IWriteableAddressSegment>();
-            segment1 = new Mock<IReadableWriteableAddressSegment>();
-            segment2 = new Mock<IReadableWriteableAddressSegment>();
+            _segment0R = new Mock<IReadableAddressSegment>();
+            _segment0W = new Mock<IWriteableAddressSegment>();
+            _segment1 = new Mock<IReadableWriteableAddressSegment>();
+            _segment2 = new Mock<IReadableWriteableAddressSegment>();
 
-            SetupSegmentForRead(segment0R, Address0, Length0);
+            SetupSegmentForRead(_segment0R, Address0, Length0);
 
-            SetupSegment(segment0W, Address0, Length0);
+            SetupSegment(_segment0W, Address0, Length0);
 
-            SetupSegmentForRead(segment1, Address1, Length1);
+            SetupSegmentForRead(_segment1, Address1, Length1);
 
-            SetupSegmentForRead(segment2, Address2, Length2);
+            SetupSegmentForRead(_segment2, Address2, Length2);
 
             var dmaController = new Mock<IDmaController>();
             var instructionTimer = new Mock<IInstructionTimer>();
 
-            mmu =
+            _mmu =
                 new SegmentMmu(
-                    new IAddressSegment[] {segment0R.Object, segment0W.Object, segment1.Object, segment2.Object},
+                    new IAddressSegment[] {_segment0R.Object, _segment0W.Object, _segment1.Object, _segment2.Object},
                     dmaController.Object,
                     instructionTimer.Object);
         }
@@ -66,8 +66,8 @@ namespace Axh.Retro.CPU.Common.Tests.Mmu
         }
 
         private static void SetupSegmentForRead<TReadableAddressSegment>(Mock<TReadableAddressSegment> segment,
-                                                                         ushort address,
-                                                                         ushort length)
+            ushort address,
+            ushort length)
             where TReadableAddressSegment : class, IReadableAddressSegment
         {
             SetupSegment(segment, address, length);
@@ -78,20 +78,20 @@ namespace Axh.Retro.CPU.Common.Tests.Mmu
                 var arrayLength = i;
                 var maxAddress = length - arrayLength;
                 segment.Setup(x => x.ReadBytes(It.Is<ushort>(y => y <= maxAddress), arrayLength))
-                       .Returns(new byte[arrayLength]);
+                    .Returns(new byte[arrayLength]);
                 segment.Setup(x => x.ReadBytes(It.Is<ushort>(y => y > maxAddress), arrayLength))
-                       .Throws(new Exception("Tried reading over the array boundary"));
+                    .Throws(new Exception("Tried reading over the array boundary"));
             }
         }
 
 
         private void VerifyReadByte<TAddressSegment, TAddressSegment1, TAddressSegment2>(ushort segmentAddress,
-                                                                                         ushort length,
-                                                                                         Mock<TAddressSegment> segment,
-                                                                                         Mock<TAddressSegment1>
-                                                                                             otherSegment1,
-                                                                                         Mock<TAddressSegment2>
-                                                                                             otherSegment2)
+            ushort length,
+            Mock<TAddressSegment> segment,
+            Mock<TAddressSegment1>
+                otherSegment1,
+            Mock<TAddressSegment2>
+                otherSegment2)
             where TAddressSegment : class, IReadableAddressSegment
             where TAddressSegment1 : class, IReadableAddressSegment
             where TAddressSegment2 : class, IReadableAddressSegment
@@ -102,7 +102,7 @@ namespace Axh.Retro.CPU.Common.Tests.Mmu
 
             foreach (var percentile in GetAddressRangePercentiles(segmentAddress, length))
             {
-                mmu.ReadByte(percentile);
+                _mmu.ReadByte(percentile);
                 var address = (ushort) (percentile - segmentAddress);
                 segment.Verify(x => x.ReadByte(address), Times.Once);
             }
@@ -112,12 +112,12 @@ namespace Axh.Retro.CPU.Common.Tests.Mmu
         }
 
         private void VerifyWriteByte<TAddressSegment, TAddressSegment1, TAddressSegment2>(ushort segmentAddress,
-                                                                                          ushort length,
-                                                                                          Mock<TAddressSegment> segment,
-                                                                                          Mock<TAddressSegment1>
-                                                                                              otherSegment1,
-                                                                                          Mock<TAddressSegment2>
-                                                                                              otherSegment2)
+            ushort length,
+            Mock<TAddressSegment> segment,
+            Mock<TAddressSegment1>
+                otherSegment1,
+            Mock<TAddressSegment2>
+                otherSegment2)
             where TAddressSegment : class, IWriteableAddressSegment
             where TAddressSegment1 : class, IWriteableAddressSegment
             where TAddressSegment2 : class, IWriteableAddressSegment
@@ -128,8 +128,8 @@ namespace Axh.Retro.CPU.Common.Tests.Mmu
 
             foreach (var percentile in GetAddressRangePercentiles(segmentAddress, length))
             {
-                var value = (byte) random.Next(0xff);
-                mmu.WriteByte(percentile, value);
+                var value = (byte) _random.Next(0xff);
+                _mmu.WriteByte(percentile, value);
                 var address = (ushort) (percentile - segmentAddress);
                 segment.Verify(x => x.WriteByte(address, value), Times.Once);
             }
@@ -139,12 +139,12 @@ namespace Axh.Retro.CPU.Common.Tests.Mmu
         }
 
         private void VerifyReadWord<TAddressSegment, TAddressSegment1, TAddressSegment2>(ushort segmentAddress,
-                                                                                         ushort length,
-                                                                                         Mock<TAddressSegment> segment,
-                                                                                         Mock<TAddressSegment1>
-                                                                                             otherSegment1,
-                                                                                         Mock<TAddressSegment2>
-                                                                                             otherSegment2)
+            ushort length,
+            Mock<TAddressSegment> segment,
+            Mock<TAddressSegment1>
+                otherSegment1,
+            Mock<TAddressSegment2>
+                otherSegment2)
             where TAddressSegment : class, IReadableAddressSegment
             where TAddressSegment1 : class, IReadableAddressSegment
             where TAddressSegment2 : class, IReadableAddressSegment
@@ -157,7 +157,7 @@ namespace Axh.Retro.CPU.Common.Tests.Mmu
 
             foreach (var percentile in GetAddressRangePercentiles(segmentAddress, length))
             {
-                mmu.ReadWord(percentile);
+                _mmu.ReadWord(percentile);
                 var address = (ushort) (percentile - segmentAddress);
 
                 if (address < length - 1)
@@ -178,12 +178,12 @@ namespace Axh.Retro.CPU.Common.Tests.Mmu
         }
 
         private void VerifyWriteWord<TAddressSegment, TAddressSegment1, TAddressSegment2>(ushort segmentAddress,
-                                                                                          ushort length,
-                                                                                          Mock<TAddressSegment> segment,
-                                                                                          Mock<TAddressSegment1>
-                                                                                              otherSegment1,
-                                                                                          Mock<TAddressSegment2>
-                                                                                              otherSegment2)
+            ushort length,
+            Mock<TAddressSegment> segment,
+            Mock<TAddressSegment1>
+                otherSegment1,
+            Mock<TAddressSegment2>
+                otherSegment2)
             where TAddressSegment : class, IWriteableAddressSegment
             where TAddressSegment1 : class, IWriteableAddressSegment
             where TAddressSegment2 : class, IWriteableAddressSegment
@@ -196,14 +196,14 @@ namespace Axh.Retro.CPU.Common.Tests.Mmu
 
             foreach (var percentile in GetAddressRangePercentiles(segmentAddress, length))
             {
-                var value = (ushort) random.Next(0xffff);
-                mmu.WriteWord(percentile, value);
+                var value = (ushort) _random.Next(0xffff);
+                _mmu.WriteWord(percentile, value);
                 var address = (ushort) (percentile - segmentAddress);
 
                 var message = string.Format("MMU Address: {0}, Segment Address: {1}, Value: {2}",
-                                            percentile,
-                                            address,
-                                            value);
+                    percentile,
+                    address,
+                    value);
 
                 if (address < length - 1)
                 {
@@ -224,12 +224,12 @@ namespace Axh.Retro.CPU.Common.Tests.Mmu
         }
 
         private void VerifyReadBytes<TAddressSegment, TAddressSegment1, TAddressSegment2>(ushort segmentAddress,
-                                                                                          ushort length,
-                                                                                          Mock<TAddressSegment> segment,
-                                                                                          Mock<TAddressSegment1>
-                                                                                              otherSegment1,
-                                                                                          Mock<TAddressSegment2>
-                                                                                              otherSegment2)
+            ushort length,
+            Mock<TAddressSegment> segment,
+            Mock<TAddressSegment1>
+                otherSegment1,
+            Mock<TAddressSegment2>
+                otherSegment2)
             where TAddressSegment : class, IReadableAddressSegment
             where TAddressSegment1 : class, IReadableAddressSegment
             where TAddressSegment2 : class, IReadableAddressSegment
@@ -242,8 +242,8 @@ namespace Axh.Retro.CPU.Common.Tests.Mmu
 
             foreach (var percentile in GetAddressRangePercentiles(segmentAddress, length))
             {
-                var readLength = random.Next(MinByteLength, MaxByteLength + 1);
-                mmu.ReadBytes(percentile, readLength);
+                var readLength = _random.Next(MinByteLength, MaxByteLength + 1);
+                _mmu.ReadBytes(percentile, readLength);
                 var address = (ushort) (percentile - segmentAddress);
 
                 if (address + readLength < length - 1)
@@ -255,11 +255,11 @@ namespace Axh.Retro.CPU.Common.Tests.Mmu
                     var length0 = length - address;
                     var length1 = readLength - length0;
                     segment.Verify(x => x.ReadBytes(address, length0),
-                                   Times.Once,
-                                   string.Format("Expected address: {0}, length: {1}", address, length0));
+                        Times.Once,
+                        string.Format("Expected address: {0}, length: {1}", address, length0));
                     otherSegment1.Verify(x => x.ReadBytes(0, length1),
-                                         Times.Once,
-                                         string.Format("Expected address: {0}, length: {1}", 0, length1));
+                        Times.Once,
+                        string.Format("Expected address: {0}, length: {1}", 0, length1));
                     boundaryCheckComplete = true;
                 }
             }
@@ -270,12 +270,12 @@ namespace Axh.Retro.CPU.Common.Tests.Mmu
 
 
         private void VerifyWriteBytes<TAddressSegment, TAddressSegment1, TAddressSegment2>(ushort segmentAddress,
-                                                                                           ushort length,
-                                                                                           Mock<TAddressSegment> segment,
-                                                                                           Mock<TAddressSegment1>
-                                                                                               otherSegment1,
-                                                                                           Mock<TAddressSegment2>
-                                                                                               otherSegment2)
+            ushort length,
+            Mock<TAddressSegment> segment,
+            Mock<TAddressSegment1>
+                otherSegment1,
+            Mock<TAddressSegment2>
+                otherSegment2)
             where TAddressSegment : class, IWriteableAddressSegment
             where TAddressSegment1 : class, IWriteableAddressSegment
             where TAddressSegment2 : class, IWriteableAddressSegment
@@ -288,10 +288,10 @@ namespace Axh.Retro.CPU.Common.Tests.Mmu
 
             foreach (var percentile in GetAddressRangePercentiles(segmentAddress, length))
             {
-                var writeLength = random.Next(MinByteLength, MaxByteLength + 1);
+                var writeLength = _random.Next(MinByteLength, MaxByteLength + 1);
                 var bytes = new byte[writeLength];
-                random.NextBytes(bytes);
-                mmu.WriteBytes(percentile, bytes);
+                _random.NextBytes(bytes);
+                _mmu.WriteBytes(percentile, bytes);
                 var address = (ushort) (percentile - segmentAddress);
 
                 if (address + writeLength < length - 1)
@@ -303,11 +303,11 @@ namespace Axh.Retro.CPU.Common.Tests.Mmu
                     var length0 = length - address;
                     var length1 = writeLength - length0;
                     segment.Verify(x => x.WriteBytes(address, It.Is<byte[]>(y => AreEqual(bytes.Take(length0), y))),
-                                   Times.Once,
-                                   string.Format("Expected address: {0}, length: {1}", address, length0));
+                        Times.Once,
+                        string.Format("Expected address: {0}, length: {1}", address, length0));
                     otherSegment1.Verify(x => x.WriteBytes(0, It.Is<byte[]>(y => AreEqual(bytes.Skip(length0), y))),
-                                         Times.Once,
-                                         string.Format("Expected address: {0}, length: {1}", 0, length1));
+                        Times.Once,
+                        string.Format("Expected address: {0}, length: {1}", 0, length1));
                     boundaryCheckComplete = true;
                 }
             }
@@ -325,116 +325,116 @@ namespace Axh.Retro.CPU.Common.Tests.Mmu
         {
             return
                 Enumerable.Range(0, 100)
-                          .Select(x => (ushort) Math.Round(baseAddress + length * x / 100.0))
-                          .Concat(new[] {(ushort) (baseAddress + length - 1)});
+                    .Select(x => (ushort) Math.Round(baseAddress + length * x / 100.0))
+                    .Concat(new[] {(ushort) (baseAddress + length - 1)});
         }
 
         [Test]
         public void ReadByteFromSegment0()
         {
-            VerifyReadByte(Address0, Length0, segment0R, segment1, segment2);
+            VerifyReadByte(Address0, Length0, _segment0R, _segment1, _segment2);
         }
 
         [Test]
         public void ReadByteFromSegment1()
         {
-            VerifyReadByte(Address1, Length1, segment1, segment0R, segment2);
+            VerifyReadByte(Address1, Length1, _segment1, _segment0R, _segment2);
         }
 
         [Test]
         public void ReadByteFromSegment2()
         {
-            VerifyReadByte(Address2, Length2, segment2, segment0R, segment1);
+            VerifyReadByte(Address2, Length2, _segment2, _segment0R, _segment1);
         }
 
         [Test]
         public void ReadBytesFromSegment0()
         {
-            VerifyReadBytes(Address0, Length0, segment0R, segment1, segment2);
+            VerifyReadBytes(Address0, Length0, _segment0R, _segment1, _segment2);
         }
 
         [Test]
         public void ReadBytesFromSegment1()
         {
-            VerifyReadBytes(Address1, Length1, segment1, segment2, segment0R);
+            VerifyReadBytes(Address1, Length1, _segment1, _segment2, _segment0R);
         }
 
         [Test]
         public void ReadBytesFromSegment2()
         {
-            VerifyReadBytes(Address2, Length2, segment2, segment0R, segment1);
+            VerifyReadBytes(Address2, Length2, _segment2, _segment0R, _segment1);
         }
 
         [Test]
         public void ReadWordFromSegment0()
         {
-            VerifyReadWord(Address0, Length0, segment0R, segment1, segment2);
+            VerifyReadWord(Address0, Length0, _segment0R, _segment1, _segment2);
         }
 
         [Test]
         public void ReadWordFromSegment1()
         {
-            VerifyReadWord(Address1, Length1, segment1, segment2, segment0R);
+            VerifyReadWord(Address1, Length1, _segment1, _segment2, _segment0R);
         }
 
         [Test]
         public void ReadWordFromSegment2()
         {
-            VerifyReadWord(Address2, Length2, segment2, segment0R, segment1);
+            VerifyReadWord(Address2, Length2, _segment2, _segment0R, _segment1);
         }
 
         [Test]
         public void WriteBytesToSegment0()
         {
-            VerifyWriteBytes(Address0, Length0, segment0W, segment1, segment2);
+            VerifyWriteBytes(Address0, Length0, _segment0W, _segment1, _segment2);
         }
 
         [Test]
         public void WriteBytesToSegment1()
         {
-            VerifyWriteBytes(Address1, Length1, segment1, segment2, segment0W);
+            VerifyWriteBytes(Address1, Length1, _segment1, _segment2, _segment0W);
         }
 
         [Test]
         public void WriteBytesToSegment2()
         {
-            VerifyWriteBytes(Address2, Length2, segment2, segment0W, segment1);
+            VerifyWriteBytes(Address2, Length2, _segment2, _segment0W, _segment1);
         }
 
         [Test]
         public void WriteByteToSegment0()
         {
-            VerifyWriteByte(Address0, Length0, segment0W, segment1, segment2);
+            VerifyWriteByte(Address0, Length0, _segment0W, _segment1, _segment2);
         }
 
         [Test]
         public void WriteByteToSegment1()
         {
-            VerifyWriteByte(Address1, Length1, segment1, segment0W, segment2);
+            VerifyWriteByte(Address1, Length1, _segment1, _segment0W, _segment2);
         }
 
         [Test]
         public void WriteByteToSegment2()
         {
-            VerifyWriteByte(Address2, Length2, segment2, segment0W, segment1);
+            VerifyWriteByte(Address2, Length2, _segment2, _segment0W, _segment1);
         }
 
         [Test]
         public void WriteWordToSegment0()
         {
-            VerifyWriteWord(Address0, Length0, segment0W, segment1, segment2);
+            VerifyWriteWord(Address0, Length0, _segment0W, _segment1, _segment2);
         }
 
         [Test]
         public void WriteWordToSegment1()
         {
-            VerifyWriteWord(Address1, Length1, segment1, segment2, segment0W);
+            VerifyWriteWord(Address1, Length1, _segment1, _segment2, _segment0W);
         }
 
         [Test]
         public void WriteWordToSegment2()
         {
-            VerifyWriteWord(Address2, Length2, segment2, segment0W, segment1);
+            VerifyWriteWord(Address2, Length2, _segment2, _segment0W, _segment1);
         }
     }
 }

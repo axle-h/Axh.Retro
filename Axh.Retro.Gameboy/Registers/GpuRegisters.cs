@@ -16,9 +16,9 @@ namespace Axh.Retro.GameBoy.Registers
         /// <param name="lcdMonochromePaletteRegister">The LCD monochrome palette register.</param>
         /// <param name="lcdStatusRegister">The LCD status register.</param>
         public GpuRegisters(ILcdControlRegister lcdControlRegister,
-                            ICurrentScanlineRegister currentScanlineRegister,
-                            ILcdMonochromePaletteRegister lcdMonochromePaletteRegister,
-                            ILcdStatusRegister lcdStatusRegister)
+            ICurrentScanlineRegister currentScanlineRegister,
+            ILcdMonochromePaletteRegister lcdMonochromePaletteRegister,
+            ILcdStatusRegister lcdStatusRegister)
         {
             LcdStatusRegister = lcdStatusRegister;
             LcdControlRegister = lcdControlRegister;

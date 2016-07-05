@@ -30,9 +30,9 @@ namespace Axh.Retro.GameBoy.Config
         ///     TODO: Implement Echo RAM
         /// </summary>
         private static readonly IMemoryBankConfig EchoConfig = new SimpleMemoryBankConfig(MemoryBankType.Unused,
-                                                                                          null,
-                                                                                          0xe000,
-                                                                                          0x1e00);
+            null,
+            0xe000,
+            0x1e00);
 
         /// <summary>
         ///     $FF80-$FFFE	Zero Page - 127 bytes
@@ -44,9 +44,9 @@ namespace Axh.Retro.GameBoy.Config
         ///     $FEA0-$FEFF	Unusable Memory
         /// </summary>
         private static readonly IMemoryBankConfig UnusedConfig = new SimpleMemoryBankConfig(MemoryBankType.Unused,
-                                                                                            null,
-                                                                                            0xfea0,
-                                                                                            0x60);
+            null,
+            0xfea0,
+            0x60);
 
         /// <summary>
         ///     $C000-$CFFF	Internal RAM - Bank 0 (fixed)
@@ -54,14 +54,14 @@ namespace Axh.Retro.GameBoy.Config
         private static readonly IMemoryBankConfig SystemMemoryBank0Config =
             new SimpleMemoryBankConfig(MemoryBankType.RandomAccessMemory, null, 0xc000, 0x1000);
 
-        private readonly ICartridgeFactory cartridgeFactory;
+        private readonly ICartridgeFactory _cartridgeFactory;
 
-        private readonly IGameBoyConfig gameBoyConfig;
+        private readonly IGameBoyConfig _gameBoyConfig;
 
         public GameBoyPlatformConfig(IGameBoyConfig gameBoyConfig, ICartridgeFactory cartridgeFactory)
         {
-            this.gameBoyConfig = gameBoyConfig;
-            this.cartridgeFactory = cartridgeFactory;
+            _gameBoyConfig = gameBoyConfig;
+            _cartridgeFactory = cartridgeFactory;
             InstructionTimingSyncMode = gameBoyConfig.UseGameBoyTimings
                 ? InstructionTimingSyncMode.MachineCycles
                 : InstructionTimingSyncMode.Null;
@@ -77,8 +77,8 @@ namespace Axh.Retro.GameBoy.Config
         {
             get
             {
-                var gameBoyType = gameBoyConfig.GameBoyType;
-                var cartridge = cartridgeFactory.GetCartridge(gameBoyConfig.CartridgeData);
+                var gameBoyType = _gameBoyConfig.GameBoyType;
+                var cartridge = _cartridgeFactory.GetCartridge(_gameBoyConfig.CartridgeData);
 
                 // TODO: error checks
                 if (cartridge.RomBanks.Length < 2)
@@ -88,18 +88,18 @@ namespace Axh.Retro.GameBoy.Config
 
                 yield return
                     new SimpleMemoryBankConfig(MemoryBankType.ReadOnlyMemory,
-                                               null,
-                                               CartridgeRomBank0Address,
-                                               CartridgeRomBankLength,
-                                               cartridge.RomBanks[0]);
+                        null,
+                        CartridgeRomBank0Address,
+                        CartridgeRomBankLength,
+                        cartridge.RomBanks[0]);
                 for (byte i = 1; i < cartridge.RomBanks.Length; i++)
                 {
                     yield return
                         new SimpleMemoryBankConfig(MemoryBankType.ReadOnlyMemory,
-                                                   i,
-                                                   CartridgeRomBank1Address,
-                                                   CartridgeRomBankLength,
-                                                   cartridge.RomBanks[i]);
+                            i,
+                            CartridgeRomBank1Address,
+                            CartridgeRomBankLength,
+                            cartridge.RomBanks[i]);
                 }
 
                 if (cartridge.RamBankLengths.Any())
@@ -127,18 +127,18 @@ namespace Axh.Retro.GameBoy.Config
                     case GameBoyType.GameBoy:
                         yield return
                             new SimpleMemoryBankConfig(MemoryBankType.RandomAccessMemory,
-                                                       null,
-                                                       SystemMemoryBank1Address,
-                                                       SystemMemoryBank1Length);
+                                null,
+                                SystemMemoryBank1Address,
+                                SystemMemoryBank1Length);
                         break;
                     case GameBoyType.GameBoyColour:
                         for (byte i = 1; i < CgbSystemMemoryBanks; i++)
                         {
                             yield return
                                 new SimpleMemoryBankConfig(MemoryBankType.RandomAccessMemory,
-                                                           i,
-                                                           SystemMemoryBank1Address,
-                                                           SystemMemoryBank1Length);
+                                    i,
+                                    SystemMemoryBank1Address,
+                                    SystemMemoryBank1Length);
                         }
                         break;
                     default:
@@ -164,9 +164,9 @@ namespace Axh.Retro.GameBoy.Config
         {
             yield return
                 new SimpleMemoryBankConfig(MemoryBankType.RandomAccessMemory,
-                                           bankId.HasValue ? (byte?) bankId.Value : null,
-                                           CartridgeRamAddress,
-                                           length);
+                    bankId.HasValue ? (byte?) bankId.Value : null,
+                    CartridgeRamAddress,
+                    length);
             if (length >= CartridgeRamLength)
             {
                 yield break;
@@ -179,9 +179,9 @@ namespace Axh.Retro.GameBoy.Config
 
             yield return
                 new SimpleMemoryBankConfig(MemoryBankType.Unused,
-                                           null,
-                                           (ushort) (CartridgeRamAddress + length),
-                                           (ushort) (CartridgeRamLength - length));
+                    null,
+                    (ushort) (CartridgeRamAddress + length),
+                    (ushort) (CartridgeRamLength - length));
         }
     }
 }

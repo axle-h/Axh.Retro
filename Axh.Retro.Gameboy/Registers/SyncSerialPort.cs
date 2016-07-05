@@ -16,19 +16,19 @@ namespace Axh.Retro.GameBoy.Registers
         private const byte IsInternalClockMask = 0x01;
 
         private static readonly TimeSpan ExternalTransferTimeout = TimeSpan.FromSeconds(1);
-                                         // Real GB doesn't have timeout but we can't lock this thread forever.
+        // Real GB doesn't have timeout but we can't lock this thread forever.
 
-        private readonly IInterruptFlagsRegister interruptFlagsRegister;
+        private readonly IInterruptFlagsRegister _interruptFlagsRegister;
 
-        private bool isFastMode;
-        private bool isInternalClock;
+        private bool _isFastMode;
+        private bool _isInternalClock;
 
-        private TaskCompletionSource<bool> transferredTaskSource;
-        private bool transferStartFlag;
+        private TaskCompletionSource<bool> _transferredTaskSource;
+        private bool _transferStartFlag;
 
         public SyncSerialPort(IInterruptFlagsRegister interruptFlagsRegister)
         {
-            this.interruptFlagsRegister = interruptFlagsRegister;
+            _interruptFlagsRegister = interruptFlagsRegister;
         }
 
         /// <summary>
@@ -48,18 +48,18 @@ namespace Axh.Retro.GameBoy.Registers
             get
             {
                 var value = 0x00;
-                if (transferStartFlag)
+                if (_transferStartFlag)
                 {
                     value |= TransferStartFlagMask;
                 }
 
-                if (isFastMode)
+                if (_isFastMode)
                 {
                     value |= IsFastModeMask;
                 }
 
 
-                if (isInternalClock)
+                if (_isInternalClock)
                 {
                     value |= IsInternalClockMask;
                 }
@@ -68,26 +68,26 @@ namespace Axh.Retro.GameBoy.Registers
             }
             set
             {
-                transferStartFlag = (value & TransferStartFlagMask) > 0;
-                if (!transferStartFlag)
+                _transferStartFlag = (value & TransferStartFlagMask) > 0;
+                if (!_transferStartFlag)
                 {
                     // No transfer, nothing to transfer to.
                     Reset();
                     return;
                 }
 
-                isFastMode = (value & IsFastModeMask) > 0;
-                isInternalClock = (value & IsInternalClockMask) > 0;
+                _isFastMode = (value & IsFastModeMask) > 0;
+                _isInternalClock = (value & IsInternalClockMask) > 0;
 
-                if (isInternalClock)
+                if (_isInternalClock)
                 {
                     SerialData.Register = ConnectedSerialPort?.Transfer(SerialData.Register) ?? 0x00;
                 }
                 else
                 {
                     // Wait... Except we also need to be listening for interrupts some how...
-                    // transferredTaskSource = new TaskCompletionSource<bool>();
-                    // transferredTaskSource.Task.Wait(ExternalTransferTimeout);
+                    // _transferredTaskSource = new TaskCompletionSource<bool>();
+                    // _transferredTaskSource.Task.Wait(ExternalTransferTimeout);
 
                     // Not implemented.
                     SerialData.Register = 0x00;
@@ -99,9 +99,9 @@ namespace Axh.Retro.GameBoy.Registers
 
         private void Reset()
         {
-            transferStartFlag = false;
-            isFastMode = false;
-            isInternalClock = false;
+            _transferStartFlag = false;
+            _isFastMode = false;
+            _isInternalClock = false;
         }
 
         public override byte Transfer(byte value)
@@ -109,9 +109,9 @@ namespace Axh.Retro.GameBoy.Registers
             var tmp = SerialData.Register;
             SerialData.Register = value;
 
-            transferredTaskSource?.TrySetResult(true);
+            _transferredTaskSource?.TrySetResult(true);
 
-            interruptFlagsRegister.UpdateInterrupts(InterruptFlag.SerialLink);
+            _interruptFlagsRegister.UpdateInterrupts(InterruptFlag.SerialLink);
             return tmp;
         }
     }

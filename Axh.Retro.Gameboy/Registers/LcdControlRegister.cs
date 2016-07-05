@@ -5,11 +5,11 @@ namespace Axh.Retro.GameBoy.Registers
 {
     public class LcdControlRegister : ILcdControlRegister
     {
-        private LcdControl lcdControl;
+        private LcdControl _lcdControl;
 
         public LcdControlRegister()
         {
-            lcdControl = LcdControl.None;
+            _lcdControl = LcdControl.None;
         }
 
         public ushort Address => 0xff40;
@@ -29,8 +29,8 @@ namespace Axh.Retro.GameBoy.Registers
         /// </summary>
         public byte Register
         {
-            get { return (byte) lcdControl; }
-            set { lcdControl = (LcdControl) value; }
+            get { return (byte) _lcdControl; }
+            set { _lcdControl = (LcdControl) value; }
         }
 
         public string DebugView => ToString();
@@ -40,56 +40,56 @@ namespace Axh.Retro.GameBoy.Registers
         ///     True: On
         ///     False: Off
         /// </summary>
-        public bool LcdOperation => lcdControl.HasFlag(LcdControl.LcdOperation);
+        public bool LcdOperation => _lcdControl.HasFlag(LcdControl.LcdOperation);
 
         /// <summary>
         ///     Sets which tile map the window uses
         ///     True: 9C00-9FFF (1)
         ///     False: 9800-9BFF (0)
         /// </summary>
-        public bool WindowTileMap => lcdControl.HasFlag(LcdControl.WindowTileMap);
+        public bool WindowTileMap => _lcdControl.HasFlag(LcdControl.WindowTileMap);
 
         /// <summary>
         ///     Window status
         ///     True: On
         ///     False: Off
         /// </summary>
-        public bool WindowDisplay => lcdControl.HasFlag(LcdControl.WindowDisplay);
+        public bool WindowDisplay => _lcdControl.HasFlag(LcdControl.WindowDisplay);
 
         /// <summary>
         ///     Sets which tile pattern table to use
         ///     True: 8000-8FFF (1)
         ///     False: 8800-97FF (0)
         /// </summary>
-        public bool TilePatternTable => lcdControl.HasFlag(LcdControl.TilePatternTable);
+        public bool TilePatternTable => _lcdControl.HasFlag(LcdControl.TilePatternTable);
 
         /// <summary>
         ///     Sets which tile map the background uses
         ///     True: 9C00-9FFF (1)
         ///     False: 9800-9BFF (0)
         /// </summary>
-        public bool BackgroundTileMap => lcdControl.HasFlag(LcdControl.BackgroundTileMap);
+        public bool BackgroundTileMap => _lcdControl.HasFlag(LcdControl.BackgroundTileMap);
 
         /// <summary>
         ///     Sets the sprite size
         ///     True: 8x16
         ///     False: 8x8
         /// </summary>
-        public bool SpriteSize => lcdControl.HasFlag(LcdControl.SpriteSize);
+        public bool SpriteSize => _lcdControl.HasFlag(LcdControl.SpriteSize);
 
         /// <summary>
         ///     Sets whether sprites are diaplayed.
         ///     True: Displayed.
         ///     False: Not displayed.
         /// </summary>
-        public bool SpriteDisplayEnable => lcdControl.HasFlag(LcdControl.SpriteDisplayEnable);
+        public bool SpriteDisplayEnable => _lcdControl.HasFlag(LcdControl.SpriteDisplayEnable);
 
         /// <summary>
         ///     Background status
         ///     True: On
         ///     False: Off
         /// </summary>
-        public bool BackgroundDisplay => lcdControl.HasFlag(LcdControl.BackgroundDisplay);
+        public bool BackgroundDisplay => _lcdControl.HasFlag(LcdControl.BackgroundDisplay);
 
         public override string ToString()
         {

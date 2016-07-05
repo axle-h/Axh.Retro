@@ -24,8 +24,8 @@ namespace Axh.Retro.CPU.Common.Memory
             if (memoryBankConfig.Length != memoryBankConfig.State.Length)
             {
                 throw new MemoryConfigStateException(memoryBankConfig.Address,
-                                                     memoryBankConfig.Length,
-                                                     memoryBankConfig.State.Length);
+                    memoryBankConfig.Length,
+                    memoryBankConfig.State.Length);
             }
             Array.Copy(memoryBankConfig.State, 0, Memory, 0, memoryBankConfig.State.Length);
         }

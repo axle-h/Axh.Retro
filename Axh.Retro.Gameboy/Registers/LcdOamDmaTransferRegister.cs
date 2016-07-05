@@ -22,7 +22,7 @@ namespace Axh.Retro.GameBoy.Registers
             new AddressRange(0xffff, 0xffff)
         };
 
-        private readonly IDmaController dmaController;
+        private readonly IDmaController _dmaController;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="LcdOamDmaTransferRegister" /> class.
@@ -30,7 +30,7 @@ namespace Axh.Retro.GameBoy.Registers
         /// <param name="dmaController">The dma controller.</param>
         public LcdOamDmaTransferRegister(IDmaController dmaController)
         {
-            this.dmaController = dmaController;
+            _dmaController = dmaController;
         }
 
         /// <summary>
@@ -63,7 +63,7 @@ namespace Axh.Retro.GameBoy.Registers
                 var address = (ushort) (value << 8);
 
                 // Sync the timings to 755 machine cycles, which is approx 160us on DGB and 80ms on CGB.
-                dmaController.Copy(address, 0xfe00, 0x9f, new InstructionTimings(755), LockedAddresses);
+                _dmaController.Copy(address, 0xfe00, 0x9f, new InstructionTimings(755), LockedAddresses);
             }
         }
 

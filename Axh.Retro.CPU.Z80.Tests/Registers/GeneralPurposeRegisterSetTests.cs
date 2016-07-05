@@ -7,39 +7,39 @@ namespace Axh.Retro.CPU.Z80.Tests.Registers
     [TestFixture]
     public class GeneralPurposeRegisterSetTests
     {
-        private IGeneralPurposeRegisterSet generalPurposeRegisterSet;
+        private IGeneralPurposeRegisterSet _generalPurposeRegisterSet;
 
         [TestFixtureSetUp]
         public void TestFixtureSetUp()
         {
-            generalPurposeRegisterSet = new GeneralPurposeRegisterSet();
+            _generalPurposeRegisterSet = new GeneralPurposeRegisterSet();
         }
 
         [Test]
         public void GetBcRegisterTest()
         {
-            generalPurposeRegisterSet.B = 0x12;
-            generalPurposeRegisterSet.C = 0x34;
+            _generalPurposeRegisterSet.B = 0x12;
+            _generalPurposeRegisterSet.C = 0x34;
 
-            Assert.AreEqual(0x1234, generalPurposeRegisterSet.BC);
+            Assert.AreEqual(0x1234, _generalPurposeRegisterSet.BC);
         }
 
         [Test]
         public void GetDeRegisterTest()
         {
-            generalPurposeRegisterSet.D = 0x12;
-            generalPurposeRegisterSet.E = 0x34;
+            _generalPurposeRegisterSet.D = 0x12;
+            _generalPurposeRegisterSet.E = 0x34;
 
-            Assert.AreEqual(0x1234, generalPurposeRegisterSet.DE);
+            Assert.AreEqual(0x1234, _generalPurposeRegisterSet.DE);
         }
 
         [Test]
         public void GetHlRegisterTest()
         {
-            generalPurposeRegisterSet.H = 0x12;
-            generalPurposeRegisterSet.L = 0x34;
+            _generalPurposeRegisterSet.H = 0x12;
+            _generalPurposeRegisterSet.L = 0x34;
 
-            Assert.AreEqual(0x1234, generalPurposeRegisterSet.HL);
+            Assert.AreEqual(0x1234, _generalPurposeRegisterSet.HL);
         }
 
         [Test]
@@ -47,14 +47,14 @@ namespace Axh.Retro.CPU.Z80.Tests.Registers
         {
             const byte B = 0xbb, C = 0xcc, D = 0xdd, E = 0xee, H = 0x11, L = 0x22;
 
-            generalPurposeRegisterSet.B = B;
-            generalPurposeRegisterSet.C = C;
-            generalPurposeRegisterSet.D = D;
-            generalPurposeRegisterSet.E = E;
-            generalPurposeRegisterSet.H = H;
-            generalPurposeRegisterSet.L = L;
+            _generalPurposeRegisterSet.B = B;
+            _generalPurposeRegisterSet.C = C;
+            _generalPurposeRegisterSet.D = D;
+            _generalPurposeRegisterSet.E = E;
+            _generalPurposeRegisterSet.H = H;
+            _generalPurposeRegisterSet.L = L;
 
-            var state = generalPurposeRegisterSet.GetRegisterState();
+            var state = _generalPurposeRegisterSet.GetRegisterState();
 
             Assert.AreEqual(B, state.B);
             Assert.AreEqual(C, state.C);
@@ -69,41 +69,41 @@ namespace Axh.Retro.CPU.Z80.Tests.Registers
         {
             var state = RegisterTestObjects.GeneralPurposeRegisterState;
 
-            generalPurposeRegisterSet.ResetToState(state);
+            _generalPurposeRegisterSet.ResetToState(state);
 
-            Assert.AreEqual(state.B, generalPurposeRegisterSet.B);
-            Assert.AreEqual(state.C, generalPurposeRegisterSet.C);
-            Assert.AreEqual(state.D, generalPurposeRegisterSet.D);
-            Assert.AreEqual(state.E, generalPurposeRegisterSet.E);
-            Assert.AreEqual(state.H, generalPurposeRegisterSet.H);
-            Assert.AreEqual(state.L, generalPurposeRegisterSet.L);
+            Assert.AreEqual(state.B, _generalPurposeRegisterSet.B);
+            Assert.AreEqual(state.C, _generalPurposeRegisterSet.C);
+            Assert.AreEqual(state.D, _generalPurposeRegisterSet.D);
+            Assert.AreEqual(state.E, _generalPurposeRegisterSet.E);
+            Assert.AreEqual(state.H, _generalPurposeRegisterSet.H);
+            Assert.AreEqual(state.L, _generalPurposeRegisterSet.L);
         }
 
         [Test]
         public void SetBcRegisterTest()
         {
-            generalPurposeRegisterSet.BC = 0x1234;
+            _generalPurposeRegisterSet.BC = 0x1234;
 
-            Assert.AreEqual(0x12, generalPurposeRegisterSet.B);
-            Assert.AreEqual(0x34, generalPurposeRegisterSet.C);
+            Assert.AreEqual(0x12, _generalPurposeRegisterSet.B);
+            Assert.AreEqual(0x34, _generalPurposeRegisterSet.C);
         }
 
         [Test]
         public void SetDeRegisterTest()
         {
-            generalPurposeRegisterSet.DE = 0x1234;
+            _generalPurposeRegisterSet.DE = 0x1234;
 
-            Assert.AreEqual(0x12, generalPurposeRegisterSet.D);
-            Assert.AreEqual(0x34, generalPurposeRegisterSet.E);
+            Assert.AreEqual(0x12, _generalPurposeRegisterSet.D);
+            Assert.AreEqual(0x34, _generalPurposeRegisterSet.E);
         }
 
         [Test]
         public void SetHlRegisterTest()
         {
-            generalPurposeRegisterSet.HL = 0x1234;
+            _generalPurposeRegisterSet.HL = 0x1234;
 
-            Assert.AreEqual(0x12, generalPurposeRegisterSet.H);
-            Assert.AreEqual(0x34, generalPurposeRegisterSet.L);
+            Assert.AreEqual(0x12, _generalPurposeRegisterSet.H);
+            Assert.AreEqual(0x34, _generalPurposeRegisterSet.L);
         }
     }
 }

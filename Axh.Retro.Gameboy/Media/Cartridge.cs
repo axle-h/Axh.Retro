@@ -21,18 +21,18 @@ namespace Axh.Retro.GameBoy.Media
     internal class CartridgeHeader : ICartridgeHeader
     {
         public CartridgeHeader(byte[] entryPoint,
-                               bool nintendoLogoValid,
-                               string title,
-                               bool isGameBoyColour,
-                               string licenseCode,
-                               bool isSuperGameBoy,
-                               CartridgeType cartridgeType,
-                               CartridgeRomSize romSize,
-                               CartridgeRamSize ramSize,
-                               DestinationCode destinationCode,
-                               byte romVersion,
-                               byte headerChecksum,
-                               ushort romChecksum)
+            bool nintendoLogoValid,
+            string title,
+            bool isGameBoyColour,
+            string licenseCode,
+            bool isSuperGameBoy,
+            CartridgeType cartridgeType,
+            CartridgeRomSize romSize,
+            CartridgeRamSize ramSize,
+            DestinationCode destinationCode,
+            byte romVersion,
+            byte headerChecksum,
+            ushort romChecksum)
         {
             EntryPoint = entryPoint;
             NintendoLogoValid = nintendoLogoValid;

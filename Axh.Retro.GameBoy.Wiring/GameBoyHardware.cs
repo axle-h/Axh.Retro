@@ -1,6 +1,5 @@
 ﻿using Axh.Retro.CPU.Common.Contracts.Memory;
 using Axh.Retro.CPU.Z80.Contracts.Config;
-using Axh.Retro.CPU.Z80.Contracts.Core;
 using Axh.Retro.CPU.Z80.Contracts.Peripherals;
 using Axh.Retro.CPU.Z80.Contracts.State;
 using Axh.Retro.CPU.Z80.Wiring;
@@ -20,37 +19,36 @@ namespace Axh.Retro.GameBoy.Wiring
     public class GameBoyHardware : IZ80Module
     {
         /// <summary>
-        /// Registers all hardware in this module.
+        ///     Registers all hardware in this module.
         /// </summary>
         /// <param name="container">The container.</param>
-        /// <param name="reuse">The reuse scope.</param>
-        public void Register(IContainer container, IReuse reuse)
+        public void Register(IContainer container)
         {
-            container.Register<IInterruptFlagsRegister, InterruptFlagsRegister>(reuse);
-            container.Register<IHardwareRegisters, HardwareRegisters>(reuse);
+            container.Register<IInterruptFlagsRegister, InterruptFlagsRegister>();
+            container.Register<IHardwareRegisters, HardwareRegisters>();
 
             // Named registers
-            container.Register<IInterruptEnableRegister, InterruptEnableRegister>(reuse);
-            container.Register<IJoyPadRegister, JoyPad>(reuse);
-            container.RegisterMany(new[] { typeof(ISerialPort), typeof(ISerialPortRegister) }, typeof(SyncSerialPort), reuse);
-            container.Register<IMemoryBankController, MemoryBankController1>(reuse);
-            
+            container.Register<IInterruptEnableRegister, InterruptEnableRegister>();
+            container.Register<IJoyPadRegister, JoyPad>();
+            container.RegisterMany(new[] {typeof (ISerialPort), typeof (ISerialPortRegister)}, typeof (SyncSerialPort));
+            container.Register<IMemoryBankController, MemoryBankController1>();
+
             // GPU registers.
-            container.Register<IGpuRegisters, GpuRegisters>(reuse);
-            container.Register<ILcdControlRegister, LcdControlRegister>(reuse);
-            container.Register<ICurrentScanlineRegister, CurrentScanlineRegister>(reuse);
-            container.Register<ILcdMonochromePaletteRegister, LcdMonochromePaletteRegister>(reuse);
-            container.Register<ILcdStatusRegister, LcdStatusRegister>(reuse);
+            container.Register<IGpuRegisters, GpuRegisters>();
+            container.Register<ILcdControlRegister, LcdControlRegister>();
+            container.Register<ICurrentScanlineRegister, CurrentScanlineRegister>();
+            container.Register<ILcdMonochromePaletteRegister, LcdMonochromePaletteRegister>();
+            container.Register<ILcdStatusRegister, LcdStatusRegister>();
 
             // Un-named registers
-            container.Register<IRegister, LazyDividerRegister>(reuse);
-            container.Register<IRegister, LcdOamDmaTransferRegister>(reuse);
+            container.Register<IRegister, LazyDividerRegister>();
+            container.Register<IRegister, LcdOamDmaTransferRegister>();
 
             // Peripherals, no IO mapped peripherals on GB, only memory mapped
-            container.Register<IPeripheral, GameBoyMemoryMappedIO>(reuse);
+            container.Register<IPeripheral, GameBoyMemoryMappedIO>();
 
             // GPU
-            container.Register<IGpu, Gpu>(reuse);
+            container.Register<IGpu, Gpu>();
 
             container.Register<IInitialStateFactory<Intel8080RegisterState>, GameBoyInitialStateFactory>(Reuse.Singleton);
             container.Register<IPlatformConfig, GameBoyPlatformConfig>(Reuse.Singleton);

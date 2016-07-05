@@ -19,10 +19,10 @@ namespace Axh.Retro.CPU.Common.Contracts.Memory
         /// <param name="timings">The cpu cycles required to execute this operation.</param>
         /// <param name="lockedAddressesRanges">The address ranges to lock during the copy operation.</param>
         void Copy(ushort sourceAddress,
-                  ushort destinationAddress,
-                  int length,
-                  InstructionTimings timings,
-                  IEnumerable<AddressRange> lockedAddressesRanges);
+            ushort destinationAddress,
+            int length,
+            InstructionTimings timings,
+            IEnumerable<AddressRange> lockedAddressesRanges);
 
         /// <summary>
         ///     Tries to get a dma operation from the queue.

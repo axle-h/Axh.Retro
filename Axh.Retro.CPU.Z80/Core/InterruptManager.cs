@@ -9,35 +9,34 @@ namespace Axh.Retro.CPU.Z80.Core
 {
     public class InterruptManager : ICoreInterruptManager
     {
+        private readonly BlockingCollection<ushort> _interruptQueue;
+        private readonly IRegisters _registers;
         private readonly object disposingContext = new object();
+        private bool _disposed, _disposing;
 
-        private readonly BlockingCollection<ushort> interruptQueue;
-        private readonly IRegisters registers;
-        private bool disposed, disposing;
+        private TaskCompletionSource<bool> _haltTaskSource;
+        private Task<ushort> _interruptTask;
 
-        private TaskCompletionSource<bool> haltTaskSource;
-        private Task<ushort> interruptTask;
-
-        private TaskCompletionSource<ushort> interruptTaskSource;
+        private TaskCompletionSource<ushort> _interruptTaskSource;
 
         public InterruptManager(IRegisters registers)
         {
-            this.registers = registers;
-            haltTaskSource = new TaskCompletionSource<bool>();
-            interruptQueue = new BlockingCollection<ushort>();
+            _registers = registers;
+            _haltTaskSource = new TaskCompletionSource<bool>();
+            _interruptQueue = new BlockingCollection<ushort>();
             Task.Factory.StartNew(InterruptTask, TaskCreationOptions.LongRunning);
         }
 
 
-        public bool InterruptsEnabled => registers.InterruptFlipFlop1;
+        public bool InterruptsEnabled => _registers.InterruptFlipFlop1;
 
-        public void Interrupt(ushort address) => interruptQueue.TryAdd(address);
+        public void Interrupt(ushort address) => _interruptQueue.TryAdd(address);
 
         public void Halt()
         {
-            interruptTaskSource = new TaskCompletionSource<ushort>();
+            _interruptTaskSource = new TaskCompletionSource<ushort>();
             IsHalted = true;
-            interruptTask = interruptTaskSource.Task;
+            _interruptTask = _interruptTaskSource.Task;
         }
 
         public bool IsHalted { get; private set; }
@@ -46,43 +45,43 @@ namespace Axh.Retro.CPU.Z80.Core
 
         public void AddResumeTask(Action task)
         {
-            interruptTask = interruptTask.ContinueWith(x =>
-                                                       {
-                                                           task();
-                                                           return x.Result;
-                                                       });
+            _interruptTask = _interruptTask.ContinueWith(x =>
+            {
+                task();
+                return x.Result;
+            });
         }
 
-        public void NotifyHalt() => Task.Run(() => haltTaskSource.TrySetResult(true));
+        public void NotifyHalt() => Task.Run(() => _haltTaskSource.TrySetResult(true));
 
         public void NotifyResume() => IsHalted = false;
 
-        public async Task<ushort> WaitForNextInterrupt() => await interruptTask.ConfigureAwait(false);
+        public async Task<ushort> WaitForNextInterrupt() => await _interruptTask.ConfigureAwait(false);
 
         /// <summary>
         ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         public void Dispose()
         {
-            if (disposed || disposing)
+            if (_disposed || _disposing)
             {
                 return;
             }
 
             lock (disposingContext)
             {
-                if (disposed || disposing)
+                if (_disposed || _disposing)
                 {
                     return;
                 }
 
-                disposing = true;
+                _disposing = true;
             }
 
-            interruptQueue.CompleteAdding();
+            _interruptQueue.CompleteAdding();
 
             var timeout = Task.Delay(1000);
-            while (interruptQueue.Any())
+            while (_interruptQueue.Any())
             {
                 var iteration = Task.Delay(100);
                 var completedTask = Task.WhenAny(timeout, iteration).Result;
@@ -93,21 +92,21 @@ namespace Axh.Retro.CPU.Z80.Core
                 }
             }
 
-            interruptQueue.Dispose();
-            disposed = true;
+            _interruptQueue.Dispose();
+            _disposed = true;
         }
 
         private async Task InterruptTask()
         {
-            while (!disposing)
+            while (!_disposing)
             {
                 ushort address;
-                if (!interruptQueue.TryTake(out address, 100))
+                if (!_interruptQueue.TryTake(out address, 100))
                 {
                     continue;
                 }
 
-                if (!registers.InterruptFlipFlop1)
+                if (!_registers.InterruptFlipFlop1)
                 {
                     // Interrupts disabled. Discard this interrupt.
                     continue;
@@ -116,7 +115,7 @@ namespace Axh.Retro.CPU.Z80.Core
                 IsInterrupted = true;
 
                 // Disable interrupts whilst we're... interrupting.
-                registers.InterruptFlipFlop1 = false;
+                _registers.InterruptFlipFlop1 = false;
 
                 // Halt the CPU if not already halted
                 if (!IsHalted)
@@ -125,11 +124,11 @@ namespace Axh.Retro.CPU.Z80.Core
                 }
 
                 // Wait for the halt to be confirmed
-                await haltTaskSource.Task.ConfigureAwait(false);
-                haltTaskSource = new TaskCompletionSource<bool>();
+                await _haltTaskSource.Task.ConfigureAwait(false);
+                _haltTaskSource = new TaskCompletionSource<bool>();
 
                 // Resume the CPU with the program counter set to address
-                Task.Run(() => interruptTaskSource.TrySetResult(address));
+                Task.Run(() => _interruptTaskSource.TrySetResult(address));
                 IsInterrupted = false;
 
                 IsInterrupted = false;

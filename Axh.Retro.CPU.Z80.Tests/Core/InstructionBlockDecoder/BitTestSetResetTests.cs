@@ -76,11 +76,11 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
                 }
 
                 RunWithHalt(expectedMCycles,
-                            expectedTCycles,
-                            prefix,
-                            PrimaryOpCode.Prefix_CB,
-                            unchecked((byte) Displacement),
-                            opCode.OpCode);
+                    expectedTCycles,
+                    prefix,
+                    PrimaryOpCode.Prefix_CB,
+                    unchecked((byte) Displacement),
+                    opCode.OpCode);
 
                 Mmu.Verify(x => x.ReadByte(displacedIndex), Times.AtLeastOnce);
                 Alu.Verify(x => x.BitSet(ValueAtIndex, opCode.Bit), Times.Once);
@@ -147,11 +147,11 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
                 }
 
                 RunWithHalt(expectedMCycles,
-                            expectedTCycles,
-                            prefix,
-                            PrimaryOpCode.Prefix_CB,
-                            unchecked((byte) Displacement),
-                            opCode.OpCode);
+                    expectedTCycles,
+                    prefix,
+                    PrimaryOpCode.Prefix_CB,
+                    unchecked((byte) Displacement),
+                    opCode.OpCode);
 
                 Mmu.Verify(x => x.ReadByte(displacedIndex), Times.AtLeastOnce);
                 Alu.Verify(x => x.BitReset(ValueAtIndex, opCode.Bit), Times.Once);
@@ -215,14 +215,14 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
                     .Select(x => new {Name = x.ToString().Split('_'), Value = x})
                     .Where(x => x.Name[0] == method)
                     .Select(
-                            x =>
-                                new BitOpCode
-                                {
-                                    OpCode = x.Value,
-                                    Bit = int.Parse(x.Name[1]),
-                                    TargetRegister =
-                                        (TargetRegister) Enum.Parse(typeof (TargetRegister), x.Name[2])
-                                })
+                        x =>
+                            new BitOpCode
+                            {
+                                OpCode = x.Value,
+                                Bit = int.Parse(x.Name[1]),
+                                TargetRegister =
+                                    (TargetRegister) Enum.Parse(typeof (TargetRegister), x.Name[2])
+                            })
                     .ToArray();
         }
 

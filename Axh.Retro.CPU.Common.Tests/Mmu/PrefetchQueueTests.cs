@@ -12,7 +12,7 @@ namespace Axh.Retro.CPU.Common.Tests.Mmu
     {
         private const int Address = 0x1000;
 
-        private Mock<IMmu> mmu;
+        private Mock<IMmu> _mmu;
 
         private static readonly byte[] Bytes;
 
@@ -34,18 +34,18 @@ namespace Axh.Retro.CPU.Common.Tests.Mmu
         [TestFixtureSetUp]
         public void TestFixtureSetUp()
         {
-            mmu = new Mock<IMmu>();
-            mmu.Setup(x => x.ReadBytes(It.IsAny<ushort>(), It.IsAny<int>()))
-               .Returns((ushort address, int length) => Bytes.Skip(address).Take(length).ToArray());
-            mmu.Setup(x => x.ReadWord(It.IsAny<ushort>()))
-               .Returns((ushort address) => BitConverter.ToUInt16(Bytes, address));
-            mmu.Setup(x => x.ReadByte(It.IsAny<ushort>())).Returns((ushort address) => Bytes[address]);
+            _mmu = new Mock<IMmu>();
+            _mmu.Setup(x => x.ReadBytes(It.IsAny<ushort>(), It.IsAny<int>()))
+                .Returns((ushort address, int length) => Bytes.Skip(address).Take(length).ToArray());
+            _mmu.Setup(x => x.ReadWord(It.IsAny<ushort>()))
+                .Returns((ushort address) => BitConverter.ToUInt16(Bytes, address));
+            _mmu.Setup(x => x.ReadByte(It.IsAny<ushort>())).Returns((ushort address) => Bytes[address]);
         }
 
         [Test]
         public void NextByte()
         {
-            var cache = new PrefetchQueue(mmu.Object);
+            var cache = new PrefetchQueue(_mmu.Object);
             cache.ReBuildCache(Address);
 
             // Read 1k bytes
@@ -59,7 +59,7 @@ namespace Axh.Retro.CPU.Common.Tests.Mmu
         [Test]
         public void NextBytes()
         {
-            var cache = new PrefetchQueue(mmu.Object);
+            var cache = new PrefetchQueue(_mmu.Object);
             cache.ReBuildCache(Address);
 
             // Read 1k bytes
@@ -73,7 +73,7 @@ namespace Axh.Retro.CPU.Common.Tests.Mmu
         [Test]
         public void NextBytesThenNextByte()
         {
-            var cache = new PrefetchQueue(mmu.Object);
+            var cache = new PrefetchQueue(_mmu.Object);
             cache.ReBuildCache(Address);
 
             // Read 1k bytes
@@ -94,7 +94,7 @@ namespace Axh.Retro.CPU.Common.Tests.Mmu
         [Test]
         public void NextWord()
         {
-            var cache = new PrefetchQueue(mmu.Object);
+            var cache = new PrefetchQueue(_mmu.Object);
             cache.ReBuildCache(Address);
 
             // Read 1k words

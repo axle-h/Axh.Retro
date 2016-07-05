@@ -18,10 +18,10 @@ namespace Axh.Retro.CPU.Common.Memory
         /// <param name="timings">The timings.</param>
         /// <param name="lockedAddressesRanges">The locked addresses ranges.</param>
         public DmaCopyOperation(ushort sourceAddress,
-                                ushort destinationAddress,
-                                int length,
-                                InstructionTimings timings,
-                                IEnumerable<AddressRange> lockedAddressesRanges)
+            ushort destinationAddress,
+            int length,
+            InstructionTimings timings,
+            IEnumerable<AddressRange> lockedAddressesRanges)
         {
             SourceAddress = sourceAddress;
             DestinationAddress = destinationAddress;

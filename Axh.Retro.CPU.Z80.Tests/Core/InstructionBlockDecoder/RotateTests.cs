@@ -623,7 +623,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             const byte ExpectedAccumulator = 0x58;
             const byte ExpectedResult = 0x92;
             Alu.Setup(x => x.RotateLeftDigit(A, ValueAtHL))
-               .Returns(new AccumulatorAndResult {Accumulator = ExpectedAccumulator, Result = ExpectedResult});
+                .Returns(new AccumulatorAndResult {Accumulator = ExpectedAccumulator, Result = ExpectedResult});
             Mmu.Setup(x => x.ReadByte(HL)).Returns(ValueAtHL);
 
             RunWithHalt(5, 18, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.RLD);
@@ -710,7 +710,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             const byte ExpectedAccumulator = 0x83;
             const byte ExpectedResult = 0x3a;
             Alu.Setup(x => x.RotateRightDigit(A, ValueAtHL))
-               .Returns(new AccumulatorAndResult {Accumulator = ExpectedAccumulator, Result = ExpectedResult});
+                .Returns(new AccumulatorAndResult {Accumulator = ExpectedAccumulator, Result = ExpectedResult});
             Mmu.Setup(x => x.ReadByte(HL)).Returns(ValueAtHL);
 
             RunWithHalt(5, 18, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.RRD);

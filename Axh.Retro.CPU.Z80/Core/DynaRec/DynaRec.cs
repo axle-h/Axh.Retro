@@ -17,51 +17,51 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
 {
     public partial class DynaRec<TRegisters> : IInstructionBlockDecoder<TRegisters> where TRegisters : IRegisters
     {
-        private readonly CpuMode cpuMode;
+        private readonly CpuMode _cpuMode;
 
-        private readonly bool debug;
+        private readonly bool _debug;
 
-        private readonly OpCodeDecoder decoder;
-        private readonly IPrefetchQueue prefetch;
+        private readonly OpCodeDecoder _decoder;
+        private readonly IPrefetchQueue _prefetch;
 
-        private DecodeResult lastDecodeResult;
+        private DecodeResult _lastDecodeResult;
 
-        private bool usesAccumulatorAndResult;
+        private bool _usesAccumulatorAndResult;
 
-        private bool usesDynamicTimings;
+        private bool _usesDynamicTimings;
 
-        private bool usesLocalWord;
+        private bool _usesLocalWord;
 
         public DynaRec(IPlatformConfig platformConfig, IRuntimeConfig runtimeConfig, IPrefetchQueue prefetch) : this()
         {
-            this.prefetch = prefetch;
-            cpuMode = platformConfig.CpuMode;
-            debug = runtimeConfig.DebugMode;
+            _prefetch = prefetch;
+            _cpuMode = platformConfig.CpuMode;
+            _debug = runtimeConfig.DebugMode;
 
-            decoder = new OpCodeDecoder(platformConfig, prefetch);
+            _decoder = new OpCodeDecoder(platformConfig, prefetch);
         }
 
         private Expression SyncProgramCounter
             =>
                 Expression.Assign(PC,
-                                  Expression.Convert(
-                                                     Expression.Add(Expression.Convert(PC, typeof (int)),
-                                                                    Expression.Constant(prefetch.TotalBytesRead)),
-                                                     typeof (ushort)));
+                    Expression.Convert(
+                        Expression.Add(Expression.Convert(PC, typeof (int)),
+                            Expression.Constant(_prefetch.TotalBytesRead)),
+                        typeof (ushort)));
 
         public bool SupportsInstructionBlockCaching => true;
 
         public IInstructionBlock<TRegisters> DecodeNextBlock(ushort address)
         {
-            var decodedBlock = decoder.GetNextBlock(address);
+            var decodedBlock = _decoder.GetNextBlock(address);
             var lambda = BuildExpressionTree(decodedBlock.Operations);
 
             var block = new DynaRecInstructionBlock<TRegisters>(address,
-                                                                (ushort) prefetch.TotalBytesRead,
-                                                                lambda.Compile(),
-                                                                decodedBlock.Timings,
-                                                                lastDecodeResult);
-            if (debug)
+                (ushort) _prefetch.TotalBytesRead,
+                lambda.Compile(),
+                decodedBlock.Timings,
+                _lastDecodeResult);
+            if (_debug)
             {
                 block.DebugInfo =
                     $"{string.Join("\n", decodedBlock.Operations.Select(x => x.ToString()))}\n\n{lambda.DebugView()}";
@@ -74,10 +74,10 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
             IEnumerable<Operation> operations)
         {
             // Reset
-            usesDynamicTimings = false;
-            usesLocalWord = false;
-            usesAccumulatorAndResult = false;
-            lastDecodeResult = DecodeResult.Continue;
+            _usesDynamicTimings = false;
+            _usesLocalWord = false;
+            _usesAccumulatorAndResult = false;
+            _lastDecodeResult = DecodeResult.Continue;
 
             // Run this first so we know what init & final expressions to add.
             var blockExpressions = operations.SelectMany(Recompile).ToArray();
@@ -90,27 +90,27 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
 
             var lambda =
                 Expression.Lambda<Func<TRegisters, IMmu, IAlu, IPeripheralManager, InstructionTimings>>(
-                                                                                                        expressionBlock,
-                                                                                                        Registers,
-                                                                                                        Mmu,
-                                                                                                        Alu,
-                                                                                                        IO);
+                    expressionBlock,
+                    Registers,
+                    Mmu,
+                    Alu,
+                    IO);
             return lambda;
         }
 
         private IEnumerable<ParameterExpression> GeParameterExpressions()
         {
-            if (usesLocalWord)
+            if (_usesLocalWord)
             {
                 yield return LocalWord;
             }
 
-            if (usesDynamicTimings)
+            if (_usesDynamicTimings)
             {
                 yield return DynamicTimer;
             }
 
-            if (usesAccumulatorAndResult)
+            if (_usesAccumulatorAndResult)
             {
                 // Z80 supports some opcodes that manipulate the accumulator and a result in memory at the same time.
                 yield return AccumulatorAndResult;
@@ -119,7 +119,7 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
 
         private IEnumerable<Expression> GetBlockInitExpressions()
         {
-            if (usesDynamicTimings)
+            if (_usesDynamicTimings)
             {
                 // Create a new dynamic timer to record any timings calculated at runtime.
                 yield return Expression.Assign(DynamicTimer, Expression.New(typeof (InstructionTimingsBuilder)));
@@ -128,22 +128,22 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
 
         private IEnumerable<Expression> GetBlockFinalExpressions()
         {
-            if (debug)
+            if (_debug)
             {
                 yield return GetDebugExpression("Block Finalize");
             }
 
-            if (lastDecodeResult == DecodeResult.FinalizeAndSync || lastDecodeResult == DecodeResult.Halt ||
-                lastDecodeResult == DecodeResult.Stop)
+            if (_lastDecodeResult == DecodeResult.FinalizeAndSync || _lastDecodeResult == DecodeResult.Halt ||
+                _lastDecodeResult == DecodeResult.Stop)
             {
                 // Increment the program counter by how many bytes were read.
                 yield return SyncProgramCounter;
             }
 
-            if (cpuMode == CpuMode.Z80)
+            if (_cpuMode == CpuMode.Z80)
             {
                 // Add the block length to the 7 lsb of memory refresh register.
-                var blockLengthExpression = Expression.Constant(prefetch.TotalBytesRead, typeof (int));
+                var blockLengthExpression = Expression.Constant(_prefetch.TotalBytesRead, typeof (int));
 
                 // Update Z80 specific memory refresh register
                 yield return GetMemoryRefreshDeltaExpression(blockLengthExpression);
@@ -152,14 +152,14 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
             var returnTarget = Expression.Label(typeof (InstructionTimings), "InstructionTimings_Return");
 
             // Return the dynamic timings.
-            if (usesDynamicTimings)
+            if (_usesDynamicTimings)
             {
                 var getInstructionTimings =
                     ExpressionHelpers.GetMethodInfo<IInstructionTimingsBuilder>(dt => dt.GetInstructionTimings());
                 yield return
                     Expression.Return(returnTarget,
-                                      Expression.Call(DynamicTimer, getInstructionTimings),
-                                      typeof (InstructionTimings));
+                        Expression.Call(DynamicTimer, getInstructionTimings),
+                        typeof (InstructionTimings));
             }
 
             yield return Expression.Label(returnTarget, Expression.Constant(default(InstructionTimings)));

@@ -9,79 +9,79 @@ namespace Axh.Retro.GameBoy.Util
         private const uint Prime323 = 3266489917U;
         private const uint Prime324 = 668265263U;
         private const uint Prime325 = 374761393U;
-        private readonly byte[] memory;
-        private readonly uint seed;
-        private int memsize;
+        private readonly byte[] _memory;
+        private readonly uint _seed;
+        private int _memsize;
 
-        private ulong totalLen;
-        private uint v1;
-        private uint v2;
-        private uint v3;
-        private uint v4;
+        private ulong _totalLen;
+        private uint _v1;
+        private uint _v2;
+        private uint _v3;
+        private uint _v4;
 
         public XxHash(uint seed)
         {
-            this.seed = seed;
-            memory = new byte[16];
+            _seed = seed;
+            _memory = new byte[16];
             Init();
         }
 
         public void Reset()
         {
-            for (var i = 0; i < memory.Length; i++)
+            for (var i = 0; i < _memory.Length; i++)
             {
-                memory[i] = 0;
+                _memory[i] = 0;
             }
             Init();
         }
 
         private void Init()
         {
-            v1 = seed + Prime321 + Prime322;
-            v2 = seed + Prime322;
-            v3 = seed + 0;
-            v4 = seed - Prime321;
-            totalLen = 0;
-            memsize = 0;
+            _v1 = _seed + Prime321 + Prime322;
+            _v2 = _seed + Prime322;
+            _v3 = _seed + 0;
+            _v4 = _seed - Prime321;
+            _totalLen = 0;
+            _memsize = 0;
         }
 
         public bool Update(byte[] input, int len)
         {
             var index = 0;
 
-            totalLen += (uint) len;
+            _totalLen += (uint) len;
 
-            if (memsize + len < 16)
+            if (_memsize + len < 16)
             {
-                Array.Copy(input, 0, memory, memsize, len);
-                memsize += len;
+                Array.Copy(input, 0, _memory, _memsize, len);
+                _memsize += len;
 
                 return true;
             }
 
-            if (memsize > 0)
+            if (_memsize > 0)
             {
-                Array.Copy(input, 0, memory, memsize, 16 - memsize);
+                Array.Copy(input, 0, _memory, _memsize, 16 - _memsize);
 
-                v1 = CalcSubHash(v1, memory, index);
+                _v1 = CalcSubHash(_v1, _memory, index);
                 index += 4;
-                v2 = CalcSubHash(v2, memory, index);
+                _v2 = CalcSubHash(_v2, _memory, index);
                 index += 4;
-                v3 = CalcSubHash(v3, memory, index);
+                _v3 = CalcSubHash(_v3, _memory, index);
                 index += 4;
-                v4 = CalcSubHash(v4, memory, index);
+                _v4 = CalcSubHash(_v4, _memory, index);
 
                 index = 0;
-                memsize = 0;
+                _memsize = 0;
             }
 
             if (index <= len - 16)
             {
                 var limit = len - 16;
-                var v1 = this.v1;
-                var v2 = this.v2;
-                var v3 = this.v3;
-                var v4 = this.v4;
+                var v1 = _v1;
+                var v2 = _v2;
+                var v3 = _v3;
+                var v4 = _v4;
 
                 do
                 {
@@ -95,16 +95,16 @@ namespace Axh.Retro.GameBoy.Util
                     index += 4;
                 } while (index <= limit);
 
-                this.v1 = v1;
-                this.v2 = v2;
-                this.v3 = v3;
-                this.v4 = v4;
+                _v1 = v1;
+                _v2 = v2;
+                _v3 = v3;
+                _v4 = v4;
             }
 
             if (index < len)
             {
-                Array.Copy(input, index, memory, 0, len - index);
-                memsize = len - index;
+                Array.Copy(input, index, _memory, 0, len - index);
+                _memsize = len - index;
             }
             return true;
         }
@@ -113,27 +113,27 @@ namespace Axh.Retro.GameBoy.Util
         {
             uint h32;
             var index = 0;
-            if (totalLen >= 16)
+            if (_totalLen >= 16)
             {
-                h32 = RotateLeft(v1, 1) + RotateLeft(v2, 7) + RotateLeft(v3, 12) + RotateLeft(v4, 18);
+                h32 = RotateLeft(_v1, 1) + RotateLeft(_v2, 7) + RotateLeft(_v3, 12) + RotateLeft(_v4, 18);
             }
             else
             {
-                h32 = seed + Prime325;
+                h32 = _seed + Prime325;
             }
 
-            h32 += (uint) totalLen;
+            h32 += (uint) _totalLen;
 
-            while (index <= memsize - 4)
+            while (index <= _memsize - 4)
             {
-                h32 += BitConverter.ToUInt32(memory, index) * Prime323;
+                h32 += BitConverter.ToUInt32(_memory, index) * Prime323;
                 h32 = RotateLeft(h32, 17) * Prime324;
                 index += 4;
             }
 
-            while (index < memsize)
+            while (index < _memsize)
             {
-                h32 += memory[index] * Prime325;
+                h32 += _memory[index] * Prime325;
                 h32 = RotateLeft(h32, 11) * Prime321;
                 index++;
             }

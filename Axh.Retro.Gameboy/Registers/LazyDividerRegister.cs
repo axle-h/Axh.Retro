@@ -12,9 +12,9 @@ namespace Axh.Retro.GameBoy.Registers
     {
         private const int RegisterIncrementRate = 16384;
 
-        private DateTime dateLastSet;
+        private DateTime _dateLastSet;
 
-        private byte registerValue;
+        private byte _registerValue;
 
         /// <summary>
         ///     This register is incremented 16384 (~16779 on SGB) times a second.
@@ -25,19 +25,19 @@ namespace Axh.Retro.GameBoy.Registers
         {
             get
             {
-                var timeSinceLastSet = DateTime.UtcNow - dateLastSet;
+                var timeSinceLastSet = DateTime.UtcNow - _dateLastSet;
                 var totalIncrements = timeSinceLastSet.TotalSeconds * RegisterIncrementRate % RegisterIncrementRate;
 
-                registerValue = unchecked((byte) (registerValue + totalIncrements));
-                dateLastSet = DateTime.UtcNow;
+                _registerValue = unchecked((byte) (_registerValue + totalIncrements));
+                _dateLastSet = DateTime.UtcNow;
 
-                return registerValue;
+                return _registerValue;
             }
             set
             {
                 // Writing anything to this register resets it
-                registerValue = 0x00;
-                dateLastSet = DateTime.UtcNow;
+                _registerValue = 0x00;
+                _dateLastSet = DateTime.UtcNow;
             }
         }
     }

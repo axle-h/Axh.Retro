@@ -12,18 +12,18 @@ namespace Axh.Retro.GameBoy.Registers
         private const ushort SerialLinkAddress = 0x0058;
         private const ushort JoyPadPressAddress = 0x0060;
 
-        private readonly IInterruptEnableRegister interruptEnableRegister;
+        private readonly IInterruptEnableRegister _interruptEnableRegister;
 
-        private readonly IInterruptManager interruptManager;
+        private readonly IInterruptManager _interruptManager;
 
-        private InterruptFlag interruptFlag;
+        private InterruptFlag _interruptFlag;
 
         public InterruptFlagsRegister(IInterruptManager interruptManager,
-                                      IInterruptEnableRegister interruptEnableRegister)
+            IInterruptEnableRegister interruptEnableRegister)
         {
-            this.interruptManager = interruptManager;
-            this.interruptEnableRegister = interruptEnableRegister;
-            interruptFlag = InterruptFlag.None;
+            _interruptManager = interruptManager;
+            _interruptEnableRegister = interruptEnableRegister;
+            _interruptFlag = InterruptFlag.None;
         }
 
         public ushort Address => 0xff0f;
@@ -40,18 +40,18 @@ namespace Axh.Retro.GameBoy.Registers
         /// </summary>
         public byte Register
         {
-            get { return (byte) interruptFlag; }
+            get { return (byte) _interruptFlag; }
             set
             {
                 var newInterruptFlag = (InterruptFlag) value;
-                var changedFlags = interruptFlag ^ newInterruptFlag;
+                var changedFlags = _interruptFlag ^ newInterruptFlag;
 
                 if (changedFlags != InterruptFlag.None)
                 {
                     UpdateInterrupts(changedFlags);
                 }
 
-                interruptFlag = newInterruptFlag;
+                _interruptFlag = newInterruptFlag;
             }
         }
 
@@ -60,14 +60,14 @@ namespace Axh.Retro.GameBoy.Registers
         public void UpdateInterrupts(InterruptFlag interrupts)
         {
             // Combine with delayed interrupts.
-            interruptFlag |= interrupts;
+            _interruptFlag |= interrupts;
 
-            if (interruptFlag == InterruptFlag.None)
+            if (_interruptFlag == InterruptFlag.None)
             {
                 return;
             }
 
-            if (!interruptManager.InterruptsEnabled)
+            if (!_interruptManager.InterruptsEnabled)
             {
                 // Interrupts disabled.
                 return;
@@ -100,17 +100,17 @@ namespace Axh.Retro.GameBoy.Registers
 
         private bool CheckInterrupt(InterruptFlag interrupt, ushort address)
         {
-            if (!interruptFlag.HasFlag(interrupt) || !interruptEnableRegister.InterruptEnabled(interrupt))
+            if (!_interruptFlag.HasFlag(interrupt) || !_interruptEnableRegister.InterruptEnabled(interrupt))
             {
                 // Interrupt flag is not set or enabled.
                 return false;
             }
 
             // Do interrupt.
-            interruptManager.Interrupt(address);
+            _interruptManager.Interrupt(address);
 
             // Clear the interrupt flag.
-            interruptFlag &= ~interrupt;
+            _interruptFlag &= ~interrupt;
             return true;
         }
     }

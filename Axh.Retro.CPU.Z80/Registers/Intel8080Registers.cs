@@ -7,8 +7,8 @@ namespace Axh.Retro.CPU.Z80.Registers
     public class Intel8080Registers : IIntel8080Registers
     {
         public Intel8080Registers(IGeneralPurposeRegisterSet generalPurposeRegisters,
-                                  IAccumulatorAndFlagsRegisterSet accumulatorAndFlagsRegisters,
-                                  IInitialStateFactory<Intel8080RegisterState> initialStateFactory)
+            IAccumulatorAndFlagsRegisterSet accumulatorAndFlagsRegisters,
+            IInitialStateFactory<Intel8080RegisterState> initialStateFactory)
         {
             GeneralPurposeRegisters = generalPurposeRegisters;
             AccumulatorAndFlagsRegisters = accumulatorAndFlagsRegisters;
@@ -55,17 +55,17 @@ namespace Axh.Retro.CPU.Z80.Registers
         public Intel8080RegisterState GetRegisterState()
         {
             return new Intel8080RegisterState
-                   {
-                       AccumulatorAndFlagsRegisterState =
-                           AccumulatorAndFlagsRegisters.GetRegisterState(),
-                       InterruptFlipFlop1 = InterruptFlipFlop1,
-                       InterruptFlipFlop2 = InterruptFlipFlop2,
-                       InterruptMode = InterruptMode,
-                       GeneralPurposeRegisterState =
-                           GeneralPurposeRegisters.GetRegisterState(),
-                       ProgramCounter = ProgramCounter,
-                       StackPointer = StackPointer
-                   };
+            {
+                AccumulatorAndFlagsRegisterState =
+                    AccumulatorAndFlagsRegisters.GetRegisterState(),
+                InterruptFlipFlop1 = InterruptFlipFlop1,
+                InterruptFlipFlop2 = InterruptFlipFlop2,
+                InterruptMode = InterruptMode,
+                GeneralPurposeRegisterState =
+                    GeneralPurposeRegisters.GetRegisterState(),
+                ProgramCounter = ProgramCounter,
+                StackPointer = StackPointer
+            };
         }
     }
 }

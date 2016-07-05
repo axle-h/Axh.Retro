@@ -9,21 +9,21 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
 {
     internal class DynaRecInstructionBlock<TRegisters> : IInstructionBlock<TRegisters> where TRegisters : IRegisters
     {
-        private readonly Func<TRegisters, IMmu, IAlu, IPeripheralManager, InstructionTimings> action;
+        private readonly Func<TRegisters, IMmu, IAlu, IPeripheralManager, InstructionTimings> _action;
 
         /// <summary>
         ///     Static instruction timings, known at compile time
         /// </summary>
-        private readonly InstructionTimings staticTimings;
+        private readonly InstructionTimings _staticTimings;
 
         public DynaRecInstructionBlock(ushort address,
-                                       ushort length,
-                                       Func<TRegisters, IMmu, IAlu, IPeripheralManager, InstructionTimings> action,
-                                       InstructionTimings staticTimings,
-                                       DecodeResult lastDecodeResult)
+            ushort length,
+            Func<TRegisters, IMmu, IAlu, IPeripheralManager, InstructionTimings> action,
+            InstructionTimings staticTimings,
+            DecodeResult lastDecodeResult)
         {
-            this.action = action;
-            this.staticTimings = staticTimings;
+            _action = action;
+            _staticTimings = staticTimings;
             Address = address;
             Length = length;
             HaltCpu = lastDecodeResult == DecodeResult.Halt;
@@ -41,11 +41,11 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
         public string DebugInfo { get; internal set; }
 
         public InstructionTimings ExecuteInstructionBlock(TRegisters registers,
-                                                          IMmu mmu,
-                                                          IAlu alu,
-                                                          IPeripheralManager peripheralManager)
+            IMmu mmu,
+            IAlu alu,
+            IPeripheralManager peripheralManager)
         {
-            return action(registers, mmu, alu, peripheralManager) + staticTimings;
+            return _action(registers, mmu, alu, peripheralManager) + _staticTimings;
         }
     }
 }

@@ -35,9 +35,9 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
         }
 
         private void TestCall(PrimaryOpCode opCode,
-                              Expression<Func<IFlagsRegister, bool>> propertyLambda,
-                              bool flagValue,
-                              bool expectJump)
+            Expression<Func<IFlagsRegister, bool>> propertyLambda,
+            bool flagValue,
+            bool expectJump)
         {
             const ushort Value = 0x6dc4;
 
@@ -70,9 +70,9 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
         }
 
         private void TestReturn(PrimaryOpCode opCode,
-                                Expression<Func<IFlagsRegister, bool>> propertyLambda,
-                                bool flagValue,
-                                bool expectReturn)
+            Expression<Func<IFlagsRegister, bool>> propertyLambda,
+            bool flagValue,
+            bool expectReturn)
         {
             const ushort Value = 0x6dc4;
 

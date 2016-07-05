@@ -2,7 +2,6 @@
 using System.Linq.Expressions;
 using System.Reflection;
 using Axh.Retro.GameBoy.Contracts.Devices;
-using Axh.Retro.GameBoy.Devices;
 using Axh.Retro.GameBoy.Registers;
 using Axh.Retro.GameBoy.Registers.Interfaces;
 using Moq;
@@ -21,18 +20,18 @@ namespace Axh.Retro.GameBoy.Tests.Devices
         private const byte P14 = 0x10;
         private const byte P15 = 0x20;
 
-        private IJoyPadRegister joyPad;
+        private IJoyPadRegister _joyPad;
 
         [TestFixtureSetUp]
         public void TestFixtureSetUp()
         {
             var mockInterruptManager = new Mock<IInterruptFlagsRegister>();
-            joyPad = new JoyPad(mockInterruptManager.Object);
+            _joyPad = new JoyPad(mockInterruptManager.Object);
         }
 
         private void AssertRegisterMatrix(Expression<Func<IJoyPad, bool>> buttonExpression,
-                                          byte regOut,
-                                          byte expectedMask)
+            byte regOut,
+            byte expectedMask)
         {
             var joyPadExpression = Expression.Parameter(typeof (IJoyPad), "joyPad");
             var property = GetPropertyExpression(joyPadExpression, buttonExpression);
@@ -40,27 +39,27 @@ namespace Axh.Retro.GameBoy.Tests.Devices
             var getLambda = Expression.Lambda<Func<IJoyPad, bool>>(property, joyPadExpression).Compile();
             var setLambda =
                 Expression.Lambda<Action<IJoyPad>>(Expression.Assign(property, Expression.Constant(true)),
-                                                   joyPadExpression).Compile();
+                    joyPadExpression).Compile();
             var resetLambda =
                 Expression.Lambda<Action<IJoyPad>>(Expression.Assign(property, Expression.Constant(false)),
-                                                   joyPadExpression).Compile();
+                    joyPadExpression).Compile();
 
             // Assert button pressed
-            setLambda(joyPad);
-            joyPad.Register = regOut;
+            setLambda(_joyPad);
+            _joyPad.Register = regOut;
             // Button is pressed then flag is reset
-            Assert.IsTrue((joyPad.Register & expectedMask) == 0);
+            Assert.IsTrue((_joyPad.Register & expectedMask) == 0);
 
             // Assert button released
-            resetLambda(joyPad);
-            joyPad.Register = regOut;
+            resetLambda(_joyPad);
+            _joyPad.Register = regOut;
             // Button is released then flag is set
-            Assert.IsTrue((joyPad.Register & expectedMask) > 0);
+            Assert.IsTrue((_joyPad.Register & expectedMask) > 0);
         }
 
         public static MemberExpression GetPropertyExpression<TSource, TProperty>(Expression instance,
-                                                                                 Expression<Func<TSource, TProperty>>
-                                                                                     propertyLambda)
+            Expression<Func<TSource, TProperty>>
+                propertyLambda)
         {
             var type = typeof (TSource);
 

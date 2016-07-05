@@ -17,35 +17,35 @@ namespace Axh.Retro.CPU.Z80.Memory
     /// </summary>
     public class Z80Mmu<TRegisters> : SegmentMmu where TRegisters : IRegisters
     {
-        private readonly IInstructionBlockCache<TRegisters> instructionBlockCache;
+        private readonly IInstructionBlockCache<TRegisters> _instructionBlockCache;
 
         public Z80Mmu(IPeripheralManager peripheralManager,
-                      IPlatformConfig platformConfig,
-                      IMemoryBankController memoryBankController,
-                      IInstructionBlockCache<TRegisters> instructionBlockCache,
-                      IDmaController dmaController,
-                      IInstructionTimer instructionTimer)
+            IPlatformConfig platformConfig,
+            IMemoryBankController memoryBankController,
+            IInstructionBlockCache<TRegisters> instructionBlockCache,
+            IDmaController dmaController,
+            IInstructionTimer instructionTimer)
             : base(
                 GetAddressSegments(peripheralManager, platformConfig, memoryBankController),
                 dmaController,
                 instructionTimer)
         {
-            this.instructionBlockCache = instructionBlockCache;
+            _instructionBlockCache = instructionBlockCache;
         }
 
         private static IEnumerable<IAddressSegment> GetAddressSegments(IPeripheralManager peripheralManager,
-                                                                       IPlatformConfig platformConfig,
-                                                                       IMemoryBankController memoryBankController)
+            IPlatformConfig platformConfig,
+            IMemoryBankController memoryBankController)
         {
             var memoryBanks =
                 platformConfig.MemoryBanks.GroupBy(x => x.Address)
-                              .Select(x => GetAddressSegment(x.ToArray(), memoryBankController))
-                              .ToArray();
+                    .Select(x => GetAddressSegment(x.ToArray(), memoryBankController))
+                    .ToArray();
             return memoryBanks.Concat(peripheralManager.MemoryMap);
         }
 
         private static IAddressSegment GetAddressSegment(ICollection<IMemoryBankConfig> configs,
-                                                         IMemoryBankController memoryBankController)
+            IMemoryBankController memoryBankController)
         {
             var config = configs.First();
             if (configs.Count == 1)
@@ -76,7 +76,7 @@ namespace Axh.Retro.CPU.Z80.Memory
 
         protected override void OnAddressWrite(ushort address, ushort length)
         {
-            instructionBlockCache.InvalidateCache(address, length);
+            _instructionBlockCache.InvalidateCache(address, length);
         }
     }
 }

@@ -9,8 +9,8 @@ namespace Axh.Retro.CPU.Z80.Util
     internal static class ExpressionHelpers
     {
         public static MemberExpression GetPropertyExpression<TSource, TProperty>(this Expression instance,
-                                                                                 Expression<Func<TSource, TProperty>>
-                                                                                     propertyLambda)
+            Expression<Func<TSource, TProperty>>
+                propertyLambda)
         {
             var type = typeof (TSource);
 

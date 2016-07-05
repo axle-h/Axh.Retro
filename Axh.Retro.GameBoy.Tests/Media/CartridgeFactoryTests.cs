@@ -10,12 +10,12 @@ namespace Axh.Retro.GameBoy.Tests.Media
     [TestFixture]
     public class CartridgeFactoryTests
     {
-        private ICartridgeFactory cartridgeFactory;
+        private ICartridgeFactory _cartridgeFactory;
 
         [TestFixtureSetUp]
         public void TestFixtureSetUp()
         {
-            cartridgeFactory = new CartridgeFactory();
+            _cartridgeFactory = new CartridgeFactory();
         }
 
         private static void AssertCartridgeBanks(ICartridge cartridge)
@@ -37,7 +37,7 @@ namespace Axh.Retro.GameBoy.Tests.Media
         public void CanReadPokemon()
         {
             var pokemon = Resources.Pokemon_Red_UE_Gb_Zip.UnZip();
-            var cartridge = cartridgeFactory.GetCartridge(pokemon);
+            var cartridge = _cartridgeFactory.GetCartridge(pokemon);
 
             Assert.IsNotNull(cartridge);
             Assert.AreEqual("POKEMON RED", cartridge.Header.Title);
@@ -53,7 +53,7 @@ namespace Axh.Retro.GameBoy.Tests.Media
         public void CanReadTetris()
         {
             var tetris = Resources.Tetris_W_Gb_Zip.UnZip();
-            var cartridge = cartridgeFactory.GetCartridge(tetris);
+            var cartridge = _cartridgeFactory.GetCartridge(tetris);
 
             Assert.IsNotNull(cartridge);
             Assert.AreEqual("TETRIS", cartridge.Header.Title);

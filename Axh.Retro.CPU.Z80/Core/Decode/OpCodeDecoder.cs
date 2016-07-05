@@ -9,84 +9,84 @@ namespace Axh.Retro.CPU.Z80.Core.Decode
 {
     internal partial class OpCodeDecoder
     {
-        private readonly CpuMode cpuMode;
-        private readonly IDictionary<IndexRegister, IndexRegisterOperands> indexRegisterOperands;
+        private readonly CpuMode _cpuMode;
+        private readonly IDictionary<IndexRegister, IndexRegisterOperands> _indexRegisterOperands;
 
-        private readonly IPrefetchQueue prefetch;
+        private readonly IPrefetchQueue _prefetch;
 
-        private readonly IInstructionTimingsBuilder timer;
+        private readonly IInstructionTimingsBuilder _timer;
 
-        private readonly OpCode undefinedInstruction;
-        private byte byteLiteral;
-        private byte displacement;
-        private FlagTest flagTest;
+        private readonly OpCode _undefinedInstruction;
+        private byte _byteLiteral;
+        private byte _displacement;
+        private FlagTest _flagTest;
 
-        private IndexRegisterOperands index;
-        private OpCodeMeta opCodeMeta;
+        private IndexRegisterOperands _index;
+        private OpCodeMeta _opCodeMeta;
 
-        private Operand operand1;
-        private Operand operand2;
-        private ushort wordLiteral;
+        private Operand _operand1;
+        private Operand _operand2;
+        private ushort _wordLiteral;
 
         public OpCodeDecoder(IPlatformConfig platformConfig, IPrefetchQueue prefetch)
         {
-            cpuMode = platformConfig.CpuMode;
-            undefinedInstruction = platformConfig.LockOnUndefinedInstruction ? OpCode.Halt : OpCode.NoOperation;
-            this.prefetch = prefetch;
-            timer = new InstructionTimingsBuilder();
-            indexRegisterOperands = new Dictionary<IndexRegister, IndexRegisterOperands>
-                                    {
-                                        {
-                                            IndexRegister.HL,
-                                            new IndexRegisterOperands(
-                                            Operand.HL,
-                                            Operand.mHL,
-                                            Operand.L,
-                                            Operand.H,
-                                            false)
-                                        }
-                                    };
-
-            if (cpuMode == CpuMode.Z80)
+            _cpuMode = platformConfig.CpuMode;
+            _undefinedInstruction = platformConfig.LockOnUndefinedInstruction ? OpCode.Halt : OpCode.NoOperation;
+            _prefetch = prefetch;
+            _timer = new InstructionTimingsBuilder();
+            _indexRegisterOperands = new Dictionary<IndexRegister, IndexRegisterOperands>
             {
-                indexRegisterOperands.Add(IndexRegister.IX,
-                                          new IndexRegisterOperands(Operand.IX,
-                                                                    Operand.mIXd,
-                                                                    Operand.IXl,
-                                                                    Operand.IXh,
-                                                                    true));
-                indexRegisterOperands.Add(IndexRegister.IY,
-                                          new IndexRegisterOperands(Operand.IY,
-                                                                    Operand.mIYd,
-                                                                    Operand.IYl,
-                                                                    Operand.IYh,
-                                                                    true));
+                {
+                    IndexRegister.HL,
+                    new IndexRegisterOperands(
+                        Operand.HL,
+                        Operand.mHL,
+                        Operand.L,
+                        Operand.H,
+                        false)
+                }
+            };
+
+            if (_cpuMode == CpuMode.Z80)
+            {
+                _indexRegisterOperands.Add(IndexRegister.IX,
+                    new IndexRegisterOperands(Operand.IX,
+                        Operand.mIXd,
+                        Operand.IXl,
+                        Operand.IXh,
+                        true));
+                _indexRegisterOperands.Add(IndexRegister.IY,
+                    new IndexRegisterOperands(Operand.IY,
+                        Operand.mIYd,
+                        Operand.IYl,
+                        Operand.IYh,
+                        true));
             }
         }
 
         public DecodedBlock GetNextBlock(ushort address)
         {
             var operations = DecodeOperations(address);
-            return new DecodedBlock(operations.ToArray(), timer.GetInstructionTimings());
+            return new DecodedBlock(operations.ToArray(), _timer.GetInstructionTimings());
         }
 
         public IEnumerable<Operation> DecodeOperations(ushort address)
         {
-            timer.Reset();
-            index = indexRegisterOperands[IndexRegister.HL];
-            prefetch.ReBuildCache(address);
+            _timer.Reset();
+            _index = _indexRegisterOperands[IndexRegister.HL];
+            _prefetch.ReBuildCache(address);
             var totalBytesRead = 0;
 
             while (true)
             {
                 // Reset
-                operand1 = Operand.None;
-                operand2 = Operand.None;
-                flagTest = FlagTest.None;
-                opCodeMeta = OpCodeMeta.None;
-                byteLiteral = 0x00;
-                wordLiteral = 0x0000;
-                displacement = 0x00;
+                _operand1 = Operand.None;
+                _operand2 = Operand.None;
+                _flagTest = FlagTest.None;
+                _opCodeMeta = OpCodeMeta.None;
+                _byteLiteral = 0x00;
+                _wordLiteral = 0x0000;
+                _displacement = 0x00;
 
                 var result = DecodePrimary();
 
@@ -95,39 +95,39 @@ namespace Axh.Retro.CPU.Z80.Core.Decode
                     continue;
                 }
 
-                if (opCodeMeta.HasFlag(OpCodeMeta.Displacement) && index.IsDisplaced)
+                if (_opCodeMeta.HasFlag(OpCodeMeta.Displacement) && _index.IsDisplaced)
                 {
-                    displacement = prefetch.NextByte();
+                    _displacement = _prefetch.NextByte();
                 }
 
-                if (opCodeMeta.HasFlag(OpCodeMeta.ByteLiteral))
+                if (_opCodeMeta.HasFlag(OpCodeMeta.ByteLiteral))
                 {
-                    byteLiteral = prefetch.NextByte();
+                    _byteLiteral = _prefetch.NextByte();
                 }
 
-                if (opCodeMeta.HasFlag(OpCodeMeta.WordLiteral))
+                if (_opCodeMeta.HasFlag(OpCodeMeta.WordLiteral))
                 {
-                    wordLiteral = prefetch.NextWord();
+                    _wordLiteral = _prefetch.NextWord();
                 }
 
                 yield return
                     new Operation(address,
-                                  result.Value,
-                                  operand1,
-                                  operand2,
-                                  flagTest,
-                                  opCodeMeta,
-                                  byteLiteral,
-                                  wordLiteral,
-                                  (sbyte) displacement);
+                        result.Value,
+                        _operand1,
+                        _operand2,
+                        _flagTest,
+                        _opCodeMeta,
+                        _byteLiteral,
+                        _wordLiteral,
+                        (sbyte) _displacement);
 
-                if (opCodeMeta.HasFlag(OpCodeMeta.EndBlock))
+                if (_opCodeMeta.HasFlag(OpCodeMeta.EndBlock))
                 {
                     yield break;
                 }
 
-                index = indexRegisterOperands[IndexRegister.HL];
-                var opBytes = prefetch.TotalBytesRead - totalBytesRead;
+                _index = _indexRegisterOperands[IndexRegister.HL];
+                var opBytes = _prefetch.TotalBytesRead - totalBytesRead;
                 address += (ushort) opBytes;
                 totalBytesRead += opBytes;
             }
@@ -136,10 +136,10 @@ namespace Axh.Retro.CPU.Z80.Core.Decode
         private struct IndexRegisterOperands
         {
             public IndexRegisterOperands(Operand register,
-                                         Operand index,
-                                         Operand lowRegister,
-                                         Operand highRegister,
-                                         bool isDisplaced) : this()
+                Operand index,
+                Operand lowRegister,
+                Operand highRegister,
+                bool isDisplaced) : this()
             {
                 Register = register;
                 Index = index;

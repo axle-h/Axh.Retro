@@ -16,9 +16,9 @@ namespace Axh.Retro.Z80Console.Config
         public Z8064KBootstrappedConfig()
         {
             var ramConfig = new SimpleMemoryBankConfig(MemoryBankType.RandomAccessMemory,
-                                                       null,
-                                                       MemoryStart,
-                                                       MemoryLength);
+                null,
+                MemoryStart,
+                MemoryLength);
 
             // Bootstrap from Resources/code.bin
             // This is a simple hello world program that was built using sdcc

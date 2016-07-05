@@ -7,11 +7,11 @@ namespace Axh.Retro.GameBoy.Registers
 {
     public class InterruptEnableRegister : IInterruptEnableRegister
     {
-        private InterruptFlag interruptFlag;
+        private InterruptFlag _interruptFlag;
 
         public InterruptEnableRegister()
         {
-            interruptFlag = InterruptFlag.None;
+            _interruptFlag = InterruptFlag.None;
         }
 
         public MemoryBankType Type => MemoryBankType.RandomAccessMemory;
@@ -80,23 +80,23 @@ namespace Axh.Retro.GameBoy.Registers
         /// </summary>
         public byte Register
         {
-            get { return (byte) interruptFlag; }
-            set { interruptFlag = (InterruptFlag) value; }
+            get { return (byte) _interruptFlag; }
+            set { _interruptFlag = (InterruptFlag) value; }
         }
 
         public string DebugView => ToString();
 
-        public bool VerticalBlank => interruptFlag.HasFlag(InterruptFlag.VerticalBlank);
+        public bool VerticalBlank => _interruptFlag.HasFlag(InterruptFlag.VerticalBlank);
 
-        public bool LcdStatusTriggers => interruptFlag.HasFlag(InterruptFlag.LcdStatusTriggers);
+        public bool LcdStatusTriggers => _interruptFlag.HasFlag(InterruptFlag.LcdStatusTriggers);
 
-        public bool TimerOverflow => interruptFlag.HasFlag(InterruptFlag.TimerOverflow);
+        public bool TimerOverflow => _interruptFlag.HasFlag(InterruptFlag.TimerOverflow);
 
-        public bool SerialLink => interruptFlag.HasFlag(InterruptFlag.SerialLink);
+        public bool SerialLink => _interruptFlag.HasFlag(InterruptFlag.SerialLink);
 
-        public bool JoyPadPress => interruptFlag.HasFlag(InterruptFlag.JoyPadPress);
+        public bool JoyPadPress => _interruptFlag.HasFlag(InterruptFlag.JoyPadPress);
 
-        public bool InterruptEnabled(InterruptFlag flag) => interruptFlag.HasFlag(flag);
+        public bool InterruptEnabled(InterruptFlag flag) => _interruptFlag.HasFlag(flag);
 
         public override string ToString()
         {

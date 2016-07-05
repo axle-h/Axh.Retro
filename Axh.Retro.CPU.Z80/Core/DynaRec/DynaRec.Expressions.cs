@@ -196,15 +196,15 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
             // Accumulator & Flags register expressions
             var accumulatorAndFlagsRegisters =
                 Registers.GetPropertyExpression<IRegisters, IAccumulatorAndFlagsRegisterSet>(
-                                                                                             r =>
-                                                                                                 r
-                                                                                                 .AccumulatorAndFlagsRegisters);
+                    r =>
+                        r
+                            .AccumulatorAndFlagsRegisters);
             A = accumulatorAndFlagsRegisters.GetPropertyExpression<IAccumulatorAndFlagsRegisterSet, byte>(r => r.A);
             Flags =
                 accumulatorAndFlagsRegisters.GetPropertyExpression<IAccumulatorAndFlagsRegisterSet, IFlagsRegister>(
-                                                                                                                    r =>
-                                                                                                                        r
-                                                                                                                        .Flags);
+                    r =>
+                        r
+                            .Flags);
             F = Flags.GetPropertyExpression<IFlagsRegister, byte>(r => r.Register);
             AF = accumulatorAndFlagsRegisters.GetPropertyExpression<IAccumulatorAndFlagsRegisterSet, ushort>(r => r.AF);
             Sign = Flags.GetPropertyExpression<IFlagsRegister, bool>(r => r.Sign);
@@ -219,24 +219,24 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
                 ExpressionHelpers.GetMethodInfo<IFlagsRegister, byte>((flags, result) => flags.SetResultFlags(result));
             SetUndocumentedFlags =
                 ExpressionHelpers.GetMethodInfo<IFlagsRegister, byte>(
-                                                                      (flags, result) =>
-                                                                          flags.SetUndocumentedFlags(result));
+                    (flags, result) =>
+                        flags.SetUndocumentedFlags(result));
 
             // MMU expressions
             MmuReadByte = ExpressionHelpers.GetMethodInfo<IMmu, ushort, byte>((mmu, address) => mmu.ReadByte(address));
             MmuReadWord = ExpressionHelpers.GetMethodInfo<IMmu, ushort, ushort>((mmu, address) => mmu.ReadWord(address));
             MmuWriteByte =
                 ExpressionHelpers.GetMethodInfo<IMmu, ushort, byte>(
-                                                                    (mmu, address, value) =>
-                                                                        mmu.WriteByte(address, value));
+                    (mmu, address, value) =>
+                        mmu.WriteByte(address, value));
             MmuWriteWord =
                 ExpressionHelpers.GetMethodInfo<IMmu, ushort, ushort>(
-                                                                      (mmu, address, value) =>
-                                                                          mmu.WriteWord(address, value));
+                    (mmu, address, value) =>
+                        mmu.WriteWord(address, value));
             MmuTransferByte =
                 ExpressionHelpers.GetMethodInfo<IMmu, ushort, ushort>(
-                                                                      (mmu, addressFrom, addressTo) =>
-                                                                          mmu.TransferByte(addressFrom, addressTo));
+                    (mmu, addressFrom, addressTo) =>
+                        mmu.TransferByte(addressFrom, addressTo));
 
             ReadByteAtHL = Expression.Call(Mmu, MmuReadByte, HL);
 
@@ -277,12 +277,12 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
 
             AluRotateRightDigit =
                 ExpressionHelpers.GetMethodInfo<IAlu, byte, byte, AccumulatorAndResult>(
-                                                                                        (alu, a, b) =>
-                                                                                            alu.RotateRightDigit(a, b));
+                    (alu, a, b) =>
+                        alu.RotateRightDigit(a, b));
             AluRotateLeftDigit =
                 ExpressionHelpers.GetMethodInfo<IAlu, byte, byte, AccumulatorAndResult>(
-                                                                                        (alu, a, b) =>
-                                                                                            alu.RotateLeftDigit(a, b));
+                    (alu, a, b) =>
+                        alu.RotateLeftDigit(a, b));
 
             AluBitTest = ExpressionHelpers.GetMethodInfo<IAlu, byte, int>((alu, a, bit) => alu.BitTest(a, bit));
             AluBitSet = ExpressionHelpers.GetMethodInfo<IAlu, byte, int, byte>((alu, a, bit) => alu.BitSet(a, bit));
@@ -294,15 +294,15 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
             // IO Expressions
             IoReadByte =
                 ExpressionHelpers.GetMethodInfo<IPeripheralManager, byte, byte, byte>(
-                                                                                      (io, port, addressMsb) =>
-                                                                                          io.ReadByteFromPort(port,
-                                                                                                              addressMsb));
+                    (io, port, addressMsb) =>
+                        io.ReadByteFromPort(port,
+                            addressMsb));
             IoWriteByte =
                 ExpressionHelpers.GetMethodInfo<IPeripheralManager, byte, byte, byte>(
-                                                                                      (io, port, addressMsb, value) =>
-                                                                                          io.WriteByteToPort(port,
-                                                                                                             addressMsb,
-                                                                                                             value));
+                    (io, port, addressMsb, value) =>
+                        io.WriteByteToPort(port,
+                            addressMsb,
+                            value));
 
             if (typeof (TRegisters) == typeof (IZ80Registers))
             {
@@ -318,21 +318,21 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
 
                 // Z80 specific register methods
                 SwitchToAlternativeGeneralPurposeRegisters = Expression.Call(Registers,
-                                                                             ExpressionHelpers
-                                                                                 .GetMethodInfo<IZ80Registers>(
-                                                                                                               registers
-                                                                                                                   =>
-                                                                                                                   registers
-                                                                                                                   .SwitchToAlternativeGeneralPurposeRegisters
-                                                                                                                   ()));
+                    ExpressionHelpers
+                        .GetMethodInfo<IZ80Registers>(
+                            registers
+                                =>
+                                registers
+                                    .SwitchToAlternativeGeneralPurposeRegisters
+                                    ()));
                 SwitchToAlternativeAccumulatorAndFlagsRegisters = Expression.Call(Registers,
-                                                                                  ExpressionHelpers
-                                                                                      .GetMethodInfo<IZ80Registers>(
-                                                                                                                    registers
-                                                                                                                        =>
-                                                                                                                        registers
-                                                                                                                        .SwitchToAlternativeAccumulatorAndFlagsRegisters
-                                                                                                                        ()));
+                    ExpressionHelpers
+                        .GetMethodInfo<IZ80Registers>(
+                            registers
+                                =>
+                                registers
+                                    .SwitchToAlternativeAccumulatorAndFlagsRegisters
+                                    ()));
             }
         }
     }

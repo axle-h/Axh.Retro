@@ -10,8 +10,8 @@ namespace Axh.Retro.CPU.Z80.Tests.Core
     internal static class FlagsHelpers
     {
         public static void VerifyFlag(Mock<IFlagsRegister> flags,
-                                      Expression<Func<IFlagsRegister, bool>> propertyLambda,
-                                      bool? value)
+            Expression<Func<IFlagsRegister, bool>> propertyLambda,
+            bool? value)
         {
             var flagsExpression = Expression.Parameter(typeof (IFlagsRegister), "flags");
             var property = GetPropertyExpression(flagsExpression, propertyLambda);
@@ -39,8 +39,8 @@ namespace Axh.Retro.CPU.Z80.Tests.Core
         }
 
         public static MemberExpression GetPropertyExpression<TSource, TProperty>(Expression instance,
-                                                                                 Expression<Func<TSource, TProperty>>
-                                                                                     propertyLambda)
+            Expression<Func<TSource, TProperty>>
+                propertyLambda)
         {
             var type = typeof (TSource);
 

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Axh.Retro.CPU.Common.Contracts.Memory;
 
 namespace Axh.Retro.CPU.Z80.Contracts.Peripherals
@@ -10,10 +9,10 @@ namespace Axh.Retro.CPU.Z80.Contracts.Peripherals
     public interface IMemoryMappedPeripheral : IPeripheral
     {
         /// <summary>
-        /// Gets the address segments.
+        ///     Gets the address segments.
         /// </summary>
         /// <value>
-        /// The address segments.
+        ///     The address segments.
         /// </value>
         IEnumerable<IAddressSegment> AddressSegments { get; }
     }

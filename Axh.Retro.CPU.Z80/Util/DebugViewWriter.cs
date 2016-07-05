@@ -34,57 +34,54 @@ namespace Axh.Retro.CPU.Z80.Util
 
         private const int MaxColumn = 120;
 
-        private readonly Stack<int> stack = new Stack<int>();
+        private readonly Stack<int> _stack = new Stack<int>();
 
-        private readonly TextWriter writer;
+        private readonly TextWriter _writer;
 
-        private int column;
+        private int _column;
 
-        private int delta;
+        private int _delta;
 
-        private Flow flow;
+        private Flow _flow;
 
         // Associate every unique anonymous LabelTarget in the tree with an integer.
         // The id is used to create a name for the anonymous LabelTarget.
-        //
-        private Dictionary<LabelTarget, int> labelIds;
+        private Dictionary<LabelTarget, int> _labelIds;
 
         // Associate every unique anonymous LambdaExpression in the tree with an integer.
         // The id is used to create a name for the anonymous lambda.
-        //
-        private Dictionary<LambdaExpression, int> lambdaIds;
+        private Dictionary<LambdaExpression, int> _lambdaIds;
 
         // All the unique lambda expressions in the ET, will be used for displaying all
         // the lambda definitions.
-        private Queue<LambdaExpression> lambdas;
+        private Queue<LambdaExpression> _lambdas;
 
         // Associate every unique anonymous parameter or variable in the tree with an integer.
         // The id is used to create a name for the anonymous parameter or variable.
-        //
-        private Dictionary<ParameterExpression, int> paramIds;
+        private Dictionary<ParameterExpression, int> _paramIds;
 
         private DebugViewWriter(TextWriter file)
         {
-            writer = file;
+            _writer = file;
         }
 
-        private int Base => stack.Count > 0 ? stack.Peek() : 0;
+        private int Base => _stack.Count > 0 ? _stack.Peek() : 0;
 
-        private int Depth => Base + delta;
+        private int Depth => Base + _delta;
 
         private void Indent()
         {
-            delta += Tab;
+            _delta += Tab;
         }
 
         private void Dedent()
         {
-            delta -= Tab;
+            _delta -= Tab;
         }
 
         private void NewLine()
         {
-            flow = Flow.NewLine;
+            _flow = Flow.NewLine;
         }
 
         private static int GetId<T>(T e, ref Dictionary<T, int> ids)
@@ -108,19 +105,19 @@ namespace Axh.Retro.CPU.Z80.Util
         private int GetLambdaId(LambdaExpression le)
         {
             Debug.Assert(string.IsNullOrEmpty(le.Name));
-            return GetId(le, ref lambdaIds);
+            return GetId(le, ref _lambdaIds);
         }
 
         private int GetParamId(ParameterExpression p)
         {
             Debug.Assert(string.IsNullOrEmpty(p.Name));
-            return GetId(p, ref paramIds);
+            return GetId(p, ref _paramIds);
         }
 
         private int GetLabelTargetId(LabelTarget target)
         {
             Debug.Assert(string.IsNullOrEmpty(target.Name));
-            return GetId(target, ref labelIds);
+            return GetId(target, ref _labelIds);
         }
 
         /// <summary>
@@ -144,18 +141,18 @@ namespace Axh.Retro.CPU.Z80.Util
             else
             {
                 Visit(node);
-                Debug.Assert(stack.Count == 0);
+                Debug.Assert(_stack.Count == 0);
             }
 
             //
             // Output all lambda expression definitions.
             // in the order of their appearances in the tree.
             //
-            while (lambdas != null && lambdas.Count > 0)
+            while (_lambdas != null && _lambdas.Count > 0)
             {
                 WriteLine();
                 WriteLine();
-                WriteLambda(lambdas.Dequeue());
+                WriteLambda(_lambdas.Dequeue());
             }
         }
 
@@ -198,24 +195,24 @@ namespace Axh.Retro.CPU.Z80.Util
                     break;
             }
             Write(s);
-            flow = after;
+            _flow = after;
         }
 
         private void WriteLine()
         {
-            writer.WriteLine();
-            column = 0;
+            _writer.WriteLine();
+            _column = 0;
         }
 
         private void Write(string s)
         {
-            writer.Write(s);
-            column += s.Length;
+            _writer.Write(s);
+            _column += s.Length;
         }
 
         private Flow GetFlow(Flow next)
         {
-            var last = CheckBreak(flow);
+            var last = CheckBreak(_flow);
             next = CheckBreak(next);
 
             // Get the biggest flow that is requested None < Space < NewLine
@@ -228,7 +225,7 @@ namespace Axh.Retro.CPU.Z80.Util
             {
                 return next;
             }
-            if (column > MaxColumn + Depth)
+            if (_column > MaxColumn + Depth)
             {
                 next = Flow.NewLine;
             }
@@ -318,18 +315,18 @@ namespace Axh.Retro.CPU.Z80.Util
         private void VisitDeclarations(ICollection<ParameterExpression> expressions)
         {
             VisitExpressions('(',
-                             ',',
-                             expressions,
-                             variable =>
-                             {
-                                 Out(variable.Type.ToString());
-                                 if (variable.IsByRef)
-                                 {
-                                     Out("&");
-                                 }
-                                 Out(" ");
-                                 VisitParameter(variable);
-                             });
+                ',',
+                expressions,
+                variable =>
+                {
+                    Out(variable.Type.ToString());
+                    if (variable.IsByRef)
+                    {
+                        Out("&");
+                    }
+                    Out(" ");
+                    VisitParameter(variable);
+                });
         }
 
         private void VisitExpressions<T>(char open, char separator, ICollection<T> expressions, Action<T> visit)
@@ -592,20 +589,20 @@ namespace Axh.Retro.CPU.Z80.Util
         protected override Expression VisitLambda<T>(Expression<T> node)
         {
             Out(string.Format(CultureInfo.CurrentCulture,
-                              "{0} {1}<{2}>",
-                              ".Lambda",
-                              GetLambdaName(node),
-                              node.Type.ToString()));
+                "{0} {1}<{2}>",
+                ".Lambda",
+                GetLambdaName(node),
+                node.Type.ToString()));
 
-            if (lambdas == null)
+            if (_lambdas == null)
             {
-                lambdas = new Queue<LambdaExpression>();
+                _lambdas = new Queue<LambdaExpression>();
             }
 
             // N^2 performance, for keeping the order of the lambdas.
-            if (!lambdas.Contains(node))
+            if (!_lambdas.Contains(node))
             {
-                lambdas.Enqueue(node);
+                _lambdas.Enqueue(node);
             }
 
             return node;
@@ -1350,12 +1347,12 @@ namespace Axh.Retro.CPU.Z80.Util
             else
             {
                 Out(string.Format(CultureInfo.CurrentCulture,
-                                  ".DebugInfo({0}: {1}, {2} - {3}, {4})",
-                                  node.Document.FileName,
-                                  node.StartLine,
-                                  node.StartColumn,
-                                  node.EndLine,
-                                  node.EndColumn));
+                    ".DebugInfo({0}: {1}, {2} - {3}, {4})",
+                    node.Document.FileName,
+                    node.StartLine,
+                    node.StartColumn,
+                    node.EndLine,
+                    node.EndColumn));
             }
             return node;
         }
@@ -1375,9 +1372,9 @@ namespace Axh.Retro.CPU.Z80.Util
         private void WriteLambda(LambdaExpression lambda)
         {
             Out(string.Format(CultureInfo.CurrentCulture,
-                              ".Lambda {0}<{1}>",
-                              GetLambdaName(lambda),
-                              lambda.Type.ToString()));
+                ".Lambda {0}<{1}>",
+                GetLambdaName(lambda),
+                lambda.Type.ToString()));
 
             VisitDeclarations(lambda.Parameters);
 
@@ -1386,7 +1383,7 @@ namespace Axh.Retro.CPU.Z80.Util
             Visit(lambda.Body);
             Dedent();
             Out(Flow.NewLine, "}");
-            Debug.Assert(stack.Count == 0);
+            Debug.Assert(_stack.Count == 0);
         }
 
         private string GetLambdaName(LambdaExpression lambda)

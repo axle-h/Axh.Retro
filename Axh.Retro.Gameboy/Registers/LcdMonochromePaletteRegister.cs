@@ -27,12 +27,12 @@ namespace Axh.Retro.GameBoy.Registers
         public LcdMonochromePaletteRegister()
         {
             Pallette = new Dictionary<Palette, MonocromeShade>
-                       {
-                           [Palette.Colour0] = MonocromeShade.White,
-                           [Palette.Colour1] = MonocromeShade.White,
-                           [Palette.Colour2] = MonocromeShade.White,
-                           [Palette.Colour3] = MonocromeShade.White
-                       };
+            {
+                [Palette.Colour0] = MonocromeShade.White,
+                [Palette.Colour1] = MonocromeShade.White,
+                [Palette.Colour2] = MonocromeShade.White,
+                [Palette.Colour3] = MonocromeShade.White
+            };
         }
 
         /// <summary>

@@ -7,13 +7,13 @@ namespace Axh.Retro.CPU.Z80.Tests.Registers
     [TestFixture]
     public class FlagsRegisterTests
     {
-        private IFlagsRegister flagsRegister;
+        private IFlagsRegister _flagsRegister;
 
         [TestFixtureSetUp]
         public void TestFixtureSetUp()
         {
-            flagsRegister = new Intel8080FlagsRegister();
-            flagsRegister.ResetFlags();
+            _flagsRegister = new Intel8080FlagsRegister();
+            _flagsRegister.ResetFlags();
         }
 
         [TestCase(0x00, ExpectedResult = new[] {false, false, false, false, false, false, false, false})]
@@ -274,8 +274,8 @@ namespace Axh.Retro.CPU.Z80.Tests.Registers
         [TestCase(0xFF, ExpectedResult = new[] {false, false, true, false, true, false, false, false})]
         public bool[] SetUndocumentedFlagsTest(byte result)
         {
-            flagsRegister.ResetFlags();
-            flagsRegister.SetUndocumentedFlags(result);
+            _flagsRegister.ResetFlags();
+            _flagsRegister.SetUndocumentedFlags(result);
             return GetFlagsArray();
         }
 
@@ -538,8 +538,8 @@ namespace Axh.Retro.CPU.Z80.Tests.Registers
         [TestCase(0xFF, ExpectedResult = new[] {true, false, true, false, true, false, false, false})]
         public bool[] SetResultFlagsTests(byte result)
         {
-            flagsRegister.ResetFlags();
-            flagsRegister.SetResultFlags(result);
+            _flagsRegister.ResetFlags();
+            _flagsRegister.SetResultFlags(result);
             return GetFlagsArray();
         }
 
@@ -801,8 +801,8 @@ namespace Axh.Retro.CPU.Z80.Tests.Registers
         [TestCase(0xFF, ExpectedResult = new[] {true, false, true, false, true, true, false, false})]
         public bool[] SetParityFlagsTests(byte result)
         {
-            flagsRegister.ResetFlags();
-            flagsRegister.SetParityFlags(result);
+            _flagsRegister.ResetFlags();
+            _flagsRegister.SetParityFlags(result);
             return GetFlagsArray();
         }
 
@@ -1063,25 +1063,25 @@ namespace Axh.Retro.CPU.Z80.Tests.Registers
         [TestCase(true, true, true, true, true, true, true, false, ExpectedResult = 0xFE)]
         [TestCase(true, true, true, true, true, true, true, true, ExpectedResult = 0xFF)]
         public byte SetFlagsTest(bool sign,
-                                 bool zero,
-                                 bool flag5,
-                                 bool halfCarry,
-                                 bool flag3,
-                                 bool parityOverflow,
-                                 bool subtract,
-                                 bool carry)
+            bool zero,
+            bool flag5,
+            bool halfCarry,
+            bool flag3,
+            bool parityOverflow,
+            bool subtract,
+            bool carry)
         {
-            flagsRegister.ResetFlags();
-            flagsRegister.Sign = sign;
-            flagsRegister.Zero = zero;
-            flagsRegister.Flag5 = flag5;
-            flagsRegister.HalfCarry = halfCarry;
-            flagsRegister.Flag3 = flag3;
-            flagsRegister.ParityOverflow = parityOverflow;
-            flagsRegister.Subtract = subtract;
-            flagsRegister.Carry = carry;
+            _flagsRegister.ResetFlags();
+            _flagsRegister.Sign = sign;
+            _flagsRegister.Zero = zero;
+            _flagsRegister.Flag5 = flag5;
+            _flagsRegister.HalfCarry = halfCarry;
+            _flagsRegister.Flag3 = flag3;
+            _flagsRegister.ParityOverflow = parityOverflow;
+            _flagsRegister.Subtract = subtract;
+            _flagsRegister.Carry = carry;
 
-            return flagsRegister.Register;
+            return _flagsRegister.Register;
         }
 
         [TestCase(0x00, ExpectedResult = new[] {false, false, false, false, false, false, false, false})]
@@ -1342,24 +1342,24 @@ namespace Axh.Retro.CPU.Z80.Tests.Registers
         [TestCase(0xFF, ExpectedResult = new[] {true, true, true, true, true, true, true, true})]
         public bool[] GetFlagsTest(byte register)
         {
-            flagsRegister.ResetFlags();
-            flagsRegister.Register = register;
+            _flagsRegister.ResetFlags();
+            _flagsRegister.Register = register;
             return GetFlagsArray();
         }
 
         private bool[] GetFlagsArray()
         {
             return new[]
-                   {
-                       flagsRegister.Sign,
-                       flagsRegister.Zero,
-                       flagsRegister.Flag5,
-                       flagsRegister.HalfCarry,
-                       flagsRegister.Flag3,
-                       flagsRegister.ParityOverflow,
-                       flagsRegister.Subtract,
-                       flagsRegister.Carry
-                   };
+            {
+                _flagsRegister.Sign,
+                _flagsRegister.Zero,
+                _flagsRegister.Flag5,
+                _flagsRegister.HalfCarry,
+                _flagsRegister.Flag3,
+                _flagsRegister.ParityOverflow,
+                _flagsRegister.Subtract,
+                _flagsRegister.Carry
+            };
         }
     }
 }

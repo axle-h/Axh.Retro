@@ -10,26 +10,26 @@ namespace Axh.Retro.CPU.Common.Memory
     {
         private const int CacheSize = 64;
 
-        private readonly IMmu mmu;
+        private readonly IMmu _mmu;
 
-        private ushort address;
+        private ushort _address;
 
-        private byte[] cache;
+        private byte[] _cache;
 
-        private int cachePointer;
+        private int _cachePointer;
 
         public PrefetchQueue(IMmu mmu)
         {
-            this.mmu = mmu;
-            address = 0x0000;
+            _mmu = mmu;
+            _address = 0x0000;
             Init();
         }
 
         public virtual byte NextByte()
         {
-            var value = cache[cachePointer];
+            var value = _cache[_cachePointer];
 
-            if (++cachePointer == CacheSize)
+            if (++_cachePointer == CacheSize)
             {
                 NudgeCache();
             }
@@ -45,12 +45,12 @@ namespace Axh.Retro.CPU.Common.Memory
 
             while (bytesRead < length)
             {
-                var bytesToRead = Math.Min(length - bytesRead, CacheSize - cachePointer);
-                Array.Copy(cache, cachePointer, bytes, bytesRead, bytesToRead);
+                var bytesToRead = Math.Min(length - bytesRead, CacheSize - _cachePointer);
+                Array.Copy(_cache, _cachePointer, bytes, bytesRead, bytesToRead);
                 bytesRead += bytesToRead;
 
-                cachePointer += bytesToRead;
-                if (cachePointer == CacheSize)
+                _cachePointer += bytesToRead;
+                if (_cachePointer == CacheSize)
                 {
                     NudgeCache();
                 }
@@ -62,7 +62,7 @@ namespace Axh.Retro.CPU.Common.Memory
 
         public ushort NextWord()
         {
-            if (CacheSize - cachePointer == 1)
+            if (CacheSize - _cachePointer == 1)
             {
                 // If there's only one byte left then we need to read it then the next byte from the next cache
                 var lsb = NextByte();
@@ -71,10 +71,10 @@ namespace Axh.Retro.CPU.Common.Memory
                 return BitConverter.ToUInt16(new[] {lsb, msb}, 0);
             }
 
-            var value = BitConverter.ToUInt16(cache, cachePointer);
+            var value = BitConverter.ToUInt16(_cache, _cachePointer);
 
-            cachePointer += 2;
-            if (cachePointer == CacheSize)
+            _cachePointer += 2;
+            if (_cachePointer == CacheSize)
             {
                 NudgeCache();
             }
@@ -87,7 +87,7 @@ namespace Axh.Retro.CPU.Common.Memory
         {
             // TODO: check if we can re-use this cache, make sure TotalBytesRead is still reset
 
-            address = newAddress;
+            _address = newAddress;
             Init();
         }
 
@@ -95,16 +95,16 @@ namespace Axh.Retro.CPU.Common.Memory
 
         private void Init()
         {
-            cachePointer = 0;
-            cache = mmu.ReadBytes(address, CacheSize);
+            _cachePointer = 0;
+            _cache = _mmu.ReadBytes(_address, CacheSize);
             TotalBytesRead = 0;
         }
 
         private void NudgeCache()
         {
-            address = unchecked((ushort) (address + CacheSize));
-            cachePointer = 0;
-            cache = mmu.ReadBytes(address, CacheSize);
+            _address = unchecked((ushort) (_address + CacheSize));
+            _cachePointer = 0;
+            _cache = _mmu.ReadBytes(_address, CacheSize);
         }
     }
 }

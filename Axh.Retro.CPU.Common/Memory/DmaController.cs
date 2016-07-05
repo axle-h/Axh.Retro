@@ -15,9 +15,9 @@ namespace Axh.Retro.CPU.Common.Memory
     public class DmaController : IDmaController
     {
         private const int Timeout = 100;
-        private readonly object disposingContext = new object();
-        private readonly BlockingCollection<IDmaOperation> dmaOperations;
-        private bool disposed;
+        private readonly object _disposingContext = new object();
+        private readonly BlockingCollection<IDmaOperation> _dmaOperations;
+        private bool _disposed;
 
 
         /// <summary>
@@ -25,7 +25,7 @@ namespace Axh.Retro.CPU.Common.Memory
         /// </summary>
         public DmaController()
         {
-            dmaOperations = new BlockingCollection<IDmaOperation>();
+            _dmaOperations = new BlockingCollection<IDmaOperation>();
         }
 
         /// <summary>
@@ -37,16 +37,16 @@ namespace Axh.Retro.CPU.Common.Memory
         /// <param name="timings">The cpu cycles required to execute this operation.</param>
         /// <param name="lockedAddressesRanges">The address ranges to lock during the copy operation.</param>
         public void Copy(ushort sourceAddress,
-                         ushort destinationAddress,
-                         int length,
-                         InstructionTimings timings,
-                         IEnumerable<AddressRange> lockedAddressesRanges)
+            ushort destinationAddress,
+            int length,
+            InstructionTimings timings,
+            IEnumerable<AddressRange> lockedAddressesRanges)
         {
-            dmaOperations.Add(new DmaCopyOperation(sourceAddress,
-                                                   destinationAddress,
-                                                   length,
-                                                   timings,
-                                                   lockedAddressesRanges));
+            _dmaOperations.Add(new DmaCopyOperation(sourceAddress,
+                destinationAddress,
+                length,
+                timings,
+                lockedAddressesRanges));
         }
 
         /// <summary>
@@ -57,9 +57,9 @@ namespace Axh.Retro.CPU.Common.Memory
         /// <returns>True if an operation has successfully been returned from the queue.</returns>
         public bool TryGet(out IDmaOperation operation)
         {
-            if (!disposed)
+            if (!_disposed)
             {
-                return dmaOperations.TryTake(out operation, Timeout) && operation != null;
+                return _dmaOperations.TryTake(out operation, Timeout) && operation != null;
             }
 
             operation = null;
@@ -71,26 +71,26 @@ namespace Axh.Retro.CPU.Common.Memory
         /// </summary>
         public void Dispose()
         {
-            if (disposed)
+            if (_disposed)
             {
                 return;
             }
 
-            lock (disposingContext)
+            lock (_disposingContext)
             {
-                if (disposed)
+                if (_disposed)
                 {
                     return;
                 }
 
-                disposed = true;
+                _disposed = true;
             }
 
-            dmaOperations.CompleteAdding();
+            _dmaOperations.CompleteAdding();
 
             var minimumTimeout = Task.Delay(Timeout);
             var timeout = Task.Delay(Timeout * 10);
-            while (dmaOperations.Any())
+            while (_dmaOperations.Any())
             {
                 var iteration = Task.Delay(100);
                 var completedTask = Task.WhenAny(timeout, iteration).Result;
@@ -102,7 +102,7 @@ namespace Axh.Retro.CPU.Common.Memory
             }
 
             minimumTimeout.Wait();
-            dmaOperations.Dispose();
+            _dmaOperations.Dispose();
         }
     }
 }

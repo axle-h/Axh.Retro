@@ -8,34 +8,34 @@ namespace Axh.Retro.CPU.Z80.Tests.Core
     [TestFixture]
     public class ArithmeticLogicUnitTests
     {
-        private Mock<IFlagsRegister> flags;
+        private Mock<IFlagsRegister> _flags;
 
-        private Alu<IZ80Registers> alu;
+        private Alu<IZ80Registers> _alu;
 
         [TestFixtureSetUp]
         public void TestFixtureSetUp()
         {
-            flags = new Mock<IFlagsRegister>();
+            _flags = new Mock<IFlagsRegister>();
             var registers = new Mock<IZ80Registers>();
             var accumulatorAndFlagsRegisterSet = new Mock<IAccumulatorAndFlagsRegisterSet>();
 
             registers.Setup(x => x.AccumulatorAndFlagsRegisters).Returns(accumulatorAndFlagsRegisterSet.Object);
-            accumulatorAndFlagsRegisterSet.Setup(x => x.Flags).Returns(flags.Object);
+            accumulatorAndFlagsRegisterSet.Setup(x => x.Flags).Returns(_flags.Object);
 
-            alu = new Alu<IZ80Registers>(registers.Object);
+            _alu = new Alu<IZ80Registers>(registers.Object);
         }
 
         private void Reset(bool carry = false)
         {
-            flags.ResetCalls();
-            flags.SetupProperty(x => x.Sign, false);
-            flags.SetupProperty(x => x.Zero, false);
-            flags.SetupProperty(x => x.Flag5, false);
-            flags.SetupProperty(x => x.HalfCarry, false);
-            flags.SetupProperty(x => x.ParityOverflow, false);
-            flags.SetupProperty(x => x.Flag3, false);
-            flags.SetupProperty(x => x.Subtract, false);
-            flags.SetupProperty(x => x.Carry, carry);
+            _flags.ResetCalls();
+            _flags.SetupProperty(x => x.Sign, false);
+            _flags.SetupProperty(x => x.Zero, false);
+            _flags.SetupProperty(x => x.Flag5, false);
+            _flags.SetupProperty(x => x.HalfCarry, false);
+            _flags.SetupProperty(x => x.ParityOverflow, false);
+            _flags.SetupProperty(x => x.Flag3, false);
+            _flags.SetupProperty(x => x.Subtract, false);
+            _flags.SetupProperty(x => x.Carry, carry);
         }
 
         [TestCase(0x4e, 0x4f, false, false)]
@@ -44,7 +44,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core
         public void Increment(byte a, byte expected, bool halfCarry, bool overflow)
         {
             Reset();
-            var result = alu.Increment(a);
+            var result = _alu.Increment(a);
 
             Assert.AreEqual(expected, result);
 
@@ -58,7 +58,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core
         {
             Reset();
 
-            var result = alu.Decrement(a);
+            var result = _alu.Decrement(a);
 
             Assert.AreEqual(expected, result);
 
@@ -105,7 +105,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core
         {
             Reset();
 
-            var result = alu.Add(a, b);
+            var result = _alu.Add(a, b);
 
             Assert.AreEqual(expected, result);
 
@@ -152,9 +152,9 @@ namespace Axh.Retro.CPU.Z80.Tests.Core
         {
             Reset();
 
-            flags.SetupProperty(x => x.Carry, true);
+            _flags.SetupProperty(x => x.Carry, true);
 
-            var result = alu.AddWithCarry(a, b);
+            var result = _alu.AddWithCarry(a, b);
 
             Assert.AreEqual(expected, result);
 
@@ -201,7 +201,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core
         {
             Reset();
 
-            var result = alu.Subtract(a, b);
+            var result = _alu.Subtract(a, b);
 
             Assert.AreEqual(expected, result);
 
@@ -248,9 +248,9 @@ namespace Axh.Retro.CPU.Z80.Tests.Core
         {
             Reset();
 
-            flags.SetupProperty(x => x.Carry, true);
+            _flags.SetupProperty(x => x.Carry, true);
 
-            var result = alu.SubtractWithCarry(a, b);
+            var result = _alu.SubtractWithCarry(a, b);
 
             Assert.AreEqual(expected, result);
 
@@ -297,7 +297,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core
         {
             Reset();
 
-            alu.Compare(a, b);
+            _alu.Compare(a, b);
 
             AssertFlags(expected, null, null, halfCarry, overflow, true, null);
         }
@@ -307,12 +307,12 @@ namespace Axh.Retro.CPU.Z80.Tests.Core
         {
             Reset();
 
-            var result = alu.And(a, b);
+            var result = _alu.And(a, b);
 
             Assert.AreEqual(expected, result);
-            flags.Verify(x => x.SetParityFlags(expected), Times.Once);
-            flags.VerifySet(x => x.HalfCarry = true, Times.Once);
-            flags.VerifySet(x => x.Carry = false, Times.Once);
+            _flags.Verify(x => x.SetParityFlags(expected), Times.Once);
+            _flags.VerifySet(x => x.HalfCarry = true, Times.Once);
+            _flags.VerifySet(x => x.Carry = false, Times.Once);
         }
 
         [TestCase(0x48, 0x12, 0x5a)]
@@ -320,12 +320,12 @@ namespace Axh.Retro.CPU.Z80.Tests.Core
         {
             Reset();
 
-            var result = alu.Or(a, b);
+            var result = _alu.Or(a, b);
 
             Assert.AreEqual(expected, result);
-            flags.Verify(x => x.SetParityFlags(expected), Times.Once);
-            flags.VerifySet(x => x.HalfCarry = false, Times.Once);
-            flags.VerifySet(x => x.Carry = false, Times.Once);
+            _flags.Verify(x => x.SetParityFlags(expected), Times.Once);
+            _flags.VerifySet(x => x.HalfCarry = false, Times.Once);
+            _flags.VerifySet(x => x.Carry = false, Times.Once);
         }
 
         [TestCase(0x96, 0x5d, 0xcb)]
@@ -333,12 +333,12 @@ namespace Axh.Retro.CPU.Z80.Tests.Core
         {
             Reset();
 
-            var result = alu.Xor(a, b);
+            var result = _alu.Xor(a, b);
 
             Assert.AreEqual(expected, result);
-            flags.Verify(x => x.SetParityFlags(expected), Times.Once);
-            flags.VerifySet(x => x.HalfCarry = false, Times.Once);
-            flags.VerifySet(x => x.Carry = false, Times.Once);
+            _flags.Verify(x => x.SetParityFlags(expected), Times.Once);
+            _flags.VerifySet(x => x.HalfCarry = false, Times.Once);
+            _flags.VerifySet(x => x.Carry = false, Times.Once);
         }
 
         [TestCase(0x15, 0x27, 0x42)]
@@ -347,11 +347,11 @@ namespace Axh.Retro.CPU.Z80.Tests.Core
         {
             Reset();
 
-            var result = alu.Add(a, b);
-            var daa = alu.DecimalAdjust(result, true);
+            var result = _alu.Add(a, b);
+            var daa = _alu.DecimalAdjust(result, true);
 
             Assert.AreEqual(expected, daa);
-            flags.Verify(x => x.SetResultFlags(expected), Times.AtLeastOnce);
+            _flags.Verify(x => x.SetResultFlags(expected), Times.AtLeastOnce);
         }
 
         [TestCase(0x15, 0x27, 0x88)]
@@ -360,11 +360,11 @@ namespace Axh.Retro.CPU.Z80.Tests.Core
         {
             Reset();
 
-            var result = alu.Subtract(a, b);
-            var daa = alu.DecimalAdjust(result, true);
+            var result = _alu.Subtract(a, b);
+            var daa = _alu.DecimalAdjust(result, true);
 
             Assert.AreEqual(expected, daa);
-            flags.Verify(x => x.SetResultFlags(expected), Times.AtLeastOnce);
+            _flags.Verify(x => x.SetResultFlags(expected), Times.AtLeastOnce);
         }
 
         [TestCase((ushort) 0x4242, (ushort) 0x1111, (ushort) 0x5353, false, false)]
@@ -375,7 +375,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core
         {
             Reset();
 
-            var result = alu.Add(a, b);
+            var result = _alu.Add(a, b);
 
             Assert.AreEqual(expected, result);
 
@@ -390,14 +390,14 @@ namespace Axh.Retro.CPU.Z80.Tests.Core
         {
             Reset();
 
-            flags.SetupProperty(x => x.Carry, true);
+            _flags.SetupProperty(x => x.Carry, true);
 
-            var result = alu.AddWithCarry(a, b);
+            var result = _alu.AddWithCarry(a, b);
 
             Assert.AreEqual(expected, result);
 
             AssertFlags(null, null, null, halfCarry, overflow, false, carry);
-            flags.Verify(x => x.SetResultFlags(result), Times.Once);
+            _flags.Verify(x => x.SetResultFlags(result), Times.Once);
         }
 
         [TestCase((ushort) 0x9999, (ushort) 0x1111, (ushort) 0x8887, false, false, false)]
@@ -408,14 +408,14 @@ namespace Axh.Retro.CPU.Z80.Tests.Core
         {
             Reset();
 
-            flags.SetupProperty(x => x.Carry, true);
+            _flags.SetupProperty(x => x.Carry, true);
 
-            var result = alu.SubtractWithCarry(a, b);
+            var result = _alu.SubtractWithCarry(a, b);
 
             Assert.AreEqual(expected, result);
 
             AssertFlags(null, null, null, halfCarry, overflow, true, carry);
-            flags.Verify(x => x.SetResultFlags(result), Times.Once);
+            _flags.Verify(x => x.SetResultFlags(result), Times.Once);
         }
 
         [TestCase(0x88, 0x11, true)]
@@ -424,13 +424,13 @@ namespace Axh.Retro.CPU.Z80.Tests.Core
         {
             Reset();
 
-            var result = alu.RotateLeftWithCarry(a);
+            var result = _alu.RotateLeftWithCarry(a);
 
             Assert.AreEqual(expected, result);
 
             AssertFlags(null, null, null, false, null, false, expectedCarry);
 
-            flags.Verify(x => x.SetResultFlags(result), Times.Once);
+            _flags.Verify(x => x.SetResultFlags(result), Times.Once);
         }
 
         [TestCase(false, 0x88, 0x10, true)]
@@ -441,13 +441,13 @@ namespace Axh.Retro.CPU.Z80.Tests.Core
         {
             Reset(carry);
 
-            var result = alu.RotateLeft(a);
+            var result = _alu.RotateLeft(a);
 
             Assert.AreEqual(expected, result);
 
             AssertFlags(null, null, null, false, null, false, expectedCarry);
 
-            flags.Verify(x => x.SetResultFlags(result), Times.Once);
+            _flags.Verify(x => x.SetResultFlags(result), Times.Once);
         }
 
         [TestCase(0x11, 0x88, true)]
@@ -456,13 +456,13 @@ namespace Axh.Retro.CPU.Z80.Tests.Core
         {
             Reset();
 
-            var result = alu.RotateRightWithCarry(a);
+            var result = _alu.RotateRightWithCarry(a);
 
             Assert.AreEqual(expected, result);
 
             AssertFlags(null, null, null, false, null, false, expectedCarry);
 
-            flags.Verify(x => x.SetResultFlags(result), Times.Once);
+            _flags.Verify(x => x.SetResultFlags(result), Times.Once);
         }
 
         [TestCase(false, 0x11, 0x08, true)]
@@ -473,13 +473,13 @@ namespace Axh.Retro.CPU.Z80.Tests.Core
         {
             Reset(carry);
 
-            var result = alu.RotateRight(a);
+            var result = _alu.RotateRight(a);
 
             Assert.AreEqual(expected, result);
 
             AssertFlags(null, null, null, false, null, false, expectedCarry);
 
-            flags.Verify(x => x.SetResultFlags(result), Times.Once);
+            _flags.Verify(x => x.SetResultFlags(result), Times.Once);
         }
 
         [TestCase(0x88, 0x10, true)]
@@ -488,13 +488,13 @@ namespace Axh.Retro.CPU.Z80.Tests.Core
         {
             Reset();
 
-            var result = alu.ShiftLeft(a);
+            var result = _alu.ShiftLeft(a);
 
             Assert.AreEqual(expected, result);
 
             AssertFlags(null, null, null, false, null, null, expectedCarry);
 
-            flags.Verify(x => x.SetParityFlags(result), Times.Once);
+            _flags.Verify(x => x.SetParityFlags(result), Times.Once);
         }
 
         [TestCase(0x88, 0x11, true)]
@@ -503,13 +503,13 @@ namespace Axh.Retro.CPU.Z80.Tests.Core
         {
             Reset();
 
-            var result = alu.ShiftLeftSet(a);
+            var result = _alu.ShiftLeftSet(a);
 
             Assert.AreEqual(expected, result);
 
             AssertFlags(null, null, null, false, null, null, expectedCarry);
 
-            flags.Verify(x => x.SetParityFlags(result), Times.Once);
+            _flags.Verify(x => x.SetParityFlags(result), Times.Once);
         }
 
         [TestCase(0x88, 0xc4, false)]
@@ -518,13 +518,13 @@ namespace Axh.Retro.CPU.Z80.Tests.Core
         {
             Reset();
 
-            var result = alu.ShiftRight(a);
+            var result = _alu.ShiftRight(a);
 
             Assert.AreEqual(expected, result);
 
             AssertFlags(null, null, null, false, null, null, expectedCarry);
 
-            flags.Verify(x => x.SetParityFlags(result), Times.Once);
+            _flags.Verify(x => x.SetParityFlags(result), Times.Once);
         }
 
 
@@ -534,13 +534,13 @@ namespace Axh.Retro.CPU.Z80.Tests.Core
         {
             Reset();
 
-            var result = alu.ShiftRightLogical(a);
+            var result = _alu.ShiftRightLogical(a);
 
             Assert.AreEqual(expected, result);
 
             AssertFlags(null, null, null, false, null, null, expectedCarry);
 
-            flags.Verify(x => x.SetParityFlags(result), Times.Once);
+            _flags.Verify(x => x.SetParityFlags(result), Times.Once);
         }
 
         [TestCase(0x7a, 0x31, 0x73, 0x1a)]
@@ -548,14 +548,14 @@ namespace Axh.Retro.CPU.Z80.Tests.Core
         {
             Reset();
 
-            var result = alu.RotateLeftDigit(accumulator, b);
+            var result = _alu.RotateLeftDigit(accumulator, b);
 
             Assert.AreEqual(expectedAccumulator, result.Accumulator);
             Assert.AreEqual(expected, result.Result);
 
             AssertFlags(null, null, null, false, null, null, null);
 
-            flags.Verify(x => x.SetParityFlags(result.Accumulator), Times.Once);
+            _flags.Verify(x => x.SetParityFlags(result.Accumulator), Times.Once);
         }
 
         [TestCase(0x84, 0x20, 0x80, 0x42)]
@@ -563,35 +563,35 @@ namespace Axh.Retro.CPU.Z80.Tests.Core
         {
             Reset();
 
-            var result = alu.RotateRightDigit(accumulator, b);
+            var result = _alu.RotateRightDigit(accumulator, b);
 
             Assert.AreEqual(expectedAccumulator, result.Accumulator);
             Assert.AreEqual(expected, result.Result);
 
             AssertFlags(null, null, null, false, null, null, null);
 
-            flags.Verify(x => x.SetParityFlags(result.Accumulator), Times.Once);
+            _flags.Verify(x => x.SetParityFlags(result.Accumulator), Times.Once);
         }
 
         private void AssertFlags(byte? result,
-                                 bool? sign,
-                                 bool? zero,
-                                 bool? halfCarry,
-                                 bool? parityOverflow,
-                                 bool? subtract,
-                                 bool? carry)
+            bool? sign,
+            bool? zero,
+            bool? halfCarry,
+            bool? parityOverflow,
+            bool? subtract,
+            bool? carry)
         {
             if (result.HasValue)
             {
-                flags.Verify(x => x.SetResultFlags(result.Value), Times.Once);
+                _flags.Verify(x => x.SetResultFlags(result.Value), Times.Once);
             }
 
-            FlagsHelpers.VerifyFlag(flags, x => x.Sign, sign);
-            FlagsHelpers.VerifyFlag(flags, x => x.Zero, zero);
-            FlagsHelpers.VerifyFlag(flags, x => x.HalfCarry, halfCarry);
-            FlagsHelpers.VerifyFlag(flags, x => x.ParityOverflow, parityOverflow);
-            FlagsHelpers.VerifyFlag(flags, x => x.Subtract, subtract);
-            FlagsHelpers.VerifyFlag(flags, x => x.Carry, carry);
+            FlagsHelpers.VerifyFlag(_flags, x => x.Sign, sign);
+            FlagsHelpers.VerifyFlag(_flags, x => x.Zero, zero);
+            FlagsHelpers.VerifyFlag(_flags, x => x.HalfCarry, halfCarry);
+            FlagsHelpers.VerifyFlag(_flags, x => x.ParityOverflow, parityOverflow);
+            FlagsHelpers.VerifyFlag(_flags, x => x.Subtract, subtract);
+            FlagsHelpers.VerifyFlag(_flags, x => x.Carry, carry);
         }
 
         [Test]
@@ -600,7 +600,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core
             for (var i = 0; i < 8; i++)
             {
                 Reset();
-                var result = alu.BitReset(0xff, i);
+                var result = _alu.BitReset(0xff, i);
                 Assert.AreEqual((1 << i) ^ 0xff, result);
             }
         }
@@ -611,7 +611,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core
             for (var i = 0; i < 8; i++)
             {
                 Reset();
-                var result = alu.BitSet(0x00, i);
+                var result = _alu.BitSet(0x00, i);
                 Assert.AreEqual(1 << i, result);
             }
         }
@@ -622,9 +622,9 @@ namespace Axh.Retro.CPU.Z80.Tests.Core
             for (var i = 0; i < 8; i++)
             {
                 Reset();
-                alu.BitTest(0x00, i);
+                _alu.BitTest(0x00, i);
                 AssertFlags(null, i == 7, true, true, true, false, null);
-                flags.Verify(x => x.SetUndocumentedFlags(0x00), Times.Once);
+                _flags.Verify(x => x.SetUndocumentedFlags(0x00), Times.Once);
             }
         }
 
@@ -634,9 +634,9 @@ namespace Axh.Retro.CPU.Z80.Tests.Core
             for (var i = 0; i < 8; i++)
             {
                 Reset();
-                alu.BitTest(0xff, i);
+                _alu.BitTest(0xff, i);
                 AssertFlags(null, false, false, true, false, false, null);
-                flags.Verify(x => x.SetUndocumentedFlags(0xff), Times.Once);
+                _flags.Verify(x => x.SetUndocumentedFlags(0xff), Times.Once);
             }
         }
     }

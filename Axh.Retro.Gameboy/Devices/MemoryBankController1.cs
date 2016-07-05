@@ -13,11 +13,11 @@ namespace Axh.Retro.GameBoy.Devices
         private const ushort RamBankNumberAddress = 0x4000;
         private const ushort ModeSelectAddress = 0x6000;
 
-        private bool ramBankingMode;
+        private bool _ramBankingMode;
 
         public MemoryBankController1()
         {
-            ramBankingMode = false;
+            _ramBankingMode = false;
             RomBankNumber = 1;
         }
 
@@ -51,7 +51,7 @@ namespace Axh.Retro.GameBoy.Devices
             {
                 // RAM Bank Number
                 // TODO this should select the low 2 bits of the ROM bank number when romBankingMode is false
-                if (ramBankingMode)
+                if (_ramBankingMode)
                 {
                     RamBankNumber = (byte) (value & 0x3);
                     OnEvent(MemoryBankControllerEventTarget.RamBankSwitch);
@@ -60,7 +60,7 @@ namespace Axh.Retro.GameBoy.Devices
             }
 
             // ROM / RAM Mode Select
-            ramBankingMode = (value & 0x1) == 0x1;
+            _ramBankingMode = (value & 0x1) == 0x1;
         }
 
         public void WriteWord(ushort address, ushort word)

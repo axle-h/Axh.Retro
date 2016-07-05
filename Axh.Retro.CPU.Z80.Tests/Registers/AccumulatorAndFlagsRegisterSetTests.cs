@@ -8,25 +8,25 @@ namespace Axh.Retro.CPU.Z80.Tests.Registers
     [TestFixture]
     public class AccumulatorAndFlagsRegisterSetTests
     {
-        private IAccumulatorAndFlagsRegisterSet accumulatorAndFlagsRegisterSet;
+        private IAccumulatorAndFlagsRegisterSet _accumulatorAndFlagsRegisterSet;
 
-        private Mock<IFlagsRegister> flagsRegister;
+        private Mock<IFlagsRegister> _flagsRegister;
 
         [TestFixtureSetUp]
         public void TestFixtureSetUp()
         {
-            flagsRegister = new Mock<IFlagsRegister>();
+            _flagsRegister = new Mock<IFlagsRegister>();
 
-            accumulatorAndFlagsRegisterSet = new AccumulatorAndFlagsRegisterSet(flagsRegister.Object);
+            _accumulatorAndFlagsRegisterSet = new AccumulatorAndFlagsRegisterSet(_flagsRegister.Object);
         }
 
         [Test]
         public void GetAfRegisterTest()
         {
-            accumulatorAndFlagsRegisterSet.A = 0x12;
-            flagsRegister.Setup(x => x.Register).Returns(0x34);
+            _accumulatorAndFlagsRegisterSet.A = 0x12;
+            _flagsRegister.Setup(x => x.Register).Returns(0x34);
 
-            Assert.AreEqual(0x1234, accumulatorAndFlagsRegisterSet.AF);
+            Assert.AreEqual(0x1234, _accumulatorAndFlagsRegisterSet.AF);
         }
 
         [Test]
@@ -34,10 +34,10 @@ namespace Axh.Retro.CPU.Z80.Tests.Registers
         {
             const byte A = 0xaa, F = 0xff;
 
-            accumulatorAndFlagsRegisterSet.A = A;
-            flagsRegister.Setup(x => x.Register).Returns(F);
+            _accumulatorAndFlagsRegisterSet.A = A;
+            _flagsRegister.Setup(x => x.Register).Returns(F);
 
-            var state = accumulatorAndFlagsRegisterSet.GetRegisterState();
+            var state = _accumulatorAndFlagsRegisterSet.GetRegisterState();
 
             Assert.AreEqual(A, state.A);
             Assert.AreEqual(F, state.F);
@@ -49,20 +49,20 @@ namespace Axh.Retro.CPU.Z80.Tests.Registers
         {
             var state = RegisterTestObjects.AccumulatorAndFlagsRegisterState;
 
-            accumulatorAndFlagsRegisterSet.ResetToState(state);
+            _accumulatorAndFlagsRegisterSet.ResetToState(state);
 
-            Assert.AreEqual(state.A, accumulatorAndFlagsRegisterSet.A);
+            Assert.AreEqual(state.A, _accumulatorAndFlagsRegisterSet.A);
 
-            flagsRegister.VerifySet(x => x.Register = It.Is<byte>(y => y == state.F));
+            _flagsRegister.VerifySet(x => x.Register = It.Is<byte>(y => y == state.F));
         }
 
 
         [Test]
         public void SetAfRegisterTest()
         {
-            accumulatorAndFlagsRegisterSet.AF = 0x1234;
-            Assert.AreEqual(0x12, accumulatorAndFlagsRegisterSet.A);
-            flagsRegister.VerifySet(x => x.Register = It.Is<byte>(y => y == 0x34));
+            _accumulatorAndFlagsRegisterSet.AF = 0x1234;
+            Assert.AreEqual(0x12, _accumulatorAndFlagsRegisterSet.A);
+            _flagsRegister.VerifySet(x => x.Register = It.Is<byte>(y => y == 0x34));
         }
     }
 }

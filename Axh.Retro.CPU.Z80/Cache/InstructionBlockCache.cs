@@ -13,23 +13,23 @@ namespace Axh.Retro.CPU.Z80.Cache
     public class InstructionBlockCache<TRegisters> : IInstructionBlockCache<TRegisters>
         where TRegisters : IRegisters
     {
-        private readonly ConcurrentDictionary<ushort, ICacheItem> cache;
-        private readonly TimeSpan garbageCollectionInterval = TimeSpan.FromMinutes(10);
+        private readonly ConcurrentDictionary<ushort, ICacheItem> _cache;
+        private readonly TimeSpan _garbageCollectionInterval = TimeSpan.FromMinutes(10);
 
-        private readonly Timer timer;
+        private readonly Timer _timer;
 
         public InstructionBlockCache()
         {
-            cache = new ConcurrentDictionary<ushort, ICacheItem>();
-            
+            _cache = new ConcurrentDictionary<ushort, ICacheItem>();
+
             // Psuedo garbage collection. Meh... will create a proper implementation another day.
-            timer = new Timer(garbageCollectionInterval.TotalMilliseconds);
-            timer.Elapsed += (sender, args) => GarbageCollection();
+            _timer = new Timer(_garbageCollectionInterval.TotalMilliseconds);
+            _timer.Elapsed += (sender, args) => GarbageCollection();
         }
 
         public void Dispose()
         {
-            timer?.Dispose();
+            _timer?.Dispose();
         }
 
         /// <summary>
@@ -39,10 +39,10 @@ namespace Axh.Retro.CPU.Z80.Cache
         /// <param name="getInstanceFunc"></param>
         /// <returns></returns>
         public IInstructionBlock<TRegisters> GetOrSet(ushort address,
-                                                      Func<IInstructionBlock<TRegisters>> getInstanceFunc)
+            Func<IInstructionBlock<TRegisters>> getInstanceFunc)
         {
             ICacheItem cacheItem;
-            if (cache.TryGetValue(address, out cacheItem))
+            if (_cache.TryGetValue(address, out cacheItem))
             {
                 cacheItem.Accessed++;
             }
@@ -59,7 +59,7 @@ namespace Axh.Retro.CPU.Z80.Cache
                     cacheItem = new InstructionBlockCacheItem(ranges, block);
                 }
 
-                cache.TryAdd(block.Address, cacheItem);
+                _cache.TryAdd(block.Address, cacheItem);
             }
 
             return cacheItem.InstructionBlock;
@@ -77,20 +77,20 @@ namespace Axh.Retro.CPU.Z80.Cache
             {
                 var range = ranges[0];
                 // TODO: this is a hot path. Need a better way of invalidating the cache.
-                foreach (var kvp in cache.Where(x => x.Value.Intersects(range)).ToArray())
+                foreach (var kvp in _cache.Where(x => x.Value.Intersects(range)).ToArray())
                 {
                     ICacheItem dummy;
-                    cache.TryRemove(kvp.Key, out dummy);
+                    _cache.TryRemove(kvp.Key, out dummy);
                 }
             }
             else
             {
-                foreach (var key in cache.Keys)
+                foreach (var key in _cache.Keys)
                 {
-                    var cacheItem = cache[key];
+                    var cacheItem = _cache[key];
                     if (ranges.Any(range => cacheItem.Intersects(range)))
                     {
-                        cache.TryRemove(key, out cacheItem);
+                        _cache.TryRemove(key, out cacheItem);
                     }
                 }
             }
@@ -98,12 +98,12 @@ namespace Axh.Retro.CPU.Z80.Cache
 
         private void GarbageCollection()
         {
-            foreach (var key in cache.Keys)
+            foreach (var key in _cache.Keys)
             {
-                var cacheItem = cache[key];
+                var cacheItem = _cache[key];
                 if (cacheItem.Accessed == 0)
                 {
-                    cache.TryRemove(key, out cacheItem);
+                    _cache.TryRemove(key, out cacheItem);
                 }
             }
         }
@@ -113,12 +113,12 @@ namespace Axh.Retro.CPU.Z80.Cache
         /// </summary>
         private class NormalInstructionBlockCacheItem : ICacheItem
         {
-            private readonly AddressRange addressRange;
+            private readonly AddressRange _addressRange;
 
             public NormalInstructionBlockCacheItem(AddressRange range, IInstructionBlock<TRegisters> instructionBlock)
             {
                 InstructionBlock = instructionBlock;
-                addressRange = range;
+                _addressRange = range;
             }
 
             public uint Accessed { get; set; }
@@ -127,7 +127,7 @@ namespace Axh.Retro.CPU.Z80.Cache
 
             public bool Intersects(AddressRange range)
             {
-                return range.Intersects(addressRange);
+                return range.Intersects(_addressRange);
             }
         }
 
@@ -136,15 +136,15 @@ namespace Axh.Retro.CPU.Z80.Cache
         /// </summary>
         private class InstructionBlockCacheItem : ICacheItem
         {
-            private readonly AddressRange addressRange0;
-            private readonly AddressRange addressRange1;
+            private readonly AddressRange _addressRange0;
+            private readonly AddressRange _addressRange1;
 
             public InstructionBlockCacheItem(IReadOnlyList<AddressRange> addressRanges,
-                                             IInstructionBlock<TRegisters> instructionBlock)
+                IInstructionBlock<TRegisters> instructionBlock)
             {
                 InstructionBlock = instructionBlock;
-                addressRange0 = addressRanges[0];
-                addressRange1 = addressRanges[1];
+                _addressRange0 = addressRanges[0];
+                _addressRange1 = addressRanges[1];
             }
 
             public IInstructionBlock<TRegisters> InstructionBlock { get; }
@@ -153,7 +153,7 @@ namespace Axh.Retro.CPU.Z80.Cache
 
             public bool Intersects(AddressRange range)
             {
-                return range.Intersects(addressRange0) || range.Intersects(addressRange1);
+                return range.Intersects(_addressRange0) || range.Intersects(_addressRange1);
             }
         }
 

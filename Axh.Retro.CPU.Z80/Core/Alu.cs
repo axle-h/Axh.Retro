@@ -6,14 +6,14 @@ namespace Axh.Retro.CPU.Z80.Core
 {
     public class Alu<TRegisters> : IAlu where TRegisters : IRegisters
     {
-        private readonly TRegisters registers;
+        private readonly TRegisters _registers;
 
         public Alu(TRegisters registers)
         {
-            this.registers = registers;
+            _registers = registers;
         }
 
-        private IFlagsRegister Flags => registers.AccumulatorAndFlagsRegisters.Flags;
+        private IFlagsRegister Flags => _registers.AccumulatorAndFlagsRegisters.Flags;
 
         public byte Increment(byte b)
         {
@@ -365,10 +365,10 @@ namespace Axh.Retro.CPU.Z80.Core
         public AccumulatorAndResult RotateLeftDigit(byte accumulator, byte b)
         {
             var result = new AccumulatorAndResult
-                         {
-                             Accumulator = (byte) ((accumulator & 0xf0) | ((b & 0xf0) >> 4)),
-                             Result = (byte) (((b & 0x0f) << 4) | (accumulator & 0x0f))
-                         };
+            {
+                Accumulator = (byte) ((accumulator & 0xf0) | ((b & 0xf0) >> 4)),
+                Result = (byte) (((b & 0x0f) << 4) | (accumulator & 0x0f))
+            };
 
             var flags = Flags;
             flags.SetParityFlags(result.Accumulator);
@@ -386,10 +386,10 @@ namespace Axh.Retro.CPU.Z80.Core
         public AccumulatorAndResult RotateRightDigit(byte accumulator, byte b)
         {
             var result = new AccumulatorAndResult
-                         {
-                             Accumulator = (byte) ((accumulator & 0xf0) | (b & 0x0f)),
-                             Result = (byte) (((accumulator & 0x0f) << 4) | ((b & 0xf0) >> 4))
-                         };
+            {
+                Accumulator = (byte) ((accumulator & 0xf0) | (b & 0x0f)),
+                Result = (byte) (((accumulator & 0x0f) << 4) | ((b & 0xf0) >> 4))
+            };
 
             var flags = Flags;
             flags.SetParityFlags(result.Accumulator);

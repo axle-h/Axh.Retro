@@ -12,30 +12,30 @@ namespace Axh.Retro.GameBoy.Devices
     {
         private const ushort Address = 0xff00;
         private const ushort Length = 0x80;
-        private readonly IDictionary<ushort, IRegister> registers;
+        private readonly IDictionary<ushort, IRegister> _registers;
 
         public HardwareRegisters(IEnumerable<IRegister> registers,
-                                 IJoyPadRegister joyPad,
-                                 ISerialPortRegister serialPort,
-                                 IGpuRegisters gpuRegisters,
-                                 IInterruptFlagsRegister interruptFlagsRegister)
+            IJoyPadRegister joyPad,
+            ISerialPortRegister serialPort,
+            IGpuRegisters gpuRegisters,
+            IInterruptFlagsRegister interruptFlagsRegister)
         {
             JoyPad = joyPad;
             SerialPort = serialPort;
-            this.registers =
+            _registers =
                 registers.Concat(new[]
-                                 {
-                                     joyPad,
-                                     serialPort,
-                                     serialPort.SerialData,
-                                     gpuRegisters.ScrollXRegister,
-                                     gpuRegisters.ScrollYRegister,
-                                     gpuRegisters.CurrentScanlineRegister,
-                                     gpuRegisters.LcdControlRegister,
-                                     gpuRegisters.LcdMonochromePaletteRegister,
-                                     gpuRegisters.LcdStatusRegister,
-                                     interruptFlagsRegister
-                                 }).ToDictionary(x => (ushort) (x.Address - Address));
+                {
+                    joyPad,
+                    serialPort,
+                    serialPort.SerialData,
+                    gpuRegisters.ScrollXRegister,
+                    gpuRegisters.ScrollYRegister,
+                    gpuRegisters.CurrentScanlineRegister,
+                    gpuRegisters.LcdControlRegister,
+                    gpuRegisters.LcdMonochromePaletteRegister,
+                    gpuRegisters.LcdStatusRegister,
+                    interruptFlagsRegister
+                }).ToDictionary(x => (ushort) (x.Address - Address));
         }
 
         public MemoryBankType Type => MemoryBankType.Peripheral;
@@ -47,9 +47,9 @@ namespace Axh.Retro.GameBoy.Devices
         public byte ReadByte(ushort address)
         {
             // TODO: remove check once all registers implemented.
-            if (registers.ContainsKey(address))
+            if (_registers.ContainsKey(address))
             {
-                return registers[address].Register;
+                return _registers[address].Register;
             }
             Debug.WriteLine("Missing Hardware Register: 0x" + (address + Address).ToString("x4"));
             return 0x00;
@@ -79,9 +79,9 @@ namespace Axh.Retro.GameBoy.Devices
         public void WriteByte(ushort address, byte value)
         {
             // TODO: remove check once all registers implemented.
-            if (registers.ContainsKey(address))
+            if (_registers.ContainsKey(address))
             {
-                registers[address].Register = value;
+                _registers[address].Register = value;
             }
             /*
             else

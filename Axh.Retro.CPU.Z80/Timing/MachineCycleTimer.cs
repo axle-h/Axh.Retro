@@ -7,25 +7,25 @@ namespace Axh.Retro.CPU.Z80.Timing
 {
     public class MachineCycleTimer : IInstructionTimer
     {
-        private readonly double syncMagnitude;
-        private readonly InstructionTimingSyncMode syncMode;
+        private readonly double _syncMagnitude;
+        private readonly InstructionTimingSyncMode _syncMode;
 
         public MachineCycleTimer(IPlatformConfig platformConfig)
         {
-            syncMode = platformConfig.InstructionTimingSyncMode;
+            _syncMode = platformConfig.InstructionTimingSyncMode;
 
-            switch (syncMode)
+            switch (_syncMode)
             {
                 case InstructionTimingSyncMode.Null:
                     // Run ASAP
-                    syncMagnitude = 0;
+                    _syncMagnitude = 0;
                     break;
                 case InstructionTimingSyncMode.MachineCycles:
-                    syncMagnitude = 1 / platformConfig.MachineCycleSpeedMhz / 1000000;
+                    _syncMagnitude = 1 / platformConfig.MachineCycleSpeedMhz / 1000000;
                     break;
                 case InstructionTimingSyncMode.ThrottlingStates:
                     // Throttling state clock runs 1/4 of machine cycles
-                    syncMagnitude = 1 / platformConfig.MachineCycleSpeedMhz / 1000000 / 4;
+                    _syncMagnitude = 1 / platformConfig.MachineCycleSpeedMhz / 1000000 / 4;
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -36,14 +36,14 @@ namespace Axh.Retro.CPU.Z80.Timing
         {
             TimingSync?.Invoke(timings);
 
-            switch (syncMode)
+            switch (_syncMode)
             {
                 case InstructionTimingSyncMode.Null:
                     return Task.CompletedTask;
                 case InstructionTimingSyncMode.MachineCycles:
-                    return Task.Delay(TimeSpan.FromSeconds(syncMagnitude * timings.MachineCycles));
+                    return Task.Delay(TimeSpan.FromSeconds(_syncMagnitude * timings.MachineCycles));
                 case InstructionTimingSyncMode.ThrottlingStates:
-                    return Task.Delay(TimeSpan.FromSeconds(syncMagnitude * timings.ThrottlingStates));
+                    return Task.Delay(TimeSpan.FromSeconds(_syncMagnitude * timings.ThrottlingStates));
                 default:
                     throw new ArgumentOutOfRangeException();
             }

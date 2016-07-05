@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Axh.Retro.CPU.Z80.Contracts.Peripherals
+﻿namespace Axh.Retro.CPU.Z80.Contracts.Peripherals
 {
     /// <summary>
     ///     A peripheral called through the 8080's IO interface.

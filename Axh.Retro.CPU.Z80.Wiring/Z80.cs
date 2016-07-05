@@ -19,109 +19,116 @@ using DryIoc;
 namespace Axh.Retro.CPU.Z80.Wiring
 {
     public class Z80<TRegisters, TRegisterState> : IDisposable where TRegisters : IStateBackedRegisters<TRegisterState>
-                                                               where TRegisterState : struct
+        where TRegisterState : struct
     {
-        private readonly IContainer container;
-        private readonly IReuse reuse = Reuse.InResolutionScopeOf(typeof(ICpuCore<TRegisters, TRegisterState>));
-        private bool isInitialized;
-        
+        private readonly IContainer _container;
+        private bool _isInitialized;
+
         public Z80()
         {
-            container = new Container(rules => rules.WithDefaultReuseInsteadOfTransient(reuse));
+            _container =
+                new Container(
+                    rules =>
+                        rules.WithDefaultReuseInsteadOfTransient(
+                            Reuse.InResolutionScopeOf(typeof (ICpuCore<TRegisters, TRegisterState>)))
+                            .WithoutThrowOnRegisteringDisposableTransient()); // I've implemented a proper dispose chain through object graph from ICpuCore.
         }
+
+        /// <summary>
+        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public void Dispose() => _container.Dispose();
 
         public Z80<TRegisters, TRegisterState> With(IZ80Module module)
         {
-            module.Register(container, reuse);
+            module.Register(_container);
             return this;
         }
 
         public Z80<TRegisters, TRegisterState> With<TModule>() where TModule : IZ80Module, new()
         {
-            new TModule().Register(container, reuse);
+            new TModule().Register(_container);
             return this;
         }
 
         public ICpuCore<TRegisters, TRegisterState> GetNewCore()
         {
-            if (!isInitialized)
+            if (!_isInitialized)
             {
                 throw new InvalidOperationException($"Must call {nameof(Init)} first");
             }
 
-            return container.Resolve<ICpuCore<TRegisters, TRegisterState>>();
+            return _container.Resolve<ICpuCore<TRegisters, TRegisterState>>();
         }
 
         public Z80<TRegisters, TRegisterState> Init()
         {
-            if (!container.IsRegistered<IRuntimeConfig>())
+            if (!_container.IsRegistered<IRuntimeConfig>())
             {
                 throw new Exception($"Cannot resolve {nameof(IRuntimeConfig)}");
             }
 
-            if (!container.IsRegistered<IPlatformConfig>())
+            if (!_container.IsRegistered<IPlatformConfig>())
             {
                 throw new Exception($"Cannot resolve {nameof(IPlatformConfig)}");
             }
 
-            container.Register<ICpuCore<TRegisters, TRegisterState>, CachingCpuCore<TRegisters, TRegisterState>>(reuse);
-            
-            container.Register<ICoreContext<TRegisters, TRegisterState>, CoreContext<TRegisters, TRegisterState>>(reuse);
+            _container.Register<ICpuCore<TRegisters, TRegisterState>, CachingCpuCore<TRegisters, TRegisterState>>();
 
-            container.Register<IPeripheralManager, PeripheralManager>(reuse);
-            container.Register<IMmu, Z80Mmu<TRegisters>>(reuse);
-            container.Register<IPrefetchQueue, PrefetchQueue>(reuse);
+            _container.Register<ICoreContext<TRegisters, TRegisterState>, CoreContext<TRegisters, TRegisterState>>();
 
-            container.Register<IAlu, Alu<TRegisters>>(reuse);
+            _container.Register<IPeripheralManager, PeripheralManager>();
+            _container.Register<IMmu, Z80Mmu<TRegisters>>();
+            _container.Register<IPrefetchQueue, PrefetchQueue>();
 
-            container.Register<IInstructionBlockCache<TRegisters>, InstructionBlockCache<TRegisters>>(reuse);
+            _container.Register<IAlu, Alu<TRegisters>>();
 
-            container.Register<IInterruptManager, InterruptManager>(reuse);
-            container.Register<IInstructionTimer, MachineCycleTimer>(reuse);
-            container.Register<IDmaController, DmaController>(reuse);
+            _container.Register<IInstructionBlockCache<TRegisters>, InstructionBlockCache<TRegisters>>();
 
-            var runtimeConfig = container.Resolve<IRuntimeConfig>();
+            _container.Register<IInterruptManager, InterruptManager>();
+            _container.Register<IInstructionTimer, MachineCycleTimer>();
+            _container.Register<IDmaController, DmaController>();
+
+            var runtimeConfig = _container.Resolve<IRuntimeConfig>();
             switch (runtimeConfig.CoreMode)
             {
                 case CoreMode.Interpreted:
                     throw new NotImplementedException(runtimeConfig.CoreMode.ToString());
                 case CoreMode.DynaRec:
-                    container.Register<IInstructionBlockDecoder<TRegisters>, DynaRec<TRegisters>>(reuse);
+                    _container.Register<IInstructionBlockDecoder<TRegisters>, DynaRec<TRegisters>>();
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(runtimeConfig.CoreMode), runtimeConfig.CoreMode, null);
             }
 
             // Registers
-            container.Register<IGeneralPurposeRegisterSet, GeneralPurposeRegisterSet>(reuse);
-            container.Register<IAccumulatorAndFlagsRegisterSet, AccumulatorAndFlagsRegisterSet>(reuse);
+            _container.Register<IGeneralPurposeRegisterSet, GeneralPurposeRegisterSet>();
+            _container.Register<IAccumulatorAndFlagsRegisterSet, AccumulatorAndFlagsRegisterSet>();
 
-            var platformConfig = container.Resolve<IPlatformConfig>();
+            var platformConfig = _container.Resolve<IPlatformConfig>();
             switch (platformConfig.CpuMode)
             {
                 case CpuMode.Intel8080:
-                    container.Register<IFlagsRegister, Intel8080FlagsRegister>(reuse);
-                    container.RegisterMany(new [] { typeof(IIntel8080Registers), typeof(IRegisters) }, typeof(Intel8080Registers), reuse);
+                    _container.Register<IFlagsRegister, Intel8080FlagsRegister>();
+                    _container.RegisterMany(new[] {typeof (IIntel8080Registers), typeof (IRegisters)},
+                        typeof (Intel8080Registers));
                     break;
                 case CpuMode.GameBoy:
-                    container.Register<IFlagsRegister, GameBoyFlagsRegister>(reuse);
-                    container.RegisterMany(new[] { typeof(IIntel8080Registers), typeof(IRegisters) }, typeof(Intel8080Registers), reuse);
+                    _container.Register<IFlagsRegister, GameBoyFlagsRegister>();
+                    _container.RegisterMany(new[] {typeof (IIntel8080Registers), typeof (IRegisters)},
+                        typeof (Intel8080Registers));
                     break;
                 case CpuMode.Z80:
-                    container.Register<IFlagsRegister, Intel8080FlagsRegister>(reuse);
-                    container.RegisterMany(new[] { typeof(IIntel8080Registers), typeof(IRegisters) }, typeof(Z80Registers), reuse);
+                    _container.Register<IFlagsRegister, Intel8080FlagsRegister>();
+                    _container.RegisterMany(new[] {typeof (IIntel8080Registers), typeof (IRegisters)},
+                        typeof (Z80Registers));
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(platformConfig.CpuMode), platformConfig.CpuMode, null);
             }
 
-            isInitialized = true;
+            _isInitialized = true;
             return this;
         }
-
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        public void Dispose() => container.Dispose();
     }
 }

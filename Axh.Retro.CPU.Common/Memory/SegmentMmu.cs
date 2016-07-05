@@ -10,36 +10,36 @@ namespace Axh.Retro.CPU.Common.Memory
 {
     public class SegmentMmu : IMmu
     {
-        private readonly IDmaController dmaController;
-        private readonly IInstructionTimer instructionTimer;
+        private readonly IDmaController _dmaController;
+        private readonly IInstructionTimer _instructionTimer;
 
-        private readonly List<AddressRange> lockedAddressRanges; // TODO: respect these.
-        private readonly ushort[] readSegmentAddresses;
-        private readonly IReadableAddressSegment[] readSegments;
+        private readonly List<AddressRange> _lockedAddressRanges; // TODO: respect these.
+        private readonly ushort[] _readSegmentAddresses;
+        private readonly IReadableAddressSegment[] _readSegments;
 
-        private readonly ushort[] writeSegmentAddresses;
-        private readonly IWriteableAddressSegment[] writeSegments;
+        private readonly ushort[] _writeSegmentAddresses;
+        private readonly IWriteableAddressSegment[] _writeSegments;
 
-        private bool disposed;
+        private bool _disposed;
 
         public SegmentMmu(IEnumerable<IAddressSegment> addressSegments,
-                          IDmaController dmaController,
-                          IInstructionTimer instructionTimer)
+            IDmaController dmaController,
+            IInstructionTimer instructionTimer)
         {
-            this.dmaController = dmaController;
-            this.instructionTimer = instructionTimer;
+            _dmaController = dmaController;
+            _instructionTimer = instructionTimer;
             var sortedSegments = addressSegments.OrderBy(x => x.Address).ToArray();
 
-            readSegments = sortedSegments.OfType<IReadableAddressSegment>().ToArray();
-            readSegmentAddresses = readSegments.Select(x => x.Address).ToArray();
+            _readSegments = sortedSegments.OfType<IReadableAddressSegment>().ToArray();
+            _readSegmentAddresses = _readSegments.Select(x => x.Address).ToArray();
 
-            writeSegments = sortedSegments.OfType<IWriteableAddressSegment>().ToArray();
-            writeSegmentAddresses = writeSegments.Select(x => x.Address).ToArray();
+            _writeSegments = sortedSegments.OfType<IWriteableAddressSegment>().ToArray();
+            _writeSegmentAddresses = _writeSegments.Select(x => x.Address).ToArray();
 
-            CheckSegments(readSegments);
-            CheckSegments(writeSegments);
+            CheckSegments(_readSegments);
+            CheckSegments(_writeSegments);
 
-            lockedAddressRanges = new List<AddressRange>();
+            _lockedAddressRanges = new List<AddressRange>();
 
             // Dma task.
             Task.Factory.StartNew(DmaTask, TaskCreationOptions.LongRunning);
@@ -48,10 +48,10 @@ namespace Axh.Retro.CPU.Common.Memory
         public byte ReadByte(ushort address)
         {
             ushort segmentAddress;
-            var addressSegment = GetAddressSegmentForAddress(readSegmentAddresses,
-                                                             readSegments,
-                                                             address,
-                                                             out segmentAddress);
+            var addressSegment = GetAddressSegmentForAddress(_readSegmentAddresses,
+                _readSegments,
+                address,
+                out segmentAddress);
             return addressSegment.ReadByte(segmentAddress);
         }
 
@@ -60,20 +60,20 @@ namespace Axh.Retro.CPU.Common.Memory
             ushort segmentAddress;
             int segmentIndex;
             IReadableAddressSegment segment;
-            if (TryGetSegmentIndexForAddress(readSegmentAddresses,
-                                             readSegments,
-                                             address,
-                                             sizeof (ushort),
-                                             out segment,
-                                             out segmentIndex,
-                                             out segmentAddress))
+            if (TryGetSegmentIndexForAddress(_readSegmentAddresses,
+                _readSegments,
+                address,
+                sizeof (ushort),
+                out segment,
+                out segmentIndex,
+                out segmentAddress))
             {
-                return readSegments[segmentIndex].ReadWord(segmentAddress);
+                return _readSegments[segmentIndex].ReadWord(segmentAddress);
             }
 
             // Read one byte from the end of the returned segment index and another from the start of the next
             var lsb = segment.ReadByte(segmentAddress);
-            var msb = readSegments[(segmentIndex + 1) % readSegments.Length].ReadByte(0);
+            var msb = _readSegments[(segmentIndex + 1) % _readSegments.Length].ReadByte(0);
             return BitConverter.ToUInt16(new[] {lsb, msb}, 0);
         }
 
@@ -82,21 +82,21 @@ namespace Axh.Retro.CPU.Common.Memory
             ushort segmentAddress;
             int segmentIndex;
             IReadableAddressSegment segment;
-            if (TryGetSegmentIndexForAddress(readSegmentAddresses,
-                                             readSegments,
-                                             address,
-                                             length,
-                                             out segment,
-                                             out segmentIndex,
-                                             out segmentAddress))
+            if (TryGetSegmentIndexForAddress(_readSegmentAddresses,
+                _readSegments,
+                address,
+                length,
+                out segment,
+                out segmentIndex,
+                out segmentAddress))
             {
-                return readSegments[segmentIndex].ReadBytes(segmentAddress, length);
+                return _readSegments[segmentIndex].ReadBytes(segmentAddress, length);
             }
 
             var bytes = new byte[length];
 
             // Read from first segment
-            var nextSegment = readSegments[segmentIndex];
+            var nextSegment = _readSegments[segmentIndex];
             var segmentLength = nextSegment.Length - segmentAddress;
             var nextBytes = nextSegment.ReadBytes(segmentAddress, segmentLength);
             Array.Copy(nextBytes, 0, bytes, 0, segmentLength);
@@ -105,8 +105,8 @@ namespace Axh.Retro.CPU.Common.Memory
             // Read from consecutive segments until all bytes have been read.
             while (lengthRemaining > 0)
             {
-                segmentIndex = (segmentIndex + 1) % readSegments.Length;
-                nextSegment = readSegments[segmentIndex];
+                segmentIndex = (segmentIndex + 1) % _readSegments.Length;
+                nextSegment = _readSegments[segmentIndex];
                 segmentLength = Math.Min(lengthRemaining, nextSegment.Length);
                 nextBytes = nextSegment.ReadBytes(0, segmentLength);
 
@@ -120,7 +120,8 @@ namespace Axh.Retro.CPU.Common.Memory
         public void WriteByte(ushort address, byte value)
         {
             ushort segmentAddress;
-            var segment = GetAddressSegmentForAddress(writeSegmentAddresses, writeSegments, address, out segmentAddress);
+            var segment = GetAddressSegmentForAddress(_writeSegmentAddresses, _writeSegments, address,
+                out segmentAddress);
             segment.WriteByte(segmentAddress, value);
 
             if (TriggerWriteEventForMemoryBankType(segment.Type))
@@ -134,13 +135,13 @@ namespace Axh.Retro.CPU.Common.Memory
             ushort segmentAddress;
             int segmentIndex;
             IWriteableAddressSegment segment;
-            if (TryGetSegmentIndexForAddress(writeSegmentAddresses,
-                                             writeSegments,
-                                             address,
-                                             sizeof (ushort),
-                                             out segment,
-                                             out segmentIndex,
-                                             out segmentAddress))
+            if (TryGetSegmentIndexForAddress(_writeSegmentAddresses,
+                _writeSegments,
+                address,
+                sizeof (ushort),
+                out segment,
+                out segmentIndex,
+                out segmentAddress))
             {
                 segment.WriteWord(segmentAddress, word);
                 if (TriggerWriteEventForMemoryBankType(segment.Type))
@@ -153,7 +154,7 @@ namespace Axh.Retro.CPU.Common.Memory
             // Write one byte to the end of the returned segment index and another to the start of the next
             var bytes = BitConverter.GetBytes(word);
             segment.WriteByte(segmentAddress, bytes[0]);
-            var nextSegment = writeSegments[(segmentIndex + 1) % writeSegments.Length];
+            var nextSegment = _writeSegments[(segmentIndex + 1) % _writeSegments.Length];
 
             if (TriggerWriteEventForMemoryBankType(segment.Type) || TriggerWriteEventForMemoryBankType(nextSegment.Type))
             {
@@ -168,13 +169,13 @@ namespace Axh.Retro.CPU.Common.Memory
             ushort segmentAddress;
             int segmentIndex;
             IWriteableAddressSegment segment;
-            if (TryGetSegmentIndexForAddress(writeSegmentAddresses,
-                                             writeSegments,
-                                             address,
-                                             bytes.Length,
-                                             out segment,
-                                             out segmentIndex,
-                                             out segmentAddress))
+            if (TryGetSegmentIndexForAddress(_writeSegmentAddresses,
+                _writeSegments,
+                address,
+                bytes.Length,
+                out segment,
+                out segmentIndex,
+                out segmentAddress))
             {
                 segment.WriteBytes(segmentAddress, bytes);
                 if (TriggerWriteEventForMemoryBankType(segment.Type))
@@ -197,8 +198,8 @@ namespace Axh.Retro.CPU.Common.Memory
             // Write to consecutive segments until all bytes have been written.
             while (lengthRemaining > 0)
             {
-                segmentIndex = (segmentIndex + 1) % writeSegments.Length;
-                segment = writeSegments[segmentIndex];
+                segmentIndex = (segmentIndex + 1) % _writeSegments.Length;
+                segment = _writeSegments[segmentIndex];
 
                 segmentLength = Math.Min(lengthRemaining, segment.Length);
                 nextBytes = new byte[segmentLength];
@@ -234,29 +235,29 @@ namespace Axh.Retro.CPU.Common.Memory
         /// </summary>
         public void Dispose()
         {
-            disposed = true;
+            _disposed = true;
         }
 
         private void DmaTask()
         {
-            while (!disposed)
+            while (!_disposed)
             {
                 IDmaOperation operation;
-                if (!dmaController.TryGet(out operation))
+                if (!_dmaController.TryGet(out operation))
                 {
                     continue;
                 }
 
                 // Check if we need lock any address ranges.
-                lockedAddressRanges.AddRange(operation.LockedAddressesRanges);
+                _lockedAddressRanges.AddRange(operation.LockedAddressesRanges);
 
                 // Execute the operation.
                 operation.Execute(this);
 
-                instructionTimer.SyncToTimings(operation.Timings).Wait();
+                _instructionTimer.SyncToTimings(operation.Timings).Wait();
 
                 // Unlock the locked address ranges.
-                lockedAddressRanges.Clear();
+                _lockedAddressRanges.Clear();
             }
         }
 
@@ -270,9 +271,9 @@ namespace Axh.Retro.CPU.Common.Memory
         }
 
         private static TAddressSegment GetAddressSegmentForAddress<TAddressSegment>(ushort[] segmentAddresses,
-                                                                                    IList<TAddressSegment> segments,
-                                                                                    ushort address,
-                                                                                    out ushort segmentAddress)
+            IList<TAddressSegment> segments,
+            ushort address,
+            out ushort segmentAddress)
             where TAddressSegment : IAddressSegment
         {
             var index = Array.BinarySearch(segmentAddresses, address);
@@ -292,12 +293,12 @@ namespace Axh.Retro.CPU.Common.Memory
         }
 
         private static bool TryGetSegmentIndexForAddress<TAddressSegment>(ushort[] segmentAddresses,
-                                                                          IList<TAddressSegment> segments,
-                                                                          ushort address,
-                                                                          int length,
-                                                                          out TAddressSegment segment,
-                                                                          out int segmentIndex,
-                                                                          out ushort segmentAddress)
+            IList<TAddressSegment> segments,
+            ushort address,
+            int length,
+            out TAddressSegment segment,
+            out int segmentIndex,
+            out ushort segmentAddress)
             where TAddressSegment : IAddressSegment
         {
             segmentIndex = Array.BinarySearch(segmentAddresses, address);

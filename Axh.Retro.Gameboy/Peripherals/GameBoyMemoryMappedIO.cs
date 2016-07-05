@@ -12,23 +12,19 @@ namespace Axh.Retro.GameBoy.Peripherals
 {
     public class GameBoyMemoryMappedIO : IGameBoyMemoryMappedIO
     {
-        private readonly IGpu gpu;
+        private readonly IInterruptEnableRegister _interruptRegister;
 
-        private readonly IHardwareRegisters hardwareRegisters;
-
-        private readonly IInterruptEnableRegister interruptRegister;
-
-        private readonly IMemoryBankController memoryBankController;
+        private readonly IMemoryBankController _memoryBankController;
 
         public GameBoyMemoryMappedIO(IHardwareRegisters hardwareRegisters,
-                                     IInterruptEnableRegister interruptRegister,
-                                     IGpu gpu,
-                                     IMemoryBankController memoryBankController)
+            IInterruptEnableRegister interruptRegister,
+            IGpu gpu,
+            IMemoryBankController memoryBankController)
         {
-            this.hardwareRegisters = hardwareRegisters;
-            this.interruptRegister = interruptRegister;
-            this.gpu = gpu;
-            this.memoryBankController = memoryBankController;
+            HardwareRegisters = hardwareRegisters;
+            _interruptRegister = interruptRegister;
+            Gpu = gpu;
+            _memoryBankController = memoryBankController;
         }
 
         public void Signal(ControlSignal signal)
@@ -36,10 +32,10 @@ namespace Axh.Retro.GameBoy.Peripherals
             switch (signal)
             {
                 case ControlSignal.Halt:
-                    gpu.Halt();
+                    Gpu.Halt();
                     break;
                 case ControlSignal.Resume:
-                    gpu.Resume();
+                    Gpu.Resume();
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(signal), signal, null);
@@ -48,18 +44,18 @@ namespace Axh.Retro.GameBoy.Peripherals
 
         public IEnumerable<IAddressSegment> AddressSegments
             =>
-                new IAddressSegment[] {hardwareRegisters, interruptRegister, memoryBankController}.Concat(
-                                                                                                          gpu
-                                                                                                              .AddressSegments)
-                                                                                                  .ToArray();
+                new IAddressSegment[] {HardwareRegisters, _interruptRegister, _memoryBankController}.Concat(
+                    Gpu
+                        .AddressSegments)
+                    .ToArray();
 
-        public IHardwareRegisters HardwareRegisters => hardwareRegisters;
+        public IHardwareRegisters HardwareRegisters { get; }
 
-        public IGpu Gpu => gpu;
+        public IGpu Gpu { get; }
 
         /// <summary>
         ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
-        public void Dispose() => gpu.Dispose();
+        public void Dispose() => Gpu.Dispose();
     }
 }

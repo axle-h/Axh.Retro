@@ -29,9 +29,9 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
         }
 
         private void TestAbsoluteJump(PrimaryOpCode opCode,
-                                      Expression<Func<IFlagsRegister, bool>> propertyLambda,
-                                      bool flagValue,
-                                      bool expectJump)
+            Expression<Func<IFlagsRegister, bool>> propertyLambda,
+            bool flagValue,
+            bool expectJump)
         {
             const ushort Value = 0x1be7;
 
@@ -56,9 +56,9 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
         }
 
         private void TestRelativeJump(PrimaryOpCode opCode,
-                                      Expression<Func<IFlagsRegister, bool>> propertyLambda,
-                                      bool flagValue,
-                                      bool expectJump)
+            Expression<Func<IFlagsRegister, bool>> propertyLambda,
+            bool flagValue,
+            bool expectJump)
         {
             const sbyte Displacement = -45;
 

@@ -10,44 +10,44 @@ namespace Axh.Retro.CPU.Common.Tests.Mmu
     [TestFixture]
     public class MmuConfigTests
     {
-        private Mock<IReadableAddressSegment> segment0R;
-        private Mock<IWriteableAddressSegment> segment0W;
-        private Mock<IReadableWriteableAddressSegment> segment1;
-        private Mock<IReadableWriteableAddressSegment> segment2;
+        private Mock<IReadableAddressSegment> _segment0R;
+        private Mock<IWriteableAddressSegment> _segment0W;
+        private Mock<IReadableWriteableAddressSegment> _segment1;
+        private Mock<IReadableWriteableAddressSegment> _segment2;
 
         [TestFixtureSetUp]
         public void TestFixtureSetUp()
         {
-            segment0R = new Mock<IReadableAddressSegment>();
-            segment0W = new Mock<IWriteableAddressSegment>();
-            segment1 = new Mock<IReadableWriteableAddressSegment>();
-            segment2 = new Mock<IReadableWriteableAddressSegment>();
+            _segment0R = new Mock<IReadableAddressSegment>();
+            _segment0W = new Mock<IWriteableAddressSegment>();
+            _segment1 = new Mock<IReadableWriteableAddressSegment>();
+            _segment2 = new Mock<IReadableWriteableAddressSegment>();
         }
 
         private IMmu GetMmu(ushort address0,
-                            ushort length0,
-                            ushort address1,
-                            ushort length1,
-                            ushort address2,
-                            ushort length2)
+            ushort length0,
+            ushort address1,
+            ushort length1,
+            ushort address2,
+            ushort length2)
         {
-            segment0R.Setup(x => x.Address).Returns(address0);
-            segment0R.Setup(x => x.Length).Returns(length0);
-            segment0W.Setup(x => x.Address).Returns(address0);
-            segment0W.Setup(x => x.Length).Returns(length0);
+            _segment0R.Setup(x => x.Address).Returns(address0);
+            _segment0R.Setup(x => x.Length).Returns(length0);
+            _segment0W.Setup(x => x.Address).Returns(address0);
+            _segment0W.Setup(x => x.Length).Returns(length0);
 
-            segment1.Setup(x => x.Address).Returns(address1);
-            segment1.Setup(x => x.Length).Returns(length1);
+            _segment1.Setup(x => x.Address).Returns(address1);
+            _segment1.Setup(x => x.Length).Returns(length1);
 
-            segment2.Setup(x => x.Address).Returns(address2);
-            segment2.Setup(x => x.Length).Returns(length2);
+            _segment2.Setup(x => x.Address).Returns(address2);
+            _segment2.Setup(x => x.Length).Returns(length2);
 
             var dmaController = new Mock<IDmaController>();
             var instructionTimer = new Mock<IInstructionTimer>();
 
             return
                 new SegmentMmu(
-                    new IAddressSegment[] {segment0R.Object, segment0W.Object, segment1.Object, segment2.Object},
+                    new IAddressSegment[] {_segment0R.Object, _segment0W.Object, _segment1.Object, _segment2.Object},
                     dmaController.Object,
                     instructionTimer.Object);
         }
@@ -57,8 +57,8 @@ namespace Axh.Retro.CPU.Common.Tests.Mmu
         {
             var exception =
                 Assert.Throws<MmuAddressSegmentGapException>(
-                                                             () =>
-                                                                 GetMmu(0x0000, 0x1000, 0x2000, 0x1000, 0x3000, 0xcfff));
+                    () =>
+                        GetMmu(0x0000, 0x1000, 0x2000, 0x1000, 0x3000, 0xcfff));
             Assert.AreEqual(0x1000, exception.AddressFrom);
             Assert.AreEqual(0x2000, exception.AddressTo);
         }
@@ -68,8 +68,8 @@ namespace Axh.Retro.CPU.Common.Tests.Mmu
         {
             var exception =
                 Assert.Throws<MmuAddressSegmentGapException>(
-                                                             () =>
-                                                                 GetMmu(0x0000, 0x1000, 0x1000, 0x1000, 0x2000, 0xd000));
+                    () =>
+                        GetMmu(0x0000, 0x1000, 0x1000, 0x1000, 0x2000, 0xd000));
             Assert.AreEqual(0xf000, exception.AddressFrom);
             Assert.AreEqual(0xffff, exception.AddressTo);
         }
@@ -79,8 +79,8 @@ namespace Axh.Retro.CPU.Common.Tests.Mmu
         {
             var exception =
                 Assert.Throws<MmuAddressSegmentGapException>(
-                                                             () =>
-                                                                 GetMmu(0x1000, 0x1000, 0x2000, 0x1000, 0x3000, 0xcfff));
+                    () =>
+                        GetMmu(0x1000, 0x1000, 0x2000, 0x1000, 0x3000, 0xcfff));
             Assert.AreEqual(0x0000, exception.AddressFrom);
             Assert.AreEqual(0x1000, exception.AddressTo);
         }
@@ -90,13 +90,13 @@ namespace Axh.Retro.CPU.Common.Tests.Mmu
         {
             var exception =
                 Assert.Throws<MmuAddressSegmentOverlapException>(
-                                                                 () =>
-                                                                     GetMmu(0x0000,
-                                                                            0x2000,
-                                                                            0x1000,
-                                                                            0x2000,
-                                                                            0x3000,
-                                                                            0xcfff));
+                    () =>
+                        GetMmu(0x0000,
+                            0x2000,
+                            0x1000,
+                            0x2000,
+                            0x3000,
+                            0xcfff));
             Assert.AreEqual(0x1000, exception.AddressFrom);
             Assert.AreEqual(0x2000, exception.AddressTo);
         }

@@ -7,52 +7,53 @@ namespace Axh.Retro.CPU.Z80.Peripherals
 {
     public class PeripheralManager : IPeripheralManager
     {
-        private readonly IDictionary<byte, IIOPeripheral> ioPeripherals;
+        private readonly IDictionary<byte, IIOPeripheral> _ioPeripherals;
 
-        private readonly IMemoryMappedPeripheral[] memoryMappedPeripherals;
+        private readonly IMemoryMappedPeripheral[] _memoryMappedPeripherals;
 
-        private readonly ICollection<IPeripheral> peripherals;
+        private readonly ICollection<IPeripheral> _peripherals;
 
         public PeripheralManager(ICollection<IPeripheral> peripherals)
         {
-            this.peripherals = peripherals;
-            this.ioPeripherals = peripherals.OfType<IIOPeripheral>().ToDictionary(x => x.Port);
-            this.memoryMappedPeripherals = peripherals.OfType<IMemoryMappedPeripheral>().ToArray();
+            _peripherals = peripherals;
+            _ioPeripherals = peripherals.OfType<IIOPeripheral>().ToDictionary(x => x.Port);
+            _memoryMappedPeripherals = peripherals.OfType<IMemoryMappedPeripheral>().ToArray();
         }
 
         public byte ReadByteFromPort(byte port, byte addressMsb)
         {
-            return ioPeripherals.ContainsKey(port) ? ioPeripherals[port].ReadByte(addressMsb) : (byte) 0;
+            return _ioPeripherals.ContainsKey(port) ? _ioPeripherals[port].ReadByte(addressMsb) : (byte) 0;
         }
 
         public void WriteByteToPort(byte port, byte addressMsb, byte value)
         {
-            if (!ioPeripherals.ContainsKey(port))
+            if (!_ioPeripherals.ContainsKey(port))
             {
                 return;
             }
 
-            ioPeripherals[port].WriteByte(addressMsb, value);
+            _ioPeripherals[port].WriteByte(addressMsb, value);
         }
 
         public void Signal(ControlSignal signal)
         {
-            foreach (var peripheral in peripherals)
+            foreach (var peripheral in _peripherals)
             {
                 peripheral.Signal(signal);
             }
         }
 
-        public IEnumerable<IAddressSegment> MemoryMap => memoryMappedPeripherals.SelectMany(x => x.AddressSegments);
+        public IEnumerable<IAddressSegment> MemoryMap => _memoryMappedPeripherals.SelectMany(x => x.AddressSegments);
 
-        public TPeripheral PeripheralOfType<TPeripheral>() where TPeripheral : IPeripheral =>  peripherals.OfType<TPeripheral>().FirstOrDefault();
+        public TPeripheral PeripheralOfType<TPeripheral>() where TPeripheral : IPeripheral
+            => _peripherals.OfType<TPeripheral>().FirstOrDefault();
 
         /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         public void Dispose()
         {
-            foreach (var peripheral in peripherals)
+            foreach (var peripheral in _peripherals)
             {
                 peripheral.Dispose();
             }

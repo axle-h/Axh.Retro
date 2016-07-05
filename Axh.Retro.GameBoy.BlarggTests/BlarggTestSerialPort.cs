@@ -8,14 +8,14 @@ namespace Axh.Retro.GameBoy.BlarggTests
 {
     public class BlarggTestSerialPort : ISerialPort
     {
-        private readonly IList<char> currentWord;
+        private readonly IList<char> _currentWord;
 
-        private readonly BlockingCollection<string> wordQueue;
+        private readonly BlockingCollection<string> _wordQueue;
 
         public BlarggTestSerialPort()
         {
-            currentWord = new List<char>();
-            wordQueue = new BlockingCollection<string>();
+            _currentWord = new List<char>();
+            _wordQueue = new BlockingCollection<string>();
             Words = new List<string>();
         }
 
@@ -36,25 +36,25 @@ namespace Axh.Retro.GameBoy.BlarggTests
 
             if (!char.IsWhiteSpace(c))
             {
-                currentWord.Add(c);
+                _currentWord.Add(c);
                 return 0x00;
             }
 
-            if (!currentWord.Any())
+            if (!_currentWord.Any())
             {
                 return 0x00;
             }
 
-            var word = new string(currentWord.ToArray());
-            wordQueue.Add(word);
-            currentWord.Clear();
+            var word = new string(_currentWord.ToArray());
+            _wordQueue.Add(word);
+            _currentWord.Clear();
             return 0x00;
         }
 
         public string WaitForNextWord()
         {
             string word;
-            var result = wordQueue.TryTake(out word, TimeSpan.FromMinutes(10));
+            var result = _wordQueue.TryTake(out word, TimeSpan.FromMinutes(10));
             if (result)
             {
                 Words.Add(word);

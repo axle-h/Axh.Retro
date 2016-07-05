@@ -11,14 +11,14 @@ namespace Axh.Retro.CPU.Z80.Core
         where TRegisters : IStateBackedRegisters<TRegisterState> where TRegisterState : struct
     {
         public CoreContext(TRegisters registers,
-                           IInterruptManager interruptManager,
-                           IPeripheralManager peripheralManager,
-                           IMmu mmu,
-                           IInstructionTimer instructionTimer,
-                           IAlu alu,
-                           IInstructionBlockCache<TRegisters> instructionBlockCache,
-                           IInstructionBlockDecoder<TRegisters> instructionBlockDecoder,
-                           IDmaController dmaController)
+            IInterruptManager interruptManager,
+            IPeripheralManager peripheralManager,
+            IMmu mmu,
+            IInstructionTimer instructionTimer,
+            IAlu alu,
+            IInstructionBlockCache<TRegisters> instructionBlockCache,
+            IInstructionBlockDecoder<TRegisters> instructionBlockDecoder,
+            IDmaController dmaController)
         {
             Registers = registers;
             InterruptManager = interruptManager;
@@ -31,6 +31,8 @@ namespace Axh.Retro.CPU.Z80.Core
             DmaController = dmaController;
         }
 
+        public IDmaController DmaController { get; }
+
         public TRegisters Registers { get; }
 
         public IInterruptManager InterruptManager { get; }
@@ -38,8 +40,6 @@ namespace Axh.Retro.CPU.Z80.Core
         public IPeripheralManager PeripheralManager { get; }
 
         public IMmu Mmu { get; }
-
-        public IDmaController DmaController { get; }
 
         public IInstructionTimer InstructionTimer { get; }
 

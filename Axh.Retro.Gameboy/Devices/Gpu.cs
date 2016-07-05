@@ -38,31 +38,31 @@ namespace Axh.Retro.GameBoy.Devices
             0xa0);
 
         private static readonly IMemoryBankConfig MapRamConfig = new SimpleMemoryBankConfig(MemoryBankType.Peripheral,
-                                                                                            null,
-                                                                                            0x8000,
-                                                                                            0x2000);
+            null,
+            0x8000,
+            0x2000);
 
-        private readonly object disposingContext = new object();
+        private readonly object _disposingContext = new object();
 
-        private readonly IGameBoyConfig gameBoyConfig;
+        private readonly IGameBoyConfig _gameBoyConfig;
 
-        private readonly IGpuRegisters gpuRegisters;
+        private readonly IGpuRegisters _gpuRegisters;
 
-        private readonly IInterruptFlagsRegister interruptFlagsRegister;
+        private readonly IInterruptFlagsRegister _interruptFlagsRegister;
 
         /// <summary>
         ///     Normal frame buffer.
         /// </summary>
-        private readonly Bitmap lcdBuffer;
+        private readonly Bitmap _lcdBuffer;
 
-        private readonly ILcdStatusRegister lcdStatusRegister;
+        private readonly ILcdStatusRegister _lcdStatusRegister;
 
-        private readonly IRenderHandler renderhandler;
+        private readonly IRenderHandler _renderhandler;
 
         /// <summary>
         ///     $FE00-$FE9F	OAM - Object Attribute Memory
         /// </summary>
-        private readonly ArrayBackedMemoryBank spriteRam;
+        private readonly ArrayBackedMemoryBank _spriteRam;
 
         /// <summary>
         ///     $9C00-$9FFF	Tile map #1
@@ -71,53 +71,54 @@ namespace Axh.Retro.GameBoy.Devices
         ///     $8800-$8FFF Tile set #1: tiles 128-255 & Tile set #0: tiles -128 to -1
         ///     $8000-$87FF Tile set #1: tiles 0-127
         /// </summary>
-        private readonly ArrayBackedMemoryBank tileRam;
+        private readonly ArrayBackedMemoryBank _tileRam;
 
-        private int currentTimings;
-        private bool disposed;
+        private int _currentTimings;
+        private bool _disposed;
 
-        private bool isEnabled;
+        private bool _isEnabled;
 
-        private RenderSettings lastRenderSettings;
+        private RenderSettings _lastRenderSettings;
 
-        private byte[] lastTileMapBytes, lastTileSetBytes, lastSpriteBytes, lastSpriteTileSetBytes;
+        // TODO: move to state object.
+        private byte[] _lastTileMapBytes, _lastTileSetBytes, _lastSpriteBytes, _lastSpriteTileSetBytes;
 
-        private TaskCompletionSource<bool> paintingTaskCompletionSource;
+        private TaskCompletionSource<bool> _paintingTaskCompletionSource;
 
 
         public Gpu(IGameBoyConfig gameBoyConfig,
-                   IInterruptFlagsRegister interruptFlagsRegister,
-                   IGpuRegisters gpuRegisters,
-                   IRenderHandler renderhandler,
-                   IInstructionTimer timer)
+            IInterruptFlagsRegister interruptFlagsRegister,
+            IGpuRegisters gpuRegisters,
+            IRenderHandler renderhandler,
+            IInstructionTimer timer)
         {
-            this.interruptFlagsRegister = interruptFlagsRegister;
-            this.gpuRegisters = gpuRegisters;
-            this.renderhandler = renderhandler;
-            this.gameBoyConfig = gameBoyConfig;
-            lcdStatusRegister = gpuRegisters.LcdStatusRegister;
+            _interruptFlagsRegister = interruptFlagsRegister;
+            _gpuRegisters = gpuRegisters;
+            _renderhandler = renderhandler;
+            _gameBoyConfig = gameBoyConfig;
+            _lcdStatusRegister = gpuRegisters.LcdStatusRegister;
 
 
-            spriteRam = new ArrayBackedMemoryBank(SpriteRamConfig);
-            tileRam = new ArrayBackedMemoryBank(MapRamConfig);
+            _spriteRam = new ArrayBackedMemoryBank(SpriteRamConfig);
+            _tileRam = new ArrayBackedMemoryBank(MapRamConfig);
 
-            isEnabled = false;
-            lcdStatusRegister.GpuMode = GpuMode.VerticalBlank;
-            currentTimings = 0;
+            _isEnabled = false;
+            _lcdStatusRegister.GpuMode = GpuMode.VerticalBlank;
+            _currentTimings = 0;
 
             if (gameBoyConfig.RunGpu)
             {
                 timer.TimingSync += Sync;
             }
 
-            lcdBuffer = new Bitmap(LcdWidth, LcdHeight, PixelFormat.Format8bppIndexed);
-            paintingTaskCompletionSource = new TaskCompletionSource<bool>();
-            disposed = false;
+            _lcdBuffer = new Bitmap(LcdWidth, LcdHeight, PixelFormat.Format8bppIndexed);
+            _paintingTaskCompletionSource = new TaskCompletionSource<bool>();
+            _disposed = false;
 
             Task.Factory.StartNew(() => PaintLoop().Wait(), TaskCreationOptions.LongRunning);
         }
 
-        public IEnumerable<IAddressSegment> AddressSegments => new[] {spriteRam, tileRam};
+        public IEnumerable<IAddressSegment> AddressSegments => new[] {_spriteRam, _tileRam};
 
         public void Halt()
         {
@@ -132,85 +133,85 @@ namespace Axh.Retro.GameBoy.Devices
         /// </summary>
         public void Dispose()
         {
-            if (disposed)
+            if (_disposed)
             {
                 return;
             }
 
-            lock (disposingContext)
+            lock (_disposingContext)
             {
-                if (disposed)
+                if (_disposed)
                 {
                     return;
                 }
 
-                disposed = true;
+                _disposed = true;
             }
 
-            paintingTaskCompletionSource?.TrySetResult(false);
+            _paintingTaskCompletionSource?.TrySetResult(false);
         }
 
         private void Sync(InstructionTimings instructionTimings)
         {
-            if (!gpuRegisters.LcdControlRegister.LcdOperation)
+            if (!_gpuRegisters.LcdControlRegister.LcdOperation)
             {
-                if (isEnabled)
+                if (_isEnabled)
                 {
-                    lcdStatusRegister.GpuMode = GpuMode.VerticalBlank;
-                    currentTimings = 0;
-                    gpuRegisters.CurrentScanlineRegister.Register = 0x00;
+                    _lcdStatusRegister.GpuMode = GpuMode.VerticalBlank;
+                    _currentTimings = 0;
+                    _gpuRegisters.CurrentScanlineRegister.Register = 0x00;
                 }
                 return;
             }
 
-            isEnabled = true;
+            _isEnabled = true;
 
             var timings = instructionTimings.MachineCycles;
-            currentTimings += timings;
+            _currentTimings += timings;
 
-            switch (lcdStatusRegister.GpuMode)
+            switch (_lcdStatusRegister.GpuMode)
             {
                 case GpuMode.HorizonalBlank:
-                    if (currentTimings >= HorizontalBlankClocks)
+                    if (_currentTimings >= HorizontalBlankClocks)
                     {
-                        gpuRegisters.CurrentScanlineRegister.IncrementScanline();
-                        lcdStatusRegister.GpuMode = gpuRegisters.CurrentScanlineRegister.Scanline == Scanlines
+                        _gpuRegisters.CurrentScanlineRegister.IncrementScanline();
+                        _lcdStatusRegister.GpuMode = _gpuRegisters.CurrentScanlineRegister.Scanline == Scanlines
                             ? GpuMode.VerticalBlank
                             : GpuMode.ReadingOam;
-                        currentTimings -= HorizontalBlankClocks;
+                        _currentTimings -= HorizontalBlankClocks;
                     }
                     break;
                 case GpuMode.VerticalBlank:
-                    if (currentTimings >= VerticalBlankClocks)
+                    if (_currentTimings >= VerticalBlankClocks)
                     {
-                        if (gpuRegisters.CurrentScanlineRegister.Scanline == VertaicalBlankScanlines)
+                        if (_gpuRegisters.CurrentScanlineRegister.Scanline == VertaicalBlankScanlines)
                         {
                             // Reset
-                            gpuRegisters.CurrentScanlineRegister.Register = 0x00;
-                            lcdStatusRegister.GpuMode = GpuMode.ReadingOam;
-                            currentTimings -= VerticalBlankClocks;
-                            interruptFlagsRegister.UpdateInterrupts(InterruptFlag.VerticalBlank);
+                            _gpuRegisters.CurrentScanlineRegister.Register = 0x00;
+                            _lcdStatusRegister.GpuMode = GpuMode.ReadingOam;
+                            _currentTimings -= VerticalBlankClocks;
+                            _interruptFlagsRegister.UpdateInterrupts(InterruptFlag.VerticalBlank);
                             break;
                         }
 
-                        gpuRegisters.CurrentScanlineRegister.IncrementScanline();
-                        currentTimings -= VerticalBlankClocks;
+                        _gpuRegisters.CurrentScanlineRegister.IncrementScanline();
+                        _currentTimings -= VerticalBlankClocks;
                     }
                     break;
                 case GpuMode.ReadingOam:
-                    if (currentTimings >= ReadingOamClocks)
+                    if (_currentTimings >= ReadingOamClocks)
                     {
-                        lcdStatusRegister.GpuMode = GpuMode.ReadingVram;
-                        currentTimings -= ReadingOamClocks;
+                        _lcdStatusRegister.GpuMode = GpuMode.ReadingVram;
+                        _currentTimings -= ReadingOamClocks;
                     }
                     break;
                 case GpuMode.ReadingVram:
-                    if (currentTimings >= ReadingVramClocks)
+                    if (_currentTimings >= ReadingVramClocks)
                     {
-                        paintingTaskCompletionSource?.TrySetResult(true);
+                        _paintingTaskCompletionSource?.TrySetResult(true);
 
-                        lcdStatusRegister.GpuMode = GpuMode.HorizonalBlank;
-                        currentTimings -= ReadingVramClocks;
+                        _lcdStatusRegister.GpuMode = GpuMode.HorizonalBlank;
+                        _currentTimings -= ReadingVramClocks;
                     }
                     break;
                 default:
@@ -220,70 +221,70 @@ namespace Axh.Retro.GameBoy.Devices
 
         private async Task PaintLoop()
         {
-            while (!disposed)
+            while (!_disposed)
             {
-                var result = await paintingTaskCompletionSource.Task.ConfigureAwait(false);
+                var result = await _paintingTaskCompletionSource.Task.ConfigureAwait(false);
                 if (!result)
                 {
                     break;
                 }
 
-                paintingTaskCompletionSource = null;
+                _paintingTaskCompletionSource = null;
 
                 Paint();
 
-                paintingTaskCompletionSource = new TaskCompletionSource<bool>();
+                _paintingTaskCompletionSource = new TaskCompletionSource<bool>();
             }
         }
 
         private void Paint()
         {
-            var renderSettings = gpuRegisters.LcdControlRegister.BackgroundTileMap
+            var renderSettings = _gpuRegisters.LcdControlRegister.BackgroundTileMap
                 ? new RenderSettings(0x1c00,
-                                     0x800,
-                                     true,
-                                     gpuRegisters.ScrollXRegister.Register,
-                                     gpuRegisters.ScrollYRegister.Register,
-                                     gpuRegisters.LcdControlRegister.SpriteSize,
-                                     gpuRegisters.LcdControlRegister.SpriteDisplayEnable)
+                    0x800,
+                    true,
+                    _gpuRegisters.ScrollXRegister.Register,
+                    _gpuRegisters.ScrollYRegister.Register,
+                    _gpuRegisters.LcdControlRegister.SpriteSize,
+                    _gpuRegisters.LcdControlRegister.SpriteDisplayEnable)
                 : new RenderSettings(0x1800,
-                                     0x0,
-                                     false,
-                                     gpuRegisters.ScrollXRegister.Register,
-                                     gpuRegisters.ScrollYRegister.Register,
-                                     gpuRegisters.LcdControlRegister.SpriteSize,
-                                     gpuRegisters.LcdControlRegister.SpriteDisplayEnable);
+                    0x0,
+                    false,
+                    _gpuRegisters.ScrollXRegister.Register,
+                    _gpuRegisters.ScrollYRegister.Register,
+                    _gpuRegisters.LcdControlRegister.SpriteSize,
+                    _gpuRegisters.LcdControlRegister.SpriteDisplayEnable);
 
-            var tileMapBytes = tileRam.ReadBytes(renderSettings.TileMapAddress, 0x400);
-            var tileSetBytes = tileRam.ReadBytes(renderSettings.TileSetAddress, 0x1000);
-            var spriteBytes = spriteRam.ReadBytes(0x0, 0xa0);
-            var spriteTileSetBytes = renderSettings.TileSetAddress == 0 ? tileSetBytes : tileRam.ReadBytes(0x0, 0x1000);
+            var tileMapBytes = _tileRam.ReadBytes(renderSettings.TileMapAddress, 0x400);
+            var tileSetBytes = _tileRam.ReadBytes(renderSettings.TileSetAddress, 0x1000);
+            var spriteBytes = _spriteRam.ReadBytes(0x0, 0xa0);
+            var spriteTileSetBytes = renderSettings.TileSetAddress == 0 ? tileSetBytes : _tileRam.ReadBytes(0x0, 0x1000);
 
-            if (renderSettings.Equals(lastRenderSettings) && tileMapBytes.SequenceEquals(lastTileMapBytes) &&
-                tileSetBytes.SequenceEquals(lastTileSetBytes) && spriteBytes.SequenceEquals(lastSpriteBytes) &&
-                spriteTileSetBytes.SequenceEquals(lastSpriteTileSetBytes))
+            if (renderSettings.Equals(_lastRenderSettings) && tileMapBytes.SequenceEquals(_lastTileMapBytes) &&
+                tileSetBytes.SequenceEquals(_lastTileSetBytes) && spriteBytes.SequenceEquals(_lastSpriteBytes) &&
+                spriteTileSetBytes.SequenceEquals(_lastSpriteTileSetBytes))
             {
                 // No need to render the same frame twice.
                 return;
             }
 
-            lastRenderSettings = renderSettings;
-            lastTileMapBytes = tileMapBytes;
-            lastTileSetBytes = tileSetBytes;
-            lastSpriteBytes = spriteBytes;
-            lastSpriteTileSetBytes = spriteTileSetBytes;
+            _lastRenderSettings = renderSettings;
+            _lastTileMapBytes = tileMapBytes;
+            _lastTileSetBytes = tileSetBytes;
+            _lastSpriteBytes = spriteBytes;
+            _lastSpriteTileSetBytes = spriteTileSetBytes;
 
             var tileMap = new TileMap(renderSettings, tileSetBytes, tileMapBytes, spriteBytes, spriteTileSetBytes);
             var frameBounds = new Rectangle(0, 0, LcdWidth, LcdHeight);
 
-            var bitmapPalette = lcdBuffer.Palette;
-            foreach (var palette in gpuRegisters.LcdMonochromePaletteRegister.Pallette)
+            var bitmapPalette = _lcdBuffer.Palette;
+            foreach (var palette in _gpuRegisters.LcdMonochromePaletteRegister.Pallette)
             {
-                bitmapPalette.Entries[(int) palette.Key] = gameBoyConfig.MonocromePalette[palette.Value];
+                bitmapPalette.Entries[(int) palette.Key] = _gameBoyConfig.MonocromePalette[palette.Value];
             }
-            lcdBuffer.Palette = bitmapPalette;
+            _lcdBuffer.Palette = bitmapPalette;
 
-            var frameData = lcdBuffer.LockBits(frameBounds, ImageLockMode.ReadOnly, lcdBuffer.PixelFormat);
+            var frameData = _lcdBuffer.LockBits(frameBounds, ImageLockMode.ReadOnly, _lcdBuffer.PixelFormat);
 
             var buffer = new byte[frameData.Stride];
             var ptr = frameData.Scan0;
@@ -308,54 +309,54 @@ namespace Axh.Retro.GameBoy.Devices
                 }
             }
 
-            lcdBuffer.UnlockBits(frameData);
-            renderhandler.Paint(lcdBuffer);
+            _lcdBuffer.UnlockBits(frameData);
+            _renderhandler.Paint(_lcdBuffer);
         }
 
         private class TileMap
         {
-            private readonly Sprite[] allSprites;
+            private readonly Sprite[] _allSprites;
 
-            private readonly RenderSettings renderSettings;
-            private readonly IDictionary<byte, Tile> spriteTileCache;
-            private readonly byte[] spriteTileSetBytes;
-            private readonly IDictionary<int, Tile> tileCache;
-            private readonly byte[] tileMapBytes;
-            private readonly byte[] tileSetBytes;
+            private readonly RenderSettings _renderSettings;
+            private readonly IDictionary<byte, Tile> _spriteTileCache;
+            private readonly byte[] _spriteTileSetBytes;
+            private readonly IDictionary<int, Tile> _tileCache;
+            private readonly byte[] _tileMapBytes;
+            private readonly byte[] _tileSetBytes;
 
-            private int column;
-            private Sprite[] currentSprites;
+            private int _column;
+            private Sprite[] _currentSprites;
 
-            private Tile currentTile;
-            private int row;
-            private int tileColumn;
-            private int tileMapColumn;
-            private int tileMapRow;
-            private int tileRow;
+            private Tile _currentTile;
+            private int _row;
+            private int _tileColumn;
+            private int _tileMapColumn;
+            private int _tileMapRow;
+            private int _tileRow;
 
             public TileMap(RenderSettings renderSettings,
-                           byte[] tileSetBytes,
-                           byte[] tileMapBytes,
-                           byte[] spriteBytes,
-                           byte[] spriteTileSetBytes)
+                byte[] tileSetBytes,
+                byte[] tileMapBytes,
+                byte[] spriteBytes,
+                byte[] spriteTileSetBytes)
             {
-                this.renderSettings = renderSettings;
+                _renderSettings = renderSettings;
 
-                column = renderSettings.ScrollX;
-                tileMapColumn = renderSettings.ScrollX / 8;
-                tileColumn = renderSettings.ScrollX % 8;
+                _column = renderSettings.ScrollX;
+                _tileMapColumn = renderSettings.ScrollX / 8;
+                _tileColumn = renderSettings.ScrollX % 8;
 
-                row = renderSettings.ScrollY;
-                tileMapRow = renderSettings.ScrollY / 8;
-                tileRow = renderSettings.ScrollY % 8;
+                _row = renderSettings.ScrollY;
+                _tileMapRow = renderSettings.ScrollY / 8;
+                _tileRow = renderSettings.ScrollY % 8;
 
                 // TODO: tile sets and caches can be shared when sprite and background set to same set.
-                this.tileSetBytes = tileSetBytes;
-                this.tileMapBytes = tileMapBytes;
-                this.spriteTileSetBytes = spriteTileSetBytes;
-                allSprites = renderSettings.SpritesEnabled ? GetAllSprites(spriteBytes).ToArray() : new Sprite[0];
-                tileCache = new Dictionary<int, Tile>();
-                spriteTileCache = new Dictionary<byte, Tile>();
+                _tileSetBytes = tileSetBytes;
+                _tileMapBytes = tileMapBytes;
+                _spriteTileSetBytes = spriteTileSetBytes;
+                _allSprites = renderSettings.SpritesEnabled ? GetAllSprites(spriteBytes).ToArray() : new Sprite[0];
+                _tileCache = new Dictionary<int, Tile>();
+                _spriteTileCache = new Dictionary<byte, Tile>();
 
                 UpdateCurrentTile();
                 UpdateRowSprites();
@@ -365,28 +366,28 @@ namespace Axh.Retro.GameBoy.Devices
             {
                 get
                 {
-                    var background = currentTile.Get(tileRow, tileColumn);
-                    if (!renderSettings.SpritesEnabled)
+                    var background = _currentTile.Get(_tileRow, _tileColumn);
+                    if (!_renderSettings.SpritesEnabled)
                     {
                         return background;
                     }
 
-                    foreach (var sprite in currentSprites.Where(s => column >= s.X && column < s.X + 8))
+                    foreach (var sprite in _currentSprites.Where(s => _column >= s.X && _column < s.X + 8))
                     {
                         // TODO: 8x16 sprites.
                         // TODO: Background priority sprites.
                         Tile spriteTile;
-                        if (spriteTileCache.ContainsKey(sprite.TileNumber))
+                        if (_spriteTileCache.ContainsKey(sprite.TileNumber))
                         {
-                            spriteTile = spriteTileCache[sprite.TileNumber];
+                            spriteTile = _spriteTileCache[sprite.TileNumber];
                         }
                         else
                         {
-                            spriteTileCache[sprite.TileNumber] =
-                                spriteTile = GetTile(spriteTileSetBytes, sprite.TileNumber * 16);
+                            _spriteTileCache[sprite.TileNumber] =
+                                spriteTile = GetTile(_spriteTileSetBytes, sprite.TileNumber * 16);
                         }
 
-                        return spriteTile.Get(row - sprite.Y, column - sprite.X);
+                        return spriteTile.Get(_row - sprite.Y, _column - sprite.X);
                     }
 
                     return background;
@@ -395,30 +396,30 @@ namespace Axh.Retro.GameBoy.Devices
 
             public void NextColumn()
             {
-                column++;
-                tileColumn = (tileColumn + 1) % 8;
-                if (tileColumn == 0)
+                _column++;
+                _tileColumn = (_tileColumn + 1) % 8;
+                if (_tileColumn == 0)
                 {
-                    tileMapColumn++;
+                    _tileMapColumn++;
                     UpdateCurrentTile();
                 }
             }
 
             public void NextRow()
             {
-                row++;
-                tileRow = (tileRow + 1) % 8;
-                if (tileRow == 0)
+                _row++;
+                _tileRow = (_tileRow + 1) % 8;
+                if (_tileRow == 0)
                 {
-                    tileMapRow++;
+                    _tileMapRow++;
                 }
 
                 UpdateRowSprites();
 
                 // Reset column.
-                column = renderSettings.ScrollX;
-                tileMapColumn = renderSettings.ScrollX / 8;
-                tileColumn = renderSettings.ScrollX % 8;
+                _column = _renderSettings.ScrollX;
+                _tileMapColumn = _renderSettings.ScrollX / 8;
+                _tileColumn = _renderSettings.ScrollX % 8;
                 UpdateCurrentTile();
             }
 
@@ -427,21 +428,21 @@ namespace Axh.Retro.GameBoy.Devices
                 // TODO: Multiple sprite priority.
                 // TODO: Max 10 sprites per scan.
                 // TODO: 8x16 sprites.
-                currentSprites = allSprites.Where(s => row >= s.Y && row < s.Y + 8).ToArray();
+                _currentSprites = _allSprites.Where(s => _row >= s.Y && _row < s.Y + 8).ToArray();
             }
 
             private void UpdateCurrentTile()
             {
-                var tileMapIndex = tileMapRow * 32 + tileMapColumn;
-                var tileMapValue = tileMapBytes[tileMapIndex];
-                var tileSetIndex = renderSettings.TileSetIsSigned ? (sbyte) tileMapValue + 128 : tileMapValue;
-                if (tileCache.ContainsKey(tileSetIndex))
+                var tileMapIndex = _tileMapRow * 32 + _tileMapColumn;
+                var tileMapValue = _tileMapBytes[tileMapIndex];
+                var tileSetIndex = _renderSettings.TileSetIsSigned ? (sbyte) tileMapValue + 128 : tileMapValue;
+                if (_tileCache.ContainsKey(tileSetIndex))
                 {
-                    currentTile = tileCache[tileSetIndex];
+                    _currentTile = _tileCache[tileSetIndex];
                 }
                 else
                 {
-                    tileCache[tileSetIndex] = currentTile = GetTile(tileSetBytes, tileSetIndex * 16);
+                    _tileCache[tileSetIndex] = _currentTile = GetTile(_tileSetBytes, tileSetIndex * 16);
                 }
             }
 
@@ -485,12 +486,12 @@ namespace Axh.Retro.GameBoy.Devices
 
                         yield return
                             new Sprite((byte) x,
-                                       (byte) y,
-                                       n,
-                                       (flags & 0x08) > 0,
-                                       (flags & 0x04) > 0,
-                                       (flags & 0x02) > 0,
-                                       (flags & 0x01) > 0);
+                                (byte) y,
+                                n,
+                                (flags & 0x08) > 0,
+                                (flags & 0x04) > 0,
+                                (flags & 0x02) > 0,
+                                (flags & 0x01) > 0);
                     }
                 }
             }
@@ -508,12 +509,12 @@ namespace Axh.Retro.GameBoy.Devices
             public readonly bool SpritesEnabled;
 
             public RenderSettings(ushort tileMapAddress,
-                                  ushort tileSetAddress,
-                                  bool tileSetIsSigned,
-                                  byte scrollX,
-                                  byte scrollY,
-                                  bool bigSprites,
-                                  bool spritesEnabled) : this()
+                ushort tileSetAddress,
+                bool tileSetIsSigned,
+                byte scrollX,
+                byte scrollY,
+                bool bigSprites,
+                bool spritesEnabled) : this()
             {
                 TileMapAddress = tileMapAddress;
                 TileSetAddress = tileSetAddress;

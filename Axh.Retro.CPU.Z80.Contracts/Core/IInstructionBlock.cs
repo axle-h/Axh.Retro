@@ -18,8 +18,8 @@ namespace Axh.Retro.CPU.Z80.Contracts.Core
         string DebugInfo { get; }
 
         InstructionTimings ExecuteInstructionBlock(TRegisters registers,
-                                                   IMmu mmu,
-                                                   IAlu alu,
-                                                   IPeripheralManager peripheralManager);
+            IMmu mmu,
+            IAlu alu,
+            IPeripheralManager peripheralManager);
     }
 }

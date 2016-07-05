@@ -9,8 +9,8 @@ namespace Axh.Retro.CPU.Common.Contracts.Memory
     /// </summary>
     public struct AddressRange
     {
-        private readonly ushort address;
-        private readonly ushort maxAddress;
+        private readonly ushort _address;
+        private readonly ushort _maxAddress;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="AddressRange" /> struct.
@@ -24,8 +24,8 @@ namespace Axh.Retro.CPU.Common.Contracts.Memory
             {
                 throw new ArgumentException($"Cannot create normal range: {maxAddress} > {address}");
             }
-            this.address = address;
-            this.maxAddress = maxAddress;
+            _address = address;
+            _maxAddress = maxAddress;
         }
 
         /// <summary>
@@ -34,7 +34,7 @@ namespace Axh.Retro.CPU.Common.Contracts.Memory
         /// <param name="range">The range.</param>
         /// <returns></returns>
         public bool Intersects(AddressRange range)
-            => Math.Max(range.address, address) <= Math.Min(range.maxAddress, maxAddress);
+            => Math.Max(range._address, _address) <= Math.Min(range._maxAddress, _maxAddress);
 
         /// <summary>
         ///     Gets all address ranges required to satisfy the specified address, length pair.
@@ -63,6 +63,6 @@ namespace Axh.Retro.CPU.Common.Contracts.Memory
         /// <returns>
         ///     A <see cref="System.String" /> that represents this instance.
         /// </returns>
-        public override string ToString() => $"({address}, {maxAddress})";
+        public override string ToString() => $"({_address}, {_maxAddress})";
     }
 }

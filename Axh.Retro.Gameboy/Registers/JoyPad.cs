@@ -6,102 +6,102 @@ namespace Axh.Retro.GameBoy.Registers
 {
     public class JoyPad : IJoyPadRegister
     {
-        private readonly IInterruptFlagsRegister interruptFlagsRegister;
-        private bool a;
-        private bool b;
-        private bool down;
-        private bool left;
+        private readonly IInterruptFlagsRegister _interruptFlagsRegister;
+        private bool _a;
+        private bool _b;
+        private bool _down;
+        private bool _left;
 
-        private MatrixColumn matrixColumn;
-        private bool right;
-        private bool select;
-        private bool start;
+        private MatrixColumn _matrixColumn;
+        private bool _right;
+        private bool _select;
+        private bool _start;
 
-        private bool up;
+        private bool _up;
 
         public JoyPad(IInterruptFlagsRegister interruptFlagsRegister)
         {
-            this.interruptFlagsRegister = interruptFlagsRegister;
-            matrixColumn = MatrixColumn.None;
+            _interruptFlagsRegister = interruptFlagsRegister;
+            _matrixColumn = MatrixColumn.None;
         }
 
         public bool Up
         {
-            get { return up; }
+            get { return _up; }
             set
             {
-                up = value;
-                interruptFlagsRegister.UpdateInterrupts(InterruptFlag.JoyPadPress);
+                _up = value;
+                _interruptFlagsRegister.UpdateInterrupts(InterruptFlag.JoyPadPress);
             }
         }
 
         public bool Down
         {
-            get { return down; }
+            get { return _down; }
             set
             {
-                down = value;
-                interruptFlagsRegister.UpdateInterrupts(InterruptFlag.JoyPadPress);
+                _down = value;
+                _interruptFlagsRegister.UpdateInterrupts(InterruptFlag.JoyPadPress);
             }
         }
 
         public bool Left
         {
-            get { return left; }
+            get { return _left; }
             set
             {
-                left = value;
-                interruptFlagsRegister.UpdateInterrupts(InterruptFlag.JoyPadPress);
+                _left = value;
+                _interruptFlagsRegister.UpdateInterrupts(InterruptFlag.JoyPadPress);
             }
         }
 
         public bool Right
         {
-            get { return right; }
+            get { return _right; }
             set
             {
-                right = value;
-                interruptFlagsRegister.UpdateInterrupts(InterruptFlag.JoyPadPress);
+                _right = value;
+                _interruptFlagsRegister.UpdateInterrupts(InterruptFlag.JoyPadPress);
             }
         }
 
         public bool A
         {
-            get { return a; }
+            get { return _a; }
             set
             {
-                a = value;
-                interruptFlagsRegister.UpdateInterrupts(InterruptFlag.JoyPadPress);
+                _a = value;
+                _interruptFlagsRegister.UpdateInterrupts(InterruptFlag.JoyPadPress);
             }
         }
 
         public bool B
         {
-            get { return b; }
+            get { return _b; }
             set
             {
-                b = value;
-                interruptFlagsRegister.UpdateInterrupts(InterruptFlag.JoyPadPress);
+                _b = value;
+                _interruptFlagsRegister.UpdateInterrupts(InterruptFlag.JoyPadPress);
             }
         }
 
         public bool Select
         {
-            get { return select; }
+            get { return _select; }
             set
             {
-                select = value;
-                interruptFlagsRegister.UpdateInterrupts(InterruptFlag.JoyPadPress);
+                _select = value;
+                _interruptFlagsRegister.UpdateInterrupts(InterruptFlag.JoyPadPress);
             }
         }
 
         public bool Start
         {
-            get { return start; }
+            get { return _start; }
             set
             {
-                start = value;
-                interruptFlagsRegister.UpdateInterrupts(InterruptFlag.JoyPadPress);
+                _start = value;
+                _interruptFlagsRegister.UpdateInterrupts(InterruptFlag.JoyPadPress);
             }
         }
 
@@ -135,7 +135,7 @@ namespace Axh.Retro.GameBoy.Registers
         {
             get
             {
-                switch (matrixColumn)
+                switch (_matrixColumn)
                 {
                     case MatrixColumn.None:
                         return 0xff;
@@ -153,17 +153,17 @@ namespace Axh.Retro.GameBoy.Registers
                 // No idea what happens when both are set...
                 if ((value & 0x10) > 0)
                 {
-                    matrixColumn = MatrixColumn.P14;
+                    _matrixColumn = MatrixColumn.P14;
                     return;
                 }
 
                 if ((value & 0x20) > 0)
                 {
-                    matrixColumn = MatrixColumn.P15;
+                    _matrixColumn = MatrixColumn.P15;
                     return;
                 }
 
-                matrixColumn = MatrixColumn.None;
+                _matrixColumn = MatrixColumn.None;
             }
         }
 

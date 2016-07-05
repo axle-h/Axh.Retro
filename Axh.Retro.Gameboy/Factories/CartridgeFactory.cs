@@ -147,18 +147,18 @@ namespace Axh.Retro.GameBoy.Factories
                 }
 
                 return new CartridgeHeader(entryPoint,
-                                           nintendoLogoValid,
-                                           title,
-                                           isGameBoyColour,
-                                           licenseCode,
-                                           isSuperGameBoy,
-                                           cartridgeType,
-                                           romSize,
-                                           ramSize,
-                                           destinationCode,
-                                           romVersion,
-                                           headerChecksum,
-                                           romChecksum);
+                    nintendoLogoValid,
+                    title,
+                    isGameBoyColour,
+                    licenseCode,
+                    isSuperGameBoy,
+                    cartridgeType,
+                    romSize,
+                    ramSize,
+                    destinationCode,
+                    romVersion,
+                    headerChecksum,
+                    romChecksum);
             }
         }
     }
