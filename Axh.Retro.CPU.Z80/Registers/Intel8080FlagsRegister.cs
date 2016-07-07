@@ -4,7 +4,7 @@ using Axh.Retro.CPU.Z80.Util;
 namespace Axh.Retro.CPU.Z80.Registers
 {
     /// <summary>
-    ///     Flags register used by the Z80 & Intel 8080 (I think)
+    /// Flags register used by the Z80 & Intel 8080 (I think)
     /// </summary>
     public class Intel8080FlagsRegister : IFlagsRegister
     {

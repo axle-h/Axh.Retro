@@ -18,7 +18,7 @@ namespace Axh.Retro.CPU.Z80.Util
 
         private static bool[] P2(bool n)
         {
-            return new[] {n, !n, !n, n};
+            return new[] { n, !n, !n, n };
         }
 
         private static bool[] P4(bool n)

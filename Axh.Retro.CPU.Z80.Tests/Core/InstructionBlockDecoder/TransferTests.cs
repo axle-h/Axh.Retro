@@ -32,7 +32,6 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             FlagsRegister.VerifySet(x => x.Subtract = false, Times.Once);
         }
 
-
         [Test]
         public void LDD_BC0()
         {

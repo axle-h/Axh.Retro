@@ -5,12 +5,12 @@ using Axh.Retro.CPU.Common.Contracts.Timing;
 namespace Axh.Retro.CPU.Common.Memory
 {
     /// <summary>
-    ///     A DMA operation to copy bytes from one address to another.
+    /// A DMA operation to copy bytes from one address to another.
     /// </summary>
     public class DmaCopyOperation : IDmaOperation
     {
         /// <summary>
-        ///     Initializes a new instance of the <see cref="DmaCopyOperation" /> class.
+        /// Initializes a new instance of the <see cref="DmaCopyOperation" /> class.
         /// </summary>
         /// <param name="sourceAddress">The source address.</param>
         /// <param name="destinationAddress">The destination address.</param>
@@ -31,48 +31,48 @@ namespace Axh.Retro.CPU.Common.Memory
         }
 
         /// <summary>
-        ///     Gets the source address.
+        /// Gets the source address.
         /// </summary>
         /// <value>
-        ///     The source address.
+        /// The source address.
         /// </value>
         public ushort SourceAddress { get; }
 
         /// <summary>
-        ///     Gets the destination address.
+        /// Gets the destination address.
         /// </summary>
         /// <value>
-        ///     The destination address.
+        /// The destination address.
         /// </value>
         public ushort DestinationAddress { get; }
 
         /// <summary>
-        ///     Gets the length.
+        /// Gets the length.
         /// </summary>
         /// <value>
-        ///     The length.
+        /// The length.
         /// </value>
         public int Length { get; }
 
         /// <summary>
-        ///     Gets the execution cpu timings.
+        /// Gets the execution cpu timings.
         /// </summary>
         /// <value>
-        ///     The execution cpu timings.
+        /// The execution cpu timings.
         /// </value>
         public InstructionTimings Timings { get; }
 
         /// <summary>
-        ///     Executes the dma operation.
+        /// Executes the dma operation.
         /// </summary>
         /// <param name="mmu">The mmu.</param>
         public void Execute(IMmu mmu) => mmu.TransferBytes(SourceAddress, DestinationAddress, Length);
 
         /// <summary>
-        ///     Gets addresses ranges that should be locked for reading and writing during this dma operation.
+        /// Gets addresses ranges that should be locked for reading and writing during this dma operation.
         /// </summary>
         /// <value>
-        ///     The locked addresses ranges.
+        /// The locked addresses ranges.
         /// </value>
         public IEnumerable<AddressRange> LockedAddressesRanges { get; }
     }

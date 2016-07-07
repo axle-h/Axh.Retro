@@ -4,8 +4,8 @@ using Axh.Retro.CPU.Z80.Contracts.Core.Timing;
 namespace Axh.Retro.CPU.Z80.Timing
 {
     /// <summary>
-    ///     This is just to clean up incrementing the cycle counters per instruction. Calls to Add 'should' be inlined by the
-    ///     JIT compiler.
+    /// This is just to clean up incrementing the cycle counters per instruction. Calls to Add 'should' be inlined by the
+    /// JIT compiler.
     /// </summary>
     internal class InstructionTimingsBuilder : IInstructionTimingsBuilder
     {
@@ -79,9 +79,7 @@ namespace Axh.Retro.CPU.Z80.Timing
         {
             // Only add on prefetch timings when not an indexed register
             MachineCycles += isDisplaced ? DisplacedIndexMachineCycles : IndexMachineCycles + PrefetchMachineCycles;
-            ThrottlingStates += isDisplaced
-                ? DisplacedIndexThrottlingStates
-                : IndexThrottlingStates + PretetchThrottlingStates;
+            ThrottlingStates += isDisplaced ? DisplacedIndexThrottlingStates : IndexThrottlingStates + PretetchThrottlingStates;
             return this;
         }
 

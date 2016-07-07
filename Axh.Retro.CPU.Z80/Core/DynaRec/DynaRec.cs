@@ -41,26 +41,22 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
             _decoder = new OpCodeDecoder(platformConfig, prefetch);
         }
 
-        private Expression SyncProgramCounter
-            =>
-                Expression.Assign(PC,
-                    Expression.Convert(
-                        Expression.Add(Expression.Convert(PC, typeof (int)),
-                            Expression.Constant(_prefetch.TotalBytesRead)),
-                        typeof (ushort)));
+        private Expression SyncProgramCounter => Expression.Assign(PC, Expression.Convert(Expression.Add(Expression.Convert(PC, typeof (int)),
+                                                                                          Expression.Constant(_prefetch.TotalBytesRead)),
+                                                                                          typeof (ushort)));
 
         public bool SupportsInstructionBlockCaching => true;
 
         public IInstructionBlock<TRegisters> DecodeNextBlock(ushort address)
         {
-            var decodedBlock = _decoder.GetNextBlock(address);
+            var decodedBlock = _decoder.DecodeNextBlock(address);
             var lambda = BuildExpressionTree(decodedBlock.Operations);
 
             var block = new DynaRecInstructionBlock<TRegisters>(address,
-                (ushort) _prefetch.TotalBytesRead,
-                lambda.Compile(),
-                decodedBlock.Timings,
-                _lastDecodeResult);
+                                                                (ushort) _prefetch.TotalBytesRead,
+                                                                lambda.Compile(),
+                                                                decodedBlock.Timings,
+                                                                _lastDecodeResult);
             if (_debug)
             {
                 block.DebugInfo =
@@ -88,13 +84,11 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
 
             var expressionBlock = Expression.Block(GeParameterExpressions(), expressions);
 
-            var lambda =
-                Expression.Lambda<Func<TRegisters, IMmu, IAlu, IPeripheralManager, InstructionTimings>>(
-                    expressionBlock,
-                    Registers,
-                    Mmu,
-                    Alu,
-                    IO);
+            var lambda = Expression.Lambda<Func<TRegisters, IMmu, IAlu, IPeripheralManager, InstructionTimings>>(expressionBlock,
+                                                                                                                 Registers,
+                                                                                                                 Mmu,
+                                                                                                                 Alu,
+                                                                                                                 IO);
             return lambda;
         }
 
@@ -158,8 +152,8 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
                     ExpressionHelpers.GetMethodInfo<IInstructionTimingsBuilder>(dt => dt.GetInstructionTimings());
                 yield return
                     Expression.Return(returnTarget,
-                        Expression.Call(DynamicTimer, getInstructionTimings),
-                        typeof (InstructionTimings));
+                                      Expression.Call(DynamicTimer, getInstructionTimings),
+                                      typeof (InstructionTimings));
             }
 
             yield return Expression.Label(returnTarget, Expression.Constant(default(InstructionTimings)));

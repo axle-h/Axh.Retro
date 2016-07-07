@@ -214,7 +214,6 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             TestReturn(PrimaryOpCode.RET_NC, x => x.Carry, false, true);
         }
 
-
         [Test]
         public void RET_NZ()
         {

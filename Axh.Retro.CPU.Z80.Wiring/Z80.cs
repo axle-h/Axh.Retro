@@ -18,8 +18,8 @@ using DryIoc;
 
 namespace Axh.Retro.CPU.Z80.Wiring
 {
-    public class Z80<TRegisters, TRegisterState> : IDisposable where TRegisters : IStateBackedRegisters<TRegisterState>
-        where TRegisterState : struct
+    public class Z80<TRegisters, TRegisterState> : IDisposable
+        where TRegisters : IStateBackedRegisters<TRegisterState> where TRegisterState : struct
     {
         private readonly IContainer _container;
         private bool _isInitialized;
@@ -29,13 +29,16 @@ namespace Axh.Retro.CPU.Z80.Wiring
             _container =
                 new Container(
                     rules =>
-                        rules.WithDefaultReuseInsteadOfTransient(
-                            Reuse.InResolutionScopeOf(typeof (ICpuCore<TRegisters, TRegisterState>)))
-                            .WithoutThrowOnRegisteringDisposableTransient()); // I've implemented a proper dispose chain through object graph from ICpuCore.
+                    rules.WithDefaultReuseInsteadOfTransient(
+                                                             Reuse.InResolutionScopeOf(
+                                                                                       typeof (
+                                                                                           ICpuCore<TRegisters, TRegisterState>)))
+                         .WithoutThrowOnRegisteringDisposableTransient());
+            // I've implemented a proper dispose chain through object graph from ICpuCore.
         }
 
         /// <summary>
-        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         public void Dispose() => _container.Dispose();
 
@@ -110,18 +113,17 @@ namespace Axh.Retro.CPU.Z80.Wiring
             {
                 case CpuMode.Intel8080:
                     _container.Register<IFlagsRegister, Intel8080FlagsRegister>();
-                    _container.RegisterMany(new[] {typeof (IIntel8080Registers), typeof (IRegisters)},
-                        typeof (Intel8080Registers));
+                    _container.RegisterMany(new[] { typeof (IIntel8080Registers), typeof (IRegisters) },
+                                            typeof (Intel8080Registers));
                     break;
                 case CpuMode.GameBoy:
                     _container.Register<IFlagsRegister, GameBoyFlagsRegister>();
-                    _container.RegisterMany(new[] {typeof (IIntel8080Registers), typeof (IRegisters)},
-                        typeof (Intel8080Registers));
+                    _container.RegisterMany(new[] { typeof (IIntel8080Registers), typeof (IRegisters) },
+                                            typeof (Intel8080Registers));
                     break;
                 case CpuMode.Z80:
                     _container.Register<IFlagsRegister, Intel8080FlagsRegister>();
-                    _container.RegisterMany(new[] {typeof (IIntel8080Registers), typeof (IRegisters)},
-                        typeof (Z80Registers));
+                    _container.RegisterMany(new[] { typeof (IIntel8080Registers), typeof (IRegisters) }, typeof (Z80Registers));
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(platformConfig.CpuMode), platformConfig.CpuMode, null);

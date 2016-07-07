@@ -27,7 +27,6 @@ namespace Axh.Retro.CPU.Z80.Core
             Task.Factory.StartNew(InterruptTask, TaskCreationOptions.LongRunning);
         }
 
-
         public bool InterruptsEnabled => _registers.InterruptFlipFlop1;
 
         public void Interrupt(ushort address) => _interruptQueue.TryAdd(address);
@@ -46,10 +45,10 @@ namespace Axh.Retro.CPU.Z80.Core
         public void AddResumeTask(Action task)
         {
             _interruptTask = _interruptTask.ContinueWith(x =>
-            {
-                task();
-                return x.Result;
-            });
+                                                         {
+                                                             task();
+                                                             return x.Result;
+                                                         });
         }
 
         public void NotifyHalt() => Task.Run(() => _haltTaskSource.TrySetResult(true));
@@ -59,7 +58,7 @@ namespace Axh.Retro.CPU.Z80.Core
         public async Task<ushort> WaitForNextInterrupt() => await _interruptTask.ConfigureAwait(false);
 
         /// <summary>
-        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         public void Dispose()
         {
@@ -128,7 +127,7 @@ namespace Axh.Retro.CPU.Z80.Core
                 _haltTaskSource = new TaskCompletionSource<bool>();
 
                 // Resume the CPU with the program counter set to address
-                Task.Run(() => _interruptTaskSource.TrySetResult(address));
+                var task = Task.Run(() => _interruptTaskSource.TrySetResult(address));
                 IsInterrupted = false;
 
                 IsInterrupted = false;

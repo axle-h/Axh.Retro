@@ -228,7 +228,6 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             TestRelativeJump(PrimaryOpCode.JR_C, x => x.Carry, false, false);
         }
 
-
         [Test]
         public void JR_NC()
         {
@@ -236,14 +235,12 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             TestRelativeJump(PrimaryOpCode.JR_NC, x => x.Carry, false, true);
         }
 
-
         [Test]
         public void JR_NZ()
         {
             TestRelativeJump(PrimaryOpCode.JR_NZ, x => x.Zero, true, false);
             TestRelativeJump(PrimaryOpCode.JR_NZ, x => x.Zero, false, true);
         }
-
 
         [Test]
         public void JR_Z()

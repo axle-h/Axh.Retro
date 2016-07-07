@@ -3,17 +3,17 @@
     public enum InstructionTimingSyncMode
     {
         /// <summary>
-        ///     Do no timing sync, simulation will run as fast as possible
+        /// Do no timing sync, simulation will run as fast as possible
         /// </summary>
         Null,
 
         /// <summary>
-        ///     Sync to machine cycles
+        /// Sync to machine cycles
         /// </summary>
         MachineCycles,
 
         /// <summary>
-        ///     Sync to throttling states
+        /// Sync to throttling states
         /// </summary>
         ThrottlingStates
     }

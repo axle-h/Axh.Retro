@@ -227,7 +227,6 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             AfRegisters.VerifySet(x => x.A = Expected, Times.Once);
         }
 
-
         [TestCase(PrimaryOpCode.SBC_A_A)]
         [TestCase(PrimaryOpCode.SBC_A_B)]
         [TestCase(PrimaryOpCode.SBC_A_C)]
@@ -298,7 +297,6 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             Alu.Verify(x => x.SubtractWithCarry(A, ValueAtIndex), Times.Once);
             AfRegisters.VerifySet(x => x.A = Expected, Times.Once);
         }
-
 
         [TestCase(PrimaryOpCode.AND_A)]
         [TestCase(PrimaryOpCode.AND_B)]
@@ -371,7 +369,6 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             AfRegisters.VerifySet(x => x.A = Expected, Times.Once);
         }
 
-
         [TestCase(PrimaryOpCode.OR_A)]
         [TestCase(PrimaryOpCode.OR_B)]
         [TestCase(PrimaryOpCode.OR_C)]
@@ -442,7 +439,6 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             Alu.Verify(x => x.Or(A, ValueAtIndex), Times.Once);
             AfRegisters.VerifySet(x => x.A = Expected, Times.Once);
         }
-
 
         [TestCase(PrimaryOpCode.XOR_A)]
         [TestCase(PrimaryOpCode.XOR_B)]
@@ -631,7 +627,6 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             }
         }
 
-
         [TestCase(PrimaryOpCode.Prefix_DD)]
         [TestCase(PrimaryOpCode.Prefix_FD)]
         public void INC_mIXYd(PrimaryOpCode prefix)
@@ -704,7 +699,6 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
                     break;
             }
         }
-
 
         [TestCase(PrimaryOpCode.Prefix_DD)]
         [TestCase(PrimaryOpCode.Prefix_FD)]

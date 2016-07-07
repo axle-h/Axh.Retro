@@ -4,9 +4,17 @@ using Axh.Retro.CPU.Z80.Contracts.OpCodes;
 
 namespace Axh.Retro.CPU.Z80.Core.Decode
 {
+    /// <summary>
+    /// Core op-code decoder functions.
+    /// </summary>
     internal partial class OpCodeDecoder
     {
-        private OpCode? DecodePrimary()
+        /// <summary>
+        /// Decodes the next opcode.
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="System.ArgumentOutOfRangeException">null</exception>
+        private OpCode? DecodeNextOpCode()
         {
             var code = (PrimaryOpCode) _prefetch.NextByte();
 
@@ -1107,7 +1115,7 @@ namespace Axh.Retro.CPU.Z80.Core.Decode
                     _timer.MmuWord();
                     _operand1 = Operand.nn;
                     _opCodeMeta = OpCodeMeta.WordLiteral | OpCodeMeta.EndBlock;
-                    _flagTest = FlagTest.Possitive;
+                    _flagTest = FlagTest.Positive;
                     return OpCode.Jump;
                 case PrimaryOpCode.JP_M:
                     if (_cpuMode == CpuMode.GameBoy)
@@ -1234,7 +1242,7 @@ namespace Axh.Retro.CPU.Z80.Core.Decode
                     _timer.MmuWord();
                     _operand1 = Operand.nn;
                     _opCodeMeta = OpCodeMeta.WordLiteral | OpCodeMeta.EndBlock;
-                    _flagTest = FlagTest.Possitive;
+                    _flagTest = FlagTest.Positive;
                     return OpCode.Call;
                 case PrimaryOpCode.CALL_M:
                     if (_cpuMode == CpuMode.GameBoy)
@@ -1316,7 +1324,7 @@ namespace Axh.Retro.CPU.Z80.Core.Decode
 
                     _timer.Extend(1);
                     _opCodeMeta = OpCodeMeta.EndBlock;
-                    _flagTest = FlagTest.Possitive;
+                    _flagTest = FlagTest.Positive;
                     return OpCode.Return;
                 case PrimaryOpCode.RET_M:
                     if (_cpuMode == CpuMode.GameBoy)

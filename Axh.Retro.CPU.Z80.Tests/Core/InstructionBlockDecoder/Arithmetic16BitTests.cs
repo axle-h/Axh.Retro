@@ -157,7 +157,6 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             GpRegisters.VerifySet(x => x.HL = Value, Times.Once);
         }
 
-
         [TestCase(PrimaryOpCode.INC_BC)]
         [TestCase(PrimaryOpCode.INC_DE)]
         [TestCase(PrimaryOpCode.INC_HL)]
@@ -233,7 +232,6 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
                     break;
             }
         }
-
 
         [TestCase(PrimaryOpCode.Prefix_DD)]
         [TestCase(PrimaryOpCode.Prefix_FD)]

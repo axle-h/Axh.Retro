@@ -103,7 +103,6 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             Registers.VerifySet(x => x.InterruptMode = InterruptMode.InterruptMode1, Times.Once);
         }
 
-
         [Test]
         public void IM2()
         {
@@ -114,7 +113,6 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
 
             Registers.VerifySet(x => x.InterruptMode = InterruptMode.InterruptMode2, Times.Once);
         }
-
 
         [Test]
         public void NEG()
@@ -131,7 +129,6 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             Alu.Verify(x => x.Subtract(0, A), Times.Once);
             AfRegisters.VerifySet(x => x.A = Expected, Times.Once);
         }
-
 
         [Test]
         public void SCF()

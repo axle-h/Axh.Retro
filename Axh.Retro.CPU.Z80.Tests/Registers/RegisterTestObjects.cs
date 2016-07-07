@@ -27,9 +27,9 @@ namespace Axh.Retro.CPU.Z80.Tests.Registers
                 };
 
         public static GeneralPurposeRegisterState GeneralPurposeRegisterState
-            => new GeneralPurposeRegisterState {B = 0x22, C = 0x33, D = 0x44, E = 0x55, H = 0x77, L = 0x88};
+            => new GeneralPurposeRegisterState { B = 0x22, C = 0x33, D = 0x44, E = 0x55, H = 0x77, L = 0x88 };
 
         public static AccumulatorAndFlagsRegisterState AccumulatorAndFlagsRegisterState
-            => new AccumulatorAndFlagsRegisterState {A = 0x11, F = 0x66};
+            => new AccumulatorAndFlagsRegisterState { A = 0x11, F = 0x66 };
     }
 }

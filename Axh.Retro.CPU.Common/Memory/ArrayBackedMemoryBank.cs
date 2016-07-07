@@ -16,18 +16,18 @@ namespace Axh.Retro.CPU.Common.Memory
             Address = memoryBankConfig.Address;
             Length = memoryBankConfig.Length;
 
-            if (memoryBankConfig.State == null)
+            if (memoryBankConfig.InitialState == null)
             {
                 return;
             }
 
-            if (memoryBankConfig.Length != memoryBankConfig.State.Length)
+            if (memoryBankConfig.Length != memoryBankConfig.InitialState.Length)
             {
                 throw new MemoryConfigStateException(memoryBankConfig.Address,
-                    memoryBankConfig.Length,
-                    memoryBankConfig.State.Length);
+                                                     memoryBankConfig.Length,
+                                                     memoryBankConfig.InitialState.Length);
             }
-            Array.Copy(memoryBankConfig.State, 0, Memory, 0, memoryBankConfig.State.Length);
+            Array.Copy(memoryBankConfig.InitialState, 0, Memory, 0, memoryBankConfig.InitialState.Length);
         }
 
         public MemoryBankType Type { get; }
@@ -37,7 +37,6 @@ namespace Axh.Retro.CPU.Common.Memory
         public ushort Length { get; }
 
         public byte ReadByte(ushort address) => Memory[address];
-
 
         public ushort ReadWord(ushort address) => BitConverter.ToUInt16(Memory, address);
 

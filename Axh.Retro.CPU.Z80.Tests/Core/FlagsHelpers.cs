@@ -39,8 +39,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core
         }
 
         public static MemberExpression GetPropertyExpression<TSource, TProperty>(Expression instance,
-            Expression<Func<TSource, TProperty>>
-                propertyLambda)
+            Expression<Func<TSource, TProperty>> propertyLambda)
         {
             var type = typeof (TSource);
 
@@ -59,8 +58,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core
             if (type != propInfo.ReflectedType && !type.IsSubclassOf(propInfo.ReflectedType) &&
                 !propInfo.ReflectedType.IsAssignableFrom(type))
             {
-                throw new ArgumentException(
-                    $"Expresion '{propertyLambda}' refers to a property that is not from type {type}.");
+                throw new ArgumentException($"Expresion '{propertyLambda}' refers to a property that is not from type {type}.");
             }
 
             return Expression.Property(instance, propInfo);

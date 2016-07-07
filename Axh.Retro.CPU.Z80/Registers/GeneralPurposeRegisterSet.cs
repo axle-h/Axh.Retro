@@ -64,7 +64,7 @@ namespace Axh.Retro.CPU.Z80.Registers
 
         public GeneralPurposeRegisterState GetRegisterState()
         {
-            return new GeneralPurposeRegisterState {B = B, C = C, D = D, E = E, H = H, L = L};
+            return new GeneralPurposeRegisterState { B = B, C = C, D = D, E = E, H = H, L = L };
         }
     }
 }

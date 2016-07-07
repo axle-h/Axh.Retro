@@ -9,9 +9,7 @@ namespace Axh.Retro.GameBoy.Util
     {
         public static string ReadAscii(this Stream stream, int len)
         {
-            return 0 != len
-                ? Encoding.ASCII.GetString(stream.ReadBuffer(len).TakeWhile(b => 0 != b).ToArray())
-                : string.Empty;
+            return 0 != len ? Encoding.ASCII.GetString(stream.ReadBuffer(len).TakeWhile(b => 0 != b).ToArray()) : string.Empty;
         }
 
         public static byte[] ReadBuffer(this Stream stream, int len)

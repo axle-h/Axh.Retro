@@ -376,7 +376,6 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             Assert.AreEqual(SP2, Registers.Object.StackPointer);
         }
 
-
         [Test]
         public void POP_IY()
         {

@@ -2,8 +2,15 @@
 
 namespace Axh.Retro.CPU.Z80.Core.Decode
 {
+    /// <summary>
+    /// Core op-code decoder functions for op-codes prefixed with 0xED.
+    /// </summary>
     internal partial class OpCodeDecoder
     {
+        /// <summary>
+        /// Decodes an op-code that has been prefixed with 0xED.
+        /// </summary>
+        /// <returns></returns>
         private OpCode DecodePrefixEd()
         {
             var opCode = (PrefixEdOpCode) _prefetch.NextByte();
@@ -93,7 +100,6 @@ namespace Axh.Retro.CPU.Z80.Core.Decode
                     _operand2 = Operand.SP;
                     _opCodeMeta = OpCodeMeta.WordLiteral;
                     return OpCode.Load16;
-
 
                 // ********* Block Transfer *********
                 // LDI

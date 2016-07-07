@@ -1,7 +1,7 @@
 ﻿namespace Axh.Retro.GameBoy.Registers.Interfaces
 {
     /// <summary>
-    ///     DIV 0xff04 Divider Register (R/W)
+    /// DIV 0xff04 Divider Register (R/W)
     /// </summary>
     public abstract class DividerRegisterBase : IRegister
     {

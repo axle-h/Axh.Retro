@@ -18,7 +18,7 @@ namespace Axh.Retro.CPU.Common.Tests.Memory
             var memoryBankConfig = new Mock<IMemoryBankConfig>();
             memoryBankConfig.Setup(x => x.Address).Returns(Address);
             memoryBankConfig.Setup(x => x.Length).Returns(Length);
-            memoryBankConfig.Setup(x => x.State).Returns(null as byte[]);
+            memoryBankConfig.Setup(x => x.InitialState).Returns(null as byte[]);
             return memoryBankConfig;
         }
 
@@ -75,9 +75,8 @@ namespace Axh.Retro.CPU.Common.Tests.Memory
         {
             const ushort BadLength = Length + 1;
             var memoryBankConfig = SetupMemoryBankConfigMock();
-            memoryBankConfig.Setup(x => x.State).Returns(new byte[BadLength]);
-            var exception =
-                Assert.Throws<MemoryConfigStateException>(() => new ArrayBackedMemoryBank(memoryBankConfig.Object));
+            memoryBankConfig.Setup(x => x.InitialState).Returns(new byte[BadLength]);
+            var exception = Assert.Throws<MemoryConfigStateException>(() => new ArrayBackedMemoryBank(memoryBankConfig.Object));
 
             Assert.AreEqual(Address, exception.Adddress);
             Assert.AreEqual(Length, exception.SegmentLength);
@@ -89,9 +88,8 @@ namespace Axh.Retro.CPU.Common.Tests.Memory
         {
             const ushort BadLength = Length - 1;
             var memoryBankConfig = SetupMemoryBankConfigMock();
-            memoryBankConfig.Setup(x => x.State).Returns(new byte[BadLength]);
-            var exception =
-                Assert.Throws<MemoryConfigStateException>(() => new ArrayBackedMemoryBank(memoryBankConfig.Object));
+            memoryBankConfig.Setup(x => x.InitialState).Returns(new byte[BadLength]);
+            var exception = Assert.Throws<MemoryConfigStateException>(() => new ArrayBackedMemoryBank(memoryBankConfig.Object));
 
             Assert.AreEqual(Address, exception.Adddress);
             Assert.AreEqual(Length, exception.SegmentLength);
@@ -106,7 +104,7 @@ namespace Axh.Retro.CPU.Common.Tests.Memory
             random.NextBytes(state);
 
             var memoryBankConfig = SetupMemoryBankConfigMock();
-            memoryBankConfig.Setup(x => x.State).Returns(state);
+            memoryBankConfig.Setup(x => x.InitialState).Returns(state);
             var memory = new ArrayBackedMemoryBank(memoryBankConfig.Object);
 
             var memoryBytes = memory.ReadBytes(0, Length);

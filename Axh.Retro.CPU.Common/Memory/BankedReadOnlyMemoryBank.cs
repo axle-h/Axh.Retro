@@ -7,6 +7,10 @@ using Axh.Retro.CPU.Common.Contracts.Memory;
 
 namespace Axh.Retro.CPU.Common.Memory
 {
+    /// <summary>
+    /// A read only memory segment (ROM) that consumes an instance of <see cref="IMemoryBankController" /> to switch banks.
+    /// </summary>
+    /// <seealso cref="Axh.Retro.CPU.Common.Contracts.Memory.IReadableAddressSegment" />
     public class BankedReadOnlyMemoryBank : IReadableAddressSegment
     {
         private readonly IDictionary<byte, byte[]> _banks;
@@ -14,75 +18,111 @@ namespace Axh.Retro.CPU.Common.Memory
 
         private byte[] _bank;
 
-        public BankedReadOnlyMemoryBank(ICollection<IMemoryBankConfig> bankConfigs,
-            IMemoryBankController memoryBankController)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BankedReadOnlyMemoryBank" /> class.
+        /// </summary>
+        /// <param name="bankConfigs">The bank configs.</param>
+        /// <param name="memoryBankController">The memory bank controller.</param>
+        /// <exception cref="System.ArgumentException">
+        /// Must provide at least one bank configuration, all must have a bank id and must be unique.
+        /// or
+        /// All bank configurations must have same address and length - this address segment is banked, remember.
+        /// </exception>
+        /// <exception cref="MemoryConfigStateException"></exception>
+        public BankedReadOnlyMemoryBank(ICollection<IMemoryBankConfig> bankConfigs, IMemoryBankController memoryBankController)
         {
-            _memoryBankController = memoryBankController;
-            if (bankConfigs == null)
+            if (bankConfigs == null || !bankConfigs.Any() || !bankConfigs.All(x => x.BankId.HasValue) ||
+                bankConfigs.Select(x => x.BankId.Value).Distinct().Count() != bankConfigs.Count)
             {
-                throw new ArgumentNullException(nameof(bankConfigs));
+                throw new ArgumentException(
+                    "Must provide at least one bank configuration, all must have a bank id and must be unique.",
+                    nameof(bankConfigs));
             }
 
-            if (!bankConfigs.Any())
-            {
-                throw new ArgumentException("No configs.");
-            }
-
-            if (!bankConfigs.All(x => x.BankId.HasValue))
-            {
-                throw new ArgumentException("All configs must have a bank id.");
-            }
-
-            if (bankConfigs.Select(x => x.BankId.Value).Distinct().Count() != bankConfigs.Count)
-            {
-                throw new ArgumentException("All bank id's must be unique");
-            }
-
-            var distinct = bankConfigs.Select(x => new {x.Address, x.Length}).Distinct().ToArray();
+            var distinct = bankConfigs.Select(x => new { x.Address, x.Length }).Distinct().ToArray();
             if (distinct.Length > 1)
             {
-                throw new ArgumentException("All configs must have same address and length.");
+                throw new ArgumentException(
+                    "All bank configurations must have same address and length - this address segment is banked, remember.",
+                    nameof(bankConfigs));
             }
+
+            _memoryBankController = memoryBankController;
 
             Address = distinct[0].Address;
             Length = distinct[0].Length;
 
-            var badBank = bankConfigs.FirstOrDefault(x => x.State == null || x.Length != Length);
+            var badBank = bankConfigs.FirstOrDefault(x => x.InitialState == null || x.Length != Length);
             if (badBank != null)
             {
-                throw new MemoryConfigStateException(Address, Length, badBank.State?.Length ?? 0);
+                throw new MemoryConfigStateException(Address, Length, badBank.InitialState?.Length ?? 0);
             }
 
             _banks = bankConfigs.ToDictionary(x => x.BankId.Value,
-                x =>
-                {
-                    var memory = new byte[Length];
-                    Array.Copy(x.State, 0, memory, 0, Length);
-                    return memory;
-                });
+                                              x =>
+                                              {
+                                                  var memory = new byte[Length];
+                                                  Array.Copy(x.InitialState, 0, memory, 0, Length);
+                                                  return memory;
+                                              });
 
             _bank = _banks[memoryBankController.RomBankNumber];
 
-            memoryBankController.MemoryBankSwitch += MemoryBankControllerEventHandler;
+            memoryBankController.MemoryBankSwitch += target =>
+                                                     {
+                                                         if (target != MemoryBankControllerEventTarget.RomBankSwitch)
+                                                         {
+                                                             return;
+                                                         }
+
+                                                         _bank = _banks[_memoryBankController.RomBankNumber];
+                                                     };
         }
 
+        /// <summary>
+        /// Gets the type.
+        /// </summary>
+        /// <value>
+        /// The type.
+        /// </value>
         public MemoryBankType Type => MemoryBankType.BankedReadOnlyMemory;
 
+        /// <summary>
+        /// Gets the address.
+        /// </summary>
+        /// <value>
+        /// The address.
+        /// </value>
         public ushort Address { get; }
 
+        /// <summary>
+        /// Gets the length.
+        /// </summary>
+        /// <value>
+        /// The length.
+        /// </value>
         public ushort Length { get; }
 
-        public byte ReadByte(ushort address)
-        {
-            return _bank[address];
-        }
+        /// <summary>
+        /// Reads a byte from this address segment.
+        /// </summary>
+        /// <param name="address">The address.</param>
+        /// <returns></returns>
+        public byte ReadByte(ushort address) => _bank[address];
 
-        public ushort ReadWord(ushort address)
-        {
-            // Construct 16 bit value in little endian.
-            return BitConverter.ToUInt16(_bank, address);
-        }
+        /// <summary>
+        /// Reads a word from this address segment.
+        /// </summary>
+        /// <param name="address">The address.</param>
+        /// <returns></returns>
+        public ushort ReadWord(ushort address) => BitConverter.ToUInt16(_bank, address);
 
+        /// <summary>
+        /// Reads bytes from this address segment into a new buffer.
+        /// </summary>
+        /// <param name="address">The address.</param>
+        /// <param name="length">The length.</param>
+        /// <returns></returns>
         public byte[] ReadBytes(ushort address, int length)
         {
             var bytes = new byte[length];
@@ -90,24 +130,22 @@ namespace Axh.Retro.CPU.Common.Memory
             return bytes;
         }
 
+        /// <summary>
+        /// Reads bytes from this address segment into the specified buffer.
+        /// </summary>
+        /// <param name="address">The address.</param>
+        /// <param name="buffer">The buffer.</param>
         public void ReadBytes(ushort address, byte[] buffer)
         {
             Array.Copy(_bank, address, buffer, 0, buffer.Length);
         }
 
-        public override string ToString()
-        {
-            return $"{Type}: 0x{Address:x4} - 0x{Address + Length - 1:x4}";
-        }
-
-        private void MemoryBankControllerEventHandler(object sender, MemoryBankControllerEventArgs args)
-        {
-            if (args.Target != MemoryBankControllerEventTarget.RomBankSwitch)
-            {
-                return;
-            }
-
-            _bank = _banks[_memoryBankController.RomBankNumber];
-        }
+        /// <summary>
+        /// Returns a <see cref="System.String" /> that represents this instance.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="System.String" /> that represents this instance.
+        /// </returns>
+        public override string ToString() => $"{Type}: 0x{Address:x4} - 0x{Address + Length - 1:x4}";
     }
 }

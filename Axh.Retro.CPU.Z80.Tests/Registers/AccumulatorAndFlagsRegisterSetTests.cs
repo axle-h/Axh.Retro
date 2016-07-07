@@ -43,7 +43,6 @@ namespace Axh.Retro.CPU.Z80.Tests.Registers
             Assert.AreEqual(F, state.F);
         }
 
-
         [Test]
         public void ResetToStateTest()
         {
@@ -55,7 +54,6 @@ namespace Axh.Retro.CPU.Z80.Tests.Registers
 
             _flagsRegister.VerifySet(x => x.Register = It.Is<byte>(y => y == state.F));
         }
-
 
         [Test]
         public void SetAfRegisterTest()

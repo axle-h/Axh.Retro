@@ -5,13 +5,13 @@ using Axh.Retro.CPU.Common.Contracts.Timing;
 namespace Axh.Retro.CPU.Common.Contracts.Memory
 {
     /// <summary>
-    ///     Direct memory access controller.
-    ///     Required to avoid a cyclical dependency on the MMU for IO peripherals with DMA capabilities.
+    /// Direct memory access controller.
+    /// Required to avoid a cyclical dependency on the MMU for IO peripherals with DMA capabilities.
     /// </summary>
     public interface IDmaController : IDisposable
     {
         /// <summary>
-        ///     Creates a DMA copy operation.
+        /// Creates a DMA copy operation.
         /// </summary>
         /// <param name="sourceAddress">The source address.</param>
         /// <param name="destinationAddress">The destination address.</param>
@@ -25,8 +25,8 @@ namespace Axh.Retro.CPU.Common.Contracts.Memory
             IEnumerable<AddressRange> lockedAddressesRanges);
 
         /// <summary>
-        ///     Tries to get a dma operation from the queue.
-        ///     This should have a reasonable timeout.
+        /// Tries to get a dma operation from the queue.
+        /// This should have a reasonable timeout.
         /// </summary>
         /// <param name="operation">The operation.</param>
         /// <returns>True if an operation has successfully been returned from the queue.</returns>

@@ -21,12 +21,12 @@ namespace Axh.Retro.CPU.Z80.Contracts.State
         public ushort IY { get; set; }
 
         /// <summary>
-        ///     Interrupt vector
+        /// Interrupt vector
         /// </summary>
         public byte I { get; set; }
 
         /// <summary>
-        ///     Memory refresh
+        /// Memory refresh
         /// </summary>
         public byte R { get; set; }
 

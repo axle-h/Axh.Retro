@@ -527,7 +527,6 @@ namespace Axh.Retro.CPU.Z80.Tests.Core
             _flags.Verify(x => x.SetParityFlags(result), Times.Once);
         }
 
-
         [TestCase(0x88, 0x44, false)]
         [TestCase(0x11, 0x08, true)]
         public void ShiftRightLogical(byte a, byte expected, bool expectedCarry)

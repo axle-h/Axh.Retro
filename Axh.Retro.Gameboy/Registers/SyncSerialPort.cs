@@ -1,13 +1,12 @@
 ﻿using System;
-using System.Threading.Tasks;
 using Axh.Retro.GameBoy.Contracts.Devices;
 using Axh.Retro.GameBoy.Registers.Interfaces;
 
 namespace Axh.Retro.GameBoy.Registers
 {
     /// <summary>
-    ///     Serial port that will transfer bytes synchronously.
-    ///     Wanring! This will lock up the CPU if the Transfer funciton on the other SerialPort do any 'work'.
+    /// Serial port that will transfer bytes synchronously.
+    /// Wanring! This will lock up the CPU if the Transfer funciton on the other SerialPort do any 'work'.
     /// </summary>
     public class SyncSerialPort : SerialPortBase
     {
@@ -23,7 +22,7 @@ namespace Axh.Retro.GameBoy.Registers
         private bool _isFastMode;
         private bool _isInternalClock;
 
-        private TaskCompletionSource<bool> _transferredTaskSource;
+        // private TaskCompletionSource<bool> _transferredTaskSource;
         private bool _transferStartFlag;
 
         public SyncSerialPort(IInterruptFlagsRegister interruptFlagsRegister)
@@ -32,16 +31,16 @@ namespace Axh.Retro.GameBoy.Registers
         }
 
         /// <summary>
-        ///     Bit 7 - Transfer Start Flag
-        ///     0: Non transfer
-        ///     1: Start transfer
-        ///     Bit 0 - Shift Clock
-        ///     0: External Clock(500KHz Max.)
-        ///     1: Internal Clock(8192Hz)
-        ///     Transfer is initiated by setting the
-        ///     Transfer Start Flag.This bit may be read
-        ///     and is automatically set to 0 at the end
-        ///     of Transfer.
+        /// Bit 7 - Transfer Start Flag
+        /// 0: Non transfer
+        /// 1: Start transfer
+        /// Bit 0 - Shift Clock
+        /// 0: External Clock(500KHz Max.)
+        /// 1: Internal Clock(8192Hz)
+        /// Transfer is initiated by setting the
+        /// Transfer Start Flag.This bit may be read
+        /// and is automatically set to 0 at the end
+        /// of Transfer.
         /// </summary>
         public override byte Register
         {
@@ -57,7 +56,6 @@ namespace Axh.Retro.GameBoy.Registers
                 {
                     value |= IsFastModeMask;
                 }
-
 
                 if (_isInternalClock)
                 {
@@ -109,7 +107,7 @@ namespace Axh.Retro.GameBoy.Registers
             var tmp = SerialData.Register;
             SerialData.Register = value;
 
-            _transferredTaskSource?.TrySetResult(true);
+            //_transferredTaskSource?.TrySetResult(true);
 
             _interruptFlagsRegister.UpdateInterrupts(InterruptFlag.SerialLink);
             return tmp;

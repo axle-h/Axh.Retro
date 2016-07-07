@@ -37,8 +37,7 @@ namespace Axh.Retro.CPU.Common.Tests.Mmu
             _mmu = new Mock<IMmu>();
             _mmu.Setup(x => x.ReadBytes(It.IsAny<ushort>(), It.IsAny<int>()))
                 .Returns((ushort address, int length) => Bytes.Skip(address).Take(length).ToArray());
-            _mmu.Setup(x => x.ReadWord(It.IsAny<ushort>()))
-                .Returns((ushort address) => BitConverter.ToUInt16(Bytes, address));
+            _mmu.Setup(x => x.ReadWord(It.IsAny<ushort>())).Returns((ushort address) => BitConverter.ToUInt16(Bytes, address));
             _mmu.Setup(x => x.ReadByte(It.IsAny<ushort>())).Returns((ushort address) => Bytes[address]);
         }
 

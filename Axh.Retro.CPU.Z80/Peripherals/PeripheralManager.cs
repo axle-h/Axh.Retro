@@ -49,7 +49,7 @@ namespace Axh.Retro.CPU.Z80.Peripherals
             => _peripherals.OfType<TPeripheral>().FirstOrDefault();
 
         /// <summary>
-        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         public void Dispose()
         {

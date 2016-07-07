@@ -88,7 +88,7 @@ namespace Axh.Retro.CPU.Z80.Util
         {
             if (ids == null)
             {
-                ids = new Dictionary<T, int> {{e, 1}};
+                ids = new Dictionary<T, int> { { e, 1 } };
                 return 1;
             }
             int id;
@@ -121,7 +121,7 @@ namespace Axh.Retro.CPU.Z80.Util
         }
 
         /// <summary>
-        ///     Write out the given AST
+        /// Write out the given AST
         /// </summary>
         internal static void WriteTo(Expression node, TextWriter writer)
         {
@@ -315,18 +315,18 @@ namespace Axh.Retro.CPU.Z80.Util
         private void VisitDeclarations(ICollection<ParameterExpression> expressions)
         {
             VisitExpressions('(',
-                ',',
-                expressions,
-                variable =>
-                {
-                    Out(variable.Type.ToString());
-                    if (variable.IsByRef)
-                    {
-                        Out("&");
-                    }
-                    Out(" ");
-                    VisitParameter(variable);
-                });
+                             ',',
+                             expressions,
+                             variable =>
+                             {
+                                 Out(variable.Type.ToString());
+                                 if (variable.IsByRef)
+                                 {
+                                     Out("&");
+                                 }
+                                 Out(" ");
+                                 VisitParameter(variable);
+                             });
         }
 
         private void VisitExpressions<T>(char open, char separator, ICollection<T> expressions, Action<T> visit)
@@ -588,11 +588,7 @@ namespace Axh.Retro.CPU.Z80.Util
 
         protected override Expression VisitLambda<T>(Expression<T> node)
         {
-            Out(string.Format(CultureInfo.CurrentCulture,
-                "{0} {1}<{2}>",
-                ".Lambda",
-                GetLambdaName(node),
-                node.Type.ToString()));
+            Out(string.Format(CultureInfo.CurrentCulture, "{0} {1}<{2}>", ".Lambda", GetLambdaName(node), node.Type.ToString()));
 
             if (_lambdas == null)
             {
@@ -1347,12 +1343,12 @@ namespace Axh.Retro.CPU.Z80.Util
             else
             {
                 Out(string.Format(CultureInfo.CurrentCulture,
-                    ".DebugInfo({0}: {1}, {2} - {3}, {4})",
-                    node.Document.FileName,
-                    node.StartLine,
-                    node.StartColumn,
-                    node.EndLine,
-                    node.EndColumn));
+                                  ".DebugInfo({0}: {1}, {2} - {3}, {4})",
+                                  node.Document.FileName,
+                                  node.StartLine,
+                                  node.StartColumn,
+                                  node.EndLine,
+                                  node.EndColumn));
             }
             return node;
         }
@@ -1365,16 +1361,13 @@ namespace Axh.Retro.CPU.Z80.Util
         private string GetLabelTargetName(LabelTarget target)
         {
             return string.IsNullOrEmpty(target.Name)
-                ? string.Format(CultureInfo.CurrentCulture, "#Label{0}", GetLabelTargetId(target))
-                : GetDisplayName(target.Name);
+                       ? string.Format(CultureInfo.CurrentCulture, "#Label{0}", GetLabelTargetId(target))
+                       : GetDisplayName(target.Name);
         }
 
         private void WriteLambda(LambdaExpression lambda)
         {
-            Out(string.Format(CultureInfo.CurrentCulture,
-                ".Lambda {0}<{1}>",
-                GetLambdaName(lambda),
-                lambda.Type.ToString()));
+            Out(string.Format(CultureInfo.CurrentCulture, ".Lambda {0}<{1}>", GetLambdaName(lambda), lambda.Type.ToString()));
 
             VisitDeclarations(lambda.Parameters);
 
@@ -1396,8 +1389,8 @@ namespace Axh.Retro.CPU.Z80.Util
         }
 
         /// <summary>
-        ///     Return true if the input string contains any whitespace character.
-        ///     Otherwise false.
+        /// Return true if the input string contains any whitespace character.
+        /// Otherwise false.
         /// </summary>
         private static bool ContainsWhiteSpace(string name)
         {

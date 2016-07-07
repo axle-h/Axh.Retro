@@ -9,8 +9,7 @@ namespace Axh.Retro.CPU.Z80.Util
     internal static class ExpressionHelpers
     {
         public static MemberExpression GetPropertyExpression<TSource, TProperty>(this Expression instance,
-            Expression<Func<TSource, TProperty>>
-                propertyLambda)
+            Expression<Func<TSource, TProperty>> propertyLambda)
         {
             var type = typeof (TSource);
 
@@ -29,15 +28,13 @@ namespace Axh.Retro.CPU.Z80.Util
             if (type != propInfo.ReflectedType && !type.IsSubclassOf(propInfo.ReflectedType) &&
                 !propInfo.ReflectedType.IsAssignableFrom(type))
             {
-                throw new ArgumentException(
-                    $"Expresion '{propertyLambda}' refers to a property that is not from type {type}.");
+                throw new ArgumentException($"Expresion '{propertyLambda}' refers to a property that is not from type {type}.");
             }
 
             return Expression.Property(instance, propInfo);
         }
 
-        public static MethodInfo GetMethodInfo<TSource, TArg, TResult>(
-            Expression<Func<TSource, TArg, TResult>> methodLambda)
+        public static MethodInfo GetMethodInfo<TSource, TArg, TResult>(Expression<Func<TSource, TArg, TResult>> methodLambda)
         {
             var outermostExpression = methodLambda.Body as MethodCallExpression;
 
@@ -48,7 +45,6 @@ namespace Axh.Retro.CPU.Z80.Util
 
             return outermostExpression.Method;
         }
-
 
         public static MethodInfo GetMethodInfo<TSource, TArg1, TArg2, TResult>(
             Expression<Func<TSource, TArg1, TArg2, TResult>> methodLambda)
@@ -76,8 +72,7 @@ namespace Axh.Retro.CPU.Z80.Util
             return outermostExpression.Method;
         }
 
-        public static MethodInfo GetMethodInfo<TSource, TArg1, TArg2>(
-            Expression<Action<TSource, TArg1, TArg2>> methodLambda)
+        public static MethodInfo GetMethodInfo<TSource, TArg1, TArg2>(Expression<Action<TSource, TArg1, TArg2>> methodLambda)
         {
             var outermostExpression = methodLambda.Body as MethodCallExpression;
 

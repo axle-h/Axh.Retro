@@ -19,7 +19,7 @@ namespace Axh.Retro.GameBoy.Wiring
     public class GameBoyHardware : IZ80Module
     {
         /// <summary>
-        ///     Registers all hardware in this module.
+        /// Registers all hardware in this module.
         /// </summary>
         /// <param name="container">The container.</param>
         public void Register(IContainer container)
@@ -30,7 +30,7 @@ namespace Axh.Retro.GameBoy.Wiring
             // Named registers
             container.Register<IInterruptEnableRegister, InterruptEnableRegister>();
             container.Register<IJoyPadRegister, JoyPad>();
-            container.RegisterMany(new[] {typeof (ISerialPort), typeof (ISerialPortRegister)}, typeof (SyncSerialPort));
+            container.RegisterMany(new[] { typeof (ISerialPort), typeof (ISerialPortRegister) }, typeof (SyncSerialPort));
             container.Register<IMemoryBankController, MemoryBankController1>();
 
             // GPU registers.

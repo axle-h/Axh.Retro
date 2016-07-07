@@ -23,8 +23,7 @@ namespace Axh.Retro.GameBoy.BlarggTests
         public BlarggTestBase()
         {
             var blarggTest = new BlarggTest();
-            _z80 =
-                new Z80<IIntel8080Registers, Intel8080RegisterState>().With<GameBoyHardware>().With(blarggTest).Init();
+            _z80 = new Z80<IIntel8080Registers, Intel8080RegisterState>().With<GameBoyHardware>().With(blarggTest).Init();
             _config = blarggTest.Config;
         }
 

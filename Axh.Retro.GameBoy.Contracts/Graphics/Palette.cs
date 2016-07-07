@@ -1,27 +1,27 @@
 namespace Axh.Retro.GameBoy.Contracts.Graphics
 {
     /// <summary>
-    ///     A GameBoy palette colour.
+    /// A GameBoy palette colour.
     /// </summary>
     public enum Palette : byte
     {
         /// <summary>
-        ///     Color Number 0.
+        /// Color Number 0.
         /// </summary>
         Colour0 = 0,
 
         /// <summary>
-        ///     Color Number 1.
+        /// Color Number 1.
         /// </summary>
         Colour1 = 1,
 
         /// <summary>
-        ///     Color Number 2.
+        /// Color Number 2.
         /// </summary>
         Colour2 = 2,
 
         /// <summary>
-        ///     Color Number 3.
+        /// Color Number 3.
         /// </summary>
         Colour3 = 3
     }

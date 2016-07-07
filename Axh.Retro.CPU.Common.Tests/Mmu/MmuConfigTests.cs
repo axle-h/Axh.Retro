@@ -24,12 +24,7 @@ namespace Axh.Retro.CPU.Common.Tests.Mmu
             _segment2 = new Mock<IReadableWriteableAddressSegment>();
         }
 
-        private IMmu GetMmu(ushort address0,
-            ushort length0,
-            ushort address1,
-            ushort length1,
-            ushort address2,
-            ushort length2)
+        private IMmu GetMmu(ushort address0, ushort length0, ushort address1, ushort length1, ushort address2, ushort length2)
         {
             _segment0R.Setup(x => x.Address).Returns(address0);
             _segment0R.Setup(x => x.Length).Returns(length0);
@@ -47,7 +42,7 @@ namespace Axh.Retro.CPU.Common.Tests.Mmu
 
             return
                 new SegmentMmu(
-                    new IAddressSegment[] {_segment0R.Object, _segment0W.Object, _segment1.Object, _segment2.Object},
+                    new IAddressSegment[] { _segment0R.Object, _segment0W.Object, _segment1.Object, _segment2.Object },
                     dmaController.Object,
                     instructionTimer.Object);
         }
@@ -56,9 +51,7 @@ namespace Axh.Retro.CPU.Common.Tests.Mmu
         public void LeavingGapInAddressSpaceThrowsMmuAddressSegmentGapException()
         {
             var exception =
-                Assert.Throws<MmuAddressSegmentGapException>(
-                    () =>
-                        GetMmu(0x0000, 0x1000, 0x2000, 0x1000, 0x3000, 0xcfff));
+                Assert.Throws<MmuAddressSegmentGapException>(() => GetMmu(0x0000, 0x1000, 0x2000, 0x1000, 0x3000, 0xcfff));
             Assert.AreEqual(0x1000, exception.AddressFrom);
             Assert.AreEqual(0x2000, exception.AddressTo);
         }
@@ -67,9 +60,7 @@ namespace Axh.Retro.CPU.Common.Tests.Mmu
         public void NotFillingFullAddressSpaceThrowsMmuAddressSegmentGapException()
         {
             var exception =
-                Assert.Throws<MmuAddressSegmentGapException>(
-                    () =>
-                        GetMmu(0x0000, 0x1000, 0x1000, 0x1000, 0x2000, 0xd000));
+                Assert.Throws<MmuAddressSegmentGapException>(() => GetMmu(0x0000, 0x1000, 0x1000, 0x1000, 0x2000, 0xd000));
             Assert.AreEqual(0xf000, exception.AddressFrom);
             Assert.AreEqual(0xffff, exception.AddressTo);
         }
@@ -78,9 +69,7 @@ namespace Axh.Retro.CPU.Common.Tests.Mmu
         public void NotStartingAddressSpaceAt0ThrowsMmuAddressSegmentGapException()
         {
             var exception =
-                Assert.Throws<MmuAddressSegmentGapException>(
-                    () =>
-                        GetMmu(0x1000, 0x1000, 0x2000, 0x1000, 0x3000, 0xcfff));
+                Assert.Throws<MmuAddressSegmentGapException>(() => GetMmu(0x1000, 0x1000, 0x2000, 0x1000, 0x3000, 0xcfff));
             Assert.AreEqual(0x0000, exception.AddressFrom);
             Assert.AreEqual(0x1000, exception.AddressTo);
         }
@@ -89,14 +78,7 @@ namespace Axh.Retro.CPU.Common.Tests.Mmu
         public void OverlappingSegmentsThrowsMmuAddressSegmentOverlapException()
         {
             var exception =
-                Assert.Throws<MmuAddressSegmentOverlapException>(
-                    () =>
-                        GetMmu(0x0000,
-                            0x2000,
-                            0x1000,
-                            0x2000,
-                            0x3000,
-                            0xcfff));
+                Assert.Throws<MmuAddressSegmentOverlapException>(() => GetMmu(0x0000, 0x2000, 0x1000, 0x2000, 0x3000, 0xcfff));
             Assert.AreEqual(0x1000, exception.AddressFrom);
             Assert.AreEqual(0x2000, exception.AddressTo);
         }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Linq;
 using System.Timers;
 using Axh.Retro.CPU.Common.Contracts.Memory;
@@ -10,41 +9,46 @@ using Axh.Retro.CPU.Z80.Contracts.Registers;
 
 namespace Axh.Retro.CPU.Z80.Cache
 {
-    public class InstructionBlockCache<TRegisters> : IInstructionBlockCache<TRegisters>
-        where TRegisters : IRegisters
+    /// <summary>
+    /// An instruction block cache.
+    /// </summary>
+    /// <typeparam name="TRegisters">The type of the registers.</typeparam>
+    /// <seealso cref="Axh.Retro.CPU.Z80.Contracts.Cache.IInstructionBlockCache{TRegisters}" />
+    public class InstructionBlockCache<TRegisters> : IInstructionBlockCache<TRegisters> where TRegisters : IRegisters
     {
-        private readonly ConcurrentDictionary<ushort, ICacheItem> _cache;
+        private readonly ConcurrentDictionary<ushort, ICachedInstructionBlock<TRegisters>> _cache;
         private readonly TimeSpan _garbageCollectionInterval = TimeSpan.FromMinutes(10);
-
         private readonly Timer _timer;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="InstructionBlockCache{TRegisters}"/> class.
+        /// </summary>
         public InstructionBlockCache()
         {
-            _cache = new ConcurrentDictionary<ushort, ICacheItem>();
+            _cache = new ConcurrentDictionary<ushort, ICachedInstructionBlock<TRegisters>>();
 
-            // Psuedo garbage collection. Meh... will create a proper implementation another day.
+            // Pseudo garbage collection. Meh... will create a proper implementation another day.
             _timer = new Timer(_garbageCollectionInterval.TotalMilliseconds);
             _timer.Elapsed += (sender, args) => GarbageCollection();
         }
 
-        public void Dispose()
-        {
-            _timer?.Dispose();
-        }
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public void Dispose() =>_timer?.Dispose();
 
         /// <summary>
-        ///     Get an instruction block from the cache at address. If not present then call getInstanceFunc and add to the cache.
+        /// Get an instruction block from the cache at address. If not present then call getInstanceFunc and add to the cache.
         /// </summary>
         /// <param name="address"></param>
         /// <param name="getInstanceFunc"></param>
         /// <returns></returns>
-        public IInstructionBlock<TRegisters> GetOrSet(ushort address,
-            Func<IInstructionBlock<TRegisters>> getInstanceFunc)
+        public IInstructionBlock<TRegisters> GetOrSet(ushort address, Func<IInstructionBlock<TRegisters>> getInstanceFunc)
         {
-            ICacheItem cacheItem;
-            if (_cache.TryGetValue(address, out cacheItem))
+            ICachedInstructionBlock<TRegisters> cachedInstructionBlock;
+            if (_cache.TryGetValue(address, out cachedInstructionBlock))
             {
-                cacheItem.Accessed++;
+                cachedInstructionBlock.AccessedCount++;
             }
             else
             {
@@ -52,21 +56,21 @@ namespace Axh.Retro.CPU.Z80.Cache
                 var ranges = AddressRange.GetRanges(block.Address, block.Length).ToArray();
                 if (ranges.Length == 1)
                 {
-                    cacheItem = new NormalInstructionBlockCacheItem(ranges[0], block);
+                    cachedInstructionBlock = new NormalCachedInstructionBlock<TRegisters>(ranges[0], block);
                 }
                 else
                 {
-                    cacheItem = new InstructionBlockCacheItem(ranges, block);
+                    cachedInstructionBlock = new CachedInstructionBlock<TRegisters>(ranges, block);
                 }
 
-                _cache.TryAdd(block.Address, cacheItem);
+                _cache.TryAdd(block.Address, cachedInstructionBlock);
             }
 
-            return cacheItem.InstructionBlock;
+            return cachedInstructionBlock.InstructionBlock;
         }
 
         /// <summary>
-        ///     Invalidates all cache from address for length
+        /// Invalidates all cache from address for length
         /// </summary>
         /// <param name="address"></param>
         /// <param name="length"></param>
@@ -79,7 +83,7 @@ namespace Axh.Retro.CPU.Z80.Cache
                 // TODO: this is a hot path. Need a better way of invalidating the cache.
                 foreach (var kvp in _cache.Where(x => x.Value.Intersects(range)).ToArray())
                 {
-                    ICacheItem dummy;
+                    ICachedInstructionBlock<TRegisters> dummy;
                     _cache.TryRemove(kvp.Key, out dummy);
                 }
             }
@@ -96,74 +100,20 @@ namespace Axh.Retro.CPU.Z80.Cache
             }
         }
 
+        /// <summary>
+        /// Deletes stale cache entries.
+        /// TODO: is this necessary?
+        /// </summary>
         private void GarbageCollection()
         {
             foreach (var key in _cache.Keys)
             {
                 var cacheItem = _cache[key];
-                if (cacheItem.Accessed == 0)
+                if (cacheItem.AccessedCount == 0)
                 {
                     _cache.TryRemove(key, out cacheItem);
                 }
             }
-        }
-
-        /// <summary>
-        ///     Instruction block cache wrapper with a single normal range.
-        /// </summary>
-        private class NormalInstructionBlockCacheItem : ICacheItem
-        {
-            private readonly AddressRange _addressRange;
-
-            public NormalInstructionBlockCacheItem(AddressRange range, IInstructionBlock<TRegisters> instructionBlock)
-            {
-                InstructionBlock = instructionBlock;
-                _addressRange = range;
-            }
-
-            public uint Accessed { get; set; }
-
-            public IInstructionBlock<TRegisters> InstructionBlock { get; }
-
-            public bool Intersects(AddressRange range)
-            {
-                return range.Intersects(_addressRange);
-            }
-        }
-
-        /// <summary>
-        ///     Instruction block cache wrapper with two ranges.
-        /// </summary>
-        private class InstructionBlockCacheItem : ICacheItem
-        {
-            private readonly AddressRange _addressRange0;
-            private readonly AddressRange _addressRange1;
-
-            public InstructionBlockCacheItem(IReadOnlyList<AddressRange> addressRanges,
-                IInstructionBlock<TRegisters> instructionBlock)
-            {
-                InstructionBlock = instructionBlock;
-                _addressRange0 = addressRanges[0];
-                _addressRange1 = addressRanges[1];
-            }
-
-            public IInstructionBlock<TRegisters> InstructionBlock { get; }
-
-            public uint Accessed { get; set; }
-
-            public bool Intersects(AddressRange range)
-            {
-                return range.Intersects(_addressRange0) || range.Intersects(_addressRange1);
-            }
-        }
-
-        private interface ICacheItem
-        {
-            IInstructionBlock<TRegisters> InstructionBlock { get; }
-
-            uint Accessed { get; set; }
-
-            bool Intersects(AddressRange range);
         }
     }
 }

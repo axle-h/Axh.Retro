@@ -24,18 +24,18 @@ namespace Axh.Retro.GameBoy.Devices
             SerialPort = serialPort;
             _registers =
                 registers.Concat(new[]
-                {
-                    joyPad,
-                    serialPort,
-                    serialPort.SerialData,
-                    gpuRegisters.ScrollXRegister,
-                    gpuRegisters.ScrollYRegister,
-                    gpuRegisters.CurrentScanlineRegister,
-                    gpuRegisters.LcdControlRegister,
-                    gpuRegisters.LcdMonochromePaletteRegister,
-                    gpuRegisters.LcdStatusRegister,
-                    interruptFlagsRegister
-                }).ToDictionary(x => (ushort) (x.Address - Address));
+                                 {
+                                     joyPad,
+                                     serialPort,
+                                     serialPort.SerialData,
+                                     gpuRegisters.ScrollXRegister,
+                                     gpuRegisters.ScrollYRegister,
+                                     gpuRegisters.CurrentScanlineRegister,
+                                     gpuRegisters.LcdControlRegister,
+                                     gpuRegisters.LcdMonochromePaletteRegister,
+                                     gpuRegisters.LcdStatusRegister,
+                                     interruptFlagsRegister
+                                 }).ToDictionary(x => (ushort) (x.Address - Address));
         }
 
         public MemoryBankType Type => MemoryBankType.Peripheral;

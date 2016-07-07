@@ -44,17 +44,15 @@ namespace Axh.Retro.GameBoy.Peripherals
 
         public IEnumerable<IAddressSegment> AddressSegments
             =>
-                new IAddressSegment[] {HardwareRegisters, _interruptRegister, _memoryBankController}.Concat(
-                    Gpu
-                        .AddressSegments)
-                    .ToArray();
+                new IAddressSegment[] { HardwareRegisters, _interruptRegister, _memoryBankController }.Concat(Gpu.AddressSegments)
+                                                                                                      .ToArray();
 
         public IHardwareRegisters HardwareRegisters { get; }
 
         public IGpu Gpu { get; }
 
         /// <summary>
-        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         public void Dispose() => Gpu.Dispose();
     }

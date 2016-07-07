@@ -18,8 +18,7 @@ namespace Axh.Retro.GameBoy.Registers
 
         private InterruptFlag _interruptFlag;
 
-        public InterruptFlagsRegister(IInterruptManager interruptManager,
-            IInterruptEnableRegister interruptEnableRegister)
+        public InterruptFlagsRegister(IInterruptManager interruptManager, IInterruptEnableRegister interruptEnableRegister)
         {
             _interruptManager = interruptManager;
             _interruptEnableRegister = interruptEnableRegister;
@@ -31,12 +30,12 @@ namespace Axh.Retro.GameBoy.Registers
         public string Name => "Interrupt Flag (IF R/W)";
 
         /// <summary>
-        ///     FF0F - IF - Interrupt Flags (R/W)
-        ///     Bit 0: V-Blank Interrupt Request(INT 40h)  (1=Requested)
-        ///     Bit 1: LCD STAT Interrupt Request(INT 48h)  (1=Requested)
-        ///     Bit 2: Timer Interrupt Request(INT 50h)  (1=Requested)
-        ///     Bit 3: Serial Interrupt Request(INT 58h)  (1=Requested)
-        ///     Bit 4: Joypad Interrupt Request(INT 60h)  (1=Requested)
+        /// FF0F - IF - Interrupt Flags (R/W)
+        /// Bit 0: V-Blank Interrupt Request(INT 40h)  (1=Requested)
+        /// Bit 1: LCD STAT Interrupt Request(INT 48h)  (1=Requested)
+        /// Bit 2: Timer Interrupt Request(INT 50h)  (1=Requested)
+        /// Bit 3: Serial Interrupt Request(INT 58h)  (1=Requested)
+        /// Bit 4: Joypad Interrupt Request(INT 60h)  (1=Requested)
         /// </summary>
         public byte Register
         {

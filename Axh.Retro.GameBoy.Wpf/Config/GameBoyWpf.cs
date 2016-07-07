@@ -19,7 +19,7 @@ namespace Axh.Retro.GameBoy.Wpf.Config
         }
 
         /// <summary>
-        ///     Registers all hardware in this module.
+        /// Registers all hardware in this module.
         /// </summary>
         /// <param name="container">The container.</param>
         public void Register(IContainer container)
@@ -28,9 +28,13 @@ namespace Axh.Retro.GameBoy.Wpf.Config
             container.RegisterInstance(_cartridge, serviceKey: nameof(_cartridge));
 
             container.Register<IRenderHandler, SimpleLcd>(
-                made: Parameters.Of.Type<CancellationTokenSource>(serviceKey: nameof(_cancellationTokenSource)));
+                                                          made:
+                                                              Parameters.Of.Type<CancellationTokenSource>(
+                                                                                                          serviceKey:
+                                                                                                              nameof(
+                                                                                                                     _cancellationTokenSource)));
             container.Register<IGameBoyConfig, StaticGameBoyConfig>(Reuse.Singleton,
-                Parameters.Of.Type<byte[]>(serviceKey: nameof(_cartridge)));
+                                                                    Parameters.Of.Type<byte[]>(serviceKey: nameof(_cartridge)));
         }
     }
 }

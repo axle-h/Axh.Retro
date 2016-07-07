@@ -49,10 +49,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             // Replicate implementation. When values compared match the zero flag is set.
             Alu.Setup(x => x.Compare(A, A)).Callback(() => FlagsRegister.Object.Zero = true);
 
-            RunWithHalt(4 + 5 * (queue.Length - 1),
-                16 + 21 * (queue.Length - 1),
-                PrimaryOpCode.Prefix_ED,
-                PrefixEdOpCode.CPDR);
+            RunWithHalt(4 + 5 * (queue.Length - 1), 16 + 21 * (queue.Length - 1), PrimaryOpCode.Prefix_ED, PrefixEdOpCode.CPDR);
 
             for (var i = 1; i < queue.Length; i++)
             {
@@ -133,10 +130,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             // Replicate implementation. When values compared match the zero flag is set.
             Alu.Setup(x => x.Compare(A, A)).Callback(() => FlagsRegister.Object.Zero = true);
 
-            RunWithHalt(4 + 5 * (queue.Length - 1),
-                16 + 21 * (queue.Length - 1),
-                PrimaryOpCode.Prefix_ED,
-                PrefixEdOpCode.CPIR);
+            RunWithHalt(4 + 5 * (queue.Length - 1), 16 + 21 * (queue.Length - 1), PrimaryOpCode.Prefix_ED, PrefixEdOpCode.CPIR);
 
             for (var i = 1; i < queue.Length; i++)
             {

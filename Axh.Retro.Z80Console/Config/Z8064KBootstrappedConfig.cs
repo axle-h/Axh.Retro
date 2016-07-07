@@ -15,17 +15,14 @@ namespace Axh.Retro.Z80Console.Config
 
         public Z8064KBootstrappedConfig()
         {
-            var ramConfig = new SimpleMemoryBankConfig(MemoryBankType.RandomAccessMemory,
-                null,
-                MemoryStart,
-                MemoryLength);
+            var ramConfig = new SimpleMemoryBankConfig(MemoryBankType.RandomAccessMemory, null, MemoryStart, MemoryLength);
 
             // Bootstrap from Resources/code.bin
             // This is a simple hello world program that was built using sdcc
             var code = Resources.code;
-            Array.Copy(code, 0, ramConfig.State, 0, code.Length);
+            Array.Copy(code, 0, ramConfig.InitialState, 0, code.Length);
 
-            MemoryBanks = new[] {ramConfig};
+            MemoryBanks = new[] { ramConfig };
         }
 
         public CpuMode CpuMode => CpuMode.Z80;

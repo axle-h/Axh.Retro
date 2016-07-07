@@ -36,7 +36,7 @@ namespace Axh.Retro.GameBoy.Registers
             {
                 throw new NotSupportedException();
             }
-            return new[] {Register};
+            return new[] { Register };
         }
 
         public void ReadBytes(ushort address, byte[] buffer)
@@ -71,12 +71,12 @@ namespace Axh.Retro.GameBoy.Registers
         public string Name => "Interrupt Enable (IE R/W)";
 
         /// <summary>
-        ///     FFFF - IE - Interrupt Enable (R/W)
-        ///     Bit 0: V-Blank Interrupt Enable(INT 40h)  (1=Enable)
-        ///     Bit 1: LCD STAT Interrupt Enable(INT 48h)  (1=Enable)
-        ///     Bit 2: Timer Interrupt Enable(INT 50h)  (1=Enable)
-        ///     Bit 3: Serial Interrupt Enable(INT 58h)  (1=Enable)
-        ///     Bit 4: Joypad Interrupt Enable(INT 60h)  (1=Enable)
+        /// FFFF - IE - Interrupt Enable (R/W)
+        /// Bit 0: V-Blank Interrupt Enable(INT 40h)  (1=Enable)
+        /// Bit 1: LCD STAT Interrupt Enable(INT 48h)  (1=Enable)
+        /// Bit 2: Timer Interrupt Enable(INT 50h)  (1=Enable)
+        /// Bit 3: Serial Interrupt Enable(INT 58h)  (1=Enable)
+        /// Bit 4: Joypad Interrupt Enable(INT 60h)  (1=Enable)
         /// </summary>
         public byte Register
         {

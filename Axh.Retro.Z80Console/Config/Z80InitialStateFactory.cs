@@ -12,27 +12,25 @@ namespace Axh.Retro.Z80Console.Config
         public Z80RegisterState GetInitialRegisterState()
         {
             var state = new Z80RegisterState
-            {
-                PrimaryGeneralPurposeRegisterState =
-                    GetInitialGeneralPurposeRegisterState(),
-                AlternativeGeneralPurposeRegisterState =
-                    GetInitialGeneralPurposeRegisterState(),
-                PrimaryAccumulatorAndFlagsRegisterState =
-                    GetInitialAccumulatorAndFlagsRegisterState(),
-                AlternativeAccumulatorAndFlagsRegisterState =
-                    GetInitialAccumulatorAndFlagsRegisterState(),
-                IsAccumulatorAndFlagsAlternative = false,
-                IsGeneralPurposeAlternative = false,
-                IX = 0,
-                IY = 0,
-                I = 0,
-                R = 0,
-                StackPointer = InitialStackPointer,
-                ProgramCounter = InitialProgramCounter,
-                InterruptFlipFlop1 = false,
-                InterruptFlipFlop2 = false,
-                InterruptMode = InterruptMode.InterruptMode0
-            };
+                        {
+                            PrimaryGeneralPurposeRegisterState = GetInitialGeneralPurposeRegisterState(),
+                            AlternativeGeneralPurposeRegisterState = GetInitialGeneralPurposeRegisterState(),
+                            PrimaryAccumulatorAndFlagsRegisterState =
+                                GetInitialAccumulatorAndFlagsRegisterState(),
+                            AlternativeAccumulatorAndFlagsRegisterState =
+                                GetInitialAccumulatorAndFlagsRegisterState(),
+                            IsAccumulatorAndFlagsAlternative = false,
+                            IsGeneralPurposeAlternative = false,
+                            IX = 0,
+                            IY = 0,
+                            I = 0,
+                            R = 0,
+                            StackPointer = InitialStackPointer,
+                            ProgramCounter = InitialProgramCounter,
+                            InterruptFlipFlop1 = false,
+                            InterruptFlipFlop2 = false,
+                            InterruptMode = InterruptMode.InterruptMode0
+                        };
             return state;
         }
 

@@ -658,7 +658,6 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             }
         }
 
-
         [TestCase(PrimaryOpCode.LD_A_mHL)]
         [TestCase(PrimaryOpCode.LD_B_mHL)]
         [TestCase(PrimaryOpCode.LD_C_mHL)]
@@ -1014,7 +1013,6 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             Assert.AreEqual(ValueAtDE, AfRegisters.Object.A);
         }
 
-
         [Test]
         public void LD_A_mnn()
         {
@@ -1031,7 +1029,6 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             Mmu.Verify(x => x.ReadByte(NN), Times.Once);
             Assert.AreEqual(ValueAtNN, AfRegisters.Object.A);
         }
-
 
         [Test]
         public void LD_A_R()
@@ -1050,7 +1047,6 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             FlagsRegister.VerifySet(x => x.ParityOverflow = IFF2, Times.Once);
             FlagsRegister.VerifySet(x => x.Subtract = It.Is<bool>(y => !y), Times.Once);
         }
-
 
         [Test]
         public void LD_I_A()
@@ -1132,7 +1128,6 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             Mmu.Verify(x => x.WriteByte(N, A), Times.Once);
             AfRegisters.VerifyGet(x => x.A, Times.Once);
         }
-
 
         [Test]
         public void LD_R_A()

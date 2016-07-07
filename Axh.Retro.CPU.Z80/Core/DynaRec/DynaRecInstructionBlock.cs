@@ -12,7 +12,7 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
         private readonly Func<TRegisters, IMmu, IAlu, IPeripheralManager, InstructionTimings> _action;
 
         /// <summary>
-        ///     Static instruction timings, known at compile time
+        /// Static instruction timings, known at compile time
         /// </summary>
         private readonly InstructionTimings _staticTimings;
 

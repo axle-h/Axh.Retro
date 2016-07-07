@@ -13,7 +13,7 @@ using Axh.Retro.CPU.Z80.Contracts.Registers;
 namespace Axh.Retro.CPU.Z80.Memory
 {
     /// <summary>
-    ///     Z80 MMU builds a segment MMU taking memory bank configs from IPlatformConfig and IPeripheralManager
+    /// Z80 MMU builds a segment MMU taking memory bank configs from IPlatformConfig and IPeripheralManager
     /// </summary>
     public class Z80Mmu<TRegisters> : SegmentMmu where TRegisters : IRegisters
     {
@@ -25,10 +25,7 @@ namespace Axh.Retro.CPU.Z80.Memory
             IInstructionBlockCache<TRegisters> instructionBlockCache,
             IDmaController dmaController,
             IInstructionTimer instructionTimer)
-            : base(
-                GetAddressSegments(peripheralManager, platformConfig, memoryBankController),
-                dmaController,
-                instructionTimer)
+            : base(GetAddressSegments(peripheralManager, platformConfig, memoryBankController), dmaController, instructionTimer)
         {
             _instructionBlockCache = instructionBlockCache;
         }
@@ -39,8 +36,8 @@ namespace Axh.Retro.CPU.Z80.Memory
         {
             var memoryBanks =
                 platformConfig.MemoryBanks.GroupBy(x => x.Address)
-                    .Select(x => GetAddressSegment(x.ToArray(), memoryBankController))
-                    .ToArray();
+                              .Select(x => GetAddressSegment(x.ToArray(), memoryBankController))
+                              .ToArray();
             return memoryBanks.Concat(peripheralManager.MemoryMap);
         }
 

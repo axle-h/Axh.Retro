@@ -10,7 +10,7 @@ namespace Axh.Retro.Z80Console.Config
     internal class Z80ConsoleModule : IZ80Module
     {
         /// <summary>
-        ///     Registers all hardware in this module.
+        /// Registers all hardware in this module.
         /// </summary>
         /// <param name="container">The container.</param>
         /// <exception cref="System.NotImplementedException"></exception>

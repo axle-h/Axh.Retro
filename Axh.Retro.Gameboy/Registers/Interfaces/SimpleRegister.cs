@@ -1,13 +1,13 @@
 ﻿namespace Axh.Retro.GameBoy.Registers.Interfaces
 {
     /// <summary>
-    ///     A simple GameBoy memory mapped register.
+    /// A simple GameBoy memory mapped register.
     /// </summary>
     /// <seealso cref="Axh.Retro.GameBoy.Registers.Interfaces.IRegister" />
     internal class SimpleRegister : IRegister
     {
         /// <summary>
-        ///     Initializes a new instance of the <see cref="SimpleRegister" /> class.
+        /// Initializes a new instance of the <see cref="SimpleRegister" /> class.
         /// </summary>
         /// <param name="address">The address.</param>
         /// <param name="name">The name.</param>
@@ -18,42 +18,42 @@
         }
 
         /// <summary>
-        ///     Gets the address.
+        /// Gets the address.
         /// </summary>
         /// <value>
-        ///     The address.
+        /// The address.
         /// </value>
         public ushort Address { get; }
 
         /// <summary>
-        ///     Gets the name.
+        /// Gets the name.
         /// </summary>
         /// <value>
-        ///     The name.
+        /// The name.
         /// </value>
         public string Name { get; }
 
         /// <summary>
-        ///     Gets or sets the raw register value.
+        /// Gets or sets the raw register value.
         /// </summary>
         /// <value>
-        ///     The raw register value.
+        /// The raw register value.
         /// </value>
         public byte Register { get; set; }
 
         /// <summary>
-        ///     Gets the debug view.
+        /// Gets the debug view.
         /// </summary>
         /// <value>
-        ///     The debug view.
+        /// The debug view.
         /// </value>
         public string DebugView => ToString();
 
         /// <summary>
-        ///     Returns a <see cref="System.String" /> that represents this instance.
+        /// Returns a <see cref="System.String" /> that represents this instance.
         /// </summary>
         /// <returns>
-        ///     A <see cref="System.String" /> that represents this instance.
+        /// A <see cref="System.String" /> that represents this instance.
         /// </returns>
         public override string ToString()
         {

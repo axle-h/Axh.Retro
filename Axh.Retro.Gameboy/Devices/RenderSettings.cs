@@ -14,7 +14,7 @@ namespace Axh.Retro.GameBoy.Devices
         public readonly bool SpritesEnabled;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="RenderSettings"/> struct.
+        /// Initializes a new instance of the <see cref="RenderSettings" /> struct.
         /// </summary>
         /// <param name="tileMapAddress">The tile map address.</param>
         /// <param name="tileSetAddress">The tile set address.</param>
@@ -48,10 +48,10 @@ namespace Axh.Retro.GameBoy.Devices
         }
 
         /// <summary>
-        ///     Indicates whether this instance and a specified object are equal.
+        /// Indicates whether this instance and a specified object are equal.
         /// </summary>
         /// <returns>
-        ///     true if <paramref name="obj" /> and this instance are the same type and represent the same value; otherwise, false.
+        /// true if <paramref name="obj" /> and this instance are the same type and represent the same value; otherwise, false.
         /// </returns>
         /// <param name="obj">The object to compare with the current instance. </param>
         public override bool Equals(object obj)
@@ -64,10 +64,10 @@ namespace Axh.Retro.GameBoy.Devices
         }
 
         /// <summary>
-        ///     Returns the hash code for this instance.
+        /// Returns the hash code for this instance.
         /// </summary>
         /// <returns>
-        ///     A 32-bit signed integer that is the hash code for this instance.
+        /// A 32-bit signed integer that is the hash code for this instance.
         /// </returns>
         public override int GetHashCode()
         {

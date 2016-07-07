@@ -33,7 +33,7 @@ namespace Axh.Retro.GameBoy.Devices
             {
                 // RAM Enable
                 RamEnable = (value & 0xf) == 0xa;
-                OnEvent(MemoryBankControllerEventTarget.RamEnable);
+                OnMemoryBankControllerEvent(MemoryBankControllerEventTarget.RamEnable);
                 return;
             }
 
@@ -43,7 +43,7 @@ namespace Axh.Retro.GameBoy.Devices
                 RomBankNumber &= 0xe0; // Clear 0x17
                 RomBankNumber |= GetRomBankNumber(value);
 
-                OnEvent(MemoryBankControllerEventTarget.RomBankSwitch);
+                OnMemoryBankControllerEvent(MemoryBankControllerEventTarget.RomBankSwitch);
                 return;
             }
 
@@ -54,7 +54,7 @@ namespace Axh.Retro.GameBoy.Devices
                 if (_ramBankingMode)
                 {
                     RamBankNumber = (byte) (value & 0x3);
-                    OnEvent(MemoryBankControllerEventTarget.RamBankSwitch);
+                    OnMemoryBankControllerEvent(MemoryBankControllerEventTarget.RamBankSwitch);
                 }
                 return;
             }
@@ -83,7 +83,7 @@ namespace Axh.Retro.GameBoy.Devices
 
         public byte RamBankNumber { get; private set; }
 
-        public event EventHandler<MemoryBankControllerEventArgs> MemoryBankSwitch;
+        public event Action<MemoryBankControllerEventTarget> MemoryBankSwitch;
 
         private static byte GetRomBankNumber(byte value)
         {
@@ -103,9 +103,7 @@ namespace Axh.Retro.GameBoy.Devices
             return value;
         }
 
-        protected void OnEvent(MemoryBankControllerEventTarget eventTarget)
-        {
-            MemoryBankSwitch?.Invoke(this, new MemoryBankControllerEventArgs(eventTarget));
-        }
+        protected void OnMemoryBankControllerEvent(MemoryBankControllerEventTarget eventTarget)
+            => MemoryBankSwitch?.Invoke(eventTarget);
     }
 }

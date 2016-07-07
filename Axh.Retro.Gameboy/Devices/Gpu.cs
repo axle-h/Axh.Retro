@@ -29,16 +29,15 @@ namespace Axh.Retro.GameBoy.Devices
         public const int LcdWidth = 160;
         public const int LcdHeight = 144;
 
-        private static readonly IMemoryBankConfig SpriteRamConfig = new SimpleMemoryBankConfig(
-            MemoryBankType.Peripheral,
-            null,
-            0xfe00,
-            0xa0);
+        private static readonly IMemoryBankConfig SpriteRamConfig = new SimpleMemoryBankConfig(MemoryBankType.Peripheral,
+                                                                                               null,
+                                                                                               0xfe00,
+                                                                                               0xa0);
 
         private static readonly IMemoryBankConfig MapRamConfig = new SimpleMemoryBankConfig(MemoryBankType.Peripheral,
-            null,
-            0x8000,
-            0x2000);
+                                                                                            null,
+                                                                                            0x8000,
+                                                                                            0x2000);
 
         private readonly object _disposingContext = new object();
 
@@ -49,7 +48,7 @@ namespace Axh.Retro.GameBoy.Devices
         private readonly IInterruptFlagsRegister _interruptFlagsRegister;
 
         /// <summary>
-        ///     Normal frame buffer.
+        /// Normal frame buffer.
         /// </summary>
         private readonly Bitmap _lcdBuffer;
 
@@ -58,16 +57,16 @@ namespace Axh.Retro.GameBoy.Devices
         private readonly IRenderHandler _renderhandler;
 
         /// <summary>
-        ///     $FE00-$FE9F	OAM - Object Attribute Memory
+        /// $FE00-$FE9F	OAM - Object Attribute Memory
         /// </summary>
         private readonly ArrayBackedMemoryBank _spriteRam;
 
         /// <summary>
-        ///     $9C00-$9FFF	Tile map #1
-        ///     $9800-$9BFF Tile map #0 32*32
-        ///     $9000-$97FF Tile set #0: tiles 0-127
-        ///     $8800-$8FFF Tile set #1: tiles 128-255 & Tile set #0: tiles -128 to -1
-        ///     $8000-$87FF Tile set #1: tiles 0-127
+        /// $9C00-$9FFF	Tile map #1
+        /// $9800-$9BFF Tile map #0 32*32
+        /// $9000-$97FF Tile set #0: tiles 0-127
+        /// $8800-$8FFF Tile set #1: tiles 128-255 & Tile set #0: tiles -128 to -1
+        /// $8000-$87FF Tile set #1: tiles 0-127
         /// </summary>
         private readonly ArrayBackedMemoryBank _tileRam;
 
@@ -83,7 +82,6 @@ namespace Axh.Retro.GameBoy.Devices
 
         private TaskCompletionSource<bool> _paintingTaskCompletionSource;
 
-
         public Gpu(IGameBoyConfig gameBoyConfig,
             IInterruptFlagsRegister interruptFlagsRegister,
             IGpuRegisters gpuRegisters,
@@ -95,7 +93,6 @@ namespace Axh.Retro.GameBoy.Devices
             _renderhandler = renderhandler;
             _gameBoyConfig = gameBoyConfig;
             _lcdStatusRegister = gpuRegisters.LcdStatusRegister;
-
 
             _spriteRam = new ArrayBackedMemoryBank(SpriteRamConfig);
             _tileRam = new ArrayBackedMemoryBank(MapRamConfig);
@@ -116,7 +113,7 @@ namespace Axh.Retro.GameBoy.Devices
             Task.Factory.StartNew(() => PaintLoop().Wait(), TaskCreationOptions.LongRunning);
         }
 
-        public IEnumerable<IAddressSegment> AddressSegments => new[] {_spriteRam, _tileRam};
+        public IEnumerable<IAddressSegment> AddressSegments => new[] { _spriteRam, _tileRam };
 
         public void Halt()
         {
@@ -127,7 +124,7 @@ namespace Axh.Retro.GameBoy.Devices
         }
 
         /// <summary>
-        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         public void Dispose()
         {
@@ -174,8 +171,8 @@ namespace Axh.Retro.GameBoy.Devices
                     {
                         _gpuRegisters.CurrentScanlineRegister.IncrementScanline();
                         _lcdStatusRegister.GpuMode = _gpuRegisters.CurrentScanlineRegister.Scanline == Scanlines
-                            ? GpuMode.VerticalBlank
-                            : GpuMode.ReadingOam;
+                                                         ? GpuMode.VerticalBlank
+                                                         : GpuMode.ReadingOam;
                         _currentTimings -= HorizontalBlankClocks;
                     }
                     break;
@@ -238,20 +235,20 @@ namespace Axh.Retro.GameBoy.Devices
         private void Paint()
         {
             var renderSettings = _gpuRegisters.LcdControlRegister.BackgroundTileMap
-                ? new RenderSettings(0x1c00,
-                    0x800,
-                    true,
-                    _gpuRegisters.ScrollXRegister.Register,
-                    _gpuRegisters.ScrollYRegister.Register,
-                    _gpuRegisters.LcdControlRegister.SpriteSize,
-                    _gpuRegisters.LcdControlRegister.SpriteDisplayEnable)
-                : new RenderSettings(0x1800,
-                    0x0,
-                    false,
-                    _gpuRegisters.ScrollXRegister.Register,
-                    _gpuRegisters.ScrollYRegister.Register,
-                    _gpuRegisters.LcdControlRegister.SpriteSize,
-                    _gpuRegisters.LcdControlRegister.SpriteDisplayEnable);
+                                     ? new RenderSettings(0x1c00,
+                                                          0x800,
+                                                          true,
+                                                          _gpuRegisters.ScrollXRegister.Register,
+                                                          _gpuRegisters.ScrollYRegister.Register,
+                                                          _gpuRegisters.LcdControlRegister.SpriteSize,
+                                                          _gpuRegisters.LcdControlRegister.SpriteDisplayEnable)
+                                     : new RenderSettings(0x1800,
+                                                          0x0,
+                                                          false,
+                                                          _gpuRegisters.ScrollXRegister.Register,
+                                                          _gpuRegisters.ScrollYRegister.Register,
+                                                          _gpuRegisters.LcdControlRegister.SpriteSize,
+                                                          _gpuRegisters.LcdControlRegister.SpriteDisplayEnable);
 
             var tileMapBytes = _tileRam.ReadBytes(renderSettings.TileMapAddress, 0x400);
             var tileSetBytes = _tileRam.ReadBytes(renderSettings.TileSetAddress, 0x1000);

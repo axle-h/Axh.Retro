@@ -133,7 +133,6 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             GpRegisters.VerifySet(x => x.HL = Value, Times.Once);
         }
 
-
         [Test]
         public void LD_mFF00C_A()
         {
@@ -157,7 +156,6 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
 
             Mmu.Verify(x => x.WriteByte(0xff00 + Value, A), Times.Once);
         }
-
 
         [Test]
         public void LD_mnn_A()
@@ -217,7 +215,6 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             AfRegisters.VerifySet(x => x.A = Value, Times.Once);
             GpRegisters.VerifySet(x => x.HL = HL - 1, Times.Once);
         }
-
 
         [Test]
         public void LDD_mHL_A()

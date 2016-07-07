@@ -30,10 +30,10 @@ namespace Axh.Retro.CPU.Z80.Tests.Registers
             var initialStateFactory = new Mock<IInitialStateFactory<Z80RegisterState>>();
 
             _z80Registers = new Z80Registers(_primaryGeneralPurposeRegisters.Object,
-                _alternativeGeneralPurposeRegisters.Object,
-                _primaryAccumulatorAndFlagsRegisters.Object,
-                _alternativeAccumulatorAndFlagsRegisters.Object,
-                initialStateFactory.Object);
+                                             _alternativeGeneralPurposeRegisters.Object,
+                                             _primaryAccumulatorAndFlagsRegisters.Object,
+                                             _alternativeAccumulatorAndFlagsRegisters.Object,
+                                             initialStateFactory.Object);
         }
 
         [Test]
@@ -114,14 +114,8 @@ namespace Axh.Retro.CPU.Z80.Tests.Registers
             _primaryGeneralPurposeRegisters.Verify(x => x.ResetToState(state.PrimaryGeneralPurposeRegisterState));
             _alternativeGeneralPurposeRegisters.Verify(x => x.ResetToState(state.AlternativeGeneralPurposeRegisterState));
 
-            _primaryAccumulatorAndFlagsRegisters.Verify(
-                x =>
-                    x.ResetToState(state.PrimaryAccumulatorAndFlagsRegisterState));
-            _alternativeAccumulatorAndFlagsRegisters.Verify(
-                x =>
-                    x.ResetToState(
-                        state
-                            .AlternativeAccumulatorAndFlagsRegisterState));
+            _primaryAccumulatorAndFlagsRegisters.Verify(x => x.ResetToState(state.PrimaryAccumulatorAndFlagsRegisterState));
+            _alternativeAccumulatorAndFlagsRegisters.Verify(x => x.ResetToState(state.AlternativeAccumulatorAndFlagsRegisterState));
         }
 
         [Test]

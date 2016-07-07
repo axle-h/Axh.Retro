@@ -2,6 +2,9 @@
 
 namespace Axh.Retro.CPU.Z80.Core.Decode
 {
+    /// <summary>
+    /// A Z80/8080 op-code.
+    /// </summary>
     internal enum OpCode : byte
     {
         NoOperation,
@@ -113,8 +116,16 @@ namespace Axh.Retro.CPU.Z80.Core.Decode
         Stop
     }
 
+    /// <summary>
+    /// Extension methods for <see cref="OpCode"/>.
+    /// </summary>
     internal static class OpcodeExtensions
     {
+        /// <summary>
+        /// Checks whether the specified op-code has 16-bit operands.
+        /// </summary>
+        /// <param name="code">The code.</param>
+        /// <returns></returns>
         public static bool Is16Bit(this OpCode code)
         {
             switch (code)
@@ -131,6 +142,12 @@ namespace Axh.Retro.CPU.Z80.Core.Decode
             }
         }
 
+        /// <summary>
+        /// Gets the op-code mnemonic in Z80 assembler.
+        /// </summary>
+        /// <param name="code">The code.</param>
+        /// <returns></returns>
+        /// <exception cref="System.ArgumentOutOfRangeException">null</exception>
         public static string GetMnemonic(this OpCode code)
         {
             switch (code)

@@ -9,8 +9,8 @@ using Axh.Retro.CPU.Common.Contracts.Timing;
 namespace Axh.Retro.CPU.Common.Memory
 {
     /// <summary>
-    ///     Direct memory access controller.
-    ///     Required to avoid a cyclical dependency on the MMU for IO peripherals with DMA capabilities.
+    /// Direct memory access controller.
+    /// Required to avoid a cyclical dependency on the MMU for IO peripherals with DMA capabilities.
     /// </summary>
     public class DmaController : IDmaController
     {
@@ -19,9 +19,8 @@ namespace Axh.Retro.CPU.Common.Memory
         private readonly BlockingCollection<IDmaOperation> _dmaOperations;
         private bool _disposed;
 
-
         /// <summary>
-        ///     Initializes a new instance of the <see cref="DmaController" /> class.
+        /// Initializes a new instance of the <see cref="DmaController" /> class.
         /// </summary>
         public DmaController()
         {
@@ -29,7 +28,7 @@ namespace Axh.Retro.CPU.Common.Memory
         }
 
         /// <summary>
-        ///     Creates a DMA copy operation.
+        /// Creates a DMA copy operation.
         /// </summary>
         /// <param name="sourceAddress">The source address.</param>
         /// <param name="destinationAddress">The destination address.</param>
@@ -42,16 +41,12 @@ namespace Axh.Retro.CPU.Common.Memory
             InstructionTimings timings,
             IEnumerable<AddressRange> lockedAddressesRanges)
         {
-            _dmaOperations.Add(new DmaCopyOperation(sourceAddress,
-                destinationAddress,
-                length,
-                timings,
-                lockedAddressesRanges));
+            _dmaOperations.Add(new DmaCopyOperation(sourceAddress, destinationAddress, length, timings, lockedAddressesRanges));
         }
 
         /// <summary>
-        ///     Tries to get a dma operation from the queue.
-        ///     This should have a reasonable timeout.
+        /// Tries to get a dma operation from the queue.
+        /// This should have a reasonable timeout.
         /// </summary>
         /// <param name="operation">The operation.</param>
         /// <returns>True if an operation has successfully been returned from the queue.</returns>
@@ -67,7 +62,7 @@ namespace Axh.Retro.CPU.Common.Memory
         }
 
         /// <summary>
-        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         public void Dispose()
         {

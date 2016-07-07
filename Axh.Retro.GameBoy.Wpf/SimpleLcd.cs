@@ -29,8 +29,8 @@ namespace Axh.Retro.GameBoy.Wpf
         }
 
         /// <summary>
-        ///     Called every time the GB LCD is updated.
-        ///     Don't hang on to frame instances.
+        /// Called every time the GB LCD is updated.
+        /// Don't hang on to frame instances.
         /// </summary>
         /// <param name="frame"></param>
         public void Paint(Bitmap frame) => _window.Dispatcher.Invoke(() => UpdateUi(frame));
@@ -38,12 +38,12 @@ namespace Axh.Retro.GameBoy.Wpf
         private void Init()
         {
             _image = new Image
-            {
-                Stretch = Stretch.Fill,
-                HorizontalAlignment = HorizontalAlignment.Left,
-                VerticalAlignment = VerticalAlignment.Top
-            };
-            _window = new Window {Content = _image};
+                     {
+                         Stretch = Stretch.Fill,
+                         HorizontalAlignment = HorizontalAlignment.Left,
+                         VerticalAlignment = VerticalAlignment.Top
+                     };
+            _window = new Window { Content = _image };
 
             RenderOptions.SetBitmapScalingMode(_image, BitmapScalingMode.NearestNeighbor);
             RenderOptions.SetEdgeMode(_image, EdgeMode.Aliased);
@@ -60,17 +60,17 @@ namespace Axh.Retro.GameBoy.Wpf
         {
             var tcs = new TaskCompletionSource<bool>();
             var thread = new Thread(() =>
-            {
-                try
-                {
-                    func();
-                    tcs.SetResult(true);
-                }
-                catch (Exception e)
-                {
-                    tcs.SetException(e);
-                }
-            });
+                                    {
+                                        try
+                                        {
+                                            func();
+                                            tcs.SetResult(true);
+                                        }
+                                        catch (Exception e)
+                                        {
+                                            tcs.SetException(e);
+                                        }
+                                    });
 
             thread.SetApartmentState(ApartmentState.STA);
             thread.Start();
@@ -86,11 +86,11 @@ namespace Axh.Retro.GameBoy.Wpf
             if (_image.Source == null || !IsPaletteOk(palette))
             {
                 _writeableBitmap = new WriteableBitmap(frame.Width,
-                    frame.Height,
-                    96,
-                    96,
-                    PixelFormats.Indexed8,
-                    new BitmapPalette(palette));
+                                                       frame.Height,
+                                                       96,
+                                                       96,
+                                                       PixelFormats.Indexed8,
+                                                       new BitmapPalette(palette));
                 _image.Width = frame.Width * 4;
                 _image.Height = frame.Height * 4;
                 _image.Source = _writeableBitmap;
@@ -98,9 +98,7 @@ namespace Axh.Retro.GameBoy.Wpf
 
             // Reserve the back buffer for updates.
             _writeableBitmap.Lock();
-            var srcData = frame.LockBits(new Rectangle(0, 0, frame.Width, frame.Height),
-                ImageLockMode.ReadOnly,
-                frame.PixelFormat);
+            var srcData = frame.LockBits(new Rectangle(0, 0, frame.Width, frame.Height), ImageLockMode.ReadOnly, frame.PixelFormat);
             var srcPtr = srcData.Scan0;
             var targetPtr = _writeableBitmap.BackBuffer;
 

@@ -40,7 +40,7 @@ namespace Axh.Retro.CPU.Z80.Registers
 
         public AccumulatorAndFlagsRegisterState GetRegisterState()
         {
-            return new AccumulatorAndFlagsRegisterState {A = A, F = Flags.Register};
+            return new AccumulatorAndFlagsRegisterState { A = A, F = Flags.Register };
         }
     }
 }

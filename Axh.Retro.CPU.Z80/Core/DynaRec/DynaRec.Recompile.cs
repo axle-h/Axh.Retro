@@ -61,8 +61,7 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
                     break;
 
                 case OpCode.AddCarry:
-                    yield return Expression.Assign(A, Expression.Call(Alu, AluAddWithCarry, A, ReadOperand1(operation)))
-                        ;
+                    yield return Expression.Assign(A, Expression.Call(Alu, AluAddWithCarry, A, ReadOperand1(operation)));
                     break;
 
                 case OpCode.Subtract:
@@ -70,8 +69,7 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
                     break;
 
                 case OpCode.SubtractCarry:
-                    yield return
-                        Expression.Assign(A, Expression.Call(Alu, AluSubtractWithCarry, A, ReadOperand1(operation)));
+                    yield return Expression.Assign(A, Expression.Call(Alu, AluSubtractWithCarry, A, ReadOperand1(operation)));
                     break;
 
                 case OpCode.And:
@@ -101,31 +99,28 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
                 case OpCode.Add16:
                     yield return
                         WriteOperand1(operation,
-                            Expression.Call(Alu,
-                                AluAdd16,
-                                ReadOperand1(operation, true),
-                                ReadOperand2(operation, true)),
-                            true);
+                                      Expression.Call(Alu, AluAdd16, ReadOperand1(operation, true), ReadOperand2(operation, true)),
+                                      true);
                     break;
 
                 case OpCode.AddCarry16:
                     yield return
                         WriteOperand1(operation,
-                            Expression.Call(Alu,
-                                AluAdd16WithCarry,
-                                ReadOperand1(operation, true),
-                                ReadOperand2(operation, true)),
-                            true);
+                                      Expression.Call(Alu,
+                                                      AluAdd16WithCarry,
+                                                      ReadOperand1(operation, true),
+                                                      ReadOperand2(operation, true)),
+                                      true);
                     break;
 
                 case OpCode.SubtractCarry16:
                     yield return
                         WriteOperand1(operation,
-                            Expression.Call(Alu,
-                                AluSubtract16WithCarry,
-                                ReadOperand1(operation, true),
-                                ReadOperand2(operation, true)),
-                            true);
+                                      Expression.Call(Alu,
+                                                      AluSubtract16WithCarry,
+                                                      ReadOperand1(operation, true),
+                                                      ReadOperand2(operation, true)),
+                                      true);
                     break;
 
                 case OpCode.Increment16:
@@ -162,8 +157,8 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
                     {
                         yield return
                             Expression.IfThenElse(GetFlagTestExpression(operation.FlagTest),
-                                Expression.Assign(PC, ReadOperand1(operation, true)),
-                                SyncProgramCounter);
+                                                  Expression.Assign(PC, ReadOperand1(operation, true)),
+                                                  SyncProgramCounter);
                     }
                     _lastDecodeResult = DecodeResult.Finalize;
                     break;
@@ -178,7 +173,7 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
                         _usesDynamicTimings = true;
                         yield return
                             Expression.IfThen(GetFlagTestExpression(operation.FlagTest),
-                                Expression.Block(JumpToDisplacement(operation), GetDynamicTimings(1, 5)));
+                                              Expression.Block(JumpToDisplacement(operation), GetDynamicTimings(1, 5)));
                     }
                     _lastDecodeResult = DecodeResult.FinalizeAndSync;
                     break;
@@ -187,11 +182,11 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
                     _usesDynamicTimings = true;
                     yield return
                         Expression.Assign(B,
-                            Expression.Convert(Expression.Decrement(Expression.Convert(B, typeof (int))),
-                                typeof (byte)));
+                                          Expression.Convert(Expression.Decrement(Expression.Convert(B, typeof (int))),
+                                                             typeof (byte)));
                     yield return
                         Expression.IfThen(Expression.NotEqual(B, Expression.Constant((byte) 0)),
-                            Expression.Block(JumpToDisplacement(operation), GetDynamicTimings(1, 5)));
+                                          Expression.Block(JumpToDisplacement(operation), GetDynamicTimings(1, 5)));
                     _lastDecodeResult = DecodeResult.FinalizeAndSync;
                     break;
 
@@ -209,10 +204,10 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
                         _usesDynamicTimings = true;
                         yield return
                             Expression.IfThen(GetFlagTestExpression(operation.FlagTest),
-                                Expression.Block(PushSP,
-                                    WritePCToStack,
-                                    Expression.Assign(PC, ReadOperand1(operation)),
-                                    GetDynamicTimings(2, 7)));
+                                              Expression.Block(PushSP,
+                                                               WritePCToStack,
+                                                               Expression.Assign(PC, ReadOperand1(operation)),
+                                                               GetDynamicTimings(2, 7)));
                     }
                     _lastDecodeResult = DecodeResult.Finalize;
                     break;
@@ -228,8 +223,8 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
                         _usesDynamicTimings = true;
                         yield return
                             Expression.IfThenElse(GetFlagTestExpression(operation.FlagTest),
-                                Expression.Block(ReadPCFromStack, PopSP, GetDynamicTimings(2, 6)),
-                                SyncProgramCounter);
+                                                  Expression.Block(ReadPCFromStack, PopSP, GetDynamicTimings(2, 6)),
+                                                  SyncProgramCounter);
                     }
                     _lastDecodeResult = DecodeResult.Finalize;
                     break;
@@ -259,24 +254,23 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
                 case OpCode.Input:
                     yield return
                         WriteOperand1(operation,
-                            Expression.Call(IO,
-                                IoReadByte,
-                                ReadOperand2(operation),
-                                operation.Operand2 == Operand.n ? A : B));
+                                      Expression.Call(IO,
+                                                      IoReadByte,
+                                                      ReadOperand2(operation),
+                                                      operation.Operand2 == Operand.n ? A : B));
                     break;
 
                 case OpCode.Output:
                     yield return
                         Expression.Call(IO,
-                            IoWriteByte,
-                            ReadOperand2(operation),
-                            operation.Operand2 == Operand.n ? A : B,
-                            ReadOperand1(operation));
+                                        IoWriteByte,
+                                        ReadOperand2(operation),
+                                        operation.Operand2 == Operand.n ? A : B,
+                                        ReadOperand1(operation));
                     break;
 
                 case OpCode.RotateLeftWithCarry:
-                    yield return
-                        WriteOperand1(operation, Expression.Call(Alu, AluRotateLeftWithCarry, ReadOperand1(operation)));
+                    yield return WriteOperand1(operation, Expression.Call(Alu, AluRotateLeftWithCarry, ReadOperand1(operation)));
                     if (operation.OpCodeMeta.HasFlag(OpCodeMeta.UseAlternativeFlagAffection))
                     {
                         yield return Expression.Assign(Zero, Expression.Constant(false));
@@ -294,9 +288,7 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
                     break;
 
                 case OpCode.RotateRightWithCarry:
-                    yield return
-                        WriteOperand1(operation, Expression.Call(Alu, AluRotateRightWithCarry, ReadOperand1(operation)))
-                        ;
+                    yield return WriteOperand1(operation, Expression.Call(Alu, AluRotateRightWithCarry, ReadOperand1(operation)));
                     if (operation.OpCodeMeta.HasFlag(OpCodeMeta.UseAlternativeFlagAffection))
                     {
                         yield return Expression.Assign(Zero, Expression.Constant(false));
@@ -305,8 +297,7 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
                     break;
 
                 case OpCode.RotateRight:
-                    yield return WriteOperand1(operation, Expression.Call(Alu, AluRotateRight, ReadOperand1(operation)))
-                        ;
+                    yield return WriteOperand1(operation, Expression.Call(Alu, AluRotateRight, ReadOperand1(operation)));
                     if (operation.OpCodeMeta.HasFlag(OpCodeMeta.UseAlternativeFlagAffection))
                     {
                         yield return Expression.Assign(Zero, Expression.Constant(false));
@@ -317,8 +308,7 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
                 case OpCode.RotateLeftDigit:
                     _usesAccumulatorAndResult = true;
                     yield return
-                        Expression.Assign(AccumulatorAndResult,
-                            Expression.Call(Alu, AluRotateLeftDigit, A, ReadByteAtHL));
+                        Expression.Assign(AccumulatorAndResult, Expression.Call(Alu, AluRotateLeftDigit, A, ReadByteAtHL));
                     yield return Expression.Assign(A, AccumulatorAndResult_Accumulator);
                     yield return Expression.Call(Mmu, MmuWriteByte, HL, AccumulatorAndResult_Result);
                     break;
@@ -326,8 +316,7 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
                 case OpCode.RotateRightDigit:
                     _usesAccumulatorAndResult = true;
                     yield return
-                        Expression.Assign(AccumulatorAndResult,
-                            Expression.Call(Alu, AluRotateRightDigit, A, ReadByteAtHL));
+                        Expression.Assign(AccumulatorAndResult, Expression.Call(Alu, AluRotateRightDigit, A, ReadByteAtHL));
                     yield return Expression.Assign(A, AccumulatorAndResult_Accumulator);
                     yield return Expression.Call(Mmu, MmuWriteByte, HL, AccumulatorAndResult_Result);
                     break;
@@ -337,8 +326,7 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
                     break;
 
                 case OpCode.ShiftLeftSet:
-                    yield return
-                        WriteOperand1(operation, Expression.Call(Alu, AluShiftLeftSet, ReadOperand1(operation)));
+                    yield return WriteOperand1(operation, Expression.Call(Alu, AluShiftLeftSet, ReadOperand1(operation)));
                     break;
 
                 case OpCode.ShiftRight:
@@ -346,34 +334,31 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
                     break;
 
                 case OpCode.ShiftRightLogical:
-                    yield return
-                        WriteOperand1(operation, Expression.Call(Alu, AluShiftRightLogical, ReadOperand1(operation)));
+                    yield return WriteOperand1(operation, Expression.Call(Alu, AluShiftRightLogical, ReadOperand1(operation)));
                     break;
 
                 case OpCode.BitTest:
                     yield return
-                        Expression.Call(Alu,
-                            AluBitTest,
-                            ReadOperand1(operation),
-                            Expression.Constant((int) operation.ByteLiteral));
+                        Expression.Call(Alu, AluBitTest, ReadOperand1(operation), Expression.Constant((int) operation.ByteLiteral))
+                        ;
                     break;
 
                 case OpCode.BitSet:
                     yield return
                         WriteOperand1(operation,
-                            Expression.Call(Alu,
-                                AluBitSet,
-                                ReadOperand1(operation),
-                                Expression.Constant((int) operation.ByteLiteral)));
+                                      Expression.Call(Alu,
+                                                      AluBitSet,
+                                                      ReadOperand1(operation),
+                                                      Expression.Constant((int) operation.ByteLiteral)));
                     break;
 
                 case OpCode.BitReset:
                     yield return
                         WriteOperand1(operation,
-                            Expression.Call(Alu,
-                                AluBitReset,
-                                ReadOperand1(operation),
-                                Expression.Constant((int) operation.ByteLiteral)));
+                                      Expression.Call(Alu,
+                                                      AluBitReset,
+                                                      ReadOperand1(operation),
+                                                      Expression.Constant((int) operation.ByteLiteral)));
                     break;
 
                 case OpCode.TransferIncrement:
@@ -451,10 +436,8 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
                 case OpCode.DecimalArithmeticAdjust:
                     yield return
                         Expression.Assign(A,
-                            Expression.Call(Alu,
-                                AluDecimalAdjust,
-                                A,
-                                Expression.Constant(_cpuMode == CpuMode.Z80)));
+                                          Expression.Call(Alu, AluDecimalAdjust, A, Expression.Constant(_cpuMode == CpuMode.Z80)))
+                        ;
                     break;
 
                 case OpCode.NegateOnesComplement:
@@ -465,8 +448,7 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
                     break;
 
                 case OpCode.NegateTwosComplement:
-                    yield return
-                        Expression.Assign(A, Expression.Call(Alu, AluSubtract, Expression.Constant((byte) 0), A));
+                    yield return Expression.Assign(A, Expression.Call(Alu, AluSubtract, Expression.Constant((byte) 0), A));
                     break;
 
                 case OpCode.InvertCarryFlag:

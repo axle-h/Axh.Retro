@@ -41,11 +41,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Cache\CachedInstructionBlock.cs" />
+    <Compile Include="Cache\ICachedInstructionBlock.cs" />
     <Compile Include="Cache\InstructionBlockCache.cs" />
+    <Compile Include="Cache\NormalCachedInstructionBlock.cs" />
     <Compile Include="Core\Alu.cs" />
     <Compile Include="Core\CachingCpuCore.cs" />
     <Compile Include="Core\CoreContext.cs" />
     <Compile Include="Core\Decode\DecodedBlock.cs" />
+    <Compile Include="Core\Decode\IndexRegisterOperands.cs" />
     <Compile Include="Core\Decode\Operation.cs" />
     <Compile Include="Core\Decode\FlagTest.cs" />
     <Compile Include="Core\Decode\OpCode.cs" />

@@ -3,8 +3,23 @@ using System.Text;
 
 namespace Axh.Retro.CPU.Z80.Core.Decode
 {
+    /// <summary>
+    /// A Z80/8080 operation - an op-code with optional operands, flag tests, literals, displacement and meta describing which of the former are actually used.
+    /// </summary>
     internal struct Operation
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Operation"/> struct.
+        /// </summary>
+        /// <param name="address">The address.</param>
+        /// <param name="opCode">The op code.</param>
+        /// <param name="operand1">The operand1.</param>
+        /// <param name="operand2">The operand2.</param>
+        /// <param name="flagTest">The flag test.</param>
+        /// <param name="opCodeMeta">The op code meta.</param>
+        /// <param name="byteLiteral">The byte literal.</param>
+        /// <param name="wordLiteral">The word literal.</param>
+        /// <param name="displacement">The displacement.</param>
         public Operation(ushort address,
             OpCode opCode,
             Operand operand1,
@@ -26,24 +41,84 @@ namespace Axh.Retro.CPU.Z80.Core.Decode
             Displacement = displacement;
         }
 
+        /// <summary>
+        /// Gets the address.
+        /// </summary>
+        /// <value>
+        /// The address.
+        /// </value>
         public ushort Address { get; }
 
+        /// <summary>
+        /// Gets the op code.
+        /// </summary>
+        /// <value>
+        /// The op code.
+        /// </value>
         public OpCode OpCode { get; }
 
+        /// <summary>
+        /// Gets the first operand.
+        /// </summary>
+        /// <value>
+        /// The first operand.
+        /// </value>
         public Operand Operand1 { get; }
 
+        /// <summary>
+        /// Gets the second operand.
+        /// </summary>
+        /// <value>
+        /// The second operand.
+        /// </value>
         public Operand Operand2 { get; }
 
+        /// <summary>
+        /// Gets the flag test performed by this operation.
+        /// </summary>
+        /// <value>
+        /// The flag test performed by this operation.
+        /// </value>
         public FlagTest FlagTest { get; }
 
+        /// <summary>
+        /// Gets the op code meta.
+        /// </summary>
+        /// <value>
+        /// The op code meta.
+        /// </value>
         public OpCodeMeta OpCodeMeta { get; }
 
+        /// <summary>
+        /// Gets the byte literal.
+        /// </summary>
+        /// <value>
+        /// The byte literal.
+        /// </value>
         public byte ByteLiteral { get; }
 
+        /// <summary>
+        /// Gets the word literal.
+        /// </summary>
+        /// <value>
+        /// The word literal.
+        /// </value>
         public ushort WordLiteral { get; }
 
+        /// <summary>
+        /// Gets the displacement.
+        /// </summary>
+        /// <value>
+        /// The displacement.
+        /// </value>
         public sbyte Displacement { get; }
 
+        /// <summary>
+        /// Returns a <see cref="System.String" /> that represents this operation.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="System.String" /> that represents this operation.
+        /// </returns>
         public override string ToString()
         {
             var sb = new StringBuilder().AppendFormat("0x{0}   {1}", Address.ToString("x4"), OpCode.GetMnemonic());
@@ -65,6 +140,12 @@ namespace Axh.Retro.CPU.Z80.Core.Decode
             return sb.AppendFormat(", {0}", GetOperandString(Operand2)).ToString();
         }
 
+        /// <summary>
+        /// Gets the flag test string.
+        /// </summary>
+        /// <param name="flagTest">The flag test.</param>
+        /// <returns></returns>
+        /// <exception cref="System.ArgumentOutOfRangeException">null</exception>
         private static string GetFlagTestString(FlagTest flagTest)
         {
             switch (flagTest)
@@ -81,7 +162,7 @@ namespace Axh.Retro.CPU.Z80.Core.Decode
                     return "PO";
                 case FlagTest.ParityEven:
                     return "PE";
-                case FlagTest.Possitive:
+                case FlagTest.Positive:
                     return "P";
                 case FlagTest.Negative:
                     return "M";
@@ -90,6 +171,12 @@ namespace Axh.Retro.CPU.Z80.Core.Decode
             }
         }
 
+        /// <summary>
+        /// Gets the operand string.
+        /// </summary>
+        /// <param name="operand">The operand.</param>
+        /// <returns></returns>
+        /// <exception cref="System.ArgumentOutOfRangeException">null</exception>
         private string GetOperandString(Operand operand)
         {
             switch (operand)

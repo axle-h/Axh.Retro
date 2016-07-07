@@ -29,20 +29,18 @@ namespace Axh.Retro.GameBoy.Tests.Devices
             _joyPad = new JoyPad(mockInterruptManager.Object);
         }
 
-        private void AssertRegisterMatrix(Expression<Func<IJoyPad, bool>> buttonExpression,
-            byte regOut,
-            byte expectedMask)
+        private void AssertRegisterMatrix(Expression<Func<IJoyPad, bool>> buttonExpression, byte regOut, byte expectedMask)
         {
             var joyPadExpression = Expression.Parameter(typeof (IJoyPad), "joyPad");
             var property = GetPropertyExpression(joyPadExpression, buttonExpression);
 
             var getLambda = Expression.Lambda<Func<IJoyPad, bool>>(property, joyPadExpression).Compile();
             var setLambda =
-                Expression.Lambda<Action<IJoyPad>>(Expression.Assign(property, Expression.Constant(true)),
-                    joyPadExpression).Compile();
+                Expression.Lambda<Action<IJoyPad>>(Expression.Assign(property, Expression.Constant(true)), joyPadExpression)
+                          .Compile();
             var resetLambda =
-                Expression.Lambda<Action<IJoyPad>>(Expression.Assign(property, Expression.Constant(false)),
-                    joyPadExpression).Compile();
+                Expression.Lambda<Action<IJoyPad>>(Expression.Assign(property, Expression.Constant(false)), joyPadExpression)
+                          .Compile();
 
             // Assert button pressed
             setLambda(_joyPad);
@@ -58,8 +56,7 @@ namespace Axh.Retro.GameBoy.Tests.Devices
         }
 
         public static MemberExpression GetPropertyExpression<TSource, TProperty>(Expression instance,
-            Expression<Func<TSource, TProperty>>
-                propertyLambda)
+            Expression<Func<TSource, TProperty>> propertyLambda)
         {
             var type = typeof (TSource);
 
@@ -78,8 +75,7 @@ namespace Axh.Retro.GameBoy.Tests.Devices
             if (type != propInfo.ReflectedType && !type.IsSubclassOf(propInfo.ReflectedType) &&
                 !propInfo.ReflectedType.IsAssignableFrom(type))
             {
-                throw new ArgumentException(
-                    $"Expresion '{propertyLambda}' refers to a property that is not from type {type}.");
+                throw new ArgumentException($"Expresion '{propertyLambda}' refers to a property that is not from type {type}.");
             }
 
             return Expression.Property(instance, propInfo);

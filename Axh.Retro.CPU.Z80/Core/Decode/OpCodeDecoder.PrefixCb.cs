@@ -4,8 +4,16 @@ using Axh.Retro.CPU.Z80.Contracts.OpCodes;
 
 namespace Axh.Retro.CPU.Z80.Core.Decode
 {
+    /// <summary>
+    /// Core op-code decoder functions for op-codes prefixed with 0xCB.
+    /// </summary>
     internal partial class OpCodeDecoder
     {
+        /// <summary>
+        /// Fixes the timings and operands of a CB and DD/FD prefixed operation.
+        /// </summary>
+        /// <param name="result">The result.</param>
+        /// <returns></returns>
         private OpCode FixPrefixDdFdPrefixCbResult(OpCode result)
         {
             if (_operand1 == _index.Index)
@@ -30,6 +38,11 @@ namespace Axh.Retro.CPU.Z80.Core.Decode
             return result;
         }
 
+        /// <summary>
+        /// Decodes an op-code that has been prefixed with 0xCB.
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="System.ArgumentOutOfRangeException"></exception>
         private OpCode DecodePrefixCb()
         {
             var code = (PrefixCbOpCode) _prefetch.NextByte();
@@ -685,6 +698,11 @@ namespace Axh.Retro.CPU.Z80.Core.Decode
             }
         }
 
+        /// <summary>
+        /// Sets up index based operands and returns a bit reset opcode for the specified bit.
+        /// </summary>
+        /// <param name="bit">The bit.</param>
+        /// <returns></returns>
         private OpCode BitResetFromIndex(int bit)
         {
             _timer.IndexAndMmuByte(_index.IsDisplaced);
@@ -698,6 +716,12 @@ namespace Axh.Retro.CPU.Z80.Core.Decode
             return OpCode.BitReset;
         }
 
+        /// <summary>
+        /// Sets up register based operands and returns a bit reset opcode for the specified bit.
+        /// </summary>
+        /// <param name="register">The register.</param>
+        /// <param name="bit">The bit.</param>
+        /// <returns></returns>
         private OpCode BitReset(Operand register, int bit)
         {
             if (_index.IsDisplaced)
@@ -710,6 +734,11 @@ namespace Axh.Retro.CPU.Z80.Core.Decode
             return OpCode.BitReset;
         }
 
+        /// <summary>
+        /// Sets up index based operands and returns a bit set opcode for the specified bit.
+        /// </summary>
+        /// <param name="bit">The bit.</param>
+        /// <returns></returns>
         private OpCode BitSetFromIndex(int bit)
         {
             _timer.IndexAndMmuByte(_index.IsDisplaced);
@@ -723,6 +752,12 @@ namespace Axh.Retro.CPU.Z80.Core.Decode
             return OpCode.BitSet;
         }
 
+        /// <summary>
+        /// Sets up register based operands and returns a bit set opcode for the specified bit.
+        /// </summary>
+        /// <param name="register">The register.</param>
+        /// <param name="bit">The bit.</param>
+        /// <returns></returns>
         private OpCode BitSet(Operand register, int bit)
         {
             if (_index.IsDisplaced)
@@ -735,6 +770,11 @@ namespace Axh.Retro.CPU.Z80.Core.Decode
             return OpCode.BitSet;
         }
 
+        /// <summary>
+        /// Sets up index based operands and returns a bit test opcode for the specified bit.
+        /// </summary>
+        /// <param name="bit">The bit.</param>
+        /// <returns></returns>
         private OpCode BitTestFromIndex(int bit)
         {
             if (_index.IsDisplaced)
@@ -751,6 +791,12 @@ namespace Axh.Retro.CPU.Z80.Core.Decode
             return OpCode.BitTest;
         }
 
+        /// <summary>
+        /// Sets up register based operands and returns a bit test opcode for the specified bit.
+        /// </summary>
+        /// <param name="register">The register.</param>
+        /// <param name="bit">The bit.</param>
+        /// <returns></returns>
         private OpCode BitTest(Operand register, int bit)
         {
             _operand1 = register;

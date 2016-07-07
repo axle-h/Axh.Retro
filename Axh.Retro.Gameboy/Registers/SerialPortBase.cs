@@ -4,7 +4,7 @@ using Axh.Retro.GameBoy.Registers.Interfaces;
 namespace Axh.Retro.GameBoy.Registers
 {
     /// <summary>
-    ///     FF01 - SB - Serial transfer data (R/W)
+    /// FF01 - SB - Serial transfer data (R/W)
     /// </summary>
     public abstract class SerialPortBase : ISerialPortRegister
     {
@@ -16,15 +16,15 @@ namespace Axh.Retro.GameBoy.Registers
         }
 
         /// <summary>
-        ///     8 Bits of data to be read/written
-        ///     Transmitting and receiving serial data is done simultaneously.
+        /// 8 Bits of data to be read/written
+        /// Transmitting and receiving serial data is done simultaneously.
         /// </summary>
         public IRegister SerialData { get; }
 
         public abstract byte Transfer(byte value);
 
         /// <summary>
-        ///     Address of control register
+        /// Address of control register
         /// </summary>
         public ushort Address => 0xff02;
 

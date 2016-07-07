@@ -3,9 +3,9 @@
 namespace Axh.Retro.CPU.Z80.Registers
 {
     /// <summary>
-    ///     GB flags register.
-    ///     7 6 5 4 3 2 1 0
-    ///     Z N H C 0 0 0 0
+    /// GB flags register.
+    /// 7 6 5 4 3 2 1 0
+    /// Z N H C 0 0 0 0
     /// </summary>
     public class GameBoyFlagsRegister : IFlagsRegister
     {
@@ -52,7 +52,7 @@ namespace Axh.Retro.CPU.Z80.Registers
         }
 
         /// <summary>
-        ///     Unused
+        /// Unused
         /// </summary>
         public bool Sign
         {
@@ -63,7 +63,7 @@ namespace Axh.Retro.CPU.Z80.Registers
         public bool Zero { get; set; }
 
         /// <summary>
-        ///     Unused
+        /// Unused
         /// </summary>
         public bool Flag5
         {
@@ -74,7 +74,7 @@ namespace Axh.Retro.CPU.Z80.Registers
         public bool HalfCarry { get; set; }
 
         /// <summary>
-        ///     Unused
+        /// Unused
         /// </summary>
         public bool Flag3
         {
@@ -83,7 +83,7 @@ namespace Axh.Retro.CPU.Z80.Registers
         }
 
         /// <summary>
-        ///     Unused
+        /// Unused
         /// </summary>
         public bool ParityOverflow
         {

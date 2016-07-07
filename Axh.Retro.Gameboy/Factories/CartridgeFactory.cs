@@ -105,8 +105,7 @@ namespace Axh.Retro.GameBoy.Factories
                 banks[n] = bank;
             }
 
-            var ramBanks =
-                Enumerable.Range(0, header.RamSize.NumberOfBanks()).Select(i => header.RamSize.BankSize()).ToArray();
+            var ramBanks = Enumerable.Range(0, header.RamSize.NumberOfBanks()).Select(i => header.RamSize.BankSize()).ToArray();
 
             return new Cartridge(banks, ramBanks, header);
         }
@@ -147,18 +146,18 @@ namespace Axh.Retro.GameBoy.Factories
                 }
 
                 return new CartridgeHeader(entryPoint,
-                    nintendoLogoValid,
-                    title,
-                    isGameBoyColour,
-                    licenseCode,
-                    isSuperGameBoy,
-                    cartridgeType,
-                    romSize,
-                    ramSize,
-                    destinationCode,
-                    romVersion,
-                    headerChecksum,
-                    romChecksum);
+                                           nintendoLogoValid,
+                                           title,
+                                           isGameBoyColour,
+                                           licenseCode,
+                                           isSuperGameBoy,
+                                           cartridgeType,
+                                           romSize,
+                                           ramSize,
+                                           destinationCode,
+                                           romVersion,
+                                           headerChecksum,
+                                           romChecksum);
             }
         }
     }

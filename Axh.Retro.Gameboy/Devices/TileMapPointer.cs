@@ -30,7 +30,7 @@ namespace Axh.Retro.GameBoy.Devices
         private int _tileRow;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="TileMapPointer"/> class.
+        /// Initializes a new instance of the <see cref="TileMapPointer" /> class.
         /// </summary>
         /// <param name="renderSettings">The render settings.</param>
         /// <param name="tileSetBytes">The tile set bytes.</param>
@@ -92,8 +92,7 @@ namespace Axh.Retro.GameBoy.Devices
                     }
                     else
                     {
-                        _spriteTileCache[sprite.TileNumber] =
-                            spriteTile = GetTile(_spriteTileSetBytes, sprite.TileNumber * 16);
+                        _spriteTileCache[sprite.TileNumber] = spriteTile = GetTile(_spriteTileSetBytes, sprite.TileNumber * 16);
                     }
 
                     return spriteTile.Get(_row - sprite.Y, _column - sprite.X);
@@ -218,12 +217,12 @@ namespace Axh.Retro.GameBoy.Devices
 
                     yield return
                         new Sprite((byte) x,
-                            (byte) y,
-                            n,
-                            (flags & 0x08) > 0,
-                            (flags & 0x04) > 0,
-                            (flags & 0x02) > 0,
-                            (flags & 0x01) > 0);
+                                   (byte) y,
+                                   n,
+                                   (flags & 0x08) > 0,
+                                   (flags & 0x04) > 0,
+                                   (flags & 0x02) > 0,
+                                   (flags & 0x01) > 0);
                 }
             }
         }
