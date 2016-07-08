@@ -15,38 +15,60 @@ using Axh.Retro.CPU.Z80.Util;
 
 namespace Axh.Retro.CPU.Z80.Core.DynaRec
 {
+    /// <summary>
+    /// Instruction block decoder using a dynamic translation from Z80 operations to expression trees.
+    /// </summary>
+    /// <typeparam name="TRegisters">The type of the registers.</typeparam>
+    /// <seealso cref="Axh.Retro.CPU.Z80.Contracts.Core.IInstructionBlockDecoder{TRegisters}" />
     public partial class DynaRec<TRegisters> : IInstructionBlockDecoder<TRegisters> where TRegisters : IRegisters
     {
         private readonly CpuMode _cpuMode;
-
         private readonly bool _debug;
-
         private readonly OpCodeDecoder _decoder;
         private readonly IPrefetchQueue _prefetch;
 
         private DecodeResult _lastDecodeResult;
 
         private bool _usesAccumulatorAndResult;
-
         private bool _usesDynamicTimings;
-
         private bool _usesLocalWord;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DynaRec{TRegisters}"/> class.
+        /// </summary>
+        /// <param name="platformConfig">The platform configuration.</param>
+        /// <param name="runtimeConfig">The runtime configuration.</param>
+        /// <param name="prefetch">The prefetch.</param>
         public DynaRec(IPlatformConfig platformConfig, IRuntimeConfig runtimeConfig, IPrefetchQueue prefetch) : this()
         {
             _prefetch = prefetch;
             _cpuMode = platformConfig.CpuMode;
             _debug = runtimeConfig.DebugMode;
-
             _decoder = new OpCodeDecoder(platformConfig, prefetch);
         }
 
+        /// <summary>
+        /// Gets an expression that synchronizes the program counter to the bytes read from teh prefetch queue.
+        /// </summary>
+        /// <value>
+        /// An expression that synchronizes the program counter to the bytes read from teh prefetch queue.
+        /// </value>
         private Expression SyncProgramCounter => Expression.Assign(PC, Expression.Convert(Expression.Add(Expression.Convert(PC, typeof (int)),
                                                                                           Expression.Constant(_prefetch.TotalBytesRead)),
                                                                                           typeof (ushort)));
-
+        /// <summary>
+        /// Gets a value indicating whether this instruction block decoder [supports instruction block caching].
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if this instruction block decoder [supports instruction block caching]; otherwise, <c>false</c>.
+        /// </value>
         public bool SupportsInstructionBlockCaching => true;
 
+        /// <summary>
+        /// Decodes the next block.
+        /// </summary>
+        /// <param name="address">The address.</param>
+        /// <returns></returns>
         public IInstructionBlock<TRegisters> DecodeNextBlock(ushort address)
         {
             var decodedBlock = _decoder.DecodeNextBlock(address);
@@ -66,6 +88,11 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
             return block;
         }
 
+        /// <summary>
+        /// Builds the expression tree.
+        /// </summary>
+        /// <param name="operations">The operations.</param>
+        /// <returns></returns>
         private Expression<Func<TRegisters, IMmu, IAlu, IPeripheralManager, InstructionTimings>> BuildExpressionTree(
             IEnumerable<Operation> operations)
         {
@@ -82,7 +109,7 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
 
             var expressions = initExpressions.Concat(blockExpressions).Concat(finalExpressions).ToArray();
 
-            var expressionBlock = Expression.Block(GeParameterExpressions(), expressions);
+            var expressionBlock = Expression.Block(GetParameterExpressions(), expressions);
 
             var lambda = Expression.Lambda<Func<TRegisters, IMmu, IAlu, IPeripheralManager, InstructionTimings>>(expressionBlock,
                                                                                                                  Registers,
@@ -92,7 +119,11 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
             return lambda;
         }
 
-        private IEnumerable<ParameterExpression> GeParameterExpressions()
+        /// <summary>
+        /// Gets the parameter expressions of the expression block.
+        /// </summary>
+        /// <returns></returns>
+        private IEnumerable<ParameterExpression> GetParameterExpressions()
         {
             if (_usesLocalWord)
             {
@@ -111,6 +142,10 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
             }
         }
 
+        /// <summary>
+        /// Gets the expression block initialize expressions.
+        /// </summary>
+        /// <returns></returns>
         private IEnumerable<Expression> GetBlockInitExpressions()
         {
             if (_usesDynamicTimings)
@@ -120,6 +155,10 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
             }
         }
 
+        /// <summary>
+        /// Gets any expressions required to finalize the expression block.
+        /// </summary>
+        /// <returns></returns>
         private IEnumerable<Expression> GetBlockFinalExpressions()
         {
             if (_debug)

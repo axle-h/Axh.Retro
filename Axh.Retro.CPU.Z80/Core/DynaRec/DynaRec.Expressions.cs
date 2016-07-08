@@ -9,118 +9,87 @@ using Axh.Retro.CPU.Z80.Util;
 
 namespace Axh.Retro.CPU.Z80.Core.DynaRec
 {
+    /// <summary>
+    /// Expressions used in the dynamic translation from Z80 to expression trees.
+    /// </summary>
+    /// <typeparam name="TRegisters">The type of the registers.</typeparam>
+    /// <seealso cref="Axh.Retro.CPU.Z80.Contracts.Core.IInstructionBlockDecoder{TRegisters}" />
     public partial class DynaRec<TRegisters> where TRegisters : IRegisters
     {
-        // Register expressions
-        private readonly Expression A;
-
-        /// <summary>
-        /// AccumulatorAndResult parameter 'result'
-        /// </summary>
-        private readonly ParameterExpression AccumulatorAndResult;
-
-        private readonly Expression AccumulatorAndResult_Accumulator;
-        private readonly Expression AccumulatorAndResult_Result;
-        private readonly Expression AF;
+        private readonly ParameterExpression Registers;
+        private readonly ParameterExpression Mmu;
         private readonly ParameterExpression Alu;
-        private readonly MethodInfo AluAdd;
-        private readonly MethodInfo AluAdd16;
-        private readonly MethodInfo AluAdd16WithCarry;
-
-        private readonly MethodInfo AluAddDisplacement;
-        private readonly MethodInfo AluAddWithCarry;
-        private readonly MethodInfo AluAnd;
-        private readonly MethodInfo AluBitReset;
-        private readonly MethodInfo AluBitSet;
-
-        private readonly MethodInfo AluBitTest;
-        private readonly MethodInfo AluCompare;
-        private readonly MethodInfo AluDecimalAdjust;
-        private readonly MethodInfo AluDecrement;
-
-        // ALU methods
-        private readonly MethodInfo AluIncrement;
-        private readonly MethodInfo AluOr;
-        private readonly MethodInfo AluRotateLeft;
-        private readonly MethodInfo AluRotateLeftDigit;
-
-        private readonly MethodInfo AluRotateLeftWithCarry;
-        private readonly MethodInfo AluRotateRight;
-
-        private readonly MethodInfo AluRotateRightDigit;
-        private readonly MethodInfo AluRotateRightWithCarry;
-
-        private readonly MethodInfo AluShiftLeft;
-        private readonly MethodInfo AluShiftLeftSet;
-        private readonly MethodInfo AluShiftRight;
-        private readonly MethodInfo AluShiftRightLogical;
-        private readonly MethodInfo AluSubtract;
-        private readonly MethodInfo AluSubtract16WithCarry;
-        private readonly MethodInfo AluSubtractWithCarry;
-        private readonly MethodInfo AluSwap;
-        private readonly MethodInfo AluXor;
-        private readonly Expression B;
-        private readonly Expression BC;
-        private readonly Expression C;
-        private readonly Expression Carry;
-        private readonly Expression D;
-        private readonly Expression DE;
-
-        /// <summary>
-        /// The dynamic instruction timer parameter 'timer'.
-        /// This is required for instructions that don't have compile time known timings e.g. LDIR.
-        /// </summary>
-        private readonly ParameterExpression DynamicTimer;
-
-        private readonly MethodInfo DynamicTimerAdd;
-        private readonly Expression E;
-        private readonly Expression F;
-
-        // Flags
-        private readonly Expression Flags;
-        private readonly Expression H;
-        private readonly Expression HalfCarry;
-        private readonly Expression HL;
-
-        // Z80 specific register expressions
-        private readonly Expression I;
-
-        // Interrupt stuff
-        private readonly Expression IFF1;
-        private readonly Expression IFF2;
-        private readonly Expression IM;
         private readonly ParameterExpression IO;
-
-        // IO Methods
-        private readonly MethodInfo IoReadByte;
-        private readonly MethodInfo IoWriteByte;
-        private readonly Expression IX;
-        private readonly Expression IXh;
-
-        private readonly Expression IXl;
-        private readonly Expression IY;
-        private readonly Expression IYh;
-        private readonly Expression IYl;
-        private readonly Expression L;
 
         /// <summary>
         /// Word parameter 'w'
         /// </summary>
         private readonly ParameterExpression LocalWord;
 
-        private readonly ParameterExpression Mmu;
+        /// <summary>
+        /// The dynamic instruction timer parameter 'timer'.
+        /// This is required for instructions that don't have compile time known timings e.g. LDIR.
+        /// </summary>
+        private readonly ParameterExpression DynamicTimer;
+        private readonly MethodInfo DynamicTimerAdd;
 
-        // MMU methods
-        private readonly MethodInfo MmuReadByte;
-        private readonly MethodInfo MmuReadWord;
-        private readonly MethodInfo MmuTransferByte;
-        private readonly MethodInfo MmuWriteByte;
-        private readonly MethodInfo MmuWriteWord;
-        private readonly Expression ParityOverflow;
+        /// <summary>
+        /// AccumulatorAndResult parameter 'result'
+        /// </summary>
+        private readonly ParameterExpression AccumulatorAndResult;
+        private readonly Expression AccumulatorAndResult_Accumulator;
+        private readonly Expression AccumulatorAndResult_Result;
+
+        // Register expressions
+        private readonly Expression A;
+        private readonly Expression B;
+        private readonly Expression C;
+        private readonly Expression D;
+        private readonly Expression E;
+        private readonly Expression F;
+        private readonly Expression H;
+        private readonly Expression L;
+        private readonly Expression BC;
+        private readonly Expression DE;
+        private readonly Expression HL;
+        private readonly Expression AF;
         private readonly Expression PC;
-        private readonly Expression PopSP;
+
+        // Stack pointer stuff
+        private readonly Expression SP;
         private readonly Expression PushSP;
+        private readonly Expression PopSP;
+
+        // Z80 specific register expressions
+        private readonly Expression I;
         private readonly Expression R;
+        private readonly Expression IX;
+        private readonly Expression IY;
+
+        private readonly Expression IXl;
+        private readonly Expression IXh;
+        private readonly Expression IYl;
+        private readonly Expression IYh;
+
+        // Z80 specific register methods
+        private readonly Expression SwitchToAlternativeGeneralPurposeRegisters;
+        private readonly Expression SwitchToAlternativeAccumulatorAndFlagsRegisters;
+
+        // Interrupt stuff
+        private readonly Expression IFF1;
+        private readonly Expression IFF2;
+        private readonly Expression IM;
+
+        // Flags
+        private readonly Expression Flags;
+        private readonly Expression Sign;
+        private readonly Expression Zero;
+        private readonly Expression HalfCarry;
+        private readonly Expression ParityOverflow;
+        private readonly Expression Subtract;
+        private readonly Expression Carry;
+        private readonly MethodInfo SetResultFlags;
+        private readonly MethodInfo SetUndocumentedFlags;
 
         /// <summary>
         /// Reads a byte from the mmu at the address in HL
@@ -128,30 +97,65 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
         private readonly Expression ReadByteAtHL;
 
         /// <summary>
-        /// Reads a word from the mmu at the address in SP and assigns it to PC
-        /// </summary>
-        private readonly Expression ReadPCFromStack;
-
-        private readonly ParameterExpression Registers;
-        private readonly MethodInfo SetResultFlags;
-        private readonly MethodInfo SetUndocumentedFlags;
-        private readonly Expression Sign;
-
-        // Stack pointer stuff
-        private readonly Expression SP;
-        private readonly Expression Subtract;
-        private readonly Expression SwitchToAlternativeAccumulatorAndFlagsRegisters;
-
-        // Z80 specific register methods
-        private readonly Expression SwitchToAlternativeGeneralPurposeRegisters;
-
-        /// <summary>
         /// Writes the PC to the mmu at the address in SP
         /// </summary>
         private readonly Expression WritePCToStack;
 
-        private readonly Expression Zero;
+        /// <summary>
+        /// Reads a word from the mmu at the address in SP and assigns it to PC
+        /// </summary>
+        private readonly Expression ReadPCFromStack;
 
+        // MMU methods
+        private readonly MethodInfo MmuReadByte;
+        private readonly MethodInfo MmuReadWord;
+        private readonly MethodInfo MmuWriteByte;
+        private readonly MethodInfo MmuWriteWord;
+        private readonly MethodInfo MmuTransferByte;
+
+        // ALU methods
+        private readonly MethodInfo AluIncrement;
+        private readonly MethodInfo AluDecrement;
+        private readonly MethodInfo AluAdd;
+        private readonly MethodInfo AluAddWithCarry;
+        private readonly MethodInfo AluAdd16;
+        private readonly MethodInfo AluAdd16WithCarry;
+        private readonly MethodInfo AluSubtract;
+        private readonly MethodInfo AluSubtractWithCarry;
+        private readonly MethodInfo AluSubtract16WithCarry;
+        private readonly MethodInfo AluCompare;
+        private readonly MethodInfo AluAnd;
+        private readonly MethodInfo AluOr;
+        private readonly MethodInfo AluXor;
+        private readonly MethodInfo AluDecimalAdjust;
+
+        private readonly MethodInfo AluRotateLeftWithCarry;
+        private readonly MethodInfo AluRotateLeft;
+        private readonly MethodInfo AluRotateRightWithCarry;
+        private readonly MethodInfo AluRotateRight;
+
+        private readonly MethodInfo AluShiftLeft;
+        private readonly MethodInfo AluShiftLeftSet;
+        private readonly MethodInfo AluShiftRight;
+        private readonly MethodInfo AluShiftRightLogical;
+
+        private readonly MethodInfo AluRotateRightDigit;
+        private readonly MethodInfo AluRotateLeftDigit;
+
+        private readonly MethodInfo AluBitTest;
+        private readonly MethodInfo AluBitSet;
+        private readonly MethodInfo AluBitReset;
+
+        private readonly MethodInfo AluAddDisplacement;
+        private readonly MethodInfo AluSwap;
+
+        // IO Methods
+        private readonly MethodInfo IoReadByte;
+        private readonly MethodInfo IoWriteByte;
+
+        /// <summary>
+        /// Prevents a default instance of the <see cref="DynaRec{TRegisters}"/> class from being created.
+        /// </summary>
         private DynaRec()
         {
             Registers = Expression.Parameter(typeof (TRegisters), "registers");
@@ -291,19 +295,9 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
 
                 // Z80 specific register methods
                 SwitchToAlternativeGeneralPurposeRegisters = Expression.Call(Registers,
-                                                                             ExpressionHelpers.GetMethodInfo<IZ80Registers>(
-                                                                                                                            registers
-                                                                                                                            =>
-                                                                                                                            registers
-                                                                                                                                .SwitchToAlternativeGeneralPurposeRegisters
-                                                                                                                                ()));
+                    ExpressionHelpers.GetMethodInfo<IZ80Registers>(registers => registers.SwitchToAlternativeGeneralPurposeRegisters()));
                 SwitchToAlternativeAccumulatorAndFlagsRegisters = Expression.Call(Registers,
-                                                                                  ExpressionHelpers.GetMethodInfo<IZ80Registers>(
-                                                                                                                                 registers
-                                                                                                                                 =>
-                                                                                                                                 registers
-                                                                                                                                     .SwitchToAlternativeAccumulatorAndFlagsRegisters
-                                                                                                                                     ()));
+                    ExpressionHelpers.GetMethodInfo<IZ80Registers>(registers => registers.SwitchToAlternativeAccumulatorAndFlagsRegisters()));
             }
         }
     }

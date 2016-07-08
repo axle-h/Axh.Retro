@@ -8,18 +8,37 @@ using Axh.Retro.CPU.Z80.Util;
 
 namespace Axh.Retro.CPU.Z80.Core.DynaRec
 {
+    /// <summary>
+    /// Helpers for the dynamic translation from Z80 to expression trees.
+    /// </summary>
+    /// <typeparam name="TRegisters">The type of the registers.</typeparam>
+    /// <seealso cref="Axh.Retro.CPU.Z80.Contracts.Core.IInstructionBlockDecoder{TRegisters}" />
     public partial class DynaRec<TRegisters> where TRegisters : IRegisters
     {
-        private Expression ReadOperand1(Operation operation, bool is16Bit = false)
-        {
-            return ReadOperand(operation, operation.Operand1, is16Bit);
-        }
+        /// <summary>
+        /// Reads the first operand from the operation as an expression
+        /// </summary>
+        /// <param name="operation">The operation.</param>
+        /// <param name="is16Bit">if set to <c>true</c> [the operation has 16 bit operands].</param>
+        /// <returns></returns>
+        private Expression ReadOperand1(Operation operation, bool is16Bit = false) => ReadOperand(operation, operation.Operand1, is16Bit);
 
-        private Expression ReadOperand2(Operation operation, bool is16Bit = false)
-        {
-            return ReadOperand(operation, operation.Operand2, is16Bit);
-        }
+        /// <summary>
+        /// Reads the second operand from the operation as an expression.
+        /// </summary>
+        /// <param name="operation">The operation.</param>
+        /// <param name="is16Bit">if set to <c>true</c> [the operation has 16 bit operands].</param>
+        /// <returns></returns>
+        private Expression ReadOperand2(Operation operation, bool is16Bit = false) => ReadOperand(operation, operation.Operand2, is16Bit);
 
+        /// <summary>
+        /// Reads the specified operand according to the specified operation as an expression.
+        /// </summary>
+        /// <param name="operation">The operation.</param>
+        /// <param name="operand">The operand.</param>
+        /// <param name="is16Bit">if set to <c>true</c> [the operation has 16 bit operands].</param>
+        /// <returns></returns>
+        /// <exception cref="System.ArgumentOutOfRangeException">null</exception>
         private Expression ReadOperand(Operation operation, Operand operand, bool is16Bit)
         {
             switch (operand)
@@ -70,11 +89,9 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
                     return IX;
                 case Operand.mIXd:
                     return Expression.Call(Mmu,
-                                           is16Bit ? MmuReadWord : MmuReadByte,
-                                           Expression.Convert(
-                                                              Expression.Add(Expression.Convert(IX, typeof (int)),
-                                                                             Expression.Constant((int) operation.Displacement)),
-                                                              typeof (ushort)));
+                        is16Bit ? MmuReadWord : MmuReadByte,
+                        Expression.Convert(Expression.Add(Expression.Convert(IX, typeof (int)), Expression.Constant((int) operation.Displacement)),
+                                           typeof (ushort)));
                 case Operand.IXl:
                     return IXl;
                 case Operand.IXh:
@@ -83,11 +100,9 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
                     return IY;
                 case Operand.mIYd:
                     return Expression.Call(Mmu,
-                                           is16Bit ? MmuReadWord : MmuReadByte,
-                                           Expression.Convert(
-                                                              Expression.Add(Expression.Convert(IY, typeof (int)),
-                                                                             Expression.Constant((int) operation.Displacement)),
-                                                              typeof (ushort)));
+                        is16Bit ? MmuReadWord : MmuReadByte,
+                        Expression.Convert(Expression.Add(Expression.Convert(IY, typeof (int)), Expression.Constant((int) operation.Displacement)),
+                                           typeof (ushort)));
                 case Operand.IYl:
                     return IYl;
                 case Operand.IYh:
@@ -112,16 +127,34 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
             }
         }
 
+        /// <summary>
+        /// Gets an expression that writes the specified value to the first operand from the specified operation.
+        /// </summary>
+        /// <param name="operation">The operation.</param>
+        /// <param name="value">The value.</param>
+        /// <param name="is16Bit">if set to <c>true</c> [the operation has 16 bit operands].</param>
+        /// <returns></returns>
         private Expression WriteOperand1(Operation operation, Expression value, bool is16Bit = false)
-        {
-            return WriteOperand(operation, value, operation.Operand1, is16Bit);
-        }
+            => WriteOperand(operation, value, operation.Operand1, is16Bit);
 
+        /// <summary>
+        /// Gets an expression that writes the specified value to the second operand from the specified operation.
+        /// </summary>
+        /// <param name="operation">The operation.</param>
+        /// <param name="value">The value.</param>
+        /// <param name="is16Bit">if set to <c>true</c> [the operation has 16 bit operands].</param>
+        /// <returns></returns>
         private Expression WriteOperand2(Operation operation, Expression value, bool is16Bit = false)
-        {
-            return WriteOperand(operation, value, operation.Operand2, is16Bit);
-        }
+            => WriteOperand(operation, value, operation.Operand2, is16Bit);
 
+        /// <summary>
+        /// Gets an expression that writes the specified value to the specified operand according to the specified operation. 
+        /// </summary>
+        /// <param name="operation">The operation.</param>
+        /// <param name="value">The value.</param>
+        /// <param name="operand">The operand.</param>
+        /// <param name="is16Bit">if set to <c>true</c> [is16 bit].</param>
+        /// <returns></returns>
         private Expression WriteOperand(Operation operation, Expression value, Operand operand, bool is16Bit)
         {
             switch (operand)
@@ -170,10 +203,8 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
                 case Operand.mIXd:
                     return Expression.Call(Mmu,
                                            is16Bit ? MmuWriteWord : MmuWriteByte,
-                                           Expression.Convert(
-                                                              Expression.Add(Expression.Convert(IX, typeof (int)),
-                                                                             Expression.Constant((int) operation.Displacement)),
-                                                              typeof (ushort)),
+                                           Expression.Convert(Expression.Add(Expression.Convert(IX, typeof(int)), Expression.Constant((int)operation.Displacement)),
+                                                              typeof(ushort)),
                                            value);
                 case Operand.IXl:
                     return Expression.Assign(IXl, value);
@@ -184,10 +215,8 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
                 case Operand.mIYd:
                     return Expression.Call(Mmu,
                                            is16Bit ? MmuWriteWord : MmuWriteByte,
-                                           Expression.Convert(
-                                                              Expression.Add(Expression.Convert(IY, typeof (int)),
-                                                                             Expression.Constant((int) operation.Displacement)),
-                                                              typeof (ushort)),
+                                           Expression.Convert(Expression.Add(Expression.Convert(IY, typeof(int)), Expression.Constant((int)operation.Displacement)),
+                                                              typeof(ushort)),
                                            value);
                 case Operand.IYl:
                     return Expression.Assign(IYl, value);
@@ -200,19 +229,24 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
                 case Operand.mCl:
                     return Expression.Call(Mmu,
                                            is16Bit ? MmuWriteWord : MmuWriteByte,
-                                           Expression.Add(Expression.Convert(C, typeof (ushort)),
-                                                          Expression.Constant((ushort) 0xff00)),
+                                           Expression.Add(Expression.Convert(C, typeof(ushort)), Expression.Constant((ushort)0xff00)),
                                            value);
                 case Operand.mnl:
                     return Expression.Call(Mmu,
                                            is16Bit ? MmuWriteWord : MmuWriteByte,
-                                           Expression.Constant((ushort) (operation.ByteLiteral + 0xff00)),
+                                           Expression.Constant((ushort)(operation.ByteLiteral + 0xff00)),
                                            value);
                 default:
                     throw new ArgumentOutOfRangeException(nameof(operation.Operand1), operation.Operand1, null);
             }
         }
 
+        /// <summary>
+        /// Gets the flag test expression required by the specified operation.
+        /// </summary>
+        /// <param name="flagTest">The flag test.</param>
+        /// <returns></returns>
+        /// <exception cref="System.ArgumentOutOfRangeException">null</exception>
         private Expression GetFlagTestExpression(FlagTest flagTest)
         {
             switch (flagTest)
@@ -238,11 +272,22 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
             }
         }
 
+        /// <summary>
+        /// Gets an expression to add the specified timings to the dynamic timer.
+        /// </summary>
+        /// <param name="mCycles">The machine cycles.</param>
+        /// <param name="tStates">The t-states.</param>
+        /// <returns></returns>
         private Expression GetDynamicTimings(int mCycles, int tStates)
         {
             return Expression.Call(DynamicTimer, DynamicTimerAdd, Expression.Constant(mCycles), Expression.Constant(tStates));
         }
 
+        /// <summary>
+        /// Gets an expression that updates the memory refresh register.
+        /// </summary>
+        /// <param name="deltaExpression">The delta expression.</param>
+        /// <returns></returns>
         private Expression GetMemoryRefreshDeltaExpression(Expression deltaExpression)
         {
             var increment7LsbR = Expression.And(Expression.Add(Expression.Convert(R, typeof (int)), deltaExpression),
@@ -250,16 +295,24 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
             return Expression.Assign(R, Expression.Convert(increment7LsbR, typeof (byte)));
         }
 
+        /// <summary>
+        /// Gets an expression that jumps the program counter by the displacement of the specified operation.
+        /// </summary>
+        /// <param name="operation">The operation.</param>
+        /// <returns></returns>
         private Expression JumpToDisplacement(Operation operation)
         {
             return Expression.Assign(PC,
-                                     Expression.Convert(
-                                                        Expression.Add(Expression.Convert(PC, typeof (int)),
-                                                                       ReadOperand1(operation, true)),
+                                     Expression.Convert(Expression.Add(Expression.Convert(PC, typeof (int)), ReadOperand1(operation, true)),
                                                         typeof (ushort)));
         }
 
-        private IEnumerable<Expression> GetLdExpressions(bool decrement = false)
+        /// <summary>
+        /// Gets the expressions required to execute a block transfer operation.
+        /// </summary>
+        /// <param name="decrement">if set to <c>true</c> [operation has a decrement modifier].</param>
+        /// <returns></returns>
+        private IEnumerable<Expression> GetBlockTransferExpressions(bool decrement = false)
         {
             yield return Expression.Call(Mmu, MmuTransferByte, HL, DE);
             yield return decrement ? Expression.PreDecrementAssign(HL) : Expression.PreIncrementAssign(HL);
@@ -270,7 +323,12 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
             yield return Expression.Assign(Subtract, Expression.Constant(false));
         }
 
-        private IEnumerable<Expression> GetLdrExpressions(bool decrement = false)
+        /// <summary>
+        /// Gets the expressions required to execute a block transfer repeat operation.
+        /// </summary>
+        /// <param name="decrement">if set to <c>true</c> [operation has a decrement modifier].</param>
+        /// <returns></returns>
+        private IEnumerable<Expression> GetBlockTransferRepeatExpressions(bool decrement = false)
         {
             var breakLabel = Expression.Label();
             yield return
@@ -291,17 +349,27 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
             yield return Expression.Assign(Subtract, Expression.Constant(false));
         }
 
-        private IEnumerable<Expression> GetCpExpressions(bool decrement = false)
+        /// <summary>
+        /// Gets the expressions required to execute a search operation.
+        /// </summary>
+        /// <param name="decrement">if set to <c>true</c> [operation has a decrement modifier].</param>
+        /// <returns></returns>
+        private IEnumerable<Expression> GetSearchExpressions(bool decrement = false)
         {
             yield return Expression.Call(Alu, AluCompare, A, Expression.Call(Mmu, MmuReadByte, HL));
             yield return decrement ? Expression.PreDecrementAssign(HL) : Expression.PreIncrementAssign(HL);
             yield return Expression.PreDecrementAssign(BC);
         }
 
-        private Expression GetCprExpression(bool decrement = false)
+        /// <summary>
+        /// Gets the expression required to execute a search repeat operation.
+        /// </summary>
+        /// <param name="decrement">if set to <c>true</c> [operation has a decrement modifier].</param>
+        /// <returns></returns>
+        private Expression GetSearchRepeatExpression(bool decrement = false)
         {
             var breakLabel = Expression.Label();
-            var expressions = GetCpExpressions(decrement);
+            var expressions = GetSearchExpressions(decrement);
             var iterationExpressions = new[]
                                        {
                                            Expression.IfThen(
@@ -318,7 +386,12 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
             return Expression.Loop(Expression.Block(expressions.Concat(iterationExpressions).ToArray()), breakLabel);
         }
 
-        private IEnumerable<Expression> GetInExpressions(bool decrement = false)
+        /// <summary>
+        /// Gets the expressions required to execute a input transfer operation.
+        /// </summary>
+        /// <param name="decrement">if set to <c>true</c> [operation has a decrement modifier].</param>
+        /// <returns></returns>
+        private IEnumerable<Expression> GetInputTransferExpressions(bool decrement = false)
         {
             yield return Expression.Call(Mmu, MmuWriteByte, HL, Expression.Call(IO, IoReadByte, C, B));
             yield return decrement ? Expression.PreDecrementAssign(HL) : Expression.PreIncrementAssign(HL);
@@ -332,11 +405,16 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
             yield return Expression.Call(Flags, SetResultFlags, B);
         }
 
-        private Expression GetInrExpression(bool decrement = false)
+        /// <summary>
+        /// Gets the expression required to execute a input transfer repeat operation.
+        /// </summary>
+        /// <param name="decrement">if set to <c>true</c> [operation has a decrement modifier].</param>
+        /// <returns></returns>
+        private Expression GetInputTransferRepeatExpression(bool decrement = false)
         {
             var breakLabel = Expression.Label();
 
-            var expressions = GetInExpressions(decrement);
+            var expressions = GetInputTransferExpressions(decrement);
             var iterationExpressions = new[]
                                        {
                                            Expression.IfThen(Expression.Equal(B, Expression.Constant((byte) 0)),
@@ -348,7 +426,12 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
             return Expression.Loop(Expression.Block(expressions.Concat(iterationExpressions).ToArray()), breakLabel);
         }
 
-        private IEnumerable<Expression> GetOutExpressions(bool decrement = false)
+        /// <summary>
+        /// Gets the expression required to execute a output transfer operation.
+        /// </summary>
+        /// <param name="decrement">if set to <c>true</c> [operation has a decrement modifier].</param>
+        /// <returns></returns>
+        private IEnumerable<Expression> GetOutTransferExpressions(bool decrement = false)
         {
             yield return Expression.Call(IO, IoWriteByte, C, B, ReadByteAtHL);
             yield return decrement ? Expression.PreDecrementAssign(HL) : Expression.PreIncrementAssign(HL);
@@ -362,11 +445,16 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
             yield return Expression.Call(Flags, SetResultFlags, B);
         }
 
-        private Expression GetOutrExpression(bool decrement = false)
+        /// <summary>
+        /// Gets the expression required to execute a output transfer repeat operation.
+        /// </summary>
+        /// <param name="decrement">if set to <c>true</c> [operation has a decrement modifier].</param>
+        /// <returns></returns>
+        private Expression GetOutputTransferRepeatExpression(bool decrement = false)
         {
             var breakLabel = Expression.Label();
 
-            var expressions = GetOutExpressions(decrement);
+            var expressions = GetOutTransferExpressions(decrement);
             var iterationExpressions = new[]
                                        {
                                            Expression.IfThen(Expression.Equal(B, Expression.Constant((byte) 0)),
@@ -378,6 +466,11 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
             return Expression.Loop(Expression.Block(expressions.Concat(iterationExpressions).ToArray()), breakLabel);
         }
 
+        /// <summary>
+        /// Gets the debug expression.
+        /// </summary>
+        /// <param name="text">The text.</param>
+        /// <returns></returns>
         private static Expression GetDebugExpression(string text)
         {
             var document = Expression.SymbolDocument(text);

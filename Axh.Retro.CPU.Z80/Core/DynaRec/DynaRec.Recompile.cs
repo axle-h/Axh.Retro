@@ -7,8 +7,19 @@ using Axh.Retro.CPU.Z80.Core.Decode;
 
 namespace Axh.Retro.CPU.Z80.Core.DynaRec
 {
+    /// <summary>
+    /// Instruction block decoder using a dynamic translation from Z80 operations to expression trees.
+    /// </summary>
+    /// <typeparam name="TRegisters">The type of the registers.</typeparam>
+    /// <seealso cref="Axh.Retro.CPU.Z80.Contracts.Core.IInstructionBlockDecoder{TRegisters}" />
     public partial class DynaRec<TRegisters> where TRegisters : IRegisters
     {
+        /// <summary>
+        /// Recompiles the specified operation.
+        /// </summary>
+        /// <param name="operation">The operation.</param>
+        /// <returns></returns>
+        /// <exception cref="System.ArgumentOutOfRangeException"></exception>
         private IEnumerable<Expression> Recompile(Operation operation)
         {
             if (_debug)
@@ -362,75 +373,75 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
                     break;
 
                 case OpCode.TransferIncrement:
-                    yield return Expression.Block(GetLdExpressions());
+                    yield return Expression.Block(GetBlockTransferExpressions());
                     break;
 
                 case OpCode.TransferIncrementRepeat:
                     _usesDynamicTimings = true;
-                    yield return Expression.Block(GetLdrExpressions());
+                    yield return Expression.Block(GetBlockTransferRepeatExpressions());
                     break;
 
                 case OpCode.TransferDecrement:
-                    yield return Expression.Block(GetLdExpressions(true));
+                    yield return Expression.Block(GetBlockTransferExpressions(true));
                     break;
 
                 case OpCode.TransferDecrementRepeat:
                     _usesDynamicTimings = true;
-                    yield return Expression.Block(GetLdrExpressions(true));
+                    yield return Expression.Block(GetBlockTransferRepeatExpressions(true));
                     break;
 
                 case OpCode.SearchIncrement:
-                    yield return Expression.Block(GetCpExpressions());
+                    yield return Expression.Block(GetSearchExpressions());
                     break;
 
                 case OpCode.SearchIncrementRepeat:
                     _usesDynamicTimings = true;
-                    yield return GetCprExpression();
+                    yield return GetSearchRepeatExpression();
                     break;
 
                 case OpCode.SearchDecrement:
-                    yield return Expression.Block(GetCpExpressions(true));
+                    yield return Expression.Block(GetSearchExpressions(true));
                     break;
 
                 case OpCode.SearchDecrementRepeat:
                     _usesDynamicTimings = true;
-                    yield return GetCprExpression(true);
+                    yield return GetSearchRepeatExpression(true);
                     break;
 
                 case OpCode.InputTransferIncrement:
-                    yield return Expression.Block(GetInExpressions());
+                    yield return Expression.Block(GetInputTransferExpressions());
                     break;
 
                 case OpCode.InputTransferIncrementRepeat:
                     _usesDynamicTimings = true;
-                    yield return GetInrExpression();
+                    yield return GetInputTransferRepeatExpression();
                     break;
 
                 case OpCode.InputTransferDecrement:
-                    yield return Expression.Block(GetInExpressions(true));
+                    yield return Expression.Block(GetInputTransferExpressions(true));
                     break;
 
                 case OpCode.InputTransferDecrementRepeat:
                     _usesDynamicTimings = true;
-                    yield return GetInrExpression(true);
+                    yield return GetInputTransferRepeatExpression(true);
                     break;
 
                 case OpCode.OutputTransferIncrement:
-                    yield return Expression.Block(GetOutExpressions());
+                    yield return Expression.Block(GetOutTransferExpressions());
                     break;
 
                 case OpCode.OutputTransferIncrementRepeat:
                     _usesDynamicTimings = true;
-                    yield return GetOutrExpression();
+                    yield return GetOutputTransferRepeatExpression();
                     break;
 
                 case OpCode.OutputTransferDecrement:
-                    yield return Expression.Block(GetOutExpressions(true));
+                    yield return Expression.Block(GetOutTransferExpressions(true));
                     break;
 
                 case OpCode.OutputTransferDecrementRepeat:
                     _usesDynamicTimings = true;
-                    yield return GetOutrExpression(true);
+                    yield return GetOutputTransferRepeatExpression(true);
                     break;
 
                 case OpCode.DecimalArithmeticAdjust:
