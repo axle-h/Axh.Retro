@@ -17,11 +17,17 @@ namespace Axh.Retro.CPU.Z80.Registers
         private const byte SubtractMask = 1 << 1;
         private const byte CarryMask = 1;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Intel8080FlagsRegister"/> class.
+        /// </summary>
         public Intel8080FlagsRegister()
         {
             ResetFlags();
         }
 
+        /// <summary>
+        /// The byte value of the F register, constructed from the component flags
+        /// </summary>
         public byte Register
         {
             get
@@ -82,17 +88,60 @@ namespace Axh.Retro.CPU.Z80.Registers
                 Carry = (value & CarryMask) > 0;
             }
         }
-
-        // Flags
+        
+        /// <summary>
+        /// S - Sign flag
+        /// Set if the 2-complement value is negative (copy of MSB)
+        /// </summary>
         public bool Sign { get; set; }
+
+        /// <summary>
+        /// Z - Zero flag
+        /// Set if the value is zero
+        /// </summary>
         public bool Zero { get; set; }
+
+        /// <summary>
+        /// F5 - undocumented flag
+        /// Copy of bit 5
+        /// </summary>
         public bool Flag5 { get; set; }
+
+        /// <summary>
+        /// H - Half Carry
+        /// Carry from bit 3 to bit 4
+        /// </summary>
         public bool HalfCarry { get; set; }
+
+        /// <summary>
+        /// F3 - undocumented flag
+        /// Copy of bit 3
+        /// </summary>
         public bool Flag3 { get; set; }
+
+        /// <summary>
+        /// P/V - Parity or Overflow
+        /// Parity set if even number of bits set
+        /// Overflow set if the 2-complement result does not fit in the register
+        /// </summary>
         public bool ParityOverflow { get; set; }
+
+        /// <summary>
+        /// N - Subtract
+        /// Set if the last operation was a subtraction
+        /// </summary>
         public bool Subtract { get; set; }
+
+        /// <summary>
+        /// C - Carry
+        /// Set if the result did not fit in the register
+        /// </summary>
         public bool Carry { get; set; }
 
+        /// <summary>
+        /// et Flag3 & Flag5 according to the result.
+        /// </summary>
+        /// <param name="result">The result to use when setting the flags.</param>
         public void SetUndocumentedFlags(byte result)
         {
             // Undocumented flags are set from corresponding result bits.
@@ -100,6 +149,10 @@ namespace Axh.Retro.CPU.Z80.Registers
             Flag3 = (result & Flag3Mask) > 0;
         }
 
+        /// <summary>
+        /// Set Sign, Zero, Flag3 & Flag5 according to the 8-bit result
+        /// </summary>
+        /// <param name="result">The result to use when setting the flags</param>
         public void SetResultFlags(byte result)
         {
             // Sign flag is a copy of the sign bit.
@@ -111,6 +164,10 @@ namespace Axh.Retro.CPU.Z80.Registers
             SetUndocumentedFlags(result);
         }
 
+        /// <summary>
+        /// Set Sign, Zero, Flag3 & Flag5 according to the 16-bit result
+        /// </summary>
+        /// <param name="result">The result to use when setting the flags</param>
         public void SetResultFlags(ushort result)
         {
             // Sign flag is a copy of the sign bit.
@@ -123,6 +180,10 @@ namespace Axh.Retro.CPU.Z80.Registers
             SetUndocumentedFlags((byte) (result >> 8));
         }
 
+        /// <summary>
+        /// Set all flags for a parity result
+        /// </summary>
+        /// <param name="result">The result to use when setting the flags</param>
         public void SetParityFlags(byte result)
         {
             SetResultFlags(result);
@@ -130,6 +191,9 @@ namespace Axh.Retro.CPU.Z80.Registers
             Subtract = false;
         }
 
+        /// <summary>
+        /// Reset all flags
+        /// </summary>
         public void ResetFlags()
         {
             Sign = false;
@@ -142,6 +206,9 @@ namespace Axh.Retro.CPU.Z80.Registers
             Carry = false;
         }
 
+        /// <summary>
+        /// Set all flags
+        /// </summary>
         public void SetFlags()
         {
             Sign = true;
@@ -152,13 +219,6 @@ namespace Axh.Retro.CPU.Z80.Registers
             ParityOverflow = true;
             Subtract = true;
             Carry = true;
-        }
-
-        public void SetCompareFlags(byte result, ushort byteCounter)
-        {
-            SetResultFlags(result);
-            ParityOverflow = byteCounter != 0;
-            Subtract = true;
         }
     }
 }

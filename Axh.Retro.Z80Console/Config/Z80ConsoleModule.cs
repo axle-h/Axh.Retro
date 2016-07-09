@@ -20,7 +20,7 @@ namespace Axh.Retro.Z80Console.Config
             container.Register<IPeripheral, AsciiSystemConsole>(Reuse.Singleton);
             container.Register<IPeripheral, SystemConsoleStatus>(Reuse.Singleton);
 
-            container.Register<IInitialStateFactory<Z80RegisterState>, Z80InitialStateFactory>(Reuse.Singleton);
+            container.Register<IInitialStateFactory, Z80InitialStateFactory>(Reuse.Singleton);
             container.Register<IPlatformConfig, Z8064KBootstrappedConfig>(Reuse.Singleton);
             container.Register<IRuntimeConfig, RuntimeConfig>(Reuse.Singleton);
         }

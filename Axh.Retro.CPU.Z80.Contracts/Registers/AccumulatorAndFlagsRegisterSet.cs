@@ -1,10 +1,9 @@
-﻿using Axh.Retro.CPU.Z80.Contracts.Registers;
+﻿using Axh.Retro.CPU.Common.Contracts.Util;
 using Axh.Retro.CPU.Z80.Contracts.State;
-using Axh.Retro.CPU.Z80.Util;
 
-namespace Axh.Retro.CPU.Z80.Registers
+namespace Axh.Retro.CPU.Z80.Contracts.Registers
 {
-    public class AccumulatorAndFlagsRegisterSet : IAccumulatorAndFlagsRegisterSet
+    public class AccumulatorAndFlagsRegisterSet
     {
         public AccumulatorAndFlagsRegisterSet(IFlagsRegister flagsRegister)
         {

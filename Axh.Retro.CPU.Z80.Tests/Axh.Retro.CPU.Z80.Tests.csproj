@@ -75,6 +75,7 @@
     <Compile Include="Registers\AccumulatorAndFlagsRegisterSetTests.cs" />
     <Compile Include="Registers\FlagsRegisterTests.cs" />
     <Compile Include="Registers\GeneralPurposeRegisterSetTests.cs" />
+    <Compile Include="Registers\CpuRegister.cs" />
     <Compile Include="Registers\RegisterTestObjects.cs" />
     <Compile Include="Registers\Z80RegistersTests.cs" />
     <Compile Include="Core\InstructionBlockDecoder\Load8BitTests.cs" />

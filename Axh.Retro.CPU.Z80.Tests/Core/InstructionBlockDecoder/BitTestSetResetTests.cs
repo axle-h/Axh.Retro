@@ -91,25 +91,25 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
                 switch (opCode.TargetRegister)
                 {
                     case TargetRegister.A:
-                        AfRegisters.VerifySet(x => x.A = ValueAtIndex, Times.Once);
+                        Assert.AreEqual(AfRegisters.A, ValueAtIndex);
                         break;
                     case TargetRegister.B:
-                        GpRegisters.VerifySet(x => x.B = ValueAtIndex, Times.Once);
+                        Assert.AreEqual(GpRegisters.B, ValueAtIndex);
                         break;
                     case TargetRegister.C:
-                        GpRegisters.VerifySet(x => x.C = ValueAtIndex, Times.Once);
+                        Assert.AreEqual(GpRegisters.C, ValueAtIndex);
                         break;
                     case TargetRegister.D:
-                        GpRegisters.VerifySet(x => x.D = ValueAtIndex, Times.Once);
+                        Assert.AreEqual(GpRegisters.D, ValueAtIndex);
                         break;
                     case TargetRegister.E:
-                        GpRegisters.VerifySet(x => x.E = ValueAtIndex, Times.Once);
+                        Assert.AreEqual(GpRegisters.E, ValueAtIndex);
                         break;
                     case TargetRegister.H:
-                        GpRegisters.VerifySet(x => x.H = ValueAtIndex, Times.Once);
+                        Assert.AreEqual(GpRegisters.H, ValueAtIndex);
                         break;
                     case TargetRegister.L:
-                        GpRegisters.VerifySet(x => x.L = ValueAtIndex, Times.Once);
+                        Assert.AreEqual(GpRegisters.L, ValueAtIndex);
                         break;
                 }
             }
@@ -162,25 +162,25 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
                 switch (opCode.TargetRegister)
                 {
                     case TargetRegister.A:
-                        AfRegisters.VerifySet(x => x.A = ValueAtIndex, Times.Once);
+                        Assert.AreEqual(AfRegisters.A, ValueAtIndex);
                         break;
                     case TargetRegister.B:
-                        GpRegisters.VerifySet(x => x.B = ValueAtIndex, Times.Once);
+                        Assert.AreEqual(GpRegisters.B, ValueAtIndex);
                         break;
                     case TargetRegister.C:
-                        GpRegisters.VerifySet(x => x.C = ValueAtIndex, Times.Once);
+                        Assert.AreEqual(GpRegisters.C, ValueAtIndex);
                         break;
                     case TargetRegister.D:
-                        GpRegisters.VerifySet(x => x.D = ValueAtIndex, Times.Once);
+                        Assert.AreEqual(GpRegisters.D, ValueAtIndex);
                         break;
                     case TargetRegister.E:
-                        GpRegisters.VerifySet(x => x.E = ValueAtIndex, Times.Once);
+                        Assert.AreEqual(GpRegisters.E, ValueAtIndex);
                         break;
                     case TargetRegister.H:
-                        GpRegisters.VerifySet(x => x.H = ValueAtIndex, Times.Once);
+                        Assert.AreEqual(GpRegisters.H, ValueAtIndex);
                         break;
                     case TargetRegister.L:
-                        GpRegisters.VerifySet(x => x.L = ValueAtIndex, Times.Once);
+                        Assert.AreEqual(GpRegisters.L, ValueAtIndex);
                         break;
                 }
             }
@@ -321,31 +321,31 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
                 {
                     case TargetRegister.A:
                         Alu.Verify(x => x.BitReset(A, opCode.Bit), Times.Once);
-                        AfRegisters.VerifySet(x => x.A = Expected, Times.Once);
+                        Assert.AreEqual(AfRegisters.A, Expected);
                         break;
                     case TargetRegister.B:
                         Alu.Verify(x => x.BitReset(B, opCode.Bit), Times.Once);
-                        GpRegisters.VerifySet(x => x.B = Expected, Times.Once);
+                        Assert.AreEqual(GpRegisters.B, Expected);
                         break;
                     case TargetRegister.C:
                         Alu.Verify(x => x.BitReset(C, opCode.Bit), Times.Once);
-                        GpRegisters.VerifySet(x => x.C = Expected, Times.Once);
+                        Assert.AreEqual(GpRegisters.C, Expected);
                         break;
                     case TargetRegister.D:
                         Alu.Verify(x => x.BitReset(D, opCode.Bit), Times.Once);
-                        GpRegisters.VerifySet(x => x.D = Expected, Times.Once);
+                        Assert.AreEqual(GpRegisters.D, Expected);
                         break;
                     case TargetRegister.E:
                         Alu.Verify(x => x.BitReset(E, opCode.Bit), Times.Once);
-                        GpRegisters.VerifySet(x => x.E = Expected, Times.Once);
+                        Assert.AreEqual(GpRegisters.E, Expected);
                         break;
                     case TargetRegister.H:
                         Alu.Verify(x => x.BitReset(H, opCode.Bit), Times.Once);
-                        GpRegisters.VerifySet(x => x.H = Expected, Times.Once);
+                        Assert.AreEqual(GpRegisters.H, Expected);
                         break;
                     case TargetRegister.L:
                         Alu.Verify(x => x.BitReset(L, opCode.Bit), Times.Once);
-                        GpRegisters.VerifySet(x => x.L = Expected, Times.Once);
+                        Assert.AreEqual(GpRegisters.L, Expected);
                         break;
                     case TargetRegister.mHL:
                         Mmu.Verify(x => x.ReadByte(HL), Times.Once);
@@ -393,31 +393,31 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
                 {
                     case TargetRegister.A:
                         Alu.Verify(x => x.BitSet(A, opCode.Bit), Times.Once);
-                        AfRegisters.VerifySet(x => x.A = Expected, Times.Once);
+                        Assert.AreEqual(AfRegisters.A, Expected);
                         break;
                     case TargetRegister.B:
                         Alu.Verify(x => x.BitSet(B, opCode.Bit), Times.Once);
-                        GpRegisters.VerifySet(x => x.B = Expected, Times.Once);
+                        Assert.AreEqual(GpRegisters.B, Expected);
                         break;
                     case TargetRegister.C:
                         Alu.Verify(x => x.BitSet(C, opCode.Bit), Times.Once);
-                        GpRegisters.VerifySet(x => x.C = Expected, Times.Once);
+                        Assert.AreEqual(GpRegisters.C, Expected);
                         break;
                     case TargetRegister.D:
                         Alu.Verify(x => x.BitSet(D, opCode.Bit), Times.Once);
-                        GpRegisters.VerifySet(x => x.D = Expected, Times.Once);
+                        Assert.AreEqual(GpRegisters.D, Expected);
                         break;
                     case TargetRegister.E:
                         Alu.Verify(x => x.BitSet(E, opCode.Bit), Times.Once);
-                        GpRegisters.VerifySet(x => x.E = Expected, Times.Once);
+                        Assert.AreEqual(GpRegisters.E, Expected);
                         break;
                     case TargetRegister.H:
                         Alu.Verify(x => x.BitSet(H, opCode.Bit), Times.Once);
-                        GpRegisters.VerifySet(x => x.H = Expected, Times.Once);
+                        Assert.AreEqual(GpRegisters.H, Expected);
                         break;
                     case TargetRegister.L:
                         Alu.Verify(x => x.BitSet(L, opCode.Bit), Times.Once);
-                        GpRegisters.VerifySet(x => x.L = Expected, Times.Once);
+                        Assert.AreEqual(GpRegisters.L, Expected);
                         break;
                     case TargetRegister.mHL:
                         Mmu.Verify(x => x.ReadByte(HL), Times.Once);

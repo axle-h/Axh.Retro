@@ -4,17 +4,17 @@ using Axh.Retro.CPU.Z80.Contracts.State;
 
 namespace Axh.Retro.GameBoy.Config
 {
-    public class GameBoyInitialStateFactory : IInitialStateFactory<Intel8080RegisterState>
+    public class GameBoyInitialStateFactory : IInitialStateFactory
     {
         private const ushort InitialStackPointer = 0xfffe;
         private const ushort InitialProgramCounter = 0x0100;
 
-        public Intel8080RegisterState GetInitialRegisterState()
+        public Z80RegisterState GetInitialRegisterState()
         {
-            var state = new Intel8080RegisterState
+            var state = new Z80RegisterState
                         {
-                            GeneralPurposeRegisterState = GetInitialGeneralPurposeRegisterState(),
-                            AccumulatorAndFlagsRegisterState =
+                            PrimaryGeneralPurposeRegisterState = GetInitialGeneralPurposeRegisterState(),
+                            PrimaryAccumulatorAndFlagsRegisterState =
                                 GetInitialAccumulatorAndFlagsRegisterState(),
                             StackPointer = InitialStackPointer,
                             ProgramCounter = InitialProgramCounter,

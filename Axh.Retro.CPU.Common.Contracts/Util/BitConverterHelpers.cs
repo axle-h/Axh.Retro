@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace Axh.Retro.CPU.Z80.Util
+namespace Axh.Retro.CPU.Common.Contracts.Util
 {
-    internal static class BitConverterHelpers
+    public static class BitConverterHelpers
     {
         public static ushort To16Bit(byte rH, byte rL)
         {

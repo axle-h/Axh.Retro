@@ -17,10 +17,9 @@ namespace Axh.Retro.GameBoy.Wpf
             var cancellationTokenSource = new CancellationTokenSource();
             using (
                 var z80 =
-                    new Z80<IIntel8080Registers, Intel8080RegisterState>().With<GameBoyHardware>()
-                                                                          .With(new GameBoyWpf(cancellationTokenSource,
-                                                                                               Resources.Tetris_W_Gb_Zip.UnZip()))
-                                                                          .Init())
+                    new Z80<IRegisters>().With<GameBoyHardware>()
+                                         .With(new GameBoyWpf(cancellationTokenSource, Resources.Tetris_W_Gb_Zip.UnZip()))
+                                         .Init())
             {
                 using (var core = z80.GetNewCore())
                 {

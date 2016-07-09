@@ -19,6 +19,15 @@ namespace Axh.Retro.CPU.Z80.Memory
     {
         private readonly IInstructionBlockCache<TRegisters> _instructionBlockCache;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Z80Mmu{TRegisters}"/> class.
+        /// </summary>
+        /// <param name="peripheralManager">The peripheral manager.</param>
+        /// <param name="platformConfig">The platform configuration.</param>
+        /// <param name="memoryBankController">The memory bank controller.</param>
+        /// <param name="instructionBlockCache">The instruction block cache.</param>
+        /// <param name="dmaController">The dma controller.</param>
+        /// <param name="instructionTimer">The instruction timer.</param>
         public Z80Mmu(IPeripheralManager peripheralManager,
             IPlatformConfig platformConfig,
             IMemoryBankController memoryBankController,
@@ -30,6 +39,13 @@ namespace Axh.Retro.CPU.Z80.Memory
             _instructionBlockCache = instructionBlockCache;
         }
 
+        /// <summary>
+        /// Gets the address segments.
+        /// </summary>
+        /// <param name="peripheralManager">The peripheral manager.</param>
+        /// <param name="platformConfig">The platform configuration.</param>
+        /// <param name="memoryBankController">The memory bank controller.</param>
+        /// <returns></returns>
         private static IEnumerable<IAddressSegment> GetAddressSegments(IPeripheralManager peripheralManager,
             IPlatformConfig platformConfig,
             IMemoryBankController memoryBankController)
@@ -41,6 +57,15 @@ namespace Axh.Retro.CPU.Z80.Memory
             return memoryBanks.Concat(peripheralManager.MemoryMap);
         }
 
+        /// <summary>
+        /// Gets the address segment.
+        /// </summary>
+        /// <param name="configs">The configs.</param>
+        /// <param name="memoryBankController">The memory bank controller.</param>
+        /// <returns></returns>
+        /// <exception cref="System.ArgumentOutOfRangeException">
+        /// </exception>
+        /// <exception cref="System.NotImplementedException">Banked RAM</exception>
         private static IAddressSegment GetAddressSegment(ICollection<IMemoryBankConfig> configs,
             IMemoryBankController memoryBankController)
         {
@@ -71,9 +96,11 @@ namespace Axh.Retro.CPU.Z80.Memory
             }
         }
 
-        protected override void OnAddressWrite(ushort address, ushort length)
-        {
-            _instructionBlockCache.InvalidateCache(address, length);
-        }
+        /// <summary>
+        /// When overridden in a derived class, registers an address write event.
+        /// </summary>
+        /// <param name="address"></param>
+        /// <param name="length"></param>
+        protected override void OnAddressWrite(ushort address, ushort length) => _instructionBlockCache.InvalidateCache(address, length);
     }
 }

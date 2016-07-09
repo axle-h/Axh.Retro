@@ -50,7 +50,7 @@ namespace Axh.Retro.GameBoy.Wiring
             // GPU
             container.Register<IGpu, Gpu>();
 
-            container.Register<IInitialStateFactory<Intel8080RegisterState>, GameBoyInitialStateFactory>(Reuse.Singleton);
+            container.Register<IInitialStateFactory, GameBoyInitialStateFactory>(Reuse.Singleton);
             container.Register<IPlatformConfig, GameBoyPlatformConfig>(Reuse.Singleton);
             container.Register<IRuntimeConfig, GameBoyRuntimeConfig>(Reuse.Singleton);
             container.Register<ICartridgeFactory, CartridgeFactory>(Reuse.Singleton);

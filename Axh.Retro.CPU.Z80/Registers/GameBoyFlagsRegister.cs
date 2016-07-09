@@ -14,6 +14,9 @@ namespace Axh.Retro.CPU.Z80.Registers
         private const byte HalfCarryMask = 1 << 5;
         private const byte CarryMask = 1 << 4;
 
+        /// <summary>
+        /// The byte value of the F register, constructed from the component flags
+        /// </summary>
         public byte Register
         {
             get
@@ -60,6 +63,10 @@ namespace Axh.Retro.CPU.Z80.Registers
             set { }
         }
 
+        /// <summary>
+        /// Z - Zero flag
+        /// Set if the value is zero
+        /// </summary>
         public bool Zero { get; set; }
 
         /// <summary>
@@ -71,6 +78,10 @@ namespace Axh.Retro.CPU.Z80.Registers
             set { }
         }
 
+        /// <summary>
+        /// H - Half Carry
+        /// Carry from bit 3 to bit 4
+        /// </summary>
         public bool HalfCarry { get; set; }
 
         /// <summary>
@@ -91,27 +102,51 @@ namespace Axh.Retro.CPU.Z80.Registers
             set { }
         }
 
+        /// <summary>
+        /// N - Subtract
+        /// Set if the last operation was a subtraction
+        /// </summary>
         public bool Subtract { get; set; }
 
+        /// <summary>
+        /// C - Carry
+        /// Set if the result did not fit in the register
+        /// </summary>
         public bool Carry { get; set; }
-
+        
+        /// <summary>
+        /// et Flag3 & Flag5 according to the result.
+        /// </summary>
+        /// <param name="result">The result to use when setting the flags.</param>
         public void SetUndocumentedFlags(byte result)
         {
             // No undocumented flags on the GB
         }
 
+        /// <summary>
+        /// Set Sign, Zero, Flag3 & Flag5 according to the 8-bit result
+        /// </summary>
+        /// <param name="result">The result to use when setting the flags</param>
         public void SetResultFlags(byte result)
         {
             // Set Zero flag is result = 0
             Zero = result == 0;
         }
 
+        /// <summary>
+        /// Set Sign, Zero, Flag3 & Flag5 according to the 16-bit result
+        /// </summary>
+        /// <param name="result">The result to use when setting the flags</param>
         public void SetResultFlags(ushort result)
         {
             // Set Zero flag is result = 0
             Zero = result == 0;
         }
 
+        /// <summary>
+        /// Set all flags for a parity result
+        /// </summary>
+        /// <param name="result">The result to use when setting the flags</param>
         public void SetParityFlags(byte result)
         {
             // No parity flag in GB so just set the results flags.
@@ -119,6 +154,9 @@ namespace Axh.Retro.CPU.Z80.Registers
             Subtract = false;
         }
 
+        /// <summary>
+        /// Reset all flags
+        /// </summary>
         public void ResetFlags()
         {
             Zero = false;
@@ -127,6 +165,9 @@ namespace Axh.Retro.CPU.Z80.Registers
             Carry = false;
         }
 
+        /// <summary>
+        /// Set all flags
+        /// </summary>
         public void SetFlags()
         {
             Zero = true;

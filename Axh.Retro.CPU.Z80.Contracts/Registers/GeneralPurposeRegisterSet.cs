@@ -1,10 +1,9 @@
-﻿using Axh.Retro.CPU.Z80.Contracts.Registers;
+﻿using Axh.Retro.CPU.Common.Contracts.Util;
 using Axh.Retro.CPU.Z80.Contracts.State;
-using Axh.Retro.CPU.Z80.Util;
 
-namespace Axh.Retro.CPU.Z80.Registers
+namespace Axh.Retro.CPU.Z80.Contracts.Registers
 {
-    public class GeneralPurposeRegisterSet : IGeneralPurposeRegisterSet
+    public class GeneralPurposeRegisterSet
     {
         public byte B { get; set; }
         public byte C { get; set; }

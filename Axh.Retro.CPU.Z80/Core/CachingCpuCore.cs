@@ -1,96 +1,79 @@
 ﻿using System;
+using System.Runtime.Remoting.Contexts;
 using System.Threading;
 using System.Threading.Tasks;
+using Axh.Retro.CPU.Common.Contracts.Memory;
+using Axh.Retro.CPU.Common.Contracts.Timing;
+using Axh.Retro.CPU.Z80.Contracts.Cache;
 using Axh.Retro.CPU.Z80.Contracts.Core;
 using Axh.Retro.CPU.Z80.Contracts.Peripherals;
 using Axh.Retro.CPU.Z80.Contracts.Registers;
 
 namespace Axh.Retro.CPU.Z80.Core
 {
-    public class CachingCpuCore<TRegisters, TRegisterState> : ICpuCore<TRegisters, TRegisterState>
-        where TRegisters : IStateBackedRegisters<TRegisterState> where TRegisterState : struct
+    /// <summary>
+    /// A Z80 CPU core that caches decoded instruction blocks.
+    /// This must be used with an <see cref="IInstructionBlockDecoder{TRegisters}"/> that suppots caching.
+    /// </summary>
+    /// <typeparam name="TRegisters">The type of the registers.</typeparam>
+    /// <seealso cref="System.IDisposable" />
+    public class CachingCpuCore<TRegisters> : CpuCoreBase<TRegisters>
+        where TRegisters : IRegisters
     {
-        public CachingCpuCore(ICoreContext<TRegisters, TRegisterState> context)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CachingCpuCore{TRegisters}"/> class.
+        /// </summary>
+        /// <param name="registers"></param>
+        /// <param name="interruptManager"></param>
+        /// <param name="peripheralManager"></param>
+        /// <param name="mmu"></param>
+        /// <param name="instructionTimer"></param>
+        /// <param name="alu"></param>
+        /// <param name="instructionBlockCache"></param>
+        /// <param name="instructionBlockDecoder"></param>
+        /// <param name="dmaController"></param>
+        public CachingCpuCore(TRegisters registers,
+            IInterruptManager interruptManager,
+            IPeripheralManager peripheralManager,
+            IMmu mmu,
+            IInstructionTimer instructionTimer,
+            IAlu alu,
+            IInstructionBlockCache<TRegisters> instructionBlockCache,
+            IInstructionBlockDecoder<TRegisters> instructionBlockDecoder,
+            IDmaController dmaController)
+            : base(
+                registers,
+                interruptManager,
+                peripheralManager,
+                mmu,
+                instructionTimer,
+                alu,
+                instructionBlockCache,
+                instructionBlockDecoder,
+                dmaController)
         {
-            Context = context;
-        }
-
-        public ICoreContext<TRegisters, TRegisterState> Context { get; }
-
-        public async Task StartCoreProcessAsync(CancellationToken cancellationToken)
-        {
-            var interruptManager = Context.InterruptManager as ICoreInterruptManager;
-            if (interruptManager == null)
-            {
-                throw new ArgumentException("interruptManager");
-            }
-
-            // Flatten the context so we aren't calling the properties in the core.
-            var registers = Context.Registers;
-            var peripherals = Context.PeripheralManager;
-            var mmu = Context.Mmu;
-            var alu = Context.Alu;
-            var cache = Context.InstructionBlockCache;
-            var instructionBlockDecoder = Context.InstructionBlockDecoder;
-            var timer = Context.InstructionTimer;
-
-            if (!instructionBlockDecoder.SupportsInstructionBlockCaching)
-            {
-                throw new Exception("Instruction block decoder must support caching");
-            }
-
-            // Register the invalidate cache event with mmu AddressWrite event
-            ushort? interruptAddress = null;
-
-            while (!cancellationToken.IsCancellationRequested)
-            {
-                var address = interruptAddress ?? registers.ProgramCounter;
-                var instructionBlock = cache.GetOrSet(address, () => instructionBlockDecoder.DecodeNextBlock(address));
-                var timings = instructionBlock.ExecuteInstructionBlock(registers, mmu, alu, peripherals);
-
-                if (instructionBlock.HaltCpu)
-                {
-                    interruptManager.Halt();
-                    if (instructionBlock.HaltPeripherals)
-                    {
-                        peripherals.Signal(ControlSignal.Halt);
-                        interruptManager.AddResumeTask(() => peripherals.Signal(ControlSignal.Resume));
-                    }
-                }
-
-                if (interruptManager.IsHalted)
-                {
-                    // Did we request an interrupt or run a HALT opcode.
-                    if (interruptManager.IsInterrupted || instructionBlock.HaltCpu)
-                    {
-                        // Notify halt success before halting
-                        interruptManager.NotifyHalt();
-                        interruptAddress = await interruptManager.WaitForNextInterrupt().ConfigureAwait(false);
-
-                        // Push the program counter onto the stack
-                        registers.StackPointer = unchecked((ushort) (registers.StackPointer - 2));
-                        mmu.WriteWord(registers.StackPointer, registers.ProgramCounter);
-                    }
-                    else
-                    {
-                        // Dummy halt so we don't block threads trigerring interrupts when disabled.
-                        interruptManager.NotifyHalt();
-                    }
-
-                    interruptManager.NotifyResume();
-                }
-                else
-                {
-                    interruptAddress = null;
-                }
-
-                await timer.SyncToTimings(timings).ConfigureAwait(false);
-            }
         }
 
         /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// Starts the core process.
         /// </summary>
-        public void Dispose() => Context.Dispose();
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        /// <exception cref="System.ArgumentException">interruptManager</exception>
+        /// <exception cref="System.Exception">Instruction block decoder must support caching</exception>
+        public override async Task StartCoreProcessAsync(CancellationToken cancellationToken)
+        {
+            if (!InstructionBlockDecoder.SupportsInstructionBlockCaching)
+            {
+                throw new Exception("Instruction block decoder must support caching");
+            }
+            
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                var address = GetNextAddress();
+                var instructionBlock = InstructionBlockCache.GetOrSet(address, () => InstructionBlockDecoder.DecodeNextBlock(address));
+                await ExecuteInstructionBlockAsync(instructionBlock);
+            }
+        }
     }
 }

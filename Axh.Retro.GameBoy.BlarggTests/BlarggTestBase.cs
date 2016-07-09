@@ -14,16 +14,14 @@ namespace Axh.Retro.GameBoy.BlarggTests
     [TestFixture]
     public class BlarggTestBase : IDisposable
     {
-        private const string ScopeName = "GameBoy-Blargg";
-
-        private readonly Z80<IIntel8080Registers, Intel8080RegisterState> _z80;
+        private readonly Z80<IRegisters> _z80;
 
         private readonly BlarggTestGameBoyConfig _config;
 
         public BlarggTestBase()
         {
             var blarggTest = new BlarggTest();
-            _z80 = new Z80<IIntel8080Registers, Intel8080RegisterState>().With<GameBoyHardware>().With(blarggTest).Init();
+            _z80 = new Z80<IRegisters>().With<GameBoyHardware>().With(blarggTest).Init();
             _config = blarggTest.Config;
         }
 
@@ -32,7 +30,7 @@ namespace Axh.Retro.GameBoy.BlarggTests
             _config.CartridgeData = cartridge;
             var core = _z80.GetNewCore();
 
-            var io = core.Context.PeripheralManager.PeripheralOfType<IGameBoyMemoryMappedIO>();
+            var io = core.GetPeripheralOfType<IGameBoyMemoryMappedIO>();
             var serialPort = new BlarggTestSerialPort();
             io.HardwareRegisters.SerialPort.Connect(serialPort);
 

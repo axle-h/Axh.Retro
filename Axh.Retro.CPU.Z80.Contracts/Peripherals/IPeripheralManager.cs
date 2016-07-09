@@ -4,6 +4,10 @@ using Axh.Retro.CPU.Common.Contracts.Memory;
 
 namespace Axh.Retro.CPU.Z80.Contracts.Peripherals
 {
+    /// <summary>
+    /// The peripheral manager.
+    /// </summary>
+    /// <seealso cref="System.IDisposable" />
     public interface IPeripheralManager : IDisposable
     {
         /// <summary>

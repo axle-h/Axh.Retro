@@ -61,6 +61,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Timing\IInstructionTimer.cs" />
     <Compile Include="Timing\InstructionTimings.cs" />
+    <Compile Include="Util\BitConverterHelpers.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

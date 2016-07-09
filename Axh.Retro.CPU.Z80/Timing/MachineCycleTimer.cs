@@ -5,11 +5,19 @@ using Axh.Retro.CPU.Z80.Contracts.Config;
 
 namespace Axh.Retro.CPU.Z80.Timing
 {
+    /// <summary>
+    /// An instruction timer based on machine cycles.
+    /// </summary>
     public class MachineCycleTimer : IInstructionTimer
     {
         private readonly double _syncMagnitude;
         private readonly InstructionTimingSyncMode _syncMode;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MachineCycleTimer"/> class.
+        /// </summary>
+        /// <param name="platformConfig">The platform configuration.</param>
+        /// <exception cref="System.ArgumentOutOfRangeException"></exception>
         public MachineCycleTimer(IPlatformConfig platformConfig)
         {
             _syncMode = platformConfig.InstructionTimingSyncMode;
@@ -32,6 +40,12 @@ namespace Axh.Retro.CPU.Z80.Timing
             }
         }
 
+        /// <summary>
+        /// Uses the configured instruction timings to sync real time to the CPU.
+        /// </summary>
+        /// <param name="timings">The timings.</param>
+        /// <returns></returns>
+        /// <exception cref="System.ArgumentOutOfRangeException"></exception>
         public Task SyncToTimings(InstructionTimings timings)
         {
             TimingSync?.Invoke(timings);
@@ -49,6 +63,9 @@ namespace Axh.Retro.CPU.Z80.Timing
             }
         }
 
+        /// <summary>
+        /// Occurs when [timing synchronize].
+        /// </summary>
         public event Action<InstructionTimings> TimingSync;
     }
 }

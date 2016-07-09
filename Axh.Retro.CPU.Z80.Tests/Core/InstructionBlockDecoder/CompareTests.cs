@@ -25,8 +25,8 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
 
             RunWithHalt(4, 16, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.CPD);
 
-            GpRegisters.VerifySet(x => x.HL = It.Is<ushort>(y => y == HL - 1), Times.Once);
-            GpRegisters.VerifySet(x => x.BC = It.Is<ushort>(y => y == BC - 1), Times.Once);
+            Assert.AreEqual(GpRegisters.HL, HL - 1);
+            Assert.AreEqual(GpRegisters.BC, BC - 1);
 
             Mmu.Verify(x => x.ReadByte(HL), Times.Once);
             Alu.Verify(x => x.Compare(A, Value), Times.Once);
@@ -55,14 +55,15 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             {
                 var index = i;
                 Mmu.Verify(x => x.ReadByte((ushort) (HL - index)), Times.Once);
-                GpRegisters.VerifySet(x => x.HL = It.Is<ushort>(y => y == HL - index), Times.Once);
-                GpRegisters.VerifySet(x => x.BC = It.Is<ushort>(y => y == BC - index), Times.Once);
             }
 
             foreach (var item in queue)
             {
                 Alu.Verify(x => x.Compare(A, item), Times.Once);
             }
+
+            Assert.AreEqual(GpRegisters.HL, HL - queue.Length);
+            Assert.AreEqual(GpRegisters.BC, BC - queue.Length);
         }
 
         [Test]
@@ -87,11 +88,11 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             {
                 var index = i;
                 Mmu.Verify(x => x.ReadByte(unchecked((ushort) (HL - index))), Times.Once);
-                GpRegisters.VerifySet(x => x.HL = It.Is<ushort>(y => y == unchecked(HL - index)), Times.Once);
-                GpRegisters.VerifySet(x => x.BC = It.Is<ushort>(y => y == unchecked(Count - index)), Times.Once);
             }
 
             Alu.Verify(x => x.Compare(A, Value), Times.Exactly(Count));
+            Assert.AreEqual(GpRegisters.HL, unchecked(HL - Count));
+            Assert.AreEqual(GpRegisters.BC, 0);
         }
 
         [Test]
@@ -106,8 +107,8 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
 
             RunWithHalt(4, 16, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.CPI);
 
-            GpRegisters.VerifySet(x => x.HL = It.Is<ushort>(y => y == HL + 1), Times.Once);
-            GpRegisters.VerifySet(x => x.BC = It.Is<ushort>(y => y == BC - 1), Times.Once);
+            Assert.AreEqual(GpRegisters.HL, HL + 1);
+            Assert.AreEqual(GpRegisters.BC, BC - 1);
 
             Mmu.Verify(x => x.ReadByte(HL), Times.Once);
             Alu.Verify(x => x.Compare(A, Value), Times.Once);
@@ -136,14 +137,15 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             {
                 var index = i;
                 Mmu.Verify(x => x.ReadByte((ushort) (HL + index)), Times.Once);
-                GpRegisters.VerifySet(x => x.HL = It.Is<ushort>(y => y == HL + index), Times.Once);
-                GpRegisters.VerifySet(x => x.BC = It.Is<ushort>(y => y == BC - index), Times.Once);
             }
 
             foreach (var item in queue)
             {
                 Alu.Verify(x => x.Compare(A, item), Times.Once);
             }
+
+            Assert.AreEqual(GpRegisters.HL, HL + queue.Length);
+            Assert.AreEqual(GpRegisters.BC, BC - queue.Length);
         }
 
         [Test]
@@ -168,11 +170,11 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             {
                 var index = i;
                 Mmu.Verify(x => x.ReadByte(unchecked ((ushort) (HL + index))), Times.Once);
-                GpRegisters.VerifySet(x => x.HL = It.Is<ushort>(y => y == unchecked(HL + index)), Times.Once);
-                GpRegisters.VerifySet(x => x.BC = It.Is<ushort>(y => y == unchecked(Count - index)), Times.Once);
             }
 
             Alu.Verify(x => x.Compare(A, Value), Times.Exactly(Count));
+            Assert.AreEqual(GpRegisters.HL, unchecked(HL + Count));
+            Assert.AreEqual(GpRegisters.BC, 0);
         }
     }
 }

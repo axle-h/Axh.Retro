@@ -7,7 +7,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Registers
     [TestFixture]
     public class GeneralPurposeRegisterSetTests
     {
-        private IGeneralPurposeRegisterSet _generalPurposeRegisterSet;
+        private GeneralPurposeRegisterSet _generalPurposeRegisterSet;
 
         [TestFixtureSetUp]
         public void TestFixtureSetUp()

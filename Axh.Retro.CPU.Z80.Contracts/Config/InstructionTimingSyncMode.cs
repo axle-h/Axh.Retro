@@ -1,5 +1,8 @@
 ﻿namespace Axh.Retro.CPU.Z80.Contracts.Config
 {
+    /// <summary>
+    /// The instruction timing sync mode.
+    /// </summary>
     public enum InstructionTimingSyncMode
     {
         /// <summary>

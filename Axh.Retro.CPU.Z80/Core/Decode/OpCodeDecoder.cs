@@ -2,7 +2,7 @@
 using System.Linq;
 using Axh.Retro.CPU.Common.Contracts.Memory;
 using Axh.Retro.CPU.Z80.Contracts.Config;
-using Axh.Retro.CPU.Z80.Contracts.Core.Timing;
+using Axh.Retro.CPU.Z80.Contracts.Timing;
 using Axh.Retro.CPU.Z80.Timing;
 
 namespace Axh.Retro.CPU.Z80.Core.Decode

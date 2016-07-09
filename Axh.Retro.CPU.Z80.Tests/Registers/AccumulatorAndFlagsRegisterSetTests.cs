@@ -8,7 +8,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Registers
     [TestFixture]
     public class AccumulatorAndFlagsRegisterSetTests
     {
-        private IAccumulatorAndFlagsRegisterSet _accumulatorAndFlagsRegisterSet;
+        private AccumulatorAndFlagsRegisterSet _accumulatorAndFlagsRegisterSet;
 
         private Mock<IFlagsRegister> _flagsRegister;
 

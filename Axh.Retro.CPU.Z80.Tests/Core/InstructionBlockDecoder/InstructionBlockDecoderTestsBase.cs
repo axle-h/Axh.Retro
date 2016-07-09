@@ -8,6 +8,7 @@ using Axh.Retro.CPU.Z80.Contracts.OpCodes;
 using Axh.Retro.CPU.Z80.Contracts.Peripherals;
 using Axh.Retro.CPU.Z80.Contracts.Registers;
 using Axh.Retro.CPU.Z80.Core.DynaRec;
+using Axh.Retro.CPU.Z80.Tests.Registers;
 using Moq;
 using NUnit.Framework;
 
@@ -24,7 +25,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
         protected const byte E = 0xee;
         protected const byte H = 0x44;
         protected const byte L = 0x77;
-        protected const byte F = 0x00;
+        protected const byte F = 0xff;
 
         protected const ushort BC = 0xbbcc;
         protected const ushort DE = 0xddee;
@@ -49,7 +50,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
         protected const bool IFF2 = true;
         private readonly CpuMode cpuMode;
 
-        protected Mock<IAccumulatorAndFlagsRegisterSet> AfRegisters;
+        protected AccumulatorAndFlagsRegisterSet AfRegisters;
 
         protected Mock<IAlu> Alu;
 
@@ -59,7 +60,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
 
         protected Mock<IFlagsRegister> FlagsRegister;
 
-        protected Mock<IGeneralPurposeRegisterSet> GpRegisters;
+        protected GeneralPurposeRegisterSet GpRegisters;
 
         protected Mock<IPeripheralManager> Io;
 
@@ -76,13 +77,12 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
         public void TestFixtureSetUp()
         {
             Registers = new Mock<TRegisters>();
-            GpRegisters = new Mock<IGeneralPurposeRegisterSet>();
-            AfRegisters = new Mock<IAccumulatorAndFlagsRegisterSet>();
+            GpRegisters = new GeneralPurposeRegisterSet();
             FlagsRegister = new Mock<IFlagsRegister>();
-
-            AfRegisters.Setup(x => x.Flags).Returns(FlagsRegister.Object);
-            Registers.Setup(x => x.GeneralPurposeRegisters).Returns(GpRegisters.Object);
-            Registers.Setup(x => x.AccumulatorAndFlagsRegisters).Returns(AfRegisters.Object);
+            AfRegisters = new AccumulatorAndFlagsRegisterSet(FlagsRegister.Object);
+            
+            Registers.Setup(x => x.GeneralPurposeRegisters).Returns(GpRegisters);
+            Registers.Setup(x => x.AccumulatorAndFlagsRegisters).Returns(AfRegisters);
 
             Mmu = new Mock<IMmu>();
 
@@ -102,27 +102,12 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
 
         protected void SetupRegisters(ushort? bc = null)
         {
-            GpRegisters.SetupProperty(x => x.B, B);
-            GpRegisters.SetupProperty(x => x.C, C);
-            GpRegisters.SetupProperty(x => x.D, D);
-            GpRegisters.SetupProperty(x => x.E, E);
-            GpRegisters.SetupProperty(x => x.H, H);
-            GpRegisters.SetupProperty(x => x.L, L);
-
-            GpRegisters.SetupProperty(x => x.BC, bc ?? BC);
-            GpRegisters.SetupProperty(x => x.DE, DE);
-
-            GpRegisters.SetupProperty(x => x.HL, HL);
-
             Registers.SetupProperty(x => x.InterruptFlipFlop1, IFF1);
             Registers.SetupProperty(x => x.InterruptFlipFlop2, IFF2);
 
             Registers.SetupProperty(x => x.ProgramCounter, PC);
             Registers.SetupProperty(x => x.StackPointer, SP);
-
-            AfRegisters.SetupProperty(x => x.A, A);
-            AfRegisters.SetupProperty(x => x.AF, AF);
-
+            
             FlagsRegister.SetupProperty(x => x.Register, F);
             FlagsRegister.SetupProperty(x => x.Sign, false);
             FlagsRegister.SetupProperty(x => x.Zero, false);
@@ -146,13 +131,16 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
                 z80Mock.SetupProperty(x => x.IYh, IYh);
                 z80Mock.SetupProperty(x => x.IYl, IYl);
             }
+
+            GpRegisters.BC = bc ?? BC;
+            GpRegisters.DE = DE;
+            GpRegisters.HL = HL;
+            AfRegisters.AF = AF;
         }
 
         protected void ResetMocks()
         {
             Registers.ResetCalls();
-            GpRegisters.ResetCalls();
-            AfRegisters.ResetCalls();
             FlagsRegister.ResetCalls();
             Cache.ResetCalls();
             Mmu.ResetCalls();
@@ -211,6 +199,52 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             expectedThrottlingStates += 4;
 
             Run(expectedMachineCycles, expectedThrottlingStates, opcodes);
+        }
+
+        protected byte Get8BitRegisterInitialValue(CpuRegister cpuRegister)
+        {
+            switch (cpuRegister)
+            {
+                case CpuRegister.A:
+                    return A;
+                case CpuRegister.B:
+                    return B;
+                case CpuRegister.C:
+                    return C;
+                case CpuRegister.D:
+                    return D;
+                case CpuRegister.E:
+                    return E;
+                case CpuRegister.H:
+                    return H;
+                case CpuRegister.L:
+                    return L;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(cpuRegister), cpuRegister, null);
+            }
+        }
+
+        protected byte Get8BitRegisterValue(CpuRegister cpuRegister)
+        {
+            switch (cpuRegister)
+            {
+                case CpuRegister.A:
+                    return AfRegisters.A;
+                case CpuRegister.B:
+                    return GpRegisters.B;
+                case CpuRegister.C:
+                    return GpRegisters.C;
+                case CpuRegister.D:
+                    return GpRegisters.D;
+                case CpuRegister.E:
+                    return GpRegisters.E;
+                case CpuRegister.H:
+                    return GpRegisters.H;
+                case CpuRegister.L:
+                    return GpRegisters.L;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(cpuRegister), cpuRegister, null);
+            }
         }
     }
 }

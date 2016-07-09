@@ -21,9 +21,9 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
 
             RunWithHalt(4, 16, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.LDD);
 
-            GpRegisters.VerifySet(x => x.DE = DE - 1, Times.Once);
-            GpRegisters.VerifySet(x => x.HL = HL - 1, Times.Once);
-            GpRegisters.VerifySet(x => x.BC = BC - 1, Times.Once);
+            Assert.AreEqual(DE - 1, GpRegisters.DE);
+            Assert.AreEqual(HL - 1, GpRegisters.HL);
+            Assert.AreEqual(BC - 1, GpRegisters.BC);
 
             Mmu.Verify(x => x.TransferByte(HL, DE), Times.Once);
 
@@ -42,9 +42,9 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
 
             RunWithHalt(4, 16, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.LDD);
 
-            GpRegisters.VerifySet(x => x.DE = DE - 1, Times.Once);
-            GpRegisters.VerifySet(x => x.HL = HL - 1, Times.Once);
-            GpRegisters.VerifySet(x => x.BC = 0, Times.Once);
+            Assert.AreEqual(DE - 1, GpRegisters.DE);
+            Assert.AreEqual(HL - 1, GpRegisters.HL);
+            Assert.AreEqual(0, GpRegisters.BC);
 
             Mmu.Verify(x => x.TransferByte(HL, DE), Times.Once);
 
@@ -63,13 +63,9 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
 
             RunWithHalt((Length - 1) * 5 + 4, (Length - 1) * 21 + 16, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.LDDR);
 
-            for (var i = 1; i < Length; i++)
-            {
-                var index = i;
-                GpRegisters.VerifySet(x => x.DE = (ushort) (DE - index), Times.Once);
-                GpRegisters.VerifySet(x => x.HL = (ushort) (HL - index), Times.Once);
-                GpRegisters.VerifySet(x => x.BC = (ushort) (Length - index), Times.Once);
-            }
+            Assert.AreEqual((ushort)(DE - Length), GpRegisters.DE);
+            Assert.AreEqual((ushort)(HL - Length), GpRegisters.HL);
+            Assert.AreEqual(0, GpRegisters.BC);
 
             for (var i = 0; i < Length; i++)
             {
@@ -90,9 +86,9 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
 
             RunWithHalt(4, 16, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.LDI);
 
-            GpRegisters.VerifySet(x => x.DE = DE + 1, Times.Once);
-            GpRegisters.VerifySet(x => x.HL = HL + 1, Times.Once);
-            GpRegisters.VerifySet(x => x.BC = BC - 1, Times.Once);
+            Assert.AreEqual(DE + 1, GpRegisters.DE);
+            Assert.AreEqual(HL + 1, GpRegisters.HL);
+            Assert.AreEqual(BC - 1, GpRegisters.BC);
 
             Mmu.Verify(x => x.TransferByte(HL, DE), Times.Once);
 
@@ -111,9 +107,9 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
 
             RunWithHalt(4, 16, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.LDI);
 
-            GpRegisters.VerifySet(x => x.DE = DE + 1, Times.Once);
-            GpRegisters.VerifySet(x => x.HL = HL + 1, Times.Once);
-            GpRegisters.VerifySet(x => x.BC = 0, Times.Once);
+            Assert.AreEqual(DE + 1, GpRegisters.DE);
+            Assert.AreEqual(HL + 1, GpRegisters.HL);
+            Assert.AreEqual(0, GpRegisters.BC);
 
             Mmu.Verify(x => x.TransferByte(HL, DE), Times.Once);
 
@@ -132,13 +128,9 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
 
             RunWithHalt((Length - 1) * 5 + 4, (Length - 1) * 21 + 16, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.LDIR);
 
-            for (var i = 1; i < Length; i++)
-            {
-                var index = i;
-                GpRegisters.VerifySet(x => x.DE = (ushort) (DE + index), Times.Once);
-                GpRegisters.VerifySet(x => x.HL = (ushort) (HL + index), Times.Once);
-                GpRegisters.VerifySet(x => x.BC = (ushort) (Length - index), Times.Once);
-            }
+            Assert.AreEqual(DE + Length, GpRegisters.DE);
+            Assert.AreEqual(HL + Length, GpRegisters.HL);
+            Assert.AreEqual(0, GpRegisters.BC);
 
             for (var i = 0; i < Length; i++)
             {

@@ -37,28 +37,28 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             switch (opCode)
             {
                 case PrefixEdOpCode.IN_A_C:
-                    AfRegisters.VerifySet(x => x.A = Value, Times.Once);
+                    Assert.AreEqual(Value, AfRegisters.A);
                     break;
                 case PrefixEdOpCode.IN_B_C:
-                    GpRegisters.VerifySet(x => x.B = Value, Times.Once);
+                    Assert.AreEqual(Value, GpRegisters.B);
                     break;
                 case PrefixEdOpCode.IN_C_C:
-                    GpRegisters.VerifySet(x => x.C = Value, Times.Once);
+                    Assert.AreEqual(Value, GpRegisters.C);
                     break;
                 case PrefixEdOpCode.IN_D_C:
-                    GpRegisters.VerifySet(x => x.D = Value, Times.Once);
+                    Assert.AreEqual(Value, GpRegisters.D);
                     break;
                 case PrefixEdOpCode.IN_E_C:
-                    GpRegisters.VerifySet(x => x.E = Value, Times.Once);
+                    Assert.AreEqual(Value, GpRegisters.E);
                     break;
                 case PrefixEdOpCode.IN_F_C:
                     FlagsRegister.VerifySet(x => x.Register = Value, Times.Once);
                     break;
                 case PrefixEdOpCode.IN_H_C:
-                    GpRegisters.VerifySet(x => x.H = Value, Times.Once);
+                    Assert.AreEqual(Value, GpRegisters.H);
                     break;
                 case PrefixEdOpCode.IN_L_C:
-                    GpRegisters.VerifySet(x => x.L = Value, Times.Once);
+                    Assert.AreEqual(Value, GpRegisters.L);
                     break;
                 default:
                     throw new NotSupportedException();
@@ -124,7 +124,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             RunWithHalt(3, 11, PrimaryOpCode.IN_A_n, Port);
 
             Io.Verify(x => x.ReadByteFromPort(Port, A), Times.Once);
-            AfRegisters.VerifySet(x => x.A = Value, Times.Once);
+            Assert.AreEqual(Value, AfRegisters.A);
         }
 
         [Test]
@@ -140,8 +140,8 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
 
             Io.Verify(x => x.ReadByteFromPort(C, B), Times.Once);
             Mmu.Verify(x => x.WriteByte(HL, Value), Times.Once);
-            GpRegisters.VerifySet(x => x.B = B - 1, Times.Once);
-            GpRegisters.VerifySet(x => x.HL = HL - 1, Times.Once);
+            Assert.AreEqual(B - 1, GpRegisters.B);
+            Assert.AreEqual(HL - 1, GpRegisters.HL);
             FlagsRegister.Verify(x => x.SetResultFlags(B - 1), Times.Once);
             FlagsRegister.VerifySet(x => x.Subtract = true, Times.Once);
         }
@@ -162,8 +162,6 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             for (var i = 1; i < Length; i++)
             {
                 var index = i;
-                GpRegisters.VerifySet(x => x.B = (byte) (B - index), Times.Once);
-                GpRegisters.VerifySet(x => x.HL = (ushort) (HL - index), Times.Once);
                 FlagsRegister.Verify(x => x.SetResultFlags((byte) (B - index)), Times.Once);
             }
 
@@ -174,6 +172,8 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
                 Mmu.Verify(x => x.WriteByte((ushort) (HL - index), Value), Times.Once);
             }
 
+            Assert.AreEqual(0, GpRegisters.B);
+            Assert.AreEqual(HL - Length, GpRegisters.HL);
             FlagsRegister.VerifySet(x => x.Subtract = true, Times.AtLeastOnce);
         }
 
@@ -190,8 +190,8 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
 
             Io.Verify(x => x.ReadByteFromPort(C, B), Times.Once);
             Mmu.Verify(x => x.WriteByte(HL, Value), Times.Once);
-            GpRegisters.VerifySet(x => x.B = B - 1, Times.Once);
-            GpRegisters.VerifySet(x => x.HL = HL + 1, Times.Once);
+            Assert.AreEqual(B - 1, GpRegisters.B);
+            Assert.AreEqual(HL + 1, GpRegisters.HL);
             FlagsRegister.Verify(x => x.SetResultFlags(B - 1), Times.Once);
             FlagsRegister.VerifySet(x => x.Subtract = true, Times.Once);
         }
@@ -212,8 +212,6 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             for (var i = 1; i < Length; i++)
             {
                 var index = i;
-                GpRegisters.VerifySet(x => x.B = (byte) (B - index), Times.Once);
-                GpRegisters.VerifySet(x => x.HL = (ushort) (HL + index), Times.Once);
                 FlagsRegister.Verify(x => x.SetResultFlags((byte) (B - index)), Times.Once);
             }
 
@@ -224,6 +222,8 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
                 Mmu.Verify(x => x.WriteByte((ushort) (HL + index), Value), Times.Once);
             }
 
+            Assert.AreEqual(0, GpRegisters.B);
+            Assert.AreEqual(HL + Length, GpRegisters.HL);
             FlagsRegister.VerifySet(x => x.Subtract = true, Times.AtLeastOnce);
         }
 
@@ -253,8 +253,8 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
 
             Mmu.Verify(x => x.ReadByte(HL), Times.Once);
             Io.Verify(x => x.WriteByteToPort(C, B, Value), Times.Once);
-            GpRegisters.VerifySet(x => x.B = B - 1, Times.Once);
-            GpRegisters.VerifySet(x => x.HL = HL - 1, Times.Once);
+            Assert.AreEqual(B - 1, GpRegisters.B);
+            Assert.AreEqual(HL - 1, GpRegisters.HL);
             FlagsRegister.Verify(x => x.SetResultFlags(B - 1), Times.Once);
             FlagsRegister.VerifySet(x => x.Subtract = true, Times.Once);
         }
@@ -275,8 +275,6 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             for (var i = 1; i < Length; i++)
             {
                 var index = i;
-                GpRegisters.VerifySet(x => x.B = (byte) (B - index), Times.Once);
-                GpRegisters.VerifySet(x => x.HL = (ushort) (HL - index), Times.Once);
                 FlagsRegister.Verify(x => x.SetResultFlags((byte) (B - index)), Times.Once);
             }
 
@@ -287,6 +285,8 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
                 Io.Verify(x => x.WriteByteToPort(C, (byte) (B - index), Value), Times.Once);
             }
 
+            Assert.AreEqual(0, GpRegisters.B);
+            Assert.AreEqual(HL - Length, GpRegisters.HL);
             FlagsRegister.VerifySet(x => x.Subtract = true, Times.AtLeastOnce);
         }
 
@@ -303,8 +303,8 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
 
             Mmu.Verify(x => x.ReadByte(HL), Times.Once);
             Io.Verify(x => x.WriteByteToPort(C, B, Value), Times.Once);
-            GpRegisters.VerifySet(x => x.B = B - 1, Times.Once);
-            GpRegisters.VerifySet(x => x.HL = HL + 1, Times.Once);
+            Assert.AreEqual(B - 1, GpRegisters.B);
+            Assert.AreEqual(HL + 1, GpRegisters.HL);
             FlagsRegister.Verify(x => x.SetResultFlags(B - 1), Times.Once);
             FlagsRegister.VerifySet(x => x.Subtract = true, Times.Once);
         }
@@ -325,8 +325,6 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             for (var i = 1; i < Length; i++)
             {
                 var index = i;
-                GpRegisters.VerifySet(x => x.B = (byte) (B - index), Times.Once);
-                GpRegisters.VerifySet(x => x.HL = (ushort) (HL + index), Times.Once);
                 FlagsRegister.Verify(x => x.SetResultFlags((byte) (B - index)), Times.Once);
             }
 
@@ -337,6 +335,8 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
                 Io.Verify(x => x.WriteByteToPort(C, (byte) (B - index), Value), Times.Once);
             }
 
+            Assert.AreEqual(0, GpRegisters.B);
+            Assert.AreEqual(HL + Length, GpRegisters.HL);
             FlagsRegister.VerifySet(x => x.Subtract = true, Times.AtLeastOnce);
         }
     }

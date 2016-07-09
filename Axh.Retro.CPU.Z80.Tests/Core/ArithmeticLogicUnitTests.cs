@@ -10,19 +10,16 @@ namespace Axh.Retro.CPU.Z80.Tests.Core
     {
         private Mock<IFlagsRegister> _flags;
 
-        private Alu<IZ80Registers> _alu;
+        private Alu _alu;
 
         [TestFixtureSetUp]
         public void TestFixtureSetUp()
         {
             _flags = new Mock<IFlagsRegister>();
             var registers = new Mock<IZ80Registers>();
-            var accumulatorAndFlagsRegisterSet = new Mock<IAccumulatorAndFlagsRegisterSet>();
+            registers.Setup(x => x.AccumulatorAndFlagsRegisters).Returns(new AccumulatorAndFlagsRegisterSet(_flags.Object));
 
-            registers.Setup(x => x.AccumulatorAndFlagsRegisters).Returns(accumulatorAndFlagsRegisterSet.Object);
-            accumulatorAndFlagsRegisterSet.Setup(x => x.Flags).Returns(_flags.Object);
-
-            _alu = new Alu<IZ80Registers>(registers.Object);
+            _alu = new Alu(registers.Object);
         }
 
         private void Reset(bool carry = false)

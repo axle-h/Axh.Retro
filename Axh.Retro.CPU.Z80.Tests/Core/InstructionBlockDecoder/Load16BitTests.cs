@@ -30,16 +30,13 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             switch (opcode)
             {
                 case PrimaryOpCode.LD_BC_nn:
-                    GpRegisters.VerifySet(x => x.BC = It.Is<ushort>(y => y == Value), Times.Once);
-                    Assert.AreEqual(Value, GpRegisters.Object.BC);
+                    Assert.AreEqual(Value, GpRegisters.BC);
                     break;
                 case PrimaryOpCode.LD_DE_nn:
-                    GpRegisters.VerifySet(x => x.DE = It.Is<ushort>(y => y == Value), Times.Once);
-                    Assert.AreEqual(Value, GpRegisters.Object.DE);
+                    Assert.AreEqual(Value, GpRegisters.DE);
                     break;
                 case PrimaryOpCode.LD_HL_nn:
-                    GpRegisters.VerifySet(x => x.HL = It.Is<ushort>(y => y == Value), Times.Once);
-                    Assert.AreEqual(Value, GpRegisters.Object.HL);
+                    Assert.AreEqual(Value, GpRegisters.HL);
                     break;
                 case PrimaryOpCode.LD_SP_nn:
                     Registers.VerifySet(x => x.StackPointer = It.Is<ushort>(y => y == Value), Times.Once);
@@ -71,16 +68,13 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             switch (opcode)
             {
                 case PrefixEdOpCode.LD_BC_mnn:
-                    GpRegisters.VerifySet(x => x.BC = It.Is<ushort>(y => y == Value), Times.Once);
-                    Assert.AreEqual(Value, GpRegisters.Object.BC);
+                    Assert.AreEqual(Value, GpRegisters.BC);
                     break;
                 case PrefixEdOpCode.LD_DE_mnn:
-                    GpRegisters.VerifySet(x => x.DE = It.Is<ushort>(y => y == Value), Times.Once);
-                    Assert.AreEqual(Value, GpRegisters.Object.DE);
+                    Assert.AreEqual(Value, GpRegisters.DE);
                     break;
                 case PrefixEdOpCode.LD_HL_mnn:
-                    GpRegisters.VerifySet(x => x.HL = It.Is<ushort>(y => y == Value), Times.Once);
-                    Assert.AreEqual(Value, GpRegisters.Object.HL);
+                    Assert.AreEqual(Value, GpRegisters.HL);
                     break;
                 case PrefixEdOpCode.LD_SP_mnn:
                     Registers.VerifySet(x => x.StackPointer = It.Is<ushort>(y => y == Value), Times.Once);
@@ -180,16 +174,16 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             switch (opCode)
             {
                 case PrimaryOpCode.POP_BC:
-                    GpRegisters.VerifySet(x => x.BC = Value, Times.Once);
+                    Assert.AreEqual(Value, GpRegisters.BC);
                     break;
                 case PrimaryOpCode.POP_DE:
-                    GpRegisters.VerifySet(x => x.DE = Value, Times.Once);
+                    Assert.AreEqual(Value, GpRegisters.DE);
                     break;
                 case PrimaryOpCode.POP_HL:
-                    GpRegisters.VerifySet(x => x.HL = Value, Times.Once);
+                    Assert.AreEqual(Value, GpRegisters.HL);
                     break;
                 case PrimaryOpCode.POP_AF:
-                    AfRegisters.VerifySet(x => x.AF = Value, Times.Once);
+                    Assert.AreEqual(Value, AfRegisters.AF);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(opCode));
@@ -213,8 +207,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             RunWithHalt(5, 16, PrimaryOpCode.LD_HL_mnn, NN);
 
             Mmu.Verify(x => x.ReadWord(NN), Times.Once);
-            GpRegisters.VerifySet(x => x.HL = It.Is<ushort>(y => y == Value), Times.Once);
-            Assert.AreEqual(Value, GpRegisters.Object.HL);
+            Assert.AreEqual(Value, GpRegisters.HL);
         }
 
         [Test]

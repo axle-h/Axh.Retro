@@ -1,81 +1,177 @@
-﻿using Axh.Retro.CPU.Z80.Contracts.Config;
+﻿using Axh.Retro.CPU.Common.Contracts.Util;
+using Axh.Retro.CPU.Z80.Contracts.Config;
 using Axh.Retro.CPU.Z80.Contracts.Registers;
 using Axh.Retro.CPU.Z80.Contracts.State;
-using Axh.Retro.CPU.Z80.Util;
 
 namespace Axh.Retro.CPU.Z80.Registers
 {
+    /// <summary>
+    /// CPU registers for use with a Z80 based CPU.
+    /// </summary>
     public class Z80Registers : IZ80Registers
     {
         private readonly object _accumulatorAndFlagsLockingContext = new object();
-        private readonly IAccumulatorAndFlagsRegisterSet _alternativeAccumulatorAndFlagsRegisterSet;
-        private readonly IGeneralPurposeRegisterSet _alternativeGeneralPurposeRegisterSet;
+        private readonly AccumulatorAndFlagsRegisterSet _alternativeAccumulatorAndFlagsRegisterSet;
+        private readonly GeneralPurposeRegisterSet _alternativeGeneralPurposeRegisterSet;
         private readonly object _generalPurposeLockingContext = new object();
 
-        private readonly IAccumulatorAndFlagsRegisterSet _primaryAccumulatorAndFlagsRegisterSet;
-        private readonly IGeneralPurposeRegisterSet _primaryGeneralPurposeRegisterSet;
+        private readonly AccumulatorAndFlagsRegisterSet _primaryAccumulatorAndFlagsRegisterSet;
+        private readonly GeneralPurposeRegisterSet _primaryGeneralPurposeRegisterSet;
         private bool _isAccumulatorAndFlagsAlternative;
         private bool _isGeneralPurposeAlternative;
 
-        public Z80Registers(IGeneralPurposeRegisterSet primaryGeneralPurposeRegisterSet,
-            IGeneralPurposeRegisterSet alternativeGeneralPurposeRegisterSet,
-            IAccumulatorAndFlagsRegisterSet primaryAccumulatorAndFlagsRegisterSet,
-            IAccumulatorAndFlagsRegisterSet alternativeAccumulatorAndFlagsRegisterSet,
-            IInitialStateFactory<Z80RegisterState> initialStateFactory)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Z80Registers"/> class.
+        /// </summary>
+        /// <param name="initialStateFactory">The initial state factory.</param>
+        public Z80Registers(IInitialStateFactory initialStateFactory)
         {
-            _primaryGeneralPurposeRegisterSet = primaryGeneralPurposeRegisterSet;
-            _alternativeGeneralPurposeRegisterSet = alternativeGeneralPurposeRegisterSet;
-            _primaryAccumulatorAndFlagsRegisterSet = primaryAccumulatorAndFlagsRegisterSet;
-            _alternativeAccumulatorAndFlagsRegisterSet = alternativeAccumulatorAndFlagsRegisterSet;
+            _primaryGeneralPurposeRegisterSet = new GeneralPurposeRegisterSet();
+            _alternativeGeneralPurposeRegisterSet = new GeneralPurposeRegisterSet();
+            _primaryAccumulatorAndFlagsRegisterSet = new AccumulatorAndFlagsRegisterSet(new Intel8080FlagsRegister());
+            _alternativeAccumulatorAndFlagsRegisterSet = new AccumulatorAndFlagsRegisterSet(new Intel8080FlagsRegister());
 
             ResetToState(initialStateFactory.GetInitialRegisterState());
         }
 
-        public IGeneralPurposeRegisterSet GeneralPurposeRegisters { get; private set; }
+        /// <summary>
+        /// Gets the general purpose registers.
+        /// </summary>
+        /// <value>
+        /// The general purpose registers.
+        /// </value>
+        public GeneralPurposeRegisterSet GeneralPurposeRegisters { get; private set; }
 
-        public IAccumulatorAndFlagsRegisterSet AccumulatorAndFlagsRegisters { get; private set; }
-
-        //Index Registers
+        /// <summary>
+        /// Gets the accumulator and flags registers.
+        /// </summary>
+        /// <value>
+        /// The accumulator and flags registers.
+        /// </value>
+        public AccumulatorAndFlagsRegisterSet AccumulatorAndFlagsRegisters { get; private set; }
+        
+        /// <summary>
+        /// Gets or sets the IX register.
+        /// </summary>
+        /// <value>
+        /// The IX register.
+        /// </value>
         public ushort IX { get; set; }
+        
+        /// <summary>
+        /// Gets or sets the IY register.
+        /// </summary>
+        /// <value>
+        /// The IY register.
+        /// </value>
         public ushort IY { get; set; }
 
+        /// <summary>
+        /// Gets or sets the lower byte of the IX register.
+        /// </summary>
+        /// <value>
+        /// The lower byte of the IX register.
+        /// </value>
         public byte IXl
         {
             get { return BitConverterHelpers.GetLowOrderByte(IX); }
             set { IX = BitConverterHelpers.SetLowOrderByte(IX, value); }
         }
 
+        /// <summary>
+        /// Gets or sets the upper byte of the IX register.
+        /// </summary>
+        /// <value>
+        /// The upper byte of the IX register.
+        /// </value>
         public byte IXh
         {
             get { return BitConverterHelpers.GetHighOrderByte(IX); }
             set { IX = BitConverterHelpers.SetHighOrderByte(IX, value); }
         }
 
+        /// <summary>
+        /// Gets or sets the lower byte of the IY register.
+        /// </summary>
+        /// <value>
+        /// The lower byte of the IY register.
+        /// </value>
         public byte IYl
         {
             get { return BitConverterHelpers.GetLowOrderByte(IY); }
             set { IY = BitConverterHelpers.SetLowOrderByte(IY, value); }
         }
 
+        /// <summary>
+        /// Gets or sets the upper byte of the IY register.
+        /// </summary>
+        /// <value>
+        /// The upper byte of the IY register.
+        /// </value>
         public byte IYh
         {
             get { return BitConverterHelpers.GetHighOrderByte(IY); }
             set { IY = BitConverterHelpers.SetHighOrderByte(IY, value); }
         }
-
-        // IR Flags
+        
+        /// <summary>
+        /// Gets or sets the I register.
+        /// </summary>
+        /// <value>
+        /// The I register.
+        /// </value>
         public byte I { get; set; }
+        
+        /// <summary>
+        /// </summary>
+        /// <value>
+        /// The R register.
+        /// </value>
         public byte R { get; set; }
 
-        // Pointers
+        /// <summary>
+        /// Gets or sets the stack pointer.
+        /// </summary>
+        /// <value>
+        /// The stack pointer.
+        /// </value>
         public ushort StackPointer { get; set; }
-        public ushort ProgramCounter { get; set; }
 
-        // Interrupt Flip-Flops
+        /// <summary>
+        /// Gets or sets the program counter.
+        /// </summary>
+        /// <value>
+        /// The program counter.
+        /// </value>
+        public ushort ProgramCounter { get; set; }
+        
+        /// <summary>
+        /// Gets or sets a value indicating whether [interrupt flip flop1].
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if [interrupt flip flop1]; otherwise, <c>false</c>.
+        /// </value>
         public bool InterruptFlipFlop1 { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether [interrupt flip flop2].
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if [interrupt flip flop2]; otherwise, <c>false</c>.
+        /// </value>
         public bool InterruptFlipFlop2 { get; set; }
+
+        /// <summary>
+        /// Gets or sets the interrupt mode.
+        /// </summary>
+        /// <value>
+        /// The interrupt mode.
+        /// </value>
         public InterruptMode InterruptMode { get; set; }
 
+        /// <summary>
+        /// Switches to alternative general purpose registers.
+        /// </summary>
         public void SwitchToAlternativeGeneralPurposeRegisters()
         {
             lock (_generalPurposeLockingContext)
@@ -87,6 +183,9 @@ namespace Axh.Retro.CPU.Z80.Registers
             }
         }
 
+        /// <summary>
+        /// Switches to alternative accumulator and flags registers.
+        /// </summary>
         public void SwitchToAlternativeAccumulatorAndFlagsRegisters()
         {
             lock (_accumulatorAndFlagsLockingContext)
@@ -98,6 +197,9 @@ namespace Axh.Retro.CPU.Z80.Registers
             }
         }
 
+        /// <summary>
+        /// Resets this instance.
+        /// </summary>
         public void Reset()
         {
             _primaryGeneralPurposeRegisterSet.Reset();
@@ -118,6 +220,10 @@ namespace Axh.Retro.CPU.Z80.Registers
             InterruptMode = InterruptMode.InterruptMode0;
         }
 
+        /// <summary>
+        /// Resets the registers to the specified state.
+        /// </summary>
+        /// <param name="state">The state.</param>
         public void ResetToState(Z80RegisterState state)
         {
             _primaryGeneralPurposeRegisterSet.ResetToState(state.PrimaryGeneralPurposeRegisterState);
@@ -146,6 +252,10 @@ namespace Axh.Retro.CPU.Z80.Registers
             InterruptMode = state.InterruptMode;
         }
 
+        /// <summary>
+        /// Gets the state of the register.
+        /// </summary>
+        /// <returns></returns>
         public Z80RegisterState GetRegisterState()
         {
             return new Z80RegisterState

@@ -4,17 +4,37 @@ using Axh.Retro.CPU.Z80.Util;
 
 namespace Axh.Retro.CPU.Z80.Core
 {
-    public class Alu<TRegisters> : IAlu where TRegisters : IRegisters
+    /// <summary>
+    /// An 8-bit arithmetic logic unit for the 8080/GBCPU/Z80 CPU's.
+    /// This abstraction is useful as it assumes all responsibility of setting and checking the flags register on each operation.
+    /// </summary>
+    /// <seealso cref="Axh.Retro.CPU.Z80.Contracts.Core.IAlu" />
+    public class Alu : IAlu
     {
-        private readonly TRegisters _registers;
+        private readonly IRegisters _registers;
 
-        public Alu(TRegisters registers)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Alu{TRegisters}"/> class.
+        /// </summary>
+        /// <param name="registers">The registers.</param>
+        public Alu(IRegisters registers)
         {
             _registers = registers;
         }
 
+        /// <summary>
+        /// Gets the flags.
+        /// </summary>
+        /// <value>
+        /// The flags.
+        /// </value>
         private IFlagsRegister Flags => _registers.AccumulatorAndFlagsRegisters.Flags;
-
+        
+        /// <summary>
+        /// Increments the specified byte.
+        /// </summary>
+        /// <param name="b">The b.</param>
+        /// <returns></returns>
         public byte Increment(byte b)
         {
             var result = b + 1;
@@ -29,6 +49,11 @@ namespace Axh.Retro.CPU.Z80.Core
             return b;
         }
 
+        /// <summary>
+        /// Decrements the specified byte.
+        /// </summary>
+        /// <param name="b">The b.</param>
+        /// <returns></returns>
         public byte Decrement(byte b)
         {
             var result = b - 1;
@@ -43,36 +68,60 @@ namespace Axh.Retro.CPU.Z80.Core
             return b;
         }
 
-        public byte Add(byte a, byte b)
-        {
-            return Add(a, b, false);
-        }
+        /// <summary>
+        /// Adds the byte values.
+        /// </summary>
+        /// <param name="a">a.</param>
+        /// <param name="b">The b.</param>
+        /// <returns></returns>
+        public byte Add(byte a, byte b) => Add(a, b, false);
 
-        public byte AddWithCarry(byte a, byte b)
-        {
-            return Add(a, b, Flags.Carry);
-        }
+        /// <summary>
+        /// Adds the byte values, checking the carry flag and applying if necessary.
+        /// </summary>
+        /// <param name="a">a.</param>
+        /// <param name="b">The b.</param>
+        /// <returns></returns>
+        public byte AddWithCarry(byte a, byte b) => Add(a, b, Flags.Carry);
 
-        public ushort Add(ushort a, ushort b)
-        {
-            return Add(a, b, false);
-        }
+        /// <summary>
+        /// Adds the word values.
+        /// </summary>
+        /// <param name="a">a.</param>
+        /// <param name="b">The b.</param>
+        /// <returns></returns>
+        public ushort Add(ushort a, ushort b) => Add(a, b, false);
 
-        public ushort AddWithCarry(ushort a, ushort b)
-        {
-            return Add(a, b, true);
-        }
+        /// <summary>
+        /// Adds the word values, checking the carry flag and applying if necessary.
+        /// </summary>
+        /// <param name="a">a.</param>
+        /// <param name="b">The b.</param>
+        /// <returns></returns>
+        public ushort AddWithCarry(ushort a, ushort b) => Add(a, b, true);
 
-        public byte Subtract(byte a, byte b)
-        {
-            return Subtract(a, b, false);
-        }
+        /// <summary>
+        /// Subtracts the byte value of b from a.
+        /// </summary>
+        /// <param name="a">a.</param>
+        /// <param name="b">The b.</param>
+        /// <returns></returns>
+        public byte Subtract(byte a, byte b) => Subtract(a, b, false);
 
-        public byte SubtractWithCarry(byte a, byte b)
-        {
-            return Subtract(a, b, Flags.Carry);
-        }
+        /// <summary>
+        /// Subtracts the byte value of b from a, checking the carry flag and applying if necessary.
+        /// </summary>
+        /// <param name="a">a.</param>
+        /// <param name="b">The b.</param>
+        /// <returns></returns>
+        public byte SubtractWithCarry(byte a, byte b) => Subtract(a, b, Flags.Carry);
 
+        /// <summary>
+        /// Subtracts the word value of b from a, checking the carry flag and applying if necessary.
+        /// </summary>
+        /// <param name="a">a.</param>
+        /// <param name="b">The b.</param>
+        /// <returns></returns>
         public ushort SubtractWithCarry(ushort a, ushort b)
         {
             var flags = Flags;
@@ -93,12 +142,23 @@ namespace Axh.Retro.CPU.Z80.Core
             return b;
         }
 
+        /// <summary>
+        /// Compares the byte values, setting appropriate flag values.
+        /// </summary>
+        /// <param name="a">a.</param>
+        /// <param name="b">The b.</param>
         public void Compare(byte a, byte b)
         {
             Subtract(a, b, false);
             Flags.SetUndocumentedFlags(b);
         }
 
+        /// <summary>
+        /// Computes the logical AND of the specified bytes.
+        /// </summary>
+        /// <param name="a">a.</param>
+        /// <param name="b">The b.</param>
+        /// <returns></returns>
         public byte And(byte a, byte b)
         {
             a &= b;
@@ -110,6 +170,12 @@ namespace Axh.Retro.CPU.Z80.Core
             return a;
         }
 
+        /// <summary>
+        /// Computes the logical OR of the specified bytes.
+        /// </summary>
+        /// <param name="a">a.</param>
+        /// <param name="b">The b.</param>
+        /// <returns></returns>
         public byte Or(byte a, byte b)
         {
             a |= b;
@@ -121,6 +187,12 @@ namespace Axh.Retro.CPU.Z80.Core
             return a;
         }
 
+        /// <summary>
+        /// Computes the logical XOR of the specified bytes.
+        /// </summary>
+        /// <param name="a">a.</param>
+        /// <param name="b">The b.</param>
+        /// <returns></returns>
         public byte Xor(byte a, byte b)
         {
             a ^= b;
@@ -364,11 +436,8 @@ namespace Axh.Retro.CPU.Z80.Core
         /// <returns></returns>
         public AccumulatorAndResult RotateLeftDigit(byte accumulator, byte b)
         {
-            var result = new AccumulatorAndResult
-                         {
-                             Accumulator = (byte) ((accumulator & 0xf0) | ((b & 0xf0) >> 4)),
-                             Result = (byte) (((b & 0x0f) << 4) | (accumulator & 0x0f))
-                         };
+            var result = new AccumulatorAndResult((byte) ((accumulator & 0xf0) | ((b & 0xf0) >> 4)),
+                                                  (byte) (((b & 0x0f) << 4) | (accumulator & 0x0f)));
 
             var flags = Flags;
             flags.SetParityFlags(result.Accumulator);
@@ -385,11 +454,8 @@ namespace Axh.Retro.CPU.Z80.Core
         /// <returns></returns>
         public AccumulatorAndResult RotateRightDigit(byte accumulator, byte b)
         {
-            var result = new AccumulatorAndResult
-                         {
-                             Accumulator = (byte) ((accumulator & 0xf0) | (b & 0x0f)),
-                             Result = (byte) (((accumulator & 0x0f) << 4) | ((b & 0xf0) >> 4))
-                         };
+            var result = new AccumulatorAndResult((byte) ((accumulator & 0xf0) | (b & 0x0f)),
+                                                  (byte) (((accumulator & 0x0f) << 4) | ((b & 0xf0) >> 4)));
 
             var flags = Flags;
             flags.SetParityFlags(result.Accumulator);
@@ -415,16 +481,29 @@ namespace Axh.Retro.CPU.Z80.Core
             flags.Sign = bit == 7 && flags.Zero;
         }
 
-        public byte BitSet(byte a, int bit)
-        {
-            return (byte) (a | (0x1 << bit));
-        }
+        /// <summary>
+        /// Sets bit <see cref="!:bit" /> in byte <see cref="!:a" /> and sets the Z flag accordingly.
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="bit"></param>
+        /// <returns></returns>
+        public byte BitSet(byte a, int bit) => (byte) (a | (0x1 << bit));
 
-        public byte BitReset(byte a, int bit)
-        {
-            return (byte) (a & ~(0x1 << bit));
-        }
+        /// <summary>
+        /// Resets bit <see cref="!:bit" /> in byte <see cref="!:a" /> and sets the Z flag accordingly.
+        /// </summary>
+        /// <param name="a">a.</param>
+        /// <param name="bit">The bit.</param>
+        /// <returns></returns>
+        public byte BitReset(byte a, int bit) => (byte) (a & ~(0x1 << bit));
 
+        /// <summary>
+        /// Add signed displacement to 16-bit register.
+        /// Specific to GB ALU.
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="d"></param>
+        /// <returns></returns>
         public ushort AddDisplacement(ushort a, sbyte d)
         {
             var result = a + d;
@@ -440,6 +519,12 @@ namespace Axh.Retro.CPU.Z80.Core
             return unchecked ((ushort) result);
         }
 
+        /// <summary>
+        /// Swap lower and upper nibbles.
+        /// Specific to GB ALU.
+        /// </summary>
+        /// <param name="a"></param>
+        /// <returns></returns>
         public byte Swap(byte a)
         {
             var result = (byte) (((a & 0xf) << 4) | ((a & 0xf0) >> 4));
@@ -452,6 +537,13 @@ namespace Axh.Retro.CPU.Z80.Core
             return result;
         }
 
+        /// <summary>
+        /// Adds the specified a.
+        /// </summary>
+        /// <param name="a">a.</param>
+        /// <param name="b">The b.</param>
+        /// <param name="addCarry">if set to <c>true</c> [add carry].</param>
+        /// <returns></returns>
         private byte Add(byte a, byte b, bool addCarry)
         {
             var carry = addCarry ? 1 : 0;
@@ -473,6 +565,13 @@ namespace Axh.Retro.CPU.Z80.Core
             return b;
         }
 
+        /// <summary>
+        /// Adds the specified a.
+        /// </summary>
+        /// <param name="a">a.</param>
+        /// <param name="b">The b.</param>
+        /// <param name="addCarry">if set to <c>true</c> [add carry].</param>
+        /// <returns></returns>
         private ushort Add(ushort a, ushort b, bool addCarry)
         {
             var flags = Flags;
@@ -504,6 +603,13 @@ namespace Axh.Retro.CPU.Z80.Core
             return b;
         }
 
+        /// <summary>
+        /// Subtracts the specified a.
+        /// </summary>
+        /// <param name="a">a.</param>
+        /// <param name="b">The b.</param>
+        /// <param name="addCarry">if set to <c>true</c> [add carry].</param>
+        /// <returns></returns>
         private byte Subtract(byte a, byte b, bool addCarry)
         {
             var carry = addCarry ? 1 : 0;

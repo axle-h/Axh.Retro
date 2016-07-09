@@ -2,9 +2,9 @@
 using System.Reflection;
 using Axh.Retro.CPU.Common.Contracts.Memory;
 using Axh.Retro.CPU.Z80.Contracts.Core;
-using Axh.Retro.CPU.Z80.Contracts.Core.Timing;
 using Axh.Retro.CPU.Z80.Contracts.Peripherals;
 using Axh.Retro.CPU.Z80.Contracts.Registers;
+using Axh.Retro.CPU.Z80.Contracts.Timing;
 using Axh.Retro.CPU.Z80.Util;
 
 namespace Axh.Retro.CPU.Z80.Core.DynaRec
@@ -173,16 +173,16 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
 
             // General purpose register expressions
             var generalPurposeRegisters =
-                Registers.GetPropertyExpression<IRegisters, IGeneralPurposeRegisterSet>(r => r.GeneralPurposeRegisters);
-            B = generalPurposeRegisters.GetPropertyExpression<IGeneralPurposeRegisterSet, byte>(r => r.B);
-            C = generalPurposeRegisters.GetPropertyExpression<IGeneralPurposeRegisterSet, byte>(r => r.C);
-            D = generalPurposeRegisters.GetPropertyExpression<IGeneralPurposeRegisterSet, byte>(r => r.D);
-            E = generalPurposeRegisters.GetPropertyExpression<IGeneralPurposeRegisterSet, byte>(r => r.E);
-            H = generalPurposeRegisters.GetPropertyExpression<IGeneralPurposeRegisterSet, byte>(r => r.H);
-            L = generalPurposeRegisters.GetPropertyExpression<IGeneralPurposeRegisterSet, byte>(r => r.L);
-            BC = generalPurposeRegisters.GetPropertyExpression<IGeneralPurposeRegisterSet, ushort>(r => r.BC);
-            DE = generalPurposeRegisters.GetPropertyExpression<IGeneralPurposeRegisterSet, ushort>(r => r.DE);
-            HL = generalPurposeRegisters.GetPropertyExpression<IGeneralPurposeRegisterSet, ushort>(r => r.HL);
+                Registers.GetPropertyExpression<IRegisters, GeneralPurposeRegisterSet>(r => r.GeneralPurposeRegisters);
+            B = generalPurposeRegisters.GetPropertyExpression<GeneralPurposeRegisterSet, byte>(r => r.B);
+            C = generalPurposeRegisters.GetPropertyExpression<GeneralPurposeRegisterSet, byte>(r => r.C);
+            D = generalPurposeRegisters.GetPropertyExpression<GeneralPurposeRegisterSet, byte>(r => r.D);
+            E = generalPurposeRegisters.GetPropertyExpression<GeneralPurposeRegisterSet, byte>(r => r.E);
+            H = generalPurposeRegisters.GetPropertyExpression<GeneralPurposeRegisterSet, byte>(r => r.H);
+            L = generalPurposeRegisters.GetPropertyExpression<GeneralPurposeRegisterSet, byte>(r => r.L);
+            BC = generalPurposeRegisters.GetPropertyExpression<GeneralPurposeRegisterSet, ushort>(r => r.BC);
+            DE = generalPurposeRegisters.GetPropertyExpression<GeneralPurposeRegisterSet, ushort>(r => r.DE);
+            HL = generalPurposeRegisters.GetPropertyExpression<GeneralPurposeRegisterSet, ushort>(r => r.HL);
             PC = Registers.GetPropertyExpression<IRegisters, ushort>(r => r.ProgramCounter);
 
             // Stack pointer stuff
@@ -197,12 +197,12 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
 
             // Accumulator & Flags register expressions
             var accumulatorAndFlagsRegisters =
-                Registers.GetPropertyExpression<IRegisters, IAccumulatorAndFlagsRegisterSet>(r => r.AccumulatorAndFlagsRegisters);
-            A = accumulatorAndFlagsRegisters.GetPropertyExpression<IAccumulatorAndFlagsRegisterSet, byte>(r => r.A);
+                Registers.GetPropertyExpression<IRegisters, AccumulatorAndFlagsRegisterSet>(r => r.AccumulatorAndFlagsRegisters);
+            A = accumulatorAndFlagsRegisters.GetPropertyExpression<AccumulatorAndFlagsRegisterSet, byte>(r => r.A);
             Flags =
-                accumulatorAndFlagsRegisters.GetPropertyExpression<IAccumulatorAndFlagsRegisterSet, IFlagsRegister>(r => r.Flags);
+                accumulatorAndFlagsRegisters.GetPropertyExpression<AccumulatorAndFlagsRegisterSet, IFlagsRegister>(r => r.Flags);
             F = Flags.GetPropertyExpression<IFlagsRegister, byte>(r => r.Register);
-            AF = accumulatorAndFlagsRegisters.GetPropertyExpression<IAccumulatorAndFlagsRegisterSet, ushort>(r => r.AF);
+            AF = accumulatorAndFlagsRegisters.GetPropertyExpression<AccumulatorAndFlagsRegisterSet, ushort>(r => r.AF);
             Sign = Flags.GetPropertyExpression<IFlagsRegister, bool>(r => r.Sign);
             Zero = Flags.GetPropertyExpression<IFlagsRegister, bool>(r => r.Zero);
             Flags.GetPropertyExpression<IFlagsRegister, bool>(r => r.Flag5);

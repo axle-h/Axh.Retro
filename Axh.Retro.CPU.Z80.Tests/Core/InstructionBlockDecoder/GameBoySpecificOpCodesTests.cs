@@ -8,7 +8,7 @@ using NUnit.Framework;
 namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
 {
     [TestFixture]
-    public class GameBoySpecificOpCodesTests : InstructionBlockDecoderTestsBase<IIntel8080Registers>
+    public class GameBoySpecificOpCodesTests : InstructionBlockDecoderTestsBase<IRegisters>
     {
         public GameBoySpecificOpCodesTests() : base(CpuMode.GameBoy)
         {
@@ -34,31 +34,31 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             {
                 case GameBoyPrefixCbOpCode.SWAP_A:
                     Alu.Verify(x => x.Swap(A), Times.Once);
-                    AfRegisters.VerifySet(x => x.A = Value, Times.Once);
+                    Assert.AreEqual(Value, AfRegisters.A);
                     break;
                 case GameBoyPrefixCbOpCode.SWAP_B:
                     Alu.Verify(x => x.Swap(B), Times.Once);
-                    GpRegisters.VerifySet(x => x.B = Value, Times.Once);
+                    Assert.AreEqual(Value, GpRegisters.B);
                     break;
                 case GameBoyPrefixCbOpCode.SWAP_C:
                     Alu.Verify(x => x.Swap(C), Times.Once);
-                    GpRegisters.VerifySet(x => x.C = Value, Times.Once);
+                    Assert.AreEqual(Value, GpRegisters.C);
                     break;
                 case GameBoyPrefixCbOpCode.SWAP_D:
                     Alu.Verify(x => x.Swap(D), Times.Once);
-                    GpRegisters.VerifySet(x => x.D = Value, Times.Once);
+                    Assert.AreEqual(Value, GpRegisters.D);
                     break;
                 case GameBoyPrefixCbOpCode.SWAP_E:
                     Alu.Verify(x => x.Swap(E), Times.Once);
-                    GpRegisters.VerifySet(x => x.E = Value, Times.Once);
+                    Assert.AreEqual(Value, GpRegisters.E);
                     break;
                 case GameBoyPrefixCbOpCode.SWAP_H:
                     Alu.Verify(x => x.Swap(H), Times.Once);
-                    GpRegisters.VerifySet(x => x.H = Value, Times.Once);
+                    Assert.AreEqual(Value, GpRegisters.H);
                     break;
                 case GameBoyPrefixCbOpCode.SWAP_L:
                     Alu.Verify(x => x.Swap(L), Times.Once);
-                    GpRegisters.VerifySet(x => x.L = Value, Times.Once);
+                    Assert.AreEqual(Value, GpRegisters.L);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -79,7 +79,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             RunWithHalt(2, null, GameBoyPrimaryOpCode.LD_A_mFF00C);
 
             Mmu.Verify(x => x.ReadByte(Address), Times.Once);
-            AfRegisters.VerifySet(x => x.A = Value, Times.Once);
+            Assert.AreEqual(Value, AfRegisters.A);
         }
 
         [Test]
@@ -96,7 +96,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             RunWithHalt(3, null, GameBoyPrimaryOpCode.LD_A_mFF00n, Value);
 
             Mmu.Verify(x => x.ReadByte(Address), Times.Once);
-            AfRegisters.VerifySet(x => x.A = Value, Times.Once);
+            Assert.AreEqual(Value, AfRegisters.A);
         }
 
         [Test]
@@ -113,7 +113,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             RunWithHalt(4, null, GameBoyPrimaryOpCode.LD_A_mnn, NN);
 
             Mmu.Verify(x => x.ReadByte(NN), Times.Once);
-            Assert.AreEqual(ValueAtNN, AfRegisters.Object.A);
+            Assert.AreEqual(ValueAtNN, AfRegisters.A);
         }
 
         [Test]
@@ -130,7 +130,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             RunWithHalt(3, null, GameBoyPrimaryOpCode.LD_HL_SPd, unchecked((byte) Displacement));
 
             Alu.Verify(x => x.AddDisplacement(SP, Displacement), Times.Once);
-            GpRegisters.VerifySet(x => x.HL = Value, Times.Once);
+            Assert.AreEqual(Value, GpRegisters.HL);
         }
 
         [Test]
@@ -212,8 +212,8 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             RunWithHalt(2, null, GameBoyPrimaryOpCode.LDD_A_mHL);
 
             Mmu.Verify(x => x.ReadByte(HL), Times.Once);
-            AfRegisters.VerifySet(x => x.A = Value, Times.Once);
-            GpRegisters.VerifySet(x => x.HL = HL - 1, Times.Once);
+            Assert.AreEqual(Value, AfRegisters.A);
+            Assert.AreEqual(HL - 1, GpRegisters.HL);
         }
 
         [Test]
@@ -225,7 +225,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             RunWithHalt(2, null, GameBoyPrimaryOpCode.LDD_mHL_A);
 
             Mmu.Verify(x => x.WriteByte(HL, A), Times.Once);
-            GpRegisters.VerifySet(x => x.HL = HL - 1, Times.Once);
+            Assert.AreEqual(HL - 1, GpRegisters.HL);
         }
 
         [Test]
@@ -241,8 +241,8 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             RunWithHalt(2, null, GameBoyPrimaryOpCode.LDI_A_mHL);
 
             Mmu.Verify(x => x.ReadByte(HL), Times.Once);
-            AfRegisters.VerifySet(x => x.A = Value, Times.Once);
-            GpRegisters.VerifySet(x => x.HL = HL + 1, Times.Once);
+            Assert.AreEqual(Value, AfRegisters.A);
+            Assert.AreEqual(HL + 1, GpRegisters.HL);
         }
 
         [Test]
@@ -254,7 +254,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             RunWithHalt(2, null, GameBoyPrimaryOpCode.LDI_mHL_A);
 
             Mmu.Verify(x => x.WriteByte(HL, A), Times.Once);
-            GpRegisters.VerifySet(x => x.HL = HL + 1, Times.Once);
+            Assert.AreEqual(HL + 1, GpRegisters.HL);
         }
 
         [Test]

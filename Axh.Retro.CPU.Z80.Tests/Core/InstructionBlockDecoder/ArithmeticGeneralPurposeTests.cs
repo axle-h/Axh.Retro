@@ -36,7 +36,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
 
             RunWithHalt(1, 4, PrimaryOpCode.CPL);
 
-            AfRegisters.VerifySet(x => x.A = Expected, Times.Once);
+            Assert.AreEqual(AfRegisters.A, Expected);
             FlagsRegister.VerifySet(x => x.HalfCarry = true);
             FlagsRegister.VerifySet(x => x.Subtract = true);
             FlagsRegister.Verify(x => x.SetUndocumentedFlags(Expected), Times.Once);
@@ -54,7 +54,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             RunWithHalt(1, 4, PrimaryOpCode.DAA);
 
             Alu.Verify(x => x.DecimalAdjust(A, true), Times.Once);
-            AfRegisters.VerifySet(x => x.A = Expected, Times.Once);
+            Assert.AreEqual(AfRegisters.A, Expected);
         }
 
         [Test]
@@ -127,7 +127,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             RunWithHalt(2, 8, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.NEG);
 
             Alu.Verify(x => x.Subtract(0, A), Times.Once);
-            AfRegisters.VerifySet(x => x.A = Expected, Times.Once);
+            Assert.AreEqual(AfRegisters.A, Expected);
         }
 
         [Test]

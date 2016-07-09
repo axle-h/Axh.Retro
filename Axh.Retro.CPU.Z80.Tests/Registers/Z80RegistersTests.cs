@@ -11,29 +11,12 @@ namespace Axh.Retro.CPU.Z80.Tests.Registers
     public class Z80RegistersTests
     {
         private IZ80Registers _z80Registers;
-
-        private Mock<IGeneralPurposeRegisterSet> _primaryGeneralPurposeRegisters;
-
-        private Mock<IGeneralPurposeRegisterSet> _alternativeGeneralPurposeRegisters;
-
-        private Mock<IAccumulatorAndFlagsRegisterSet> _primaryAccumulatorAndFlagsRegisters;
-
-        private Mock<IAccumulatorAndFlagsRegisterSet> _alternativeAccumulatorAndFlagsRegisters;
-
+        
         [TestFixtureSetUp]
         public void TestFixtureSetUp()
         {
-            _primaryGeneralPurposeRegisters = new Mock<IGeneralPurposeRegisterSet>();
-            _alternativeGeneralPurposeRegisters = new Mock<IGeneralPurposeRegisterSet>();
-            _primaryAccumulatorAndFlagsRegisters = new Mock<IAccumulatorAndFlagsRegisterSet>();
-            _alternativeAccumulatorAndFlagsRegisters = new Mock<IAccumulatorAndFlagsRegisterSet>();
-            var initialStateFactory = new Mock<IInitialStateFactory<Z80RegisterState>>();
-
-            _z80Registers = new Z80Registers(_primaryGeneralPurposeRegisters.Object,
-                                             _alternativeGeneralPurposeRegisters.Object,
-                                             _primaryAccumulatorAndFlagsRegisters.Object,
-                                             _alternativeAccumulatorAndFlagsRegisters.Object,
-                                             initialStateFactory.Object);
+            var initialStateFactory = new Mock<IInitialStateFactory>();
+            _z80Registers = new Z80Registers(initialStateFactory.Object);
         }
 
         [Test]
@@ -86,12 +69,6 @@ namespace Axh.Retro.CPU.Z80.Tests.Registers
             Assert.AreEqual(InterruptMode, state.InterruptMode);
             Assert.AreEqual(ProgramCounter, _z80Registers.ProgramCounter);
             Assert.AreEqual(StackPointer, _z80Registers.StackPointer);
-
-            _primaryGeneralPurposeRegisters.Verify(x => x.GetRegisterState(), Times.Once);
-            _alternativeGeneralPurposeRegisters.Verify(x => x.GetRegisterState(), Times.Once);
-
-            _primaryAccumulatorAndFlagsRegisters.Verify(x => x.GetRegisterState(), Times.Once);
-            _alternativeAccumulatorAndFlagsRegisters.Verify(x => x.GetRegisterState(), Times.Once);
         }
 
         [Test]
@@ -110,12 +87,6 @@ namespace Axh.Retro.CPU.Z80.Tests.Registers
             Assert.AreEqual(state.InterruptMode, _z80Registers.InterruptMode);
             Assert.AreEqual(state.ProgramCounter, _z80Registers.ProgramCounter);
             Assert.AreEqual(state.StackPointer, _z80Registers.StackPointer);
-
-            _primaryGeneralPurposeRegisters.Verify(x => x.ResetToState(state.PrimaryGeneralPurposeRegisterState));
-            _alternativeGeneralPurposeRegisters.Verify(x => x.ResetToState(state.AlternativeGeneralPurposeRegisterState));
-
-            _primaryAccumulatorAndFlagsRegisters.Verify(x => x.ResetToState(state.PrimaryAccumulatorAndFlagsRegisterState));
-            _alternativeAccumulatorAndFlagsRegisters.Verify(x => x.ResetToState(state.AlternativeAccumulatorAndFlagsRegisterState));
         }
 
         [Test]
@@ -143,11 +114,10 @@ namespace Axh.Retro.CPU.Z80.Tests.Registers
         {
             _z80Registers.Reset();
 
-            Assert.AreSame(_primaryAccumulatorAndFlagsRegisters.Object, _z80Registers.AccumulatorAndFlagsRegisters);
-
+            var primary = _z80Registers.AccumulatorAndFlagsRegisters;
             _z80Registers.SwitchToAlternativeAccumulatorAndFlagsRegisters();
 
-            Assert.AreSame(_alternativeAccumulatorAndFlagsRegisters.Object, _z80Registers.AccumulatorAndFlagsRegisters);
+            Assert.AreNotSame(primary, _z80Registers.AccumulatorAndFlagsRegisters);
         }
 
         [Test]
@@ -155,11 +125,10 @@ namespace Axh.Retro.CPU.Z80.Tests.Registers
         {
             _z80Registers.Reset();
 
-            Assert.AreSame(_primaryGeneralPurposeRegisters.Object, _z80Registers.GeneralPurposeRegisters);
-
+            var primary = _z80Registers.GeneralPurposeRegisters;
             _z80Registers.SwitchToAlternativeGeneralPurposeRegisters();
 
-            Assert.AreSame(_alternativeGeneralPurposeRegisters.Object, _z80Registers.GeneralPurposeRegisters);
+            Assert.AreNotSame(primary, _z80Registers.GeneralPurposeRegisters);
         }
     }
 }

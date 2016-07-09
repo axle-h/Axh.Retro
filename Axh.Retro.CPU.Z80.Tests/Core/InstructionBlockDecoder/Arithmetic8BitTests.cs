@@ -58,7 +58,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
                     throw new ArgumentOutOfRangeException(nameof(opCode));
             }
 
-            AfRegisters.VerifySet(x => x.A = Value, Times.Once);
+            Assert.AreEqual(Value, AfRegisters.A);
         }
 
         [TestCase(PrimaryOpCode.Prefix_DD)]
@@ -82,7 +82,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
 
             Mmu.Verify(x => x.ReadByte(displacedIndex), Times.Once);
             Alu.Verify(x => x.Add(A, ValueAtIndex), Times.Once);
-            AfRegisters.VerifySet(x => x.A = Expected, Times.Once);
+            Assert.AreEqual(Expected, AfRegisters.A);
         }
 
         [TestCase(PrimaryOpCode.ADC_A_A)]
@@ -129,7 +129,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
                     throw new ArgumentOutOfRangeException(nameof(opCode));
             }
 
-            AfRegisters.VerifySet(x => x.A = Value, Times.Once);
+            Assert.AreEqual(Value, AfRegisters.A);
         }
 
         [TestCase(PrimaryOpCode.Prefix_DD)]
@@ -153,7 +153,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
 
             Mmu.Verify(x => x.ReadByte(displacedIndex), Times.Once);
             Alu.Verify(x => x.AddWithCarry(A, ValueAtIndex), Times.Once);
-            AfRegisters.VerifySet(x => x.A = Expected, Times.Once);
+            Assert.AreEqual(Expected, AfRegisters.A);
         }
 
         [TestCase(PrimaryOpCode.SUB_A_A)]
@@ -200,7 +200,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
                     throw new ArgumentOutOfRangeException(nameof(opCode));
             }
 
-            AfRegisters.VerifySet(x => x.A = Value, Times.Once);
+            Assert.AreEqual(Value, AfRegisters.A);
         }
 
         [TestCase(PrimaryOpCode.Prefix_DD)]
@@ -224,7 +224,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
 
             Mmu.Verify(x => x.ReadByte(displacedIndex), Times.Once);
             Alu.Verify(x => x.Subtract(A, ValueAtIndex), Times.Once);
-            AfRegisters.VerifySet(x => x.A = Expected, Times.Once);
+            Assert.AreEqual(Expected, AfRegisters.A);
         }
 
         [TestCase(PrimaryOpCode.SBC_A_A)]
@@ -271,7 +271,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
                     throw new ArgumentOutOfRangeException(nameof(opCode));
             }
 
-            AfRegisters.VerifySet(x => x.A = Value, Times.Once);
+            Assert.AreEqual(Value, AfRegisters.A);
         }
 
         [TestCase(PrimaryOpCode.Prefix_DD)]
@@ -295,7 +295,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
 
             Mmu.Verify(x => x.ReadByte(displacedIndex), Times.Once);
             Alu.Verify(x => x.SubtractWithCarry(A, ValueAtIndex), Times.Once);
-            AfRegisters.VerifySet(x => x.A = Expected, Times.Once);
+            Assert.AreEqual(Expected, AfRegisters.A);
         }
 
         [TestCase(PrimaryOpCode.AND_A)]
@@ -342,7 +342,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
                     throw new ArgumentOutOfRangeException(nameof(opCode));
             }
 
-            AfRegisters.VerifySet(x => x.A = Value, Times.Once);
+            Assert.AreEqual(Value, AfRegisters.A);
         }
 
         [TestCase(PrimaryOpCode.Prefix_DD)]
@@ -366,7 +366,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
 
             Mmu.Verify(x => x.ReadByte(displacedIndex), Times.Once);
             Alu.Verify(x => x.And(A, ValueAtIndex), Times.Once);
-            AfRegisters.VerifySet(x => x.A = Expected, Times.Once);
+            Assert.AreEqual(Expected, AfRegisters.A);
         }
 
         [TestCase(PrimaryOpCode.OR_A)]
@@ -413,7 +413,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
                     throw new ArgumentOutOfRangeException(nameof(opCode));
             }
 
-            AfRegisters.VerifySet(x => x.A = Value, Times.Once);
+            Assert.AreEqual(Value, AfRegisters.A);
         }
 
         [TestCase(PrimaryOpCode.Prefix_DD)]
@@ -437,7 +437,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
 
             Mmu.Verify(x => x.ReadByte(displacedIndex), Times.Once);
             Alu.Verify(x => x.Or(A, ValueAtIndex), Times.Once);
-            AfRegisters.VerifySet(x => x.A = Expected, Times.Once);
+            Assert.AreEqual(Expected, AfRegisters.A);
         }
 
         [TestCase(PrimaryOpCode.XOR_A)]
@@ -484,7 +484,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
                     throw new ArgumentOutOfRangeException(nameof(opCode));
             }
 
-            AfRegisters.VerifySet(x => x.A = Value, Times.Once);
+            Assert.AreEqual(Value, AfRegisters.A);
         }
 
         [TestCase(PrimaryOpCode.Prefix_DD)]
@@ -508,7 +508,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
 
             Mmu.Verify(x => x.ReadByte(displacedIndex), Times.Once);
             Alu.Verify(x => x.Xor(A, ValueAtIndex), Times.Once);
-            AfRegisters.VerifySet(x => x.A = Expected, Times.Once);
+            Assert.AreEqual(Expected, AfRegisters.A);
         }
 
         [TestCase(PrimaryOpCode.CP_A)]
@@ -551,8 +551,6 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
                 default:
                     throw new ArgumentOutOfRangeException(nameof(opCode));
             }
-
-            AfRegisters.VerifySet(x => x.A = It.IsAny<byte>(), Times.Never);
         }
 
         [TestCase(PrimaryOpCode.Prefix_DD)]
@@ -574,7 +572,6 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
 
             Mmu.Verify(x => x.ReadByte(displacedIndex), Times.Once);
             Alu.Verify(x => x.Compare(A, ValueAtIndex), Times.Once);
-            AfRegisters.VerifySet(x => x.A = It.IsAny<byte>(), Times.Never);
         }
 
         [TestCase(PrimaryOpCode.INC_A)]
@@ -598,31 +595,31 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             {
                 case PrimaryOpCode.INC_A:
                     Alu.Verify(x => x.Increment(A), Times.Once);
-                    AfRegisters.VerifySet(x => x.A = Expected, Times.Once);
+                    Assert.AreEqual(Expected, AfRegisters.A);
                     break;
                 case PrimaryOpCode.INC_B:
                     Alu.Verify(x => x.Increment(B), Times.Once);
-                    GpRegisters.VerifySet(x => x.B = Expected, Times.Once);
+                    Assert.AreEqual(Expected, GpRegisters.B);
                     break;
                 case PrimaryOpCode.INC_C:
                     Alu.Verify(x => x.Increment(C), Times.Once);
-                    GpRegisters.VerifySet(x => x.C = Expected, Times.Once);
+                    Assert.AreEqual(Expected, GpRegisters.C);
                     break;
                 case PrimaryOpCode.INC_D:
                     Alu.Verify(x => x.Increment(D), Times.Once);
-                    GpRegisters.VerifySet(x => x.D = Expected, Times.Once);
+                    Assert.AreEqual(Expected, GpRegisters.D);
                     break;
                 case PrimaryOpCode.INC_E:
                     Alu.Verify(x => x.Increment(E), Times.Once);
-                    GpRegisters.VerifySet(x => x.E = Expected, Times.Once);
+                    Assert.AreEqual(Expected, GpRegisters.E);
                     break;
                 case PrimaryOpCode.INC_H:
                     Alu.Verify(x => x.Increment(H), Times.Once);
-                    GpRegisters.VerifySet(x => x.H = Expected, Times.Once);
+                    Assert.AreEqual(Expected, GpRegisters.H);
                     break;
                 case PrimaryOpCode.INC_L:
                     Alu.Verify(x => x.Increment(L), Times.Once);
-                    GpRegisters.VerifySet(x => x.L = Expected, Times.Once);
+                    Assert.AreEqual(Expected, GpRegisters.L);
                     break;
             }
         }
@@ -671,31 +668,31 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             {
                 case PrimaryOpCode.DEC_A:
                     Alu.Verify(x => x.Decrement(A), Times.Once);
-                    AfRegisters.VerifySet(x => x.A = Expected, Times.Once);
+                    Assert.AreEqual(Expected, AfRegisters.A);
                     break;
                 case PrimaryOpCode.DEC_B:
                     Alu.Verify(x => x.Decrement(B), Times.Once);
-                    GpRegisters.VerifySet(x => x.B = Expected, Times.Once);
+                    Assert.AreEqual(Expected, GpRegisters.B);
                     break;
                 case PrimaryOpCode.DEC_C:
                     Alu.Verify(x => x.Decrement(C), Times.Once);
-                    GpRegisters.VerifySet(x => x.C = Expected, Times.Once);
+                    Assert.AreEqual(Expected, GpRegisters.C);
                     break;
                 case PrimaryOpCode.DEC_D:
                     Alu.Verify(x => x.Decrement(D), Times.Once);
-                    GpRegisters.VerifySet(x => x.D = Expected, Times.Once);
+                    Assert.AreEqual(Expected, GpRegisters.D);
                     break;
                 case PrimaryOpCode.DEC_E:
                     Alu.Verify(x => x.Decrement(E), Times.Once);
-                    GpRegisters.VerifySet(x => x.E = Expected, Times.Once);
+                    Assert.AreEqual(Expected, GpRegisters.E);
                     break;
                 case PrimaryOpCode.DEC_H:
                     Alu.Verify(x => x.Decrement(H), Times.Once);
-                    GpRegisters.VerifySet(x => x.H = Expected, Times.Once);
+                    Assert.AreEqual(Expected, GpRegisters.H);
                     break;
                 case PrimaryOpCode.DEC_L:
                     Alu.Verify(x => x.Decrement(L), Times.Once);
-                    GpRegisters.VerifySet(x => x.L = Expected, Times.Once);
+                    Assert.AreEqual(Expected, GpRegisters.L);
                     break;
             }
         }
@@ -738,7 +735,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
 
             Mmu.Verify(x => x.ReadByte(HL), Times.Once);
             Alu.Verify(x => x.AddWithCarry(A, ValueAtHL), Times.Once);
-            AfRegisters.VerifySet(x => x.A = Expected, Times.Once);
+            Assert.AreEqual(Expected, AfRegisters.A);
         }
 
         [Test]
@@ -754,7 +751,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             RunWithHalt(2, 7, PrimaryOpCode.ADC_A_n, N);
 
             Alu.Verify(x => x.AddWithCarry(A, N), Times.Once);
-            AfRegisters.VerifySet(x => x.A = Expected, Times.Once);
+            Assert.AreEqual(Expected, AfRegisters.A);
         }
 
         [Test]
@@ -772,7 +769,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
 
             Mmu.Verify(x => x.ReadByte(HL), Times.Once);
             Alu.Verify(x => x.Add(A, ValueAtHL), Times.Once);
-            AfRegisters.VerifySet(x => x.A = Expected, Times.Once);
+            Assert.AreEqual(Expected, AfRegisters.A);
         }
 
         [Test]
@@ -788,7 +785,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             RunWithHalt(2, 7, PrimaryOpCode.ADD_A_n, N);
 
             Alu.Verify(x => x.Add(A, N), Times.Once);
-            AfRegisters.VerifySet(x => x.A = Expected, Times.Once);
+            Assert.AreEqual(Expected, AfRegisters.A);
         }
 
         [Test]
@@ -806,7 +803,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
 
             Mmu.Verify(x => x.ReadByte(HL), Times.Once);
             Alu.Verify(x => x.And(A, ValueAtHL), Times.Once);
-            AfRegisters.VerifySet(x => x.A = Expected, Times.Once);
+            Assert.AreEqual(Expected, AfRegisters.A);
         }
 
         [Test]
@@ -822,7 +819,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             RunWithHalt(2, 7, PrimaryOpCode.AND_n, N);
 
             Alu.Verify(x => x.And(A, N), Times.Once);
-            AfRegisters.VerifySet(x => x.A = Expected, Times.Once);
+            Assert.AreEqual(Expected, AfRegisters.A);
         }
 
         [Test]
@@ -838,7 +835,6 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
 
             Mmu.Verify(x => x.ReadByte(HL), Times.Once);
             Alu.Verify(x => x.Compare(A, ValueAtHL), Times.Once);
-            AfRegisters.VerifySet(x => x.A = It.IsAny<byte>(), Times.Never);
         }
 
         [Test]
@@ -852,7 +848,6 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             RunWithHalt(2, 7, PrimaryOpCode.CP_n, N);
 
             Alu.Verify(x => x.Compare(A, N), Times.Once);
-            AfRegisters.VerifySet(x => x.A = It.IsAny<byte>(), Times.Never);
         }
 
         [Test]
@@ -906,7 +901,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
 
             Mmu.Verify(x => x.ReadByte(HL), Times.Once);
             Alu.Verify(x => x.Or(A, ValueAtHL), Times.Once);
-            AfRegisters.VerifySet(x => x.A = Expected, Times.Once);
+            Assert.AreEqual(Expected, AfRegisters.A);
         }
 
         [Test]
@@ -922,7 +917,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             RunWithHalt(2, 7, PrimaryOpCode.OR_n, N);
 
             Alu.Verify(x => x.Or(A, N), Times.Once);
-            AfRegisters.VerifySet(x => x.A = Expected, Times.Once);
+            Assert.AreEqual(Expected, AfRegisters.A);
         }
 
         [Test]
@@ -940,7 +935,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
 
             Mmu.Verify(x => x.ReadByte(HL), Times.Once);
             Alu.Verify(x => x.SubtractWithCarry(A, ValueAtHL), Times.Once);
-            AfRegisters.VerifySet(x => x.A = Expected, Times.Once);
+            Assert.AreEqual(Expected, AfRegisters.A);
         }
 
         [Test]
@@ -956,7 +951,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             RunWithHalt(2, 7, PrimaryOpCode.SBC_A_n, N);
 
             Alu.Verify(x => x.SubtractWithCarry(A, N), Times.Once);
-            AfRegisters.VerifySet(x => x.A = Expected, Times.Once);
+            Assert.AreEqual(Expected, AfRegisters.A);
         }
 
         [Test]
@@ -974,7 +969,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
 
             Mmu.Verify(x => x.ReadByte(HL), Times.Once);
             Alu.Verify(x => x.Subtract(A, ValueAtHL), Times.Once);
-            AfRegisters.VerifySet(x => x.A = Expected, Times.Once);
+            Assert.AreEqual(Expected, AfRegisters.A);
         }
 
         [Test]
@@ -990,7 +985,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             RunWithHalt(2, 7, PrimaryOpCode.SUB_A_n, N);
 
             Alu.Verify(x => x.Subtract(A, N), Times.Once);
-            AfRegisters.VerifySet(x => x.A = Expected, Times.Once);
+            Assert.AreEqual(Expected, AfRegisters.A);
         }
 
         [Test]
@@ -1008,7 +1003,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
 
             Mmu.Verify(x => x.ReadByte(HL), Times.Once);
             Alu.Verify(x => x.Xor(A, ValueAtHL), Times.Once);
-            AfRegisters.VerifySet(x => x.A = Expected, Times.Once);
+            Assert.AreEqual(Expected, AfRegisters.A);
         }
 
         [Test]
@@ -1024,7 +1019,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             RunWithHalt(2, 7, PrimaryOpCode.XOR_n, N);
 
             Alu.Verify(x => x.Xor(A, N), Times.Once);
-            AfRegisters.VerifySet(x => x.A = Expected, Times.Once);
+            Assert.AreEqual(Expected, AfRegisters.A);
         }
     }
 }

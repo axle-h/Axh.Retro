@@ -18,8 +18,7 @@ using DryIoc;
 
 namespace Axh.Retro.CPU.Z80.Wiring
 {
-    public class Z80<TRegisters, TRegisterState> : IDisposable
-        where TRegisters : IStateBackedRegisters<TRegisterState> where TRegisterState : struct
+    public class Z80<TRegisters> : IDisposable where TRegisters : IRegisters
     {
         private readonly IContainer _container;
         private bool _isInitialized;
@@ -29,12 +28,8 @@ namespace Axh.Retro.CPU.Z80.Wiring
             _container =
                 new Container(
                     rules =>
-                    rules.WithDefaultReuseInsteadOfTransient(
-                                                             Reuse.InResolutionScopeOf(
-                                                                                       typeof (
-                                                                                           ICpuCore<TRegisters, TRegisterState>)))
-                         .WithoutThrowOnRegisteringDisposableTransient());
-            // I've implemented a proper dispose chain through object graph from ICpuCore.
+                    rules.WithDefaultReuseInsteadOfTransient(Reuse.InResolutionScopeOf(typeof (ICpuCore<TRegisters>)))
+                         .WithoutThrowOnRegisteringDisposableTransient()); // I've implemented a proper dispose chain through object graph from ICpuCore.
         }
 
         /// <summary>
@@ -42,29 +37,29 @@ namespace Axh.Retro.CPU.Z80.Wiring
         /// </summary>
         public void Dispose() => _container.Dispose();
 
-        public Z80<TRegisters, TRegisterState> With(IZ80Module module)
+        public Z80<TRegisters> With(IZ80Module module)
         {
             module.Register(_container);
             return this;
         }
 
-        public Z80<TRegisters, TRegisterState> With<TModule>() where TModule : IZ80Module, new()
+        public Z80<TRegisters> With<TModule>() where TModule : IZ80Module, new()
         {
             new TModule().Register(_container);
             return this;
         }
 
-        public ICpuCore<TRegisters, TRegisterState> GetNewCore()
+        public ICpuCore<TRegisters> GetNewCore()
         {
             if (!_isInitialized)
             {
                 throw new InvalidOperationException($"Must call {nameof(Init)} first");
             }
 
-            return _container.Resolve<ICpuCore<TRegisters, TRegisterState>>();
+            return _container.Resolve<ICpuCore<TRegisters>>();
         }
 
-        public Z80<TRegisters, TRegisterState> Init()
+        public Z80<TRegisters> Init()
         {
             if (!_container.IsRegistered<IRuntimeConfig>())
             {
@@ -76,15 +71,13 @@ namespace Axh.Retro.CPU.Z80.Wiring
                 throw new Exception($"Cannot resolve {nameof(IPlatformConfig)}");
             }
 
-            _container.Register<ICpuCore<TRegisters, TRegisterState>, CachingCpuCore<TRegisters, TRegisterState>>();
-
-            _container.Register<ICoreContext<TRegisters, TRegisterState>, CoreContext<TRegisters, TRegisterState>>();
+            _container.Register<ICpuCore<TRegisters>, CachingCpuCore<TRegisters>>();
 
             _container.Register<IPeripheralManager, PeripheralManager>();
             _container.Register<IMmu, Z80Mmu<TRegisters>>();
             _container.Register<IPrefetchQueue, PrefetchQueue>();
 
-            _container.Register<IAlu, Alu<TRegisters>>();
+            _container.Register<IAlu, Alu>();
 
             _container.Register<IInstructionBlockCache<TRegisters>, InstructionBlockCache<TRegisters>>();
 
@@ -105,25 +98,23 @@ namespace Axh.Retro.CPU.Z80.Wiring
             }
 
             // Registers
-            _container.Register<IGeneralPurposeRegisterSet, GeneralPurposeRegisterSet>();
-            _container.Register<IAccumulatorAndFlagsRegisterSet, AccumulatorAndFlagsRegisterSet>();
+            _container.Register<GeneralPurposeRegisterSet, GeneralPurposeRegisterSet>();
+            _container.Register<AccumulatorAndFlagsRegisterSet, AccumulatorAndFlagsRegisterSet>();
 
             var platformConfig = _container.Resolve<IPlatformConfig>();
             switch (platformConfig.CpuMode)
             {
                 case CpuMode.Intel8080:
                     _container.Register<IFlagsRegister, Intel8080FlagsRegister>();
-                    _container.RegisterMany(new[] { typeof (IIntel8080Registers), typeof (IRegisters) },
-                                            typeof (Intel8080Registers));
-                    break;
-                case CpuMode.GameBoy:
-                    _container.Register<IFlagsRegister, GameBoyFlagsRegister>();
-                    _container.RegisterMany(new[] { typeof (IIntel8080Registers), typeof (IRegisters) },
-                                            typeof (Intel8080Registers));
+                    _container.Register<IRegisters, Intel8080Registers>();
                     break;
                 case CpuMode.Z80:
                     _container.Register<IFlagsRegister, Intel8080FlagsRegister>();
-                    _container.RegisterMany(new[] { typeof (IIntel8080Registers), typeof (IRegisters) }, typeof (Z80Registers));
+                    _container.Register<IRegisters, Z80Registers>();
+                    break;
+                case CpuMode.GameBoy:
+                    _container.Register<IFlagsRegister, GameBoyFlagsRegister>();
+                    _container.Register<IRegisters, Intel8080Registers>();
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(platformConfig.CpuMode), platformConfig.CpuMode, null);

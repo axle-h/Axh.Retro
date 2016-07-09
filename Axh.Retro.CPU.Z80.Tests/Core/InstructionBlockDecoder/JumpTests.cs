@@ -97,14 +97,14 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             SetupRegisters();
             ResetMocks();
 
-            GpRegisters.SetupProperty(x => x.B, (byte) 2);
+            GpRegisters.B = 2;
 
             const sbyte Displacement = -30;
             const ushort DisplacedIndex = unchecked(PC + Displacement + 2);
 
             Run(3, 13, PrimaryOpCode.DJNZ, unchecked((byte) Displacement));
 
-            GpRegisters.VerifySet(x => x.B = 1, Times.Once);
+            Assert.AreEqual(1, GpRegisters.B);
             Registers.VerifySet(x => x.ProgramCounter = PC + 2, Times.Never);
             Registers.VerifySet(x => x.ProgramCounter = DisplacedIndex, Times.Once);
         }
@@ -115,14 +115,14 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             SetupRegisters();
             ResetMocks();
 
-            GpRegisters.SetupProperty(x => x.B, (byte) 1);
+            GpRegisters.B = 1;
 
             const sbyte Displacement = -30;
             const ushort DisplacedIndex = unchecked(PC + Displacement + 2);
 
             Run(2, 8, PrimaryOpCode.DJNZ, unchecked((byte) Displacement));
 
-            GpRegisters.VerifySet(x => x.B = 0, Times.Once);
+            Assert.AreEqual(0, GpRegisters.B);
             Registers.VerifySet(x => x.ProgramCounter = PC + 2, Times.Once);
             Registers.VerifySet(x => x.ProgramCounter = DisplacedIndex, Times.Never);
         }

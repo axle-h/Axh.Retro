@@ -43,7 +43,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
                     break;
             }
 
-            GpRegisters.VerifySet(x => x.HL = Value, Times.Once);
+            Assert.AreEqual(Value, GpRegisters.HL);
         }
 
         [TestCase(PrimaryOpCode.Prefix_DD, PrimaryOpCode.ADD_HL_BC)]
@@ -121,7 +121,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
                     break;
             }
 
-            GpRegisters.VerifySet(x => x.HL = Value, Times.Once);
+            Assert.AreEqual(Value, GpRegisters.HL);
         }
 
         [TestCase(PrefixEdOpCode.SBC_HL_BC)]
@@ -154,7 +154,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
                     break;
             }
 
-            GpRegisters.VerifySet(x => x.HL = Value, Times.Once);
+            Assert.AreEqual(Value, GpRegisters.HL);
         }
 
         [TestCase(PrimaryOpCode.INC_BC)]
@@ -171,13 +171,13 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             switch (opCode)
             {
                 case PrimaryOpCode.INC_BC:
-                    GpRegisters.VerifySet(x => x.BC = unchecked ((ushort) (BC + 1)), Times.Once);
+                    Assert.AreEqual(unchecked(BC + 1), GpRegisters.BC);
                     break;
                 case PrimaryOpCode.INC_DE:
-                    GpRegisters.VerifySet(x => x.DE = unchecked((ushort) (DE + 1)), Times.Once);
+                    Assert.AreEqual(unchecked(DE + 1), GpRegisters.DE);
                     break;
                 case PrimaryOpCode.INC_HL:
-                    GpRegisters.VerifySet(x => x.HL = unchecked((ushort) (HL + 1)), Times.Once);
+                    Assert.AreEqual(unchecked(HL + 1), GpRegisters.HL);
                     break;
                 case PrimaryOpCode.INC_SP:
                     Registers.VerifySet(x => x.StackPointer = unchecked((ushort) (SP + 1)), Times.Once);
@@ -219,13 +219,13 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             switch (opCode)
             {
                 case PrimaryOpCode.DEC_BC:
-                    GpRegisters.VerifySet(x => x.BC = unchecked((ushort) (BC - 1)), Times.Once);
+                    Assert.AreEqual(unchecked(BC - 1), GpRegisters.BC);
                     break;
                 case PrimaryOpCode.DEC_DE:
-                    GpRegisters.VerifySet(x => x.DE = unchecked((ushort) (DE - 1)), Times.Once);
+                    Assert.AreEqual(unchecked(DE - 1), GpRegisters.DE);
                     break;
                 case PrimaryOpCode.DEC_HL:
-                    GpRegisters.VerifySet(x => x.HL = unchecked((ushort) (HL - 1)), Times.Once);
+                    Assert.AreEqual(unchecked(HL - 1), GpRegisters.HL);
                     break;
                 case PrimaryOpCode.DEC_SP:
                     Registers.VerifySet(x => x.StackPointer = unchecked((ushort) (SP - 1)), Times.Once);

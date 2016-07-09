@@ -3,6 +3,7 @@ using Axh.Retro.CPU.Z80.Contracts.Config;
 using Axh.Retro.CPU.Z80.Contracts.Core;
 using Axh.Retro.CPU.Z80.Contracts.OpCodes;
 using Axh.Retro.CPU.Z80.Contracts.Registers;
+using Axh.Retro.CPU.Z80.Tests.Registers;
 using Moq;
 using NUnit.Framework;
 
@@ -35,31 +36,31 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             {
                 case PrefixCbOpCode.RLC_A:
                     Alu.Verify(x => x.RotateLeftWithCarry(A), Times.Once);
-                    AfRegisters.VerifySet(x => x.A = Value, Times.Once);
+                    Assert.AreEqual(Value, AfRegisters.A);
                     break;
                 case PrefixCbOpCode.RLC_B:
                     Alu.Verify(x => x.RotateLeftWithCarry(B), Times.Once);
-                    GpRegisters.VerifySet(x => x.B = Value, Times.Once);
+                    Assert.AreEqual(Value, GpRegisters.B);
                     break;
                 case PrefixCbOpCode.RLC_C:
                     Alu.Verify(x => x.RotateLeftWithCarry(C), Times.Once);
-                    GpRegisters.VerifySet(x => x.C = Value, Times.Once);
+                    Assert.AreEqual(Value, GpRegisters.C);
                     break;
                 case PrefixCbOpCode.RLC_D:
                     Alu.Verify(x => x.RotateLeftWithCarry(D), Times.Once);
-                    GpRegisters.VerifySet(x => x.D = Value, Times.Once);
+                    Assert.AreEqual(Value, GpRegisters.D);
                     break;
                 case PrefixCbOpCode.RLC_E:
                     Alu.Verify(x => x.RotateLeftWithCarry(E), Times.Once);
-                    GpRegisters.VerifySet(x => x.E = Value, Times.Once);
+                    Assert.AreEqual(Value, GpRegisters.E);
                     break;
                 case PrefixCbOpCode.RLC_H:
                     Alu.Verify(x => x.RotateLeftWithCarry(H), Times.Once);
-                    GpRegisters.VerifySet(x => x.H = Value, Times.Once);
+                    Assert.AreEqual(Value, GpRegisters.H);
                     break;
                 case PrefixCbOpCode.RLC_L:
                     Alu.Verify(x => x.RotateLeftWithCarry(L), Times.Once);
-                    GpRegisters.VerifySet(x => x.L = Value, Times.Once);
+                    Assert.AreEqual(Value, GpRegisters.L);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -86,31 +87,31 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             {
                 case PrefixCbOpCode.RL_A:
                     Alu.Verify(x => x.RotateLeft(A), Times.Once);
-                    AfRegisters.VerifySet(x => x.A = Value, Times.Once);
+                    Assert.AreEqual(Value, AfRegisters.A);
                     break;
                 case PrefixCbOpCode.RL_B:
                     Alu.Verify(x => x.RotateLeft(B), Times.Once);
-                    GpRegisters.VerifySet(x => x.B = Value, Times.Once);
+                    Assert.AreEqual(Value, GpRegisters.B);
                     break;
                 case PrefixCbOpCode.RL_C:
                     Alu.Verify(x => x.RotateLeft(C), Times.Once);
-                    GpRegisters.VerifySet(x => x.C = Value, Times.Once);
+                    Assert.AreEqual(Value, GpRegisters.C);
                     break;
                 case PrefixCbOpCode.RL_D:
                     Alu.Verify(x => x.RotateLeft(D), Times.Once);
-                    GpRegisters.VerifySet(x => x.D = Value, Times.Once);
+                    Assert.AreEqual(Value, GpRegisters.D);
                     break;
                 case PrefixCbOpCode.RL_E:
                     Alu.Verify(x => x.RotateLeft(E), Times.Once);
-                    GpRegisters.VerifySet(x => x.E = Value, Times.Once);
+                    Assert.AreEqual(Value, GpRegisters.E);
                     break;
                 case PrefixCbOpCode.RL_H:
                     Alu.Verify(x => x.RotateLeft(H), Times.Once);
-                    GpRegisters.VerifySet(x => x.H = Value, Times.Once);
+                    Assert.AreEqual(Value, GpRegisters.H);
                     break;
                 case PrefixCbOpCode.RL_L:
                     Alu.Verify(x => x.RotateLeft(L), Times.Once);
-                    GpRegisters.VerifySet(x => x.L = Value, Times.Once);
+                    Assert.AreEqual(Value, GpRegisters.L);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -148,32 +149,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             Alu.Verify(x => x.RotateLeftWithCarry(ValueAtIndex), Times.Once);
             Mmu.Verify(x => x.WriteByte(displacedIndex, Expected), Times.Once);
 
-            switch (opcode)
-            {
-                case PrefixCbOpCode.RLC_A:
-                    AfRegisters.VerifySet(x => x.A = ValueAtIndex, Times.Once);
-                    break;
-                case PrefixCbOpCode.RLC_B:
-                    GpRegisters.VerifySet(x => x.B = ValueAtIndex, Times.Once);
-                    break;
-                case PrefixCbOpCode.RLC_C:
-                    GpRegisters.VerifySet(x => x.C = ValueAtIndex, Times.Once);
-                    break;
-                case PrefixCbOpCode.RLC_D:
-                    GpRegisters.VerifySet(x => x.D = ValueAtIndex, Times.Once);
-                    break;
-                case PrefixCbOpCode.RLC_E:
-                    GpRegisters.VerifySet(x => x.E = ValueAtIndex, Times.Once);
-                    break;
-                case PrefixCbOpCode.RLC_H:
-                    GpRegisters.VerifySet(x => x.H = ValueAtIndex, Times.Once);
-                    break;
-                case PrefixCbOpCode.RLC_L:
-                    GpRegisters.VerifySet(x => x.L = ValueAtIndex, Times.Once);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+            AssertRotate(ValueAtIndex, ParseRegister(opcode));
         }
 
         [TestCase(PrimaryOpCode.Prefix_DD)]
@@ -230,32 +206,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             Alu.Verify(x => x.RotateLeft(ValueAtIndex), Times.Once);
             Mmu.Verify(x => x.WriteByte(displacedIndex, Expected), Times.Once);
 
-            switch (opcode)
-            {
-                case PrefixCbOpCode.RL_A:
-                    AfRegisters.VerifySet(x => x.A = ValueAtIndex, Times.Once);
-                    break;
-                case PrefixCbOpCode.RL_B:
-                    GpRegisters.VerifySet(x => x.B = ValueAtIndex, Times.Once);
-                    break;
-                case PrefixCbOpCode.RL_C:
-                    GpRegisters.VerifySet(x => x.C = ValueAtIndex, Times.Once);
-                    break;
-                case PrefixCbOpCode.RL_D:
-                    GpRegisters.VerifySet(x => x.D = ValueAtIndex, Times.Once);
-                    break;
-                case PrefixCbOpCode.RL_E:
-                    GpRegisters.VerifySet(x => x.E = ValueAtIndex, Times.Once);
-                    break;
-                case PrefixCbOpCode.RL_H:
-                    GpRegisters.VerifySet(x => x.H = ValueAtIndex, Times.Once);
-                    break;
-                case PrefixCbOpCode.RL_L:
-                    GpRegisters.VerifySet(x => x.L = ValueAtIndex, Times.Once);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+            AssertRotate(ValueAtIndex, ParseRegister(opcode));
         }
 
         [TestCase(PrimaryOpCode.Prefix_DD)]
@@ -301,31 +252,31 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             {
                 case PrefixCbOpCode.RRC_A:
                     Alu.Verify(x => x.RotateRightWithCarry(A), Times.Once);
-                    AfRegisters.VerifySet(x => x.A = Value, Times.Once);
+                    Assert.AreEqual(Value, AfRegisters.A);
                     break;
                 case PrefixCbOpCode.RRC_B:
                     Alu.Verify(x => x.RotateRightWithCarry(B), Times.Once);
-                    GpRegisters.VerifySet(x => x.B = Value, Times.Once);
+                    Assert.AreEqual(Value, GpRegisters.B);
                     break;
                 case PrefixCbOpCode.RRC_C:
                     Alu.Verify(x => x.RotateRightWithCarry(C), Times.Once);
-                    GpRegisters.VerifySet(x => x.C = Value, Times.Once);
+                    Assert.AreEqual(Value, GpRegisters.C);
                     break;
                 case PrefixCbOpCode.RRC_D:
                     Alu.Verify(x => x.RotateRightWithCarry(D), Times.Once);
-                    GpRegisters.VerifySet(x => x.D = Value, Times.Once);
+                    Assert.AreEqual(Value, GpRegisters.D);
                     break;
                 case PrefixCbOpCode.RRC_E:
                     Alu.Verify(x => x.RotateRightWithCarry(E), Times.Once);
-                    GpRegisters.VerifySet(x => x.E = Value, Times.Once);
+                    Assert.AreEqual(Value, GpRegisters.E);
                     break;
                 case PrefixCbOpCode.RRC_H:
                     Alu.Verify(x => x.RotateRightWithCarry(H), Times.Once);
-                    GpRegisters.VerifySet(x => x.H = Value, Times.Once);
+                    Assert.AreEqual(Value, GpRegisters.H);
                     break;
                 case PrefixCbOpCode.RRC_L:
                     Alu.Verify(x => x.RotateRightWithCarry(L), Times.Once);
-                    GpRegisters.VerifySet(x => x.L = Value, Times.Once);
+                    Assert.AreEqual(Value, GpRegisters.L);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -352,31 +303,31 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             {
                 case PrefixCbOpCode.RR_A:
                     Alu.Verify(x => x.RotateRight(A), Times.Once);
-                    AfRegisters.VerifySet(x => x.A = Value, Times.Once);
+                    Assert.AreEqual(Value, AfRegisters.A);
                     break;
                 case PrefixCbOpCode.RR_B:
                     Alu.Verify(x => x.RotateRight(B), Times.Once);
-                    GpRegisters.VerifySet(x => x.B = Value, Times.Once);
+                    Assert.AreEqual(Value, GpRegisters.B);
                     break;
                 case PrefixCbOpCode.RR_C:
                     Alu.Verify(x => x.RotateRight(C), Times.Once);
-                    GpRegisters.VerifySet(x => x.C = Value, Times.Once);
+                    Assert.AreEqual(Value, GpRegisters.C);
                     break;
                 case PrefixCbOpCode.RR_D:
                     Alu.Verify(x => x.RotateRight(D), Times.Once);
-                    GpRegisters.VerifySet(x => x.D = Value, Times.Once);
+                    Assert.AreEqual(Value, GpRegisters.D);
                     break;
                 case PrefixCbOpCode.RR_E:
                     Alu.Verify(x => x.RotateRight(E), Times.Once);
-                    GpRegisters.VerifySet(x => x.E = Value, Times.Once);
+                    Assert.AreEqual(Value, GpRegisters.E);
                     break;
                 case PrefixCbOpCode.RR_H:
                     Alu.Verify(x => x.RotateRight(H), Times.Once);
-                    GpRegisters.VerifySet(x => x.H = Value, Times.Once);
+                    Assert.AreEqual(Value, GpRegisters.H);
                     break;
                 case PrefixCbOpCode.RR_L:
                     Alu.Verify(x => x.RotateRight(L), Times.Once);
-                    GpRegisters.VerifySet(x => x.L = Value, Times.Once);
+                    Assert.AreEqual(Value, GpRegisters.L);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -414,32 +365,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             Alu.Verify(x => x.RotateRightWithCarry(ValueAtIndex), Times.Once);
             Mmu.Verify(x => x.WriteByte(displacedIndex, Expected), Times.Once);
 
-            switch (opcode)
-            {
-                case PrefixCbOpCode.RRC_A:
-                    AfRegisters.VerifySet(x => x.A = ValueAtIndex, Times.Once);
-                    break;
-                case PrefixCbOpCode.RRC_B:
-                    GpRegisters.VerifySet(x => x.B = ValueAtIndex, Times.Once);
-                    break;
-                case PrefixCbOpCode.RRC_C:
-                    GpRegisters.VerifySet(x => x.C = ValueAtIndex, Times.Once);
-                    break;
-                case PrefixCbOpCode.RRC_D:
-                    GpRegisters.VerifySet(x => x.D = ValueAtIndex, Times.Once);
-                    break;
-                case PrefixCbOpCode.RRC_E:
-                    GpRegisters.VerifySet(x => x.E = ValueAtIndex, Times.Once);
-                    break;
-                case PrefixCbOpCode.RRC_H:
-                    GpRegisters.VerifySet(x => x.H = ValueAtIndex, Times.Once);
-                    break;
-                case PrefixCbOpCode.RRC_L:
-                    GpRegisters.VerifySet(x => x.L = ValueAtIndex, Times.Once);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+            AssertRotate(ValueAtIndex, ParseRegister(opcode));
         }
 
         [TestCase(PrimaryOpCode.Prefix_DD)]
@@ -496,32 +422,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             Alu.Verify(x => x.RotateRight(ValueAtIndex), Times.Once);
             Mmu.Verify(x => x.WriteByte(displacedIndex, Expected), Times.Once);
 
-            switch (opcode)
-            {
-                case PrefixCbOpCode.RR_A:
-                    AfRegisters.VerifySet(x => x.A = ValueAtIndex, Times.Once);
-                    break;
-                case PrefixCbOpCode.RR_B:
-                    GpRegisters.VerifySet(x => x.B = ValueAtIndex, Times.Once);
-                    break;
-                case PrefixCbOpCode.RR_C:
-                    GpRegisters.VerifySet(x => x.C = ValueAtIndex, Times.Once);
-                    break;
-                case PrefixCbOpCode.RR_D:
-                    GpRegisters.VerifySet(x => x.D = ValueAtIndex, Times.Once);
-                    break;
-                case PrefixCbOpCode.RR_E:
-                    GpRegisters.VerifySet(x => x.E = ValueAtIndex, Times.Once);
-                    break;
-                case PrefixCbOpCode.RR_H:
-                    GpRegisters.VerifySet(x => x.H = ValueAtIndex, Times.Once);
-                    break;
-                case PrefixCbOpCode.RR_L:
-                    GpRegisters.VerifySet(x => x.L = ValueAtIndex, Times.Once);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+            AssertRotate(ValueAtIndex, ParseRegister(opcode));
         }
 
         [TestCase(PrimaryOpCode.Prefix_DD)]
@@ -577,7 +478,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             RunWithHalt(1, 4, PrimaryOpCode.RLA);
 
             Alu.Verify(x => x.RotateLeft(A), Times.Once);
-            AfRegisters.VerifySet(x => x.A = Value, Times.Once);
+            Assert.AreEqual(Value, AfRegisters.A);
         }
 
         [Test]
@@ -610,7 +511,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             RunWithHalt(1, 4, PrimaryOpCode.RLCA);
 
             Alu.Verify(x => x.RotateLeftWithCarry(A), Times.Once);
-            AfRegisters.VerifySet(x => x.A = Value, Times.Once);
+            Assert.AreEqual(Value, AfRegisters.A);
         }
 
         [Test]
@@ -623,7 +524,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             const byte ExpectedAccumulator = 0x58;
             const byte ExpectedResult = 0x92;
             Alu.Setup(x => x.RotateLeftDigit(A, ValueAtHL))
-               .Returns(new AccumulatorAndResult { Accumulator = ExpectedAccumulator, Result = ExpectedResult });
+               .Returns(new AccumulatorAndResult(ExpectedAccumulator, ExpectedResult));
             Mmu.Setup(x => x.ReadByte(HL)).Returns(ValueAtHL);
 
             RunWithHalt(5, 18, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.RLD);
@@ -631,7 +532,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             Mmu.Verify(x => x.ReadByte(HL), Times.Once);
             Alu.Verify(x => x.RotateLeftDigit(A, ValueAtHL), Times.Once);
             Mmu.Verify(x => x.WriteByte(HL, ExpectedResult), Times.Once);
-            AfRegisters.VerifySet(x => x.A = ExpectedAccumulator, Times.Once);
+            Assert.AreEqual(ExpectedAccumulator, AfRegisters.A);
         }
 
         [Test]
@@ -664,7 +565,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             RunWithHalt(1, 4, PrimaryOpCode.RRA);
 
             Alu.Verify(x => x.RotateRight(A), Times.Once);
-            AfRegisters.VerifySet(x => x.A = Value, Times.Once);
+            Assert.AreEqual(Value, AfRegisters.A);
         }
 
         [Test]
@@ -697,7 +598,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             RunWithHalt(1, 4, PrimaryOpCode.RRCA);
 
             Alu.Verify(x => x.RotateRightWithCarry(A), Times.Once);
-            AfRegisters.VerifySet(x => x.A = Value, Times.Once);
+            Assert.AreEqual(Value, AfRegisters.A);
         }
 
         [Test]
@@ -710,7 +611,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             const byte ExpectedAccumulator = 0x83;
             const byte ExpectedResult = 0x3a;
             Alu.Setup(x => x.RotateRightDigit(A, ValueAtHL))
-               .Returns(new AccumulatorAndResult { Accumulator = ExpectedAccumulator, Result = ExpectedResult });
+               .Returns(new AccumulatorAndResult(ExpectedAccumulator, ExpectedResult));
             Mmu.Setup(x => x.ReadByte(HL)).Returns(ValueAtHL);
 
             RunWithHalt(5, 18, PrimaryOpCode.Prefix_ED, PrefixEdOpCode.RRD);
@@ -718,7 +619,26 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             Mmu.Verify(x => x.ReadByte(HL), Times.Once);
             Alu.Verify(x => x.RotateRightDigit(A, ValueAtHL), Times.Once);
             Mmu.Verify(x => x.WriteByte(HL, ExpectedResult), Times.Once);
-            AfRegisters.VerifySet(x => x.A = ExpectedAccumulator, Times.Once);
+            Assert.AreEqual(ExpectedAccumulator, AfRegisters.A);
+        }
+
+        private static CpuRegister ParseRegister(PrefixCbOpCode opcode)
+        {
+            var tokens = opcode.ToString().Split(new[] { '_' }, 2, StringSplitOptions.RemoveEmptyEntries);
+            return (CpuRegister)Enum.Parse(typeof(CpuRegister), tokens[1]);
+        }
+
+        private void AssertRotate(byte expected, CpuRegister target)
+        {
+            var targetValue = Get8BitRegisterValue(target);
+
+            Assert.AreEqual(expected, targetValue);
+
+            // Make sure all other registers have not changed.
+            foreach (var register in target.Other8BitRegisters())
+            {
+                Assert.AreEqual(Get8BitRegisterInitialValue(register), Get8BitRegisterValue(register));
+            }
         }
     }
 }

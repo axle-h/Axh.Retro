@@ -31,11 +31,9 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             ResetMocks();
 
             RunWithHalt(1, 4, PrimaryOpCode.EX_DE_HL);
-
-            GpRegisters.VerifySet(x => x.DE = It.Is<ushort>(y => y == HL), Times.Once);
-            GpRegisters.VerifySet(x => x.HL = It.Is<ushort>(y => y == DE), Times.Once);
-            Assert.AreEqual(DE, GpRegisters.Object.HL);
-            Assert.AreEqual(HL, GpRegisters.Object.DE);
+            
+            Assert.AreEqual(DE, GpRegisters.HL);
+            Assert.AreEqual(HL, GpRegisters.DE);
         }
 
         [Test]
@@ -49,10 +47,8 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             Mmu.Setup(x => x.ReadWord(SP)).Returns(Value);
 
             RunWithHalt(5, 19, PrimaryOpCode.EX_mSP_HL);
-
-            GpRegisters.VerifySet(x => x.HL = Value, Times.Once);
-
-            Assert.AreEqual(Value, GpRegisters.Object.HL);
+            
+            Assert.AreEqual(Value, GpRegisters.HL);
 
             // SP unchanged
             Registers.VerifySet(x => x.StackPointer = It.IsAny<ushort>(), Times.Never);

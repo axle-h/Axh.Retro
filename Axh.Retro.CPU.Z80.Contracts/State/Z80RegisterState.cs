@@ -37,5 +37,7 @@ namespace Axh.Retro.CPU.Z80.Contracts.State
         public bool InterruptFlipFlop1 { get; set; }
         public bool InterruptFlipFlop2 { get; set; }
         public InterruptMode InterruptMode { get; set; }
+
+        
     }
 }

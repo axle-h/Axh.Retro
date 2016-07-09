@@ -55,11 +55,11 @@ namespace Axh.Retro.CPU.Z80.Contracts.Registers
         /// Set if the result did not fit in the register
         /// </summary>
         bool Carry { get; set; }
-
+        
         /// <summary>
-        /// Set Flag3 & Flag5 according to the result
+        /// et Flag3 & Flag5 according to the result.
         /// </summary>
-        /// <param name="result">The result to use when setting the flags</param>
+        /// <param name="result">The result to use when setting the flags.</param>
         void SetUndocumentedFlags(byte result);
 
         /// <summary>
