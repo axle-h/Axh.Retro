@@ -1,12 +1,15 @@
 ﻿namespace Axh.Retro.GameBoy.Devices
 {
+    /// <summary>
+    /// The GPU mode.
+    /// </summary>
     public enum GpuMode
     {
         /// <summary>
         /// The LCD controller is in the H-Blank period and the CPU can access both the display RAM (8000h-9FFFh) and OAM
         /// (FE00h-FE9Fh).
         /// </summary>
-        HorizonalBlank = 0,
+        HorizontalBlank = 0,
 
         /// <summary>
         /// The LCD controller is in the V-Blank period (or the display is disabled) and the CPU can access both the display

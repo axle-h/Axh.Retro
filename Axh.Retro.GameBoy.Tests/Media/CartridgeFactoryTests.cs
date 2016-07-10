@@ -1,8 +1,6 @@
 ﻿using System.Linq;
-using Axh.Retro.GameBoy.Contracts.Factories;
 using Axh.Retro.GameBoy.Contracts.Media;
-using Axh.Retro.GameBoy.Factories;
-using Axh.Retro.GameBoy.Tests.Util;
+using Axh.Retro.GameBoy.Media;
 using NUnit.Framework;
 
 namespace Axh.Retro.GameBoy.Tests.Media

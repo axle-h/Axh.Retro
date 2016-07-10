@@ -6,7 +6,7 @@ using Axh.Retro.GameBoy.Contracts.Graphics;
 namespace Axh.Retro.GameBoy.Devices
 {
     /// <summary>
-    /// Gameboy GPU tilemap pointer.
+    /// Gameboy GPU tile map pointer.
     /// </summary>
     internal class TileMapPointer
     {

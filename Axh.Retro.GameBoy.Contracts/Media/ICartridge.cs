@@ -1,40 +1,32 @@
 ﻿namespace Axh.Retro.GameBoy.Contracts.Media
 {
+    /// <summary>
+    /// A GameBoy cartridge.
+    /// </summary>
     public interface ICartridge
     {
+        /// <summary>
+        /// Gets the ROM banks.
+        /// </summary>
+        /// <value>
+        /// The ROM banks.
+        /// </value>
         byte[][] RomBanks { get; }
 
+        /// <summary>
+        /// Gets the RAM bank lengths.
+        /// </summary>
+        /// <value>
+        /// The RAM bank lengths.
+        /// </value>
         ushort[] RamBankLengths { get; }
 
+        /// <summary>
+        /// Gets the header.
+        /// </summary>
+        /// <value>
+        /// The header.
+        /// </value>
         ICartridgeHeader Header { get; }
-    }
-
-    public interface ICartridgeHeader
-    {
-        byte[] EntryPoint { get; }
-
-        bool NintendoLogoValid { get; }
-
-        string Title { get; }
-
-        bool IsGameBoyColour { get; }
-
-        string LicenseCode { get; }
-
-        bool IsSuperGameBoy { get; }
-
-        CartridgeType CartridgeType { get; }
-
-        CartridgeRomSize RomSize { get; }
-
-        CartridgeRamSize RamSize { get; }
-
-        DestinationCode DestinationCode { get; }
-
-        byte RomVersion { get; }
-
-        byte HeaderChecksum { get; }
-
-        ushort RomChecksum { get; }
     }
 }

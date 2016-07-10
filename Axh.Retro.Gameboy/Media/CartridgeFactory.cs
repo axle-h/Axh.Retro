@@ -1,70 +1,34 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using Axh.Retro.GameBoy.Contracts.Factories;
+using Axh.Retro.CPU.Common.Contracts.Util;
 using Axh.Retro.GameBoy.Contracts.Media;
-using Axh.Retro.GameBoy.Media;
-using Axh.Retro.GameBoy.Util;
 
-namespace Axh.Retro.GameBoy.Factories
+
+namespace Axh.Retro.GameBoy.Media
 {
+    /// <summary>
+    /// Factory for building <see cref="ICartridge"/> instances from raw bytes.
+    /// </summary>
     public class CartridgeFactory : ICartridgeFactory
     {
         private const int RomBankLength = 0x4000;
         private const ushort HeaderStart = 0x0100;
 
-        private static readonly byte[] ExpectedNintendoLogo =
-        {
-            0xCE,
-            0xED,
-            0x66,
-            0x66,
-            0xCC,
-            0x0D,
-            0x00,
-            0x0B,
-            0x03,
-            0x73,
-            0x00,
-            0x83,
-            0x00,
-            0x0C,
-            0x00,
-            0x0D,
-            0x00,
-            0x08,
-            0x11,
-            0x1F,
-            0x88,
-            0x89,
-            0x00,
-            0x0E,
-            0xDC,
-            0xCC,
-            0x6E,
-            0xE6,
-            0xDD,
-            0xDD,
-            0xD9,
-            0x99,
-            0xBB,
-            0xBB,
-            0x67,
-            0x63,
-            0x6E,
-            0x0E,
-            0xEC,
-            0xCC,
-            0xDD,
-            0xDC,
-            0x99,
-            0x9F,
-            0xBB,
-            0xB9,
-            0x33,
-            0x3E
-        };
-
+        /// <summary>
+        /// Gets the cartridge from the specified bytes.
+        /// </summary>
+        /// <param name="cartridge">The cartridge.</param>
+        /// <returns></returns>
+        /// <exception cref="System.ArgumentException">
+        /// Invalid cartridge length
+        /// or
+        /// Number of banks must be even
+        /// or
+        /// No valid entrypoint in cartridge
+        /// or
+        /// Cartridge type does not match number of ROM banks
+        /// </exception>
         public ICartridge GetCartridge(byte[] cartridge)
         {
             var header = GetCartridgeHeader(cartridge);
@@ -72,29 +36,23 @@ namespace Axh.Retro.GameBoy.Factories
 
             if (cartridge.Length % RomBankLength != 0)
             {
-                throw new Exception("Invalid cartridge length: " + cartridge.Length);
+                throw new ArgumentException("Invalid cartridge length");
             }
 
             if (numberOfBanks % 2 != 0)
             {
-                throw new Exception("Invalid number of banks: " + numberOfBanks);
+                throw new ArgumentException("Number of banks must be even");
             }
 
             // EntryPoint should not be all 0's or ff's
             if (header.EntryPoint.All(x => x == 0 || x == 0xff))
             {
-                throw new Exception("No valid entrypoint in cartridge");
-            }
-
-            if (!header.NintendoLogoValid)
-            {
-                // Should we do this?!
-                throw new Exception("Nintendo logo is not valid");
+                throw new ArgumentException("No valid entrypoint in cartridge");
             }
 
             if (header.RomSize.NumberOfBanks() != numberOfBanks)
             {
-                throw new Exception($"Cartridge type {header.RomSize} does not match ROM banks: " + numberOfBanks);
+                throw new ArgumentException($"Cartridge type {header.RomSize} does not match number of ROM banks: " + numberOfBanks);
             }
 
             var banks = new byte[numberOfBanks][];
@@ -110,6 +68,11 @@ namespace Axh.Retro.GameBoy.Factories
             return new Cartridge(banks, ramBanks, header);
         }
 
+        /// <summary>
+        /// Gets the cartridge header.
+        /// </summary>
+        /// <param name="cartridgeBytes">The cartridge bytes.</param>
+        /// <returns></returns>
         private static ICartridgeHeader GetCartridgeHeader(byte[] cartridgeBytes)
         {
             using (var stream = new MemoryStream(cartridgeBytes))
@@ -117,7 +80,10 @@ namespace Axh.Retro.GameBoy.Factories
                 stream.Seek(HeaderStart, SeekOrigin.Begin);
 
                 var entryPoint = stream.ReadBuffer(4);
-                var nintendoLogoValid = stream.ReadBuffer(0x30).SequenceEqual(ExpectedNintendoLogo);
+                
+                // Read over copyright header.
+                stream.ReadBuffer(0x30);
+
                 var title = stream.ReadAscii(15).Trim();
                 var isGameBoyColour = stream.ReadByte() == 0x80;
                 var newLicenseCode = new string(stream.ReadAscii(2).Reverse().ToArray());
@@ -146,7 +112,6 @@ namespace Axh.Retro.GameBoy.Factories
                 }
 
                 return new CartridgeHeader(entryPoint,
-                                           nintendoLogoValid,
                                            title,
                                            isGameBoyColour,
                                            licenseCode,

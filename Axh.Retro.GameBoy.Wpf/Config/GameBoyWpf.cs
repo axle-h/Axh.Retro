@@ -6,12 +6,21 @@ using DryIoc;
 
 namespace Axh.Retro.GameBoy.Wpf.Config
 {
+    /// <summary>
+    /// Registrations for WPF rendering of GameBoy hardware.
+    /// </summary>
+    /// <seealso cref="Axh.Retro.CPU.Z80.Wiring.IZ80Module" />
     public class GameBoyWpf : IZ80Module
     {
         private readonly CancellationTokenSource _cancellationTokenSource;
 
         private readonly byte[] _cartridge;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GameBoyWpf"/> class.
+        /// </summary>
+        /// <param name="cancellationTokenSource">The cancellation token source.</param>
+        /// <param name="cartridge">The cartridge.</param>
         public GameBoyWpf(CancellationTokenSource cancellationTokenSource, byte[] cartridge)
         {
             _cancellationTokenSource = cancellationTokenSource;

@@ -29,7 +29,7 @@ namespace Axh.Retro.GameBoy.BlarggTests
             _config.CartridgeData = cartridge;
             var core = _coreWiring.GetNewCore();
 
-            var io = core.GetPeripheralOfType<IGameBoyMemoryMappedIO>();
+            var io = core.GetPeripheralOfType<IGameBoyMemoryMappedIo>();
             var serialPort = new BlarggTestSerialPort();
             io.HardwareRegisters.SerialPort.Connect(serialPort);
 

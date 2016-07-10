@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Axh.Retro.CPU.Common.Config;
@@ -13,10 +14,13 @@ using Axh.Retro.GameBoy.Contracts.Config;
 using Axh.Retro.GameBoy.Contracts.Devices;
 using Axh.Retro.GameBoy.Contracts.Graphics;
 using Axh.Retro.GameBoy.Registers.Interfaces;
-using Axh.Retro.GameBoy.Util;
 
 namespace Axh.Retro.GameBoy.Devices
 {
+    /// <summary>
+    /// The GameBoy GPU.
+    /// </summary>
+    /// <seealso cref="Axh.Retro.GameBoy.Contracts.Graphics.IGpu" />
     public class Gpu : IGpu
     {
         private const int Scanlines = 144;
@@ -82,6 +86,14 @@ namespace Axh.Retro.GameBoy.Devices
 
         private TaskCompletionSource<bool> _paintingTaskCompletionSource;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Gpu"/> class.
+        /// </summary>
+        /// <param name="gameBoyConfig">The game boy configuration.</param>
+        /// <param name="interruptFlagsRegister">The interrupt flags register.</param>
+        /// <param name="gpuRegisters">The gpu registers.</param>
+        /// <param name="renderhandler">The renderhandler.</param>
+        /// <param name="timer">The timer.</param>
         public Gpu(IGameBoyConfig gameBoyConfig,
             IInterruptFlagsRegister interruptFlagsRegister,
             IGpuRegisters gpuRegisters,
@@ -113,14 +125,28 @@ namespace Axh.Retro.GameBoy.Devices
             Task.Factory.StartNew(() => PaintLoop().Wait(), TaskCreationOptions.LongRunning);
         }
 
+        /// <summary>
+        /// Gets the address segments.
+        /// </summary>
+        /// <value>
+        /// The address segments.
+        /// </value>
         public IEnumerable<IAddressSegment> AddressSegments => new[] { _spriteRam, _tileRam };
 
+        /// <summary>
+        /// Halts the GPU thread.
+        /// </summary>
         public void Halt()
         {
+            // TODO.
         }
 
+        /// <summary>
+        /// Resumes the GPU thread.
+        /// </summary>
         public void Resume()
         {
+            // TODO.
         }
 
         /// <summary>
@@ -146,6 +172,11 @@ namespace Axh.Retro.GameBoy.Devices
             _paintingTaskCompletionSource?.TrySetResult(false);
         }
 
+        /// <summary>
+        /// Synchronizes the GPU thread and associated registers according to the specified instruction timings.
+        /// </summary>
+        /// <param name="instructionTimings">The instruction timings.</param>
+        /// <exception cref="System.ArgumentOutOfRangeException"></exception>
         private void Sync(InstructionTimings instructionTimings)
         {
             if (!_gpuRegisters.LcdControlRegister.LcdOperation)
@@ -166,7 +197,7 @@ namespace Axh.Retro.GameBoy.Devices
 
             switch (_lcdStatusRegister.GpuMode)
             {
-                case GpuMode.HorizonalBlank:
+                case GpuMode.HorizontalBlank:
                     if (_currentTimings >= HorizontalBlankClocks)
                     {
                         _gpuRegisters.CurrentScanlineRegister.IncrementScanline();
@@ -205,7 +236,7 @@ namespace Axh.Retro.GameBoy.Devices
                     {
                         _paintingTaskCompletionSource?.TrySetResult(true);
 
-                        _lcdStatusRegister.GpuMode = GpuMode.HorizonalBlank;
+                        _lcdStatusRegister.GpuMode = GpuMode.HorizontalBlank;
                         _currentTimings -= ReadingVramClocks;
                     }
                     break;
@@ -214,6 +245,10 @@ namespace Axh.Retro.GameBoy.Devices
             }
         }
 
+        /// <summary>
+        /// The paint loop task.
+        /// </summary>
+        /// <returns></returns>
         private async Task PaintLoop()
         {
             while (!_disposed)
@@ -232,6 +267,9 @@ namespace Axh.Retro.GameBoy.Devices
             }
         }
 
+        /// <summary>
+        /// Paints a new frame.
+        /// </summary>
         private void Paint()
         {
             var renderSettings = _gpuRegisters.LcdControlRegister.BackgroundTileMap
@@ -255,14 +293,14 @@ namespace Axh.Retro.GameBoy.Devices
             var spriteBytes = _spriteRam.ReadBytes(0x0, 0xa0);
             var spriteTileSetBytes = renderSettings.TileSetAddress == 0 ? tileSetBytes : _tileRam.ReadBytes(0x0, 0x1000);
 
-            if (renderSettings.Equals(_lastRenderSettings) && tileMapBytes.SequenceEquals(_lastTileMapBytes) &&
-                tileSetBytes.SequenceEquals(_lastTileSetBytes) && spriteBytes.SequenceEquals(_lastSpriteBytes) &&
-                spriteTileSetBytes.SequenceEquals(_lastSpriteTileSetBytes))
+            if (renderSettings.Equals(_lastRenderSettings) && tileMapBytes.SequenceEqual(_lastTileMapBytes) &&
+                tileSetBytes.SequenceEqual(_lastTileSetBytes) && spriteBytes.SequenceEqual(_lastSpriteBytes) &&
+                spriteTileSetBytes.SequenceEqual(_lastSpriteTileSetBytes))
             {
                 // No need to render the same frame twice.
                 return;
             }
-
+            
             _lastRenderSettings = renderSettings;
             _lastTileMapBytes = tileMapBytes;
             _lastTileSetBytes = tileSetBytes;

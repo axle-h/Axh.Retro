@@ -4,6 +4,17 @@ using Axh.Retro.GameBoy.Registers.Interfaces;
 
 namespace Axh.Retro.GameBoy.Registers
 {
+    /// <summary>
+    /// FF0F - IF - Interrupt Flag (R/W)
+    /// 
+    /// Bit 0: V-Blank Interrupt Request(INT 40h)  (1=Request)
+    /// Bit 1: LCD STAT Interrupt Request(INT 48h)  (1=Request)
+    /// Bit 2: Timer Interrupt Request(INT 50h)  (1=Request)
+    /// Bit 3: Serial Interrupt Request(INT 58h)  (1=Request)
+    /// Bit 4: Joypad Interrupt Request(INT 60h)  (1=Request)
+    /// When an interrupt signal changes from low to high, then the corresponding bit in the IF register becomes set.For example, Bit 0 becomes set when the LCD controller enters into the V-Blank period.
+    /// </summary>
+    /// <seealso cref="Axh.Retro.GameBoy.Registers.Interfaces.IInterruptFlagsRegister" />
     public class InterruptFlagsRegister : IInterruptFlagsRegister
     {
         private const ushort VerticalBlankAddress = 0x0040;
@@ -18,6 +29,11 @@ namespace Axh.Retro.GameBoy.Registers
 
         private InterruptFlag _interruptFlag;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="InterruptFlagsRegister"/> class.
+        /// </summary>
+        /// <param name="interruptManager">The interrupt manager.</param>
+        /// <param name="interruptEnableRegister">The interrupt enable register.</param>
         public InterruptFlagsRegister(IInterruptManager interruptManager, IInterruptEnableRegister interruptEnableRegister)
         {
             _interruptManager = interruptManager;
@@ -25,8 +41,20 @@ namespace Axh.Retro.GameBoy.Registers
             _interruptFlag = InterruptFlag.None;
         }
 
+        /// <summary>
+        /// Gets the address.
+        /// </summary>
+        /// <value>
+        /// The address.
+        /// </value>
         public ushort Address => 0xff0f;
 
+        /// <summary>
+        /// Gets the name.
+        /// </summary>
+        /// <value>
+        /// The name.
+        /// </value>
         public string Name => "Interrupt Flag (IF R/W)";
 
         /// <summary>
@@ -54,8 +82,18 @@ namespace Axh.Retro.GameBoy.Registers
             }
         }
 
+        /// <summary>
+        /// Gets the debug view.
+        /// </summary>
+        /// <value>
+        /// The debug view.
+        /// </value>
         public string DebugView => ToString();
 
+        /// <summary>
+        /// Updates the interrupt flags, setting any new interrupt flags in <see cref="interrupts" />.
+        /// </summary>
+        /// <param name="interrupts">The interrupts.</param>
         public void UpdateInterrupts(InterruptFlag interrupts)
         {
             // Combine with delayed interrupts.
@@ -72,32 +110,45 @@ namespace Axh.Retro.GameBoy.Registers
                 return;
             }
 
-            if (CheckInterrupt(InterruptFlag.VerticalBlank, VerticalBlankAddress))
+            if (TryExecuteInterrupt(InterruptFlag.VerticalBlank, VerticalBlankAddress))
             {
                 return;
             }
 
-            if (CheckInterrupt(InterruptFlag.LcdStatusTriggers, LcdStatusTriggersAddress))
+            if (TryExecuteInterrupt(InterruptFlag.LcdStatusTriggers, LcdStatusTriggersAddress))
             {
                 return;
             }
 
-            if (CheckInterrupt(InterruptFlag.TimerOverflow, TimerOverflowAddress))
+            if (TryExecuteInterrupt(InterruptFlag.TimerOverflow, TimerOverflowAddress))
             {
                 return;
             }
 
-            if (CheckInterrupt(InterruptFlag.SerialLink, SerialLinkAddress))
+            if (TryExecuteInterrupt(InterruptFlag.SerialLink, SerialLinkAddress))
             {
                 return;
             }
 
-            CheckInterrupt(InterruptFlag.JoyPadPress, JoyPadPressAddress);
+            TryExecuteInterrupt(InterruptFlag.JoyPadPress, JoyPadPressAddress);
         }
 
+        /// <summary>
+        /// Returns a <see cref="System.String" /> that represents this instance.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="System.String" /> that represents this instance.
+        /// </returns>
         public override string ToString() => $"{Name} ({Address}) = {Register}";
 
-        private bool CheckInterrupt(InterruptFlag interrupt, ushort address)
+
+        /// <summary>
+        /// Tries to execute the interrupt.
+        /// </summary>
+        /// <param name="interrupt">The interrupt.</param>
+        /// <param name="address">The address.</param>
+        /// <returns></returns>
+        private bool TryExecuteInterrupt(InterruptFlag interrupt, ushort address)
         {
             if (!_interruptFlag.HasFlag(interrupt) || !_interruptEnableRegister.InterruptEnabled(interrupt))
             {

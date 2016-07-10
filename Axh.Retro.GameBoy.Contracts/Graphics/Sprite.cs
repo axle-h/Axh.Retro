@@ -1,7 +1,8 @@
 ﻿namespace Axh.Retro.GameBoy.Contracts.Graphics
 {
     /// <summary>
-    /// Stack allocated sprite structure.
+    /// Sprite structure.
+    /// This is only 7 bytes so struct = good.
     /// </summary>
     public struct Sprite
     {

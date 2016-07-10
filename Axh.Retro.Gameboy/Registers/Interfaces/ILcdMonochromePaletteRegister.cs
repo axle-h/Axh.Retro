@@ -26,6 +26,6 @@ namespace Axh.Retro.GameBoy.Registers.Interfaces
         /// <value>
         /// The pallette.
         /// </value>
-        Dictionary<Palette, MonocromeShade> Pallette { get; }
+        Dictionary<Palette, MonochromeShade> Pallette { get; }
     }
 }

@@ -1,21 +1,17 @@
 ﻿namespace Axh.Retro.GameBoy.Contracts.Devices
 {
+    /// <summary>
+    /// The GameBoy joypad.
+    /// </summary>
     public interface IJoyPad
     {
-        bool Up { get; set; }
-
-        bool Down { get; set; }
-
-        bool Left { get; set; }
-
-        bool Right { get; set; }
-
-        bool A { get; set; }
-
-        bool B { get; set; }
-
-        bool Select { get; set; }
-
-        bool Start { get; set; }
+        /// <summary>
+        /// Gets or sets the buttons.
+        /// Note: <see cref="JoyPadButton"/> is a flags register.
+        /// </summary>
+        /// <value>
+        /// The buttons.
+        /// </value>
+        JoyPadButton Buttons { get; set; }
     }
 }

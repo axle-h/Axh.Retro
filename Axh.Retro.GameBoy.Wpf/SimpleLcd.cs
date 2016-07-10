@@ -15,6 +15,10 @@ using Image = System.Windows.Controls.Image;
 
 namespace Axh.Retro.GameBoy.Wpf
 {
+    /// <summary>
+    /// A brutally naive WPF window that renders the GameBoy GPU.
+    /// </summary>
+    /// <seealso cref="Axh.Retro.GameBoy.Contracts.Graphics.IRenderHandler" />
     internal class SimpleLcd : IRenderHandler
     {
         private readonly CancellationTokenSource _cancellationTokenSource;

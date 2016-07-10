@@ -47,6 +47,6 @@ namespace Axh.Retro.GameBoy.Contracts.Config
         /// <value>
         /// The monocrome palette.
         /// </value>
-        IDictionary<MonocromeShade, Color> MonocromePalette { get; }
+        IDictionary<MonochromeShade, Color> MonocromePalette { get; }
     }
 }

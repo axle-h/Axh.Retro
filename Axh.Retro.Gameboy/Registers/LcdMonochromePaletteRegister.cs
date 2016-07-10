@@ -26,12 +26,12 @@ namespace Axh.Retro.GameBoy.Registers
         /// </summary>
         public LcdMonochromePaletteRegister()
         {
-            Pallette = new Dictionary<Palette, MonocromeShade>
+            Pallette = new Dictionary<Palette, MonochromeShade>
                        {
-                           [Palette.Colour0] = MonocromeShade.White,
-                           [Palette.Colour1] = MonocromeShade.White,
-                           [Palette.Colour2] = MonocromeShade.White,
-                           [Palette.Colour3] = MonocromeShade.White
+                           [Palette.Colour0] = MonochromeShade.White,
+                           [Palette.Colour1] = MonochromeShade.White,
+                           [Palette.Colour2] = MonochromeShade.White,
+                           [Palette.Colour3] = MonochromeShade.White
                        };
         }
 
@@ -80,16 +80,16 @@ namespace Axh.Retro.GameBoy.Registers
             set
             {
                 // Bit 7-6 - Shade for Color Number 3.
-                Pallette[Palette.Colour3] = (MonocromeShade) (value >> 6);
+                Pallette[Palette.Colour3] = (MonochromeShade) (value >> 6);
 
                 // Bit 5-4 - Shade for Color Number 2.
-                Pallette[Palette.Colour2] = (MonocromeShade) ((value >> 4) & 0x3);
+                Pallette[Palette.Colour2] = (MonochromeShade) ((value >> 4) & 0x3);
 
                 // Bit 3-2 - Shade for Color Number 1.
-                Pallette[Palette.Colour1] = (MonocromeShade) ((value >> 2) & 0x3);
+                Pallette[Palette.Colour1] = (MonochromeShade) ((value >> 2) & 0x3);
 
                 // Bit 1-0 - Shade for Color Number 0.
-                Pallette[Palette.Colour0] = (MonocromeShade) (value & 0x3);
+                Pallette[Palette.Colour0] = (MonochromeShade) (value & 0x3);
             }
         }
 
@@ -99,7 +99,7 @@ namespace Axh.Retro.GameBoy.Registers
         /// <value>
         /// The debug view.
         /// </value>
-        public string DebugView => $"{Name} ({Address}) = {Register}, {Pallette}";
+        public string DebugView => ToString();
 
         /// <summary>
         /// Gets the pallette.
@@ -107,6 +107,14 @@ namespace Axh.Retro.GameBoy.Registers
         /// <value>
         /// The pallette.
         /// </value>
-        public Dictionary<Palette, MonocromeShade> Pallette { get; }
+        public Dictionary<Palette, MonochromeShade> Pallette { get; }
+
+        /// <summary>
+        /// Returns a string that represents the current object.
+        /// </summary>
+        /// <returns>
+        /// A string that represents the current object.
+        /// </returns>
+        public override string ToString() => $"{Name} ({Address}) = {Register}, {Pallette}";
     }
 }

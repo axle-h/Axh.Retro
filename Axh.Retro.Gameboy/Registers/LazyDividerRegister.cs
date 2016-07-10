@@ -4,7 +4,7 @@ using Axh.Retro.GameBoy.Registers.Interfaces;
 namespace Axh.Retro.GameBoy.Registers
 {
     /// <summary>
-    /// Lazy i.e. will calcualte the value of the register on read. As opposed to tracking teh timings in real time.
+    /// Lazy i.e. will calculate the value of the register on read. As opposed to tracking the timings in real time.
     /// It also assumes the CPU is running real time.
     /// TODO: implement SGB & CGB increment speeds.
     /// </summary>

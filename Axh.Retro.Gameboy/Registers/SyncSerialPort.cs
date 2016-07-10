@@ -6,8 +6,9 @@ namespace Axh.Retro.GameBoy.Registers
 {
     /// <summary>
     /// Serial port that will transfer bytes synchronously.
-    /// Wanring! This will lock up the CPU if the Transfer funciton on the other SerialPort do any 'work'.
+    /// Warning! This will lock up the CPU if the Transfer function on the other SerialPort do any work.
     /// </summary>
+    /// <seealso cref="Axh.Retro.GameBoy.Registers.SerialPortBase" />
     public class SyncSerialPort : SerialPortBase
     {
         private const byte TransferStartFlagMask = 0x80;
@@ -25,6 +26,10 @@ namespace Axh.Retro.GameBoy.Registers
         // private TaskCompletionSource<bool> _transferredTaskSource;
         private bool _transferStartFlag;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SyncSerialPort"/> class.
+        /// </summary>
+        /// <param name="interruptFlagsRegister">The interrupt flags register.</param>
         public SyncSerialPort(IInterruptFlagsRegister interruptFlagsRegister)
         {
             _interruptFlagsRegister = interruptFlagsRegister;
@@ -95,6 +100,9 @@ namespace Axh.Retro.GameBoy.Registers
             }
         }
 
+        /// <summary>
+        /// Resets this instance.
+        /// </summary>
         private void Reset()
         {
             _transferStartFlag = false;
@@ -102,6 +110,12 @@ namespace Axh.Retro.GameBoy.Registers
             _isInternalClock = false;
         }
 
+        /// <summary>
+        /// Transfer a byte to external serial port and read a byte from external serial port.
+        /// Only the serial port running the GB internal clock should be calling this method.
+        /// </summary>
+        /// <param name="value">The value to write to this port.</param>
+        /// <returns>The value to transfer to the connected port.</returns>
         public override byte Transfer(byte value)
         {
             var tmp = SerialData.Register;

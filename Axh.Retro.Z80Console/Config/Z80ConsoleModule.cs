@@ -1,4 +1,5 @@
-﻿using Axh.Retro.CPU.Z80.Contracts.Config;
+﻿using Axh.Retro.CPU.Z80.Config;
+using Axh.Retro.CPU.Z80.Contracts.Config;
 using Axh.Retro.CPU.Z80.Contracts.Peripherals;
 using Axh.Retro.CPU.Z80.Contracts.State;
 using Axh.Retro.CPU.Z80.Peripherals;
@@ -7,6 +8,10 @@ using DryIoc;
 
 namespace Axh.Retro.Z80Console.Config
 {
+    /// <summary>
+    /// Registrations for the Z80 console platform.
+    /// </summary>
+    /// <seealso cref="Axh.Retro.CPU.Z80.Wiring.IZ80Module" />
     internal class Z80ConsoleModule : IZ80Module
     {
         /// <summary>
@@ -22,7 +27,7 @@ namespace Axh.Retro.Z80Console.Config
 
             // Config.
             container.Register<IPlatformConfig, Z8064KBootstrappedConfig>(Reuse.Singleton);
-            container.Register<IRuntimeConfig, RuntimeConfig>(Reuse.Singleton);
+            container.RegisterInstance<IRuntimeConfig>(new RuntimeConfig(true, CoreMode.DynaRec), Reuse.Singleton);
 
             // Initial state.
             container.RegisterInstance(Z80RegisterState.Zero, Reuse.Singleton);

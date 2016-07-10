@@ -16,14 +16,14 @@ namespace Axh.Retro.GameBoy.BlarggTests.Config
 
         public bool UseGameBoyTimings => false;
 
-        public IDictionary<MonocromeShade, Color> MonocromePalette
+        public IDictionary<MonochromeShade, Color> MonocromePalette
             =>
-                new Dictionary<MonocromeShade, Color>
+                new Dictionary<MonochromeShade, Color>
                 {
-                    [MonocromeShade.White] = Color.FromArgb(255, 255, 255),
-                    [MonocromeShade.LightGray] = Color.FromArgb(192, 192, 192),
-                    [MonocromeShade.DarkGray] = Color.FromArgb(96, 96, 96),
-                    [MonocromeShade.Black] = Color.FromArgb(0, 0, 0)
+                    [MonochromeShade.White] = Color.FromArgb(255, 255, 255),
+                    [MonochromeShade.LightGray] = Color.FromArgb(192, 192, 192),
+                    [MonochromeShade.DarkGray] = Color.FromArgb(96, 96, 96),
+                    [MonochromeShade.Black] = Color.FromArgb(0, 0, 0)
                 };
     }
 }

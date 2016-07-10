@@ -1,5 +1,8 @@
 ﻿namespace Axh.Retro.GameBoy.Contracts.Devices
 {
+    /// <summary>
+    /// Serial Data Transfer (Link Cable).
+    /// </summary>
     public interface ISerialPort
     {
         /// <summary>

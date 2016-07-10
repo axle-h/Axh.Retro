@@ -6,10 +6,10 @@
     public interface IRuntimeConfig
     {
         /// <summary>
-        /// Gets a value indicating whether [debug mode].
+        /// Gets a value indicating whether [debug mode enabled].
         /// </summary>
         /// <value>
-        ///   <c>true</c> if [debug mode]; otherwise, <c>false</c>.
+        ///   <c>true</c> if [debug mode enabled]; otherwise, <c>false</c>.
         /// </value>
         bool DebugMode { get; }
 

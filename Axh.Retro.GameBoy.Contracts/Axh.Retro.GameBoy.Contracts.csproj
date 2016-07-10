@@ -45,9 +45,10 @@
     <Compile Include="Config\IGameBoyConfig.cs" />
     <Compile Include="Devices\InterruptFlag.cs" />
     <Compile Include="Devices\ISerialPort.cs" />
-    <Compile Include="Factories\ICartridgeFactory.cs" />
+    <Compile Include="Devices\JoyPadButton.cs" />
+    <Compile Include="Media\ICartridgeFactory.cs" />
     <Compile Include="GameBoyType.cs" />
-    <Compile Include="Graphics\MonocromeShade.cs" />
+    <Compile Include="Graphics\MonochromeShade.cs" />
     <Compile Include="Graphics\NullRenderHandler.cs" />
     <Compile Include="Graphics\Palette.cs" />
     <Compile Include="Graphics\Sprite.cs" />
@@ -55,10 +56,11 @@
     <Compile Include="Media\CartridgeType.cs" />
     <Compile Include="Media\DestinationCode.cs" />
     <Compile Include="Media\ICartridge.cs" />
+    <Compile Include="Media\ICartridgeHeader.cs" />
     <Compile Include="Media\MediaExtensions.cs" />
     <Compile Include="Media\CartridgeRamSize.cs" />
     <Compile Include="Media\CartridgeRomSize.cs" />
-    <Compile Include="Peripherals\IGameBoyMemoryMappedIO.cs" />
+    <Compile Include="Peripherals\IGameBoyMemoryMappedIo.cs" />
     <Compile Include="Devices\IHardwareRegisters.cs" />
     <Compile Include="Devices\IJoyPad.cs" />
     <Compile Include="Graphics\IRenderhandler.cs" />

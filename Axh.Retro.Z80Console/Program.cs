@@ -15,14 +15,12 @@ namespace Axh.Retro.Z80Console
     /// </summary>
     internal class Program
     {
-        private static void Main(string[] args)
+        private static void Main()
         {
             using (var z80 = new Z80Wiring().With<Z80ConsoleModule>().Init())
+            using (var core = z80.GetNewCore())
             {
-                using (var core = z80.GetNewCore())
-                {
-                    core.StartCoreProcessAsync(CancellationToken.None).Wait();
-                }
+                core.StartCoreProcessAsync(CancellationToken.None).Wait();
             }
         }
     }

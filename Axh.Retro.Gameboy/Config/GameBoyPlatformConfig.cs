@@ -7,10 +7,14 @@ using Axh.Retro.CPU.Common.Contracts.Memory;
 using Axh.Retro.CPU.Z80.Contracts.Config;
 using Axh.Retro.GameBoy.Contracts;
 using Axh.Retro.GameBoy.Contracts.Config;
-using Axh.Retro.GameBoy.Contracts.Factories;
+using Axh.Retro.GameBoy.Contracts.Media;
 
 namespace Axh.Retro.GameBoy.Config
 {
+    /// <summary>
+    /// GameBoy platform configuration.
+    /// </summary>
+    /// <seealso cref="Axh.Retro.CPU.Z80.Contracts.Config.IPlatformConfig" />
     public class GameBoyPlatformConfig : IPlatformConfig
     {
         private const double CpuFrequency = 4.194304;
@@ -60,6 +64,11 @@ namespace Axh.Retro.GameBoy.Config
 
         private readonly IGameBoyConfig _gameBoyConfig;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GameBoyPlatformConfig"/> class.
+        /// </summary>
+        /// <param name="gameBoyConfig">The game boy configuration.</param>
+        /// <param name="cartridgeFactory">The cartridge factory.</param>
         public GameBoyPlatformConfig(IGameBoyConfig gameBoyConfig, ICartridgeFactory cartridgeFactory)
         {
             _gameBoyConfig = gameBoyConfig;
@@ -69,6 +78,12 @@ namespace Axh.Retro.GameBoy.Config
                                             : InstructionTimingSyncMode.Null;
         }
 
+        /// <summary>
+        /// Gets the cpu mode.
+        /// </summary>
+        /// <value>
+        /// The cpu mode.
+        /// </value>
         public CpuMode CpuMode => CpuMode.GameBoy;
 
         /// <summary>
@@ -151,6 +166,12 @@ namespace Axh.Retro.GameBoy.Config
             }
         }
 
+        /// <summary>
+        /// Gets the machine cycle speed in MHZ.
+        /// </summary>
+        /// <value>
+        /// The machine cycle speed in MHZ.
+        /// </value>
         double IPlatformConfig.MachineCycleSpeedMhz => CpuFrequency;
 
         /// <summary>
@@ -158,8 +179,21 @@ namespace Axh.Retro.GameBoy.Config
         /// </summary>
         public InstructionTimingSyncMode InstructionTimingSyncMode { get; }
 
+        /// <summary>
+        /// Gets a value indicating whether [lock on undefined instruction].
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if [lock on undefined instruction]; otherwise, <c>false</c>.
+        /// </value>
         public bool LockOnUndefinedInstruction => false;
 
+        /// <summary>
+        /// Gets the cartridge RAM bank configuration.
+        /// </summary>
+        /// <param name="bankId">The bank identifier.</param>
+        /// <param name="length">The length.</param>
+        /// <returns></returns>
+        /// <exception cref="System.Exception">Banked cartridge RAM must be  + CartridgeRamLength +  bytes</exception>
         private static IEnumerable<IMemoryBankConfig> GetCartridgeRamBankConfig(int? bankId, ushort length)
         {
             yield return

@@ -1,9 +1,9 @@
 ﻿namespace Axh.Retro.GameBoy.Contracts.Graphics
 {
     /// <summary>
-    /// 4 shades of grey (!)
+    /// 4 shades of... gray (!)
     /// </summary>
-    public enum MonocromeShade
+    public enum MonochromeShade
     {
         /// <summary>
         /// White.

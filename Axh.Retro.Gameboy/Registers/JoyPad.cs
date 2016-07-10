@@ -4,109 +4,41 @@ using Axh.Retro.GameBoy.Registers.Interfaces;
 
 namespace Axh.Retro.GameBoy.Registers
 {
+    /// <summary>
+    /// The GameBoy joypad register.
+    /// </summary>
+    /// <seealso cref="Axh.Retro.GameBoy.Registers.Interfaces.IJoyPadRegister" />
     public class JoyPad : IJoyPadRegister
     {
         private readonly IInterruptFlagsRegister _interruptFlagsRegister;
-        private bool _a;
-        private bool _b;
-        private bool _down;
-        private bool _left;
-
         private MatrixColumn _matrixColumn;
-        private bool _right;
-        private bool _select;
-        private bool _start;
+        private JoyPadButton _buttons;
 
-        private bool _up;
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="JoyPad"/> class.
+        /// </summary>
+        /// <param name="interruptFlagsRegister">The interrupt flags register.</param>
         public JoyPad(IInterruptFlagsRegister interruptFlagsRegister)
         {
             _interruptFlagsRegister = interruptFlagsRegister;
             _matrixColumn = MatrixColumn.None;
+            _buttons = JoyPadButton.None;
         }
 
-        public bool Up
-        {
-            get { return _up; }
-            set
-            {
-                _up = value;
-                _interruptFlagsRegister.UpdateInterrupts(InterruptFlag.JoyPadPress);
-            }
-        }
-
-        public bool Down
-        {
-            get { return _down; }
-            set
-            {
-                _down = value;
-                _interruptFlagsRegister.UpdateInterrupts(InterruptFlag.JoyPadPress);
-            }
-        }
-
-        public bool Left
-        {
-            get { return _left; }
-            set
-            {
-                _left = value;
-                _interruptFlagsRegister.UpdateInterrupts(InterruptFlag.JoyPadPress);
-            }
-        }
-
-        public bool Right
-        {
-            get { return _right; }
-            set
-            {
-                _right = value;
-                _interruptFlagsRegister.UpdateInterrupts(InterruptFlag.JoyPadPress);
-            }
-        }
-
-        public bool A
-        {
-            get { return _a; }
-            set
-            {
-                _a = value;
-                _interruptFlagsRegister.UpdateInterrupts(InterruptFlag.JoyPadPress);
-            }
-        }
-
-        public bool B
-        {
-            get { return _b; }
-            set
-            {
-                _b = value;
-                _interruptFlagsRegister.UpdateInterrupts(InterruptFlag.JoyPadPress);
-            }
-        }
-
-        public bool Select
-        {
-            get { return _select; }
-            set
-            {
-                _select = value;
-                _interruptFlagsRegister.UpdateInterrupts(InterruptFlag.JoyPadPress);
-            }
-        }
-
-        public bool Start
-        {
-            get { return _start; }
-            set
-            {
-                _start = value;
-                _interruptFlagsRegister.UpdateInterrupts(InterruptFlag.JoyPadPress);
-            }
-        }
-
+        /// <summary>
+        /// Gets the address.
+        /// </summary>
+        /// <value>
+        /// The address.
+        /// </value>
         public ushort Address => 0xff00;
 
+        /// <summary>
+        /// Gets the name.
+        /// </summary>
+        /// <value>
+        /// The name.
+        /// </value>
         public string Name => "Joypad Port (JOYPAD R/W)";
 
         /// <summary>
@@ -140,9 +72,15 @@ namespace Axh.Retro.GameBoy.Registers
                     case MatrixColumn.None:
                         return 0xff;
                     case MatrixColumn.P14:
-                        return GetRegister(Right, Left, Up, Down);
+                        return GetRegister(Buttons.HasFlag(JoyPadButton.Right),
+                                           Buttons.HasFlag(JoyPadButton.Left),
+                                           Buttons.HasFlag(JoyPadButton.Up),
+                                           Buttons.HasFlag(JoyPadButton.Down));
                     case MatrixColumn.P15:
-                        return GetRegister(A, B, Select, Start);
+                        return GetRegister(Buttons.HasFlag(JoyPadButton.A),
+                                           Buttons.HasFlag(JoyPadButton.B),
+                                           Buttons.HasFlag(JoyPadButton.Select),
+                                           Buttons.HasFlag(JoyPadButton.Start));
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
@@ -167,8 +105,22 @@ namespace Axh.Retro.GameBoy.Registers
             }
         }
 
-        public string DebugView { get; }
+        /// <summary>
+        /// Gets the debug view.
+        /// </summary>
+        /// <value>
+        /// The debug view.
+        /// </value>
+        public string DebugView => ToString();
 
+        /// <summary>
+        /// Gets the register.
+        /// </summary>
+        /// <param name="p10">if set to <c>true</c> [P10].</param>
+        /// <param name="p11">if set to <c>true</c> [P11].</param>
+        /// <param name="p12">if set to <c>true</c> [P12].</param>
+        /// <param name="p13">if set to <c>true</c> [P13].</param>
+        /// <returns></returns>
         private static byte GetRegister(bool p10, bool p11, bool p12, bool p13)
         {
             var value = 0xf0;
@@ -195,11 +147,49 @@ namespace Axh.Retro.GameBoy.Registers
             return (byte) ~value;
         }
 
+        /// <summary>
+        /// The column in the joypad matrix to read.
+        /// </summary>
         private enum MatrixColumn
         {
+            /// <summary>
+            /// No column. Value is unset.
+            /// </summary>
             None = 0,
+
+            /// <summary>
+            /// Column P14.
+            /// </summary>
             P14 = 1,
+
+            /// <summary>
+            /// Column P15.
+            /// </summary>
             P15 = 2
         }
+
+        /// <summary>
+        /// Gets or sets the buttons.
+        /// Note: <see cref="JoyPadButton"/> is a flags register.
+        /// </summary>
+        /// <value>
+        /// The buttons.
+        /// </value>
+        public JoyPadButton Buttons {
+            get { return _buttons; }
+            set
+            {
+                _buttons = value;
+                _interruptFlagsRegister.UpdateInterrupts(InterruptFlag.JoyPadPress);
+            }
+        }
+
+        /// <summary>
+        /// Returns a <see cref="System.String" /> that represents this instance.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="System.String" /> that represents this instance.
+        /// </returns>
+        public override string ToString() => $"{Name} ({Address}) = {Register} ({_buttons})";
     }
 }

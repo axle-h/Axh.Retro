@@ -1,4 +1,5 @@
 ﻿using Axh.Retro.CPU.Common.Contracts.Memory;
+using Axh.Retro.CPU.Z80.Config;
 using Axh.Retro.CPU.Z80.Contracts.Config;
 using Axh.Retro.CPU.Z80.Contracts.Peripherals;
 using Axh.Retro.CPU.Z80.Contracts.Registers;
@@ -6,10 +7,10 @@ using Axh.Retro.CPU.Z80.Contracts.State;
 using Axh.Retro.CPU.Z80.Wiring;
 using Axh.Retro.GameBoy.Config;
 using Axh.Retro.GameBoy.Contracts.Devices;
-using Axh.Retro.GameBoy.Contracts.Factories;
 using Axh.Retro.GameBoy.Contracts.Graphics;
+using Axh.Retro.GameBoy.Contracts.Media;
 using Axh.Retro.GameBoy.Devices;
-using Axh.Retro.GameBoy.Factories;
+using Axh.Retro.GameBoy.Media;
 using Axh.Retro.GameBoy.Peripherals;
 using Axh.Retro.GameBoy.Registers;
 using Axh.Retro.GameBoy.Registers.Interfaces;
@@ -17,6 +18,9 @@ using DryIoc;
 
 namespace Axh.Retro.GameBoy.Wiring
 {
+    /// <summary>
+    /// Registrations for GameBoy hardware.
+    /// </summary>
     public class GameBoyHardware : IZ80Module
     {
         /// <summary>
@@ -25,7 +29,7 @@ namespace Axh.Retro.GameBoy.Wiring
         /// <param name="container">The container.</param>
         public void Register(IContainer container)
         {
-            container.Register<IInterruptFlagsRegister, InterruptFlagsRegister>();
+            container.RegisterMany(new [] { typeof(IInterruptFlagsRegister), typeof(IRegister) }, typeof(InterruptFlagsRegister));
             container.Register<IHardwareRegisters, HardwareRegisters>();
 
             // Named registers
@@ -46,14 +50,14 @@ namespace Axh.Retro.GameBoy.Wiring
             container.Register<IRegister, LcdOamDmaTransferRegister>();
 
             // Peripherals, no IO mapped peripherals on GB, only memory mapped
-            container.Register<IPeripheral, GameBoyMemoryMappedIO>();
+            container.Register<IPeripheral, GameBoyMemoryMappedIo>();
 
             // GPU
             container.Register<IGpu, Gpu>();
 
             // Config.
             container.Register<IPlatformConfig, GameBoyPlatformConfig>(Reuse.Singleton);
-            container.Register<IRuntimeConfig, GameBoyRuntimeConfig>(Reuse.Singleton);
+            container.RegisterInstance<IRuntimeConfig>(new RuntimeConfig(true, CoreMode.DynaRec), Reuse.Singleton);
             container.Register<ICartridgeFactory, CartridgeFactory>(Reuse.Singleton);
 
             // Initial state.

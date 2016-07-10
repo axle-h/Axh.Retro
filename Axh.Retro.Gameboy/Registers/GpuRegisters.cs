@@ -24,8 +24,8 @@ namespace Axh.Retro.GameBoy.Registers
             LcdControlRegister = lcdControlRegister;
             CurrentScanlineRegister = currentScanlineRegister;
             LcdMonochromePaletteRegister = lcdMonochromePaletteRegister;
-            ScrollXRegister = new Interfaces.SimpleRegister(0xff43, "Background Horizontal Scrolling (SCROLLX R/W)");
-            ScrollYRegister = new Interfaces.SimpleRegister(0xff42, "Background Vertical Scrolling (SCROLLY R/W)");
+            ScrollXRegister = new SimpleRegister(0xff43, "Background Horizontal Scrolling (SCROLLX R/W)");
+            ScrollYRegister = new SimpleRegister(0xff42, "Background Vertical Scrolling (SCROLLY R/W)");
         }
 
         /// <summary>

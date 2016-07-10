@@ -45,6 +45,7 @@
     <Compile Include="Cache\ICachedInstructionBlock.cs" />
     <Compile Include="Cache\InstructionBlockCache.cs" />
     <Compile Include="Cache\NormalCachedInstructionBlock.cs" />
+    <Compile Include="Config\RuntimeConfig.cs" />
     <Compile Include="Core\Alu.cs" />
     <Compile Include="Core\CachingCpuCore.cs" />
     <Compile Include="Core\CpuCoreBase.cs" />

@@ -69,6 +69,14 @@ namespace Axh.Retro.GameBoy.Registers
         /// <value>
         /// The debug view.
         /// </value>
-        public string DebugView { get; }
+        public string DebugView => ToString();
+
+        /// <summary>
+        /// Returns a string that represents the current object.
+        /// </summary>
+        /// <returns>
+        /// A string that represents the current object.
+        /// </returns>
+        public override string ToString() => $"{Name} ({Address}) = {Register}";
     }
 }
