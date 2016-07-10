@@ -3,7 +3,19 @@
 namespace Axh.Retro.CPU.Z80.Contracts.Registers
 {
     /// <summary>
-    /// CPU registers for use with a Z80 based CPU.
+    /// Z80 registers which extend the original Intel 8080 registers with:
+    /// 
+    /// IX: 16-bit index or base register for 8-bit immediate offsets
+    /// IY: 16-bit index or base register for 8-bit immediate offsets
+    /// I: interrupt vector base register, 8 bits
+    /// R: DRAM refresh counter, 8 bits(msb does not count)
+    /// AF': alternate (or shadow) accumulator and flags (toggled in and out with EX AF,AF' )
+    /// BC', DE' and HL': alternate (or shadow) registers (toggled in and out with EXX)
+    /// Four bits of interrupt status and interrupt mode status
+    /// 
+    /// There is no direct access to the alternate registers;
+    /// instead, two special instructions, EX AF,AF' and EXX, each toggles one of two multiplexer flip-flops;
+    /// this enables fast context switches for interrupt service routines: EX AF, AF'.
     /// </summary>
     public interface IZ80Registers : IRegisters
     {

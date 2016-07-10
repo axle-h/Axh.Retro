@@ -1,5 +1,8 @@
 ﻿namespace Axh.Retro.CPU.Z80.Contracts.OpCodes
 {
+    /// <summary>
+    /// Gameboy specific modifications to <see cref="PrefixCbOpCode"/> op codes.
+    /// </summary>
     public enum GameBoyPrefixCbOpCode : byte
     {
         SWAP_B = PrefixCbOpCode.SLS_B,

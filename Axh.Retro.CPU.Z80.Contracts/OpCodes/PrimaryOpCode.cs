@@ -1,5 +1,8 @@
 ﻿namespace Axh.Retro.CPU.Z80.Contracts.OpCodes
 {
+    /// <summary>
+    /// Primary Z80 op codes.
+    /// </summary>
     public enum PrimaryOpCode : byte
     {
         NOP = 0x00,

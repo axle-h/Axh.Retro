@@ -41,7 +41,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Config\GameBoyInitialStateFactory.cs" />
     <Compile Include="Config\GameBoyPlatformConfig.cs" />
     <Compile Include="Config\GameBoyRuntimeConfig.cs" />
     <Compile Include="Devices\RenderSettings.cs" />

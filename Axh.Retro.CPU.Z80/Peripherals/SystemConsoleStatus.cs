@@ -6,8 +6,8 @@ namespace Axh.Retro.CPU.Z80.Peripherals
     /// <summary>
     /// IO peripheral on port 1 that determines whether a key is being pressed on the system console.
     /// </summary>
-    /// <seealso cref="Axh.Retro.CPU.Z80.Contracts.Peripherals.IIOPeripheral" />
-    public class SystemConsoleStatus : IIOPeripheral
+    /// <seealso cref="IIoPeripheral" />
+    public class SystemConsoleStatus : IIoPeripheral
     {
         /// <summary>
         /// The IO port of this peripheral

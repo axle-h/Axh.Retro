@@ -2,7 +2,6 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Axh.Retro.CPU.Z80.Contracts.Registers;
-using Axh.Retro.CPU.Z80.Contracts.State;
 using Axh.Retro.CPU.Z80.Wiring;
 using Axh.Retro.GameBoy.BlarggTests.Config;
 using Axh.Retro.GameBoy.Contracts.Peripherals;
@@ -14,21 +13,21 @@ namespace Axh.Retro.GameBoy.BlarggTests
     [TestFixture]
     public class BlarggTestBase : IDisposable
     {
-        private readonly Z80<IRegisters> _z80;
+        private readonly Intel8080WiringBase<IRegisters> _coreWiring;
 
         private readonly BlarggTestGameBoyConfig _config;
 
         public BlarggTestBase()
         {
             var blarggTest = new BlarggTest();
-            _z80 = new Z80<IRegisters>().With<GameBoyHardware>().With(blarggTest).Init();
+            _coreWiring = new GameBoyWiring().With<GameBoyHardware>().With(blarggTest).Init();
             _config = blarggTest.Config;
         }
 
         protected void Run(byte[] cartridge)
         {
             _config.CartridgeData = cartridge;
-            var core = _z80.GetNewCore();
+            var core = _coreWiring.GetNewCore();
 
             var io = core.GetPeripheralOfType<IGameBoyMemoryMappedIO>();
             var serialPort = new BlarggTestSerialPort();
@@ -59,7 +58,7 @@ namespace Axh.Retro.GameBoy.BlarggTests
 
         public void Dispose()
         {
-            _z80.Dispose();
+            _coreWiring.Dispose();
         }
     }
 }

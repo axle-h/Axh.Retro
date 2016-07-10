@@ -1,5 +1,8 @@
 ﻿namespace Axh.Retro.CPU.Z80.Contracts.OpCodes
 {
+    /// <summary>
+    /// Op codes that are prefixed with <see cref="PrimaryOpCode.Prefix_ED"/>. 
+    /// </summary>
     public enum PrefixEdOpCode : byte
     {
         //8 Bit Load

@@ -45,9 +45,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GameBoyWiring.cs" />
+    <Compile Include="Intel8080WiringBase.cs" />
     <Compile Include="IZ80Module.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Z80.cs" />
+    <Compile Include="Z80Wiring.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

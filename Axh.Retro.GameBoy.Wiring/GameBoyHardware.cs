@@ -1,6 +1,7 @@
 ﻿using Axh.Retro.CPU.Common.Contracts.Memory;
 using Axh.Retro.CPU.Z80.Contracts.Config;
 using Axh.Retro.CPU.Z80.Contracts.Peripherals;
+using Axh.Retro.CPU.Z80.Contracts.Registers;
 using Axh.Retro.CPU.Z80.Contracts.State;
 using Axh.Retro.CPU.Z80.Wiring;
 using Axh.Retro.GameBoy.Config;
@@ -50,10 +51,21 @@ namespace Axh.Retro.GameBoy.Wiring
             // GPU
             container.Register<IGpu, Gpu>();
 
-            container.Register<IInitialStateFactory, GameBoyInitialStateFactory>(Reuse.Singleton);
+            // Config.
             container.Register<IPlatformConfig, GameBoyPlatformConfig>(Reuse.Singleton);
             container.Register<IRuntimeConfig, GameBoyRuntimeConfig>(Reuse.Singleton);
             container.Register<ICartridgeFactory, CartridgeFactory>(Reuse.Singleton);
+
+            // Initial state.
+            var initialRegisterState =
+                new Intel8080RegisterState(new GeneralPurposeRegisterState(0x00, 0x13, 0x00, 0xd8, 0x01, 0x4d),
+                                           new AccumulatorAndFlagsRegisterState(0x01, 0xb0),
+                                           0xfffe,
+                                           0x0100,
+                                           true,
+                                           true,
+                                           InterruptMode.InterruptMode0);
+            container.RegisterInstance(initialRegisterState, Reuse.Singleton);
         }
     }
 }

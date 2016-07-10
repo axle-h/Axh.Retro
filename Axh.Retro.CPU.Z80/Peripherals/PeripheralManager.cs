@@ -11,7 +11,7 @@ namespace Axh.Retro.CPU.Z80.Peripherals
     /// <seealso cref="Axh.Retro.CPU.Z80.Contracts.Peripherals.IPeripheralManager" />
     public class PeripheralManager : IPeripheralManager
     {
-        private readonly IDictionary<byte, IIOPeripheral> _ioPeripherals;
+        private readonly IDictionary<byte, IIoPeripheral> _ioPeripherals;
         private readonly IMemoryMappedPeripheral[] _memoryMappedPeripherals;
         private readonly ICollection<IPeripheral> _peripherals;
 
@@ -22,7 +22,7 @@ namespace Axh.Retro.CPU.Z80.Peripherals
         public PeripheralManager(ICollection<IPeripheral> peripherals)
         {
             _peripherals = peripherals;
-            _ioPeripherals = peripherals.OfType<IIOPeripheral>().ToDictionary(x => x.Port);
+            _ioPeripherals = peripherals.OfType<IIoPeripheral>().ToDictionary(x => x.Port);
             _memoryMappedPeripherals = peripherals.OfType<IMemoryMappedPeripheral>().ToArray();
         }
 

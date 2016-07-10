@@ -1,8 +1,6 @@
-﻿using Axh.Retro.CPU.Z80.Contracts.Config;
-using Axh.Retro.CPU.Z80.Contracts.Registers;
+﻿using Axh.Retro.CPU.Z80.Contracts.Registers;
 using Axh.Retro.CPU.Z80.Contracts.State;
 using Axh.Retro.CPU.Z80.Registers;
-using Moq;
 using NUnit.Framework;
 
 namespace Axh.Retro.CPU.Z80.Tests.Registers
@@ -15,8 +13,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Registers
         [TestFixtureSetUp]
         public void TestFixtureSetUp()
         {
-            var initialStateFactory = new Mock<IInitialStateFactory>();
-            _z80Registers = new Z80Registers(initialStateFactory.Object);
+            _z80Registers = new Z80Registers(Z80RegisterState.Zero);
         }
 
         [Test]
@@ -58,7 +55,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Registers
             _z80Registers.ProgramCounter = ProgramCounter;
             _z80Registers.StackPointer = StackPointer;
 
-            var state = _z80Registers.GetRegisterState();
+            var state = _z80Registers.GetZ80RegisterState();
 
             Assert.AreEqual(I, state.I);
             Assert.AreEqual(R, state.R);

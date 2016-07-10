@@ -1,5 +1,8 @@
 ﻿namespace Axh.Retro.CPU.Z80.Contracts.OpCodes
 {
+    /// <summary>
+    /// Gameboy specific modifications to <see cref="PrimaryOpCode"/> op codes.
+    /// </summary>
     public enum GameBoyPrimaryOpCode : byte
     {
         LD_mnn_SP = PrimaryOpCode.EX_AF,

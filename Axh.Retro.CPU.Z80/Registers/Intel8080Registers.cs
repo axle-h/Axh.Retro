@@ -6,19 +6,28 @@ using Axh.Retro.CPU.Z80.Contracts.State;
 namespace Axh.Retro.CPU.Z80.Registers
 {
     /// <summary>
-    /// CPU registers for intel 8080 based CPU's.
+    /// Intel 8080 registers.
+    /// The processor has seven 8-bit registers (A, B, C, D, E, H, and L).
+    /// Where A is the primary 8-bit accumulator and the other six registers can be used as either individual 8-bit registers
+    /// or as three 16-bit register pairs (BC, DE, and HL) depending on the particular instruction.
+    /// It also has a 16-bit stack pointer to memory (replacing the 8008's internal stack), and a 16-bit program counter.
+    /// The processor maintains internal flag bits (a status register) which indicates the results of arithmetic and logical instructions.
     /// </summary>
     /// <seealso cref="Axh.Retro.CPU.Z80.Contracts.Registers.IRegisters" />
     public class Intel8080Registers : IRegisters
     {
+        private readonly Intel8080RegisterState _initialState;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Intel8080Registers"/> class.
         /// </summary>
-        /// <param name="initialStateFactory">The initial state factory.</param>
+        /// <param name="initialState">The initial state.</param>
         /// <param name="platformConfig">The platform configuration.</param>
         /// <exception cref="System.ArgumentOutOfRangeException"></exception>
-        public Intel8080Registers(IInitialStateFactory initialStateFactory, IPlatformConfig platformConfig)
+        public Intel8080Registers(Intel8080RegisterState initialState, IPlatformConfig platformConfig)
         {
+            _initialState = initialState;
+
             IFlagsRegister flagsRegister;
             switch (platformConfig.CpuMode)
             {
@@ -35,7 +44,7 @@ namespace Axh.Retro.CPU.Z80.Registers
 
             GeneralPurposeRegisters = new GeneralPurposeRegisterSet();
             AccumulatorAndFlagsRegisters = new AccumulatorAndFlagsRegisterSet(flagsRegister);
-            ResetToState(initialStateFactory.GetInitialRegisterState());
+            Reset();
         }
 
         /// <summary>
@@ -96,27 +105,19 @@ namespace Axh.Retro.CPU.Z80.Registers
         public InterruptMode InterruptMode { get; set; }
 
         /// <summary>
-        /// Resets this instance.
+        /// Resets the registers to their initial state.
         /// </summary>
-        public void Reset()
-        {
-            GeneralPurposeRegisters.Reset();
-            AccumulatorAndFlagsRegisters.Reset();
-
-            StackPointer = 0;
-            ProgramCounter = 0;
-            InterruptFlipFlop1 = InterruptFlipFlop2 = false;
-            InterruptMode = InterruptMode.InterruptMode0;
-        }
+        public void Reset() => ResetToState(_initialState);
 
         /// <summary>
         /// Resets the registers to the specified state.
         /// </summary>
+        /// <typeparam name="TRegisterState">The type of the register state.</typeparam>
         /// <param name="state">The state.</param>
-        public void ResetToState(Z80RegisterState state)
+        public void ResetToState<TRegisterState>(TRegisterState state) where TRegisterState : Intel8080RegisterState
         {
-            GeneralPurposeRegisters.ResetToState(state.PrimaryGeneralPurposeRegisterState);
-            AccumulatorAndFlagsRegisters.ResetToState(state.PrimaryAccumulatorAndFlagsRegisterState);
+            GeneralPurposeRegisters.ResetToState(state.GeneralPurposeRegisterState);
+            AccumulatorAndFlagsRegisters.ResetToState(state.AccumulatorAndFlagsRegisterState);
 
             StackPointer = state.StackPointer;
             ProgramCounter = state.ProgramCounter;
@@ -127,12 +128,41 @@ namespace Axh.Retro.CPU.Z80.Registers
         }
 
         /// <summary>
-        /// Gets the state of the register.
+        /// Gets the state of the registers in Intel 8080 format.
+        /// </summary>
+        /// <exception cref="NotSupportedException">The implementation must have Intel 8080 style registers. I.e. not be a Z80.</exception>
+        /// <returns></returns>
+        public Intel8080RegisterState GetIntel8080RegisterState()
+            =>
+                new Intel8080RegisterState(GeneralPurposeRegisters.GetRegisterState(),
+                                           AccumulatorAndFlagsRegisters.GetRegisterState(),
+                                           StackPointer,
+                                           ProgramCounter,
+                                           InterruptFlipFlop1,
+                                           InterruptFlipFlop2,
+                                           InterruptMode);
+
+        /// <summary>
+        /// Gets the state of the registers in Z80 format.
+        /// Non-applicable state fields are filled with 0's.
         /// </summary>
         /// <returns></returns>
-        public Z80RegisterState GetRegisterState()
-        {
-            return new Z80RegisterState { PrimaryAccumulatorAndFlagsRegisterState = AccumulatorAndFlagsRegisters.GetRegisterState(), InterruptFlipFlop1 = InterruptFlipFlop1, InterruptFlipFlop2 = InterruptFlipFlop2, InterruptMode = InterruptMode, PrimaryGeneralPurposeRegisterState = GeneralPurposeRegisters.GetRegisterState(), ProgramCounter = ProgramCounter, StackPointer = StackPointer };
-        }
+        public Z80RegisterState GetZ80RegisterState()
+            =>
+                new Z80RegisterState(GeneralPurposeRegisters.GetRegisterState(),
+                                     default(GeneralPurposeRegisterState),
+                                     AccumulatorAndFlagsRegisters.GetRegisterState(),
+                                     default(AccumulatorAndFlagsRegisterState),
+                                     false,
+                                     false,
+                                     0,
+                                     0,
+                                     0,
+                                     0,
+                                     StackPointer,
+                                     ProgramCounter,
+                                     InterruptFlipFlop1,
+                                     InterruptFlipFlop2,
+                                     InterruptMode);
     }
 }

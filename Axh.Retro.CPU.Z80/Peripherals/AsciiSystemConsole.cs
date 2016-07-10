@@ -6,8 +6,8 @@ namespace Axh.Retro.CPU.Z80.Peripherals
     /// <summary>
     /// IO peripheral on port 0 that writes ASCII encoded bytes to the system console.
     /// </summary>
-    /// <seealso cref="Axh.Retro.CPU.Z80.Contracts.Peripherals.IIOPeripheral" />
-    public class AsciiSystemConsole : IIOPeripheral
+    /// <seealso cref="IIoPeripheral" />
+    public class AsciiSystemConsole : IIoPeripheral
     {
         /// <summary>
         /// The IO port of this peripheral

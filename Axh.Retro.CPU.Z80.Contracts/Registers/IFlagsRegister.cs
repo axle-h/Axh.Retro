@@ -1,5 +1,8 @@
 namespace Axh.Retro.CPU.Z80.Contracts.Registers
 {
+    /// <summary>
+    /// The flags register, F.
+    /// </summary>
     public interface IFlagsRegister
     {
         /// <summary>

@@ -42,7 +42,6 @@
   <ItemGroup>
     <Compile Include="Cache\IInstructionBlockCache.cs" />
     <Compile Include="Config\CoreMode.cs" />
-    <Compile Include="Config\IInitialStateFactory.cs" />
     <Compile Include="Config\InstructionTimingSyncMode.cs" />
     <Compile Include="Config\IPlatformConfig.cs" />
     <Compile Include="Config\IRuntimeConfig.cs" />
@@ -53,12 +52,13 @@
     <Compile Include="Peripherals\IPeripheral.cs" />
     <Compile Include="Registers\AccumulatorAndFlagsRegisterSet.cs" />
     <Compile Include="Registers\GeneralPurposeRegisterSet.cs" />
+    <Compile Include="State\Intel8080RegisterState.cs" />
     <Compile Include="Timing\IInstructionTimingsBuilder.cs" />
     <Compile Include="Config\CpuMode.cs" />
     <Compile Include="Core\ICpuCore.cs" />
     <Compile Include="OpCodes\GameBoyPrefixCbOpCode.cs" />
     <Compile Include="OpCodes\GameBoyPrimaryOpCode.cs" />
-    <Compile Include="Peripherals\IIOPeripheral.cs" />
+    <Compile Include="Peripherals\IIoPeripheral.cs" />
     <Compile Include="Peripherals\IMemoryMappedPeripheral.cs" />
     <Compile Include="Peripherals\IPeripheralManager.cs" />
     <Compile Include="OpCodes\PrefixCbOpCode.cs" />

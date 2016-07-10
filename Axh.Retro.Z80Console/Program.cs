@@ -17,7 +17,7 @@ namespace Axh.Retro.Z80Console
     {
         private static void Main(string[] args)
         {
-            using (var z80 = new Z80<IZ80Registers>().With<Z80ConsoleModule>().Init())
+            using (var z80 = new Z80Wiring().With<Z80ConsoleModule>().Init())
             {
                 using (var core = z80.GetNewCore())
                 {
