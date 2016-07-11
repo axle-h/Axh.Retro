@@ -1,4 +1,5 @@
-﻿using Axh.Retro.CPU.Common.Contracts.Memory;
+﻿using System.Collections.Generic;
+using Axh.Retro.CPU.Common.Contracts.Memory;
 using Axh.Retro.CPU.Z80.Contracts.Core;
 using Axh.Retro.CPU.Z80.Contracts.Registers;
 
@@ -25,6 +26,14 @@ namespace Axh.Retro.CPU.Z80.Cache
         /// The accessed count.
         /// </value>
         uint AccessedCount { get; set; }
+
+        /// <summary>
+        /// Gets the address ranges.
+        /// </summary>
+        /// <value>
+        /// The address ranges.
+        /// </value>
+        IEnumerable<AddressRange> AddressRanges { get; }
 
         /// <summary>
         /// Checks if the specified range intersects this cached instruction block.

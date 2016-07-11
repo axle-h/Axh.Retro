@@ -76,7 +76,6 @@ namespace Axh.Retro.CPU.Z80.Core
             PeripheralManager.Dispose();
             Mmu.Dispose();
             DmaController.Dispose();
-            InstructionBlockCache.Dispose();
             InstructionTimer.Dispose();
         }
 

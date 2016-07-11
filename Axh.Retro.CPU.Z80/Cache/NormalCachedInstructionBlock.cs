@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Axh.Retro.CPU.Common.Contracts.Memory;
 using Axh.Retro.CPU.Z80.Contracts.Core;
 using Axh.Retro.CPU.Z80.Contracts.Registers;
@@ -44,5 +45,16 @@ namespace Axh.Retro.CPU.Z80.Cache
         /// <param name="range">The range.</param>
         /// <returns></returns>
         public bool Intersects(AddressRange range) => range.Intersects(_addressRange);
+
+        /// <summary>
+        /// Gets the address ranges.
+        /// </summary>
+        /// <value>
+        /// The address ranges.
+        /// </value>
+        public IEnumerable<AddressRange> AddressRanges
+        {
+            get { yield return _addressRange; }
+        } 
     }
 }

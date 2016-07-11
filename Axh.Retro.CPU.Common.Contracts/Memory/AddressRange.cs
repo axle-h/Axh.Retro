@@ -9,9 +9,6 @@ namespace Axh.Retro.CPU.Common.Contracts.Memory
     /// </summary>
     public struct AddressRange
     {
-        private readonly ushort _address;
-        private readonly ushort _maxAddress;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="AddressRange" /> structure.
         /// </summary>
@@ -24,9 +21,26 @@ namespace Axh.Retro.CPU.Common.Contracts.Memory
             {
                 throw new ArgumentException($"Cannot create normal range: {maxAddress} > {address}");
             }
-            _address = address;
-            _maxAddress = maxAddress;
+            Address = address;
+            MaxAddress = maxAddress;
+            
         }
+
+        /// <summary>
+        /// Gets the address.
+        /// </summary>
+        /// <value>
+        /// The address.
+        /// </value>
+        public ushort Address { get; }
+
+        /// <summary>
+        /// Gets the maximum address.
+        /// </summary>
+        /// <value>
+        /// The maximum address.
+        /// </value>
+        public ushort MaxAddress { get; }
 
         /// <summary>
         /// Determines whether the specified address range intersects with this one.
@@ -34,7 +48,23 @@ namespace Axh.Retro.CPU.Common.Contracts.Memory
         /// <param name="range">The range.</param>
         /// <returns></returns>
         public bool Intersects(AddressRange range)
-            => Math.Max(range._address, _address) <= Math.Min(range._maxAddress, _maxAddress);
+            => Math.Max(range.Address, Address) <= Math.Min(range.MaxAddress, MaxAddress);
+
+        /// <summary>
+        /// Determines whether the specified address range intersects or is adjacent to this one.
+        /// </summary>
+        /// <param name="range">The range.</param>
+        /// <returns></returns>
+        public bool IntersectsOrAdjacent(AddressRange range)
+            => Math.Max(range.Address, Address) <= Math.Min(range.MaxAddress, MaxAddress) + 1;
+
+        /// <summary>
+        /// Merges the specified range with this one.
+        /// </summary>
+        /// <param name="range">The range.</param>
+        /// <returns></returns>
+        public AddressRange Merge(AddressRange range)
+            => new AddressRange(Math.Min(Address, range.Address), Math.Max(MaxAddress, range.MaxAddress));
 
         /// <summary>
         /// Gets all address ranges required to satisfy the specified address, length pair.
@@ -63,6 +93,6 @@ namespace Axh.Retro.CPU.Common.Contracts.Memory
         /// <returns>
         /// A <see cref="System.String" /> that represents this instance.
         /// </returns>
-        public override string ToString() => $"({_address}, {_maxAddress})";
+        public override string ToString() => $"({Address}, {MaxAddress})";
     }
 }

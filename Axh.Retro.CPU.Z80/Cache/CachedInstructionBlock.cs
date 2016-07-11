@@ -43,6 +43,20 @@ namespace Axh.Retro.CPU.Z80.Cache
         public uint AccessedCount { get; set; }
 
         /// <summary>
+        /// Gets the address ranges.
+        /// </summary>
+        /// <value>
+        /// The address ranges.
+        /// </value>
+        public IEnumerable<AddressRange> AddressRanges {
+            get
+            {
+                yield return _addressRange0;
+                yield return _addressRange1;
+            }
+        }
+
+        /// <summary>
         /// Checks if the specified range intersects this cached instruction block.
         /// </summary>
         /// <param name="range">The range.</param>
