@@ -34,14 +34,6 @@ namespace Axh.Retro.GameBoy.Contracts.Config
         bool RunGpu { get; }
 
         /// <summary>
-        /// Gets a value indicating whether [use game boy timings].
-        /// </summary>
-        /// <value>
-        /// <c>true</c> if [use game boy timings]; otherwise, <c>false</c>.
-        /// </value>
-        bool UseGameBoyTimings { get; }
-
-        /// <summary>
         /// Gets the monocrome palette.
         /// </summary>
         /// <value>

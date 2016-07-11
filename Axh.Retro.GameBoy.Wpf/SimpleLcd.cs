@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Axh.Retro.GameBoy.Contracts.Graphics;
@@ -25,6 +26,7 @@ namespace Axh.Retro.GameBoy.Wpf
         private Image _image;
         private Window _window;
         private WriteableBitmap _writeableBitmap;
+        private Label _metricsLabel;
 
         public SimpleLcd(CancellationTokenSource cancellationTokenSource)
         {
@@ -39,6 +41,17 @@ namespace Axh.Retro.GameBoy.Wpf
         /// <param name="frame"></param>
         public void Paint(Bitmap frame) => _window.Dispatcher.Invoke(() => UpdateUi(frame));
 
+        /// <summary>
+        /// Updates the rendering metrics.
+        /// The render handler can choose to display this if required.
+        /// </summary>
+        /// <param name="fps">The total frames rendered in the last second.</param>
+        /// <param name="skippedFrames">The skipped frames.</param>
+        public void UpdateMetrics(int fps, int skippedFrames)
+        {
+            _window.Dispatcher.Invoke(() => _metricsLabel.Content = $"fps: {fps}, frame skip: {skippedFrames}");
+        }
+
         private void Init()
         {
             _image = new Image
@@ -47,7 +60,15 @@ namespace Axh.Retro.GameBoy.Wpf
                          HorizontalAlignment = HorizontalAlignment.Left,
                          VerticalAlignment = VerticalAlignment.Top
                      };
-            _window = new Window { Content = _image };
+
+            _metricsLabel = new Label();
+
+            var panel = new StackPanel();
+            
+            panel.Children.Add(_metricsLabel);
+            panel.Children.Add(_image);
+
+            _window = new Window { Content = panel };
 
             RenderOptions.SetBitmapScalingMode(_image, BitmapScalingMode.NearestNeighbor);
             RenderOptions.SetEdgeMode(_image, EdgeMode.Aliased);

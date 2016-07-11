@@ -5,6 +5,7 @@ using System.Drawing.Imaging;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using System.Timers;
 using Axh.Retro.CPU.Common.Config;
 using Axh.Retro.CPU.Common.Contracts.Config;
 using Axh.Retro.CPU.Common.Contracts.Memory;
@@ -23,12 +24,12 @@ namespace Axh.Retro.GameBoy.Devices
     /// <seealso cref="Axh.Retro.GameBoy.Contracts.Graphics.IGpu" />
     public class Gpu : IGpu
     {
-        private const int Scanlines = 144;
-        private const int VertaicalBlankScanlines = 153;
-        private const int VerticalBlankClocks = 456;
-        private const int ReadingOamClocks = 80;
-        private const int ReadingVramClocks = 172;
-        private const int HorizontalBlankClocks = 204;
+        private const int ScanLines = 144;
+        private const int VerticalBlankScanLines = 153;
+        private const int VerticalBlankCycles = 4560 / (VerticalBlankScanLines - ScanLines + 1);
+        private const int ReadingOamCycles = 80;
+        private const int ReadingVramCycles = 172;
+        private const int HorizontalBlankCycles = 204;
 
         public const int LcdWidth = 160;
         public const int LcdHeight = 144;
@@ -51,14 +52,14 @@ namespace Axh.Retro.GameBoy.Devices
 
         private readonly IInterruptFlagsRegister _interruptFlagsRegister;
 
+        private readonly IRenderHandler _renderHandler;
+
         /// <summary>
         /// Normal frame buffer.
         /// </summary>
         private readonly Bitmap _lcdBuffer;
 
         private readonly ILcdStatusRegister _lcdStatusRegister;
-
-        private readonly IRenderHandler _renderhandler;
 
         /// <summary>
         /// $FE00-$FE9F	OAM - Object Attribute Memory
@@ -74,6 +75,10 @@ namespace Axh.Retro.GameBoy.Devices
         /// </summary>
         private readonly ArrayBackedMemoryBank _tileRam;
 
+        private int _frameSkip;
+        private int _framesRendered;
+        private readonly Timer _metricsTimer;
+        
         private int _currentTimings;
         private bool _disposed;
 
@@ -92,17 +97,17 @@ namespace Axh.Retro.GameBoy.Devices
         /// <param name="gameBoyConfig">The game boy configuration.</param>
         /// <param name="interruptFlagsRegister">The interrupt flags register.</param>
         /// <param name="gpuRegisters">The gpu registers.</param>
-        /// <param name="renderhandler">The renderhandler.</param>
+        /// <param name="renderHandler">The renderhandler.</param>
         /// <param name="timer">The timer.</param>
         public Gpu(IGameBoyConfig gameBoyConfig,
             IInterruptFlagsRegister interruptFlagsRegister,
             IGpuRegisters gpuRegisters,
-            IRenderHandler renderhandler,
+            IRenderHandler renderHandler,
             IInstructionTimer timer)
         {
             _interruptFlagsRegister = interruptFlagsRegister;
             _gpuRegisters = gpuRegisters;
-            _renderhandler = renderhandler;
+            _renderHandler = renderHandler;
             _gameBoyConfig = gameBoyConfig;
             _lcdStatusRegister = gpuRegisters.LcdStatusRegister;
 
@@ -123,6 +128,14 @@ namespace Axh.Retro.GameBoy.Devices
             _disposed = false;
 
             Task.Factory.StartNew(() => PaintLoop().Wait(), TaskCreationOptions.LongRunning);
+
+            _metricsTimer = new Timer(1000);
+            _metricsTimer.Elapsed += (sender, args) =>
+                                     {
+                                         _renderHandler.UpdateMetrics(_framesRendered, _frameSkip);
+                                         _framesRendered = _frameSkip = 0;
+                                     };
+            _metricsTimer.Start();
         }
 
         /// <summary>
@@ -169,6 +182,7 @@ namespace Axh.Retro.GameBoy.Devices
                 _disposed = true;
             }
 
+            _metricsTimer.Dispose();
             _paintingTaskCompletionSource?.TrySetResult(false);
         }
 
@@ -191,53 +205,56 @@ namespace Axh.Retro.GameBoy.Devices
             }
 
             _isEnabled = true;
-
-            var timings = instructionTimings.MachineCycles;
-            _currentTimings += timings;
+            _currentTimings += instructionTimings.MachineCycles;
 
             switch (_lcdStatusRegister.GpuMode)
             {
                 case GpuMode.HorizontalBlank:
-                    if (_currentTimings >= HorizontalBlankClocks)
+                    if (_currentTimings >= HorizontalBlankCycles)
                     {
                         _gpuRegisters.CurrentScanlineRegister.IncrementScanline();
-                        _lcdStatusRegister.GpuMode = _gpuRegisters.CurrentScanlineRegister.Scanline == Scanlines
+                        _lcdStatusRegister.GpuMode = _gpuRegisters.CurrentScanlineRegister.Scanline == ScanLines - 1
                                                          ? GpuMode.VerticalBlank
                                                          : GpuMode.ReadingOam;
-                        _currentTimings -= HorizontalBlankClocks;
+                        _currentTimings -= HorizontalBlankCycles;
                     }
                     break;
                 case GpuMode.VerticalBlank:
-                    if (_currentTimings >= VerticalBlankClocks)
+                    if (_currentTimings >= VerticalBlankCycles)
                     {
-                        if (_gpuRegisters.CurrentScanlineRegister.Scanline == VertaicalBlankScanlines)
+                        if (_gpuRegisters.CurrentScanlineRegister.Scanline == VerticalBlankScanLines)
                         {
+                            // Paint.
+                            var painted = _paintingTaskCompletionSource?.TrySetResult(true);
+                            if (!painted.GetValueOrDefault())
+                            {
+                                _frameSkip++;
+                            }
+
                             // Reset
                             _gpuRegisters.CurrentScanlineRegister.Register = 0x00;
                             _lcdStatusRegister.GpuMode = GpuMode.ReadingOam;
-                            _currentTimings -= VerticalBlankClocks;
                             _interruptFlagsRegister.UpdateInterrupts(InterruptFlag.VerticalBlank);
+                            _currentTimings -= VerticalBlankCycles;
                             break;
                         }
 
                         _gpuRegisters.CurrentScanlineRegister.IncrementScanline();
-                        _currentTimings -= VerticalBlankClocks;
+                        _currentTimings -= VerticalBlankCycles;
                     }
                     break;
                 case GpuMode.ReadingOam:
-                    if (_currentTimings >= ReadingOamClocks)
+                    if (_currentTimings >= ReadingOamCycles)
                     {
                         _lcdStatusRegister.GpuMode = GpuMode.ReadingVram;
-                        _currentTimings -= ReadingOamClocks;
+                        _currentTimings -= ReadingOamCycles;
                     }
                     break;
                 case GpuMode.ReadingVram:
-                    if (_currentTimings >= ReadingVramClocks)
+                    if (_currentTimings >= ReadingVramCycles)
                     {
-                        _paintingTaskCompletionSource?.TrySetResult(true);
-
                         _lcdStatusRegister.GpuMode = GpuMode.HorizontalBlank;
-                        _currentTimings -= ReadingVramClocks;
+                        _currentTimings -= ReadingVramCycles;
                     }
                     break;
                 default:
@@ -298,6 +315,8 @@ namespace Axh.Retro.GameBoy.Devices
                 spriteTileSetBytes.SequenceEqual(_lastSpriteTileSetBytes))
             {
                 // No need to render the same frame twice.
+                _frameSkip = 0;
+                _framesRendered++;
                 return;
             }
             
@@ -343,7 +362,10 @@ namespace Axh.Retro.GameBoy.Devices
             }
 
             _lcdBuffer.UnlockBits(frameData);
-            _renderhandler.Paint(_lcdBuffer);
+            _renderHandler.Paint(_lcdBuffer);
+
+            _frameSkip = 0;
+            _framesRendered++;
         }
     }
 }

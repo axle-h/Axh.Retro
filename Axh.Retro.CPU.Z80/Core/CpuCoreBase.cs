@@ -77,6 +77,7 @@ namespace Axh.Retro.CPU.Z80.Core
             Mmu.Dispose();
             DmaController.Dispose();
             InstructionBlockCache.Dispose();
+            InstructionTimer.Dispose();
         }
 
         /// <summary>
@@ -130,7 +131,7 @@ namespace Axh.Retro.CPU.Z80.Core
                 _interruptAddress = null;
             }
 
-            await InstructionTimer.SyncToTimings(timings).ConfigureAwait(false);
+            InstructionTimer.SyncToTimings(timings);
         }
     }
 }

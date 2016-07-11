@@ -17,5 +17,15 @@ namespace Axh.Retro.GameBoy.Contracts.Graphics
         public void Paint(Bitmap frame)
         {
         }
+
+        /// <summary>
+        /// Updates the rendering metrics.
+        /// The render handler can choose to display this if required.
+        /// </summary>
+        /// <param name="fps">The total frames rendered in the last second.</param>
+        /// <param name="skippedFrames">The skipped frames.</param>
+        public void UpdateMetrics(int fps, int skippedFrames)
+        {
+        }
     }
 }

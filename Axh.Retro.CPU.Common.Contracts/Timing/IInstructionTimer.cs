@@ -6,7 +6,7 @@ namespace Axh.Retro.CPU.Common.Contracts.Timing
     /// <summary>
     /// An instruction timer.
     /// </summary>
-    public interface IInstructionTimer
+    public interface IInstructionTimer : IDisposable
     {
         /// <summary>
         /// Occurs when [timing synchronize].
@@ -18,6 +18,13 @@ namespace Axh.Retro.CPU.Common.Contracts.Timing
         /// </summary>
         /// <param name="timings">The timings.</param>
         /// <returns></returns>
-        Task SyncToTimings(InstructionTimings timings);
+        void SyncToTimingsNow(InstructionTimings timings);
+
+        /// <summary>
+        /// Uses the configured instruction timings to sync real time to the CPU.
+        /// </summary>
+        /// <param name="timings">The timings.</param>
+        /// <returns></returns>
+        void SyncToTimings(InstructionTimings timings);
     }
 }

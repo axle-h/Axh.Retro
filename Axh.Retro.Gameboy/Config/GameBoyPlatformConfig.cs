@@ -73,9 +73,6 @@ namespace Axh.Retro.GameBoy.Config
         {
             _gameBoyConfig = gameBoyConfig;
             _cartridgeFactory = cartridgeFactory;
-            InstructionTimingSyncMode = gameBoyConfig.UseGameBoyTimings
-                                            ? InstructionTimingSyncMode.MachineCycles
-                                            : InstructionTimingSyncMode.Null;
         }
 
         /// <summary>
@@ -174,10 +171,14 @@ namespace Axh.Retro.GameBoy.Config
         /// </value>
         double IPlatformConfig.MachineCycleSpeedMhz => CpuFrequency;
 
+
         /// <summary>
-        /// GB rounds all machine cycles to 4 throttling states. I.e. we need to run timing based on machine cycles.
+        /// Gets the instruction timing synchronize mode.
         /// </summary>
-        public InstructionTimingSyncMode InstructionTimingSyncMode { get; }
+        /// <value>
+        /// The instruction timing synchronize mode.
+        /// </value>
+        public InstructionTimingSyncMode InstructionTimingSyncMode => InstructionTimingSyncMode.MachineCycles;
 
         /// <summary>
         /// Gets a value indicating whether [lock on undefined instruction].

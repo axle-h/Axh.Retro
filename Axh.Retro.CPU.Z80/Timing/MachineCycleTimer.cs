@@ -1,7 +1,11 @@
 ﻿using System;
+using System.Collections.Concurrent;
+using System.Diagnostics;
+using System.Threading;
 using System.Threading.Tasks;
 using Axh.Retro.CPU.Common.Contracts.Timing;
 using Axh.Retro.CPU.Z80.Contracts.Config;
+using Timer = System.Timers.Timer;
 
 namespace Axh.Retro.CPU.Z80.Timing
 {
@@ -10,8 +14,27 @@ namespace Axh.Retro.CPU.Z80.Timing
     /// </summary>
     public class MachineCycleTimer : IInstructionTimer
     {
-        private readonly double _syncMagnitude;
-        private readonly InstructionTimingSyncMode _syncMode;
+        /// <summary>
+        /// The number of millisends to wait before syncing real-time to CPU time.
+        /// Sync up every 16.6ms. I.e. will run sync a 60 fps device e.g. GameBoy well.
+        /// </summary>
+        private const double MillisecondsPerSync = 1000 / 60.0;
+
+        /// <summary>
+        /// The number of cycles to wait between calling <see cref="TimingSync"/>.
+        /// TODO: move to config. E.g. the GameBoy needs this to be ~80 machine cycles, may be higher/lower on other systems.
+        /// </summary>
+        private const int CyclesPerSyncEvent = 80;
+
+        private readonly Timer _syncTimer;
+        private readonly int _cyclesPerSync;
+        
+        private readonly double _ticksPerCycle;
+
+        private int _cyclesSinceLastSync;
+        private int _cyclesSinceLastEventSync;
+
+        private readonly ConcurrentQueue<int> _syncQueue;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MachineCycleTimer"/> class.
@@ -20,52 +43,93 @@ namespace Axh.Retro.CPU.Z80.Timing
         /// <exception cref="System.ArgumentOutOfRangeException"></exception>
         public MachineCycleTimer(IPlatformConfig platformConfig)
         {
-            _syncMode = platformConfig.InstructionTimingSyncMode;
-
-            switch (_syncMode)
+            switch (platformConfig.InstructionTimingSyncMode)
             {
                 case InstructionTimingSyncMode.Null:
                     // Run ASAP
-                    _syncMagnitude = 0;
+                    _ticksPerCycle = 0;
                     break;
                 case InstructionTimingSyncMode.MachineCycles:
-                    _syncMagnitude = 1 / platformConfig.MachineCycleSpeedMhz / 1000000;
-                    break;
-                case InstructionTimingSyncMode.ThrottlingStates:
-                    // Throttling state clock runs 1/4 of machine cycles
-                    _syncMagnitude = 1 / platformConfig.MachineCycleSpeedMhz / 1000000 / 4;
+                    _ticksPerCycle = 1 / platformConfig.MachineCycleSpeedMhz * 10;
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+
+            _syncQueue = new ConcurrentQueue<int>();
+
+            // ~70,000 on a GameBoy.
+            _cyclesPerSync = (int) Math.Ceiling(MillisecondsPerSync / (_ticksPerCycle / TimeSpan.TicksPerMillisecond));
+            _syncTimer = new Timer(MillisecondsPerSync);
+            _syncTimer.Elapsed += (sender, args) =>
+                                  {
+                                      // If the CPU is running faster than real time then we must wait.
+                                      // Otherwise do nothing.
+                                      var extraCycles = _cyclesSinceLastSync - _cyclesPerSync;
+                                      if (extraCycles > 0)
+                                      {
+                                          // TODO: Why does only waiting for ~90% of the extra cycles give a better result? Is it timer accuracy? Or my maths?
+                                          _syncQueue.Enqueue((int) (extraCycles * 0.90));
+                                      }
+
+                                      _cyclesSinceLastSync = 0;
+                                  };
+            _syncTimer.Start();
         }
+
+        /// <summary>
+        /// Uses the configured instruction timings to sync real time to the CPU.
+        /// Always syncs timings immediately.
+        /// </summary>
+        /// <param name="timings">The timings.</param>
+        /// <returns></returns>
+        /// <exception cref="System.ArgumentOutOfRangeException"></exception>
+        public void SyncToTimingsNow(InstructionTimings timings)
+            => Thread.Sleep(new TimeSpan((long) _ticksPerCycle * timings.MachineCycles));
 
         /// <summary>
         /// Uses the configured instruction timings to sync real time to the CPU.
         /// </summary>
         /// <param name="timings">The timings.</param>
         /// <returns></returns>
-        /// <exception cref="System.ArgumentOutOfRangeException"></exception>
-        public Task SyncToTimings(InstructionTimings timings)
+        public void SyncToTimings(InstructionTimings timings)
         {
-            TimingSync?.Invoke(timings);
+            _cyclesSinceLastSync += timings.MachineCycles;
 
-            switch (_syncMode)
+            int syncCycles;
+            if (_syncQueue.TryDequeue(out syncCycles))
             {
-                case InstructionTimingSyncMode.Null:
-                    return Task.CompletedTask;
-                case InstructionTimingSyncMode.MachineCycles:
-                    return Task.Delay(TimeSpan.FromSeconds(_syncMagnitude * timings.MachineCycles));
-                case InstructionTimingSyncMode.ThrottlingStates:
-                    return Task.Delay(TimeSpan.FromSeconds(_syncMagnitude * timings.ThrottlingStates));
-                default:
-                    throw new ArgumentOutOfRangeException();
+                Thread.Sleep(new TimeSpan((long) (_ticksPerCycle * syncCycles)));
+            }
+            
+            // Check if we need to call the sync event.
+            _cyclesSinceLastEventSync += timings.MachineCycles;
+            if (_cyclesSinceLastEventSync > CyclesPerSyncEvent)
+            {
+                TimingSync?.Invoke(new InstructionTimings(_cyclesSinceLastEventSync));
+                _cyclesSinceLastEventSync = 0;
             }
         }
+
+        /// <summary>
+        /// Gets the ticks required to sync to the specified timings.
+        /// </summary>
+        /// <param name="timings">The timings.</param>
+        /// <returns></returns>
+        /// <exception cref="System.ArgumentOutOfRangeException"></exception>
+        private long GetTicks(InstructionTimings timings) => (long) _ticksPerCycle * timings.MachineCycles;
 
         /// <summary>
         /// Occurs when [timing synchronize].
         /// </summary>
         public event Action<InstructionTimings> TimingSync;
+
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public void Dispose()
+        {
+            _syncTimer.Dispose();
+        }
     }
 }

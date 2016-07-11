@@ -46,14 +46,6 @@ namespace Axh.Retro.GameBoy.Wpf.Config
         public bool RunGpu => true;
 
         /// <summary>
-        /// Gets a value indicating whether [use game boy timings].
-        /// </summary>
-        /// <value>
-        /// <c>true</c> if [use game boy timings]; otherwise, <c>false</c>.
-        /// </value>
-        public bool UseGameBoyTimings => true;
-
-        /// <summary>
         /// Gets the monocrome palette.
         /// </summary>
         /// <value>

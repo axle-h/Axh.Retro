@@ -57,7 +57,14 @@ namespace Axh.Retro.GameBoy.Wiring
 
             // Config.
             container.Register<IPlatformConfig, GameBoyPlatformConfig>(Reuse.Singleton);
-            container.RegisterInstance<IRuntimeConfig>(new RuntimeConfig(true, CoreMode.DynaRec), Reuse.Singleton);
+
+#if DEBUG
+            const bool DebugMode = true;
+#else
+            const bool DebugMode = false;
+#endif
+
+            container.RegisterInstance<IRuntimeConfig>(new RuntimeConfig(DebugMode, CoreMode.DynaRec), Reuse.Singleton);
             container.Register<ICartridgeFactory, CartridgeFactory>(Reuse.Singleton);
 
             // Initial state.

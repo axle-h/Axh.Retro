@@ -14,10 +14,5 @@
         /// Sync to machine cycles
         /// </summary>
         MachineCycles,
-
-        /// <summary>
-        /// Sync to throttling states
-        /// </summary>
-        ThrottlingStates
     }
 }
