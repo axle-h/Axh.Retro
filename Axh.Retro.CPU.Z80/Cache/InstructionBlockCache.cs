@@ -56,7 +56,7 @@ namespace Axh.Retro.CPU.Z80.Cache
                 }
 
                 _cache.TryAdd(block.Address, cachedInstructionBlock);
-                UpdateCachedRanges();
+                AddCachedRanges(cachedInstructionBlock.AddressRanges);
             }
 
             return cachedInstructionBlock.InstructionBlock;
@@ -111,6 +111,23 @@ namespace Axh.Retro.CPU.Z80.Cache
         }
 
         /// <summary>
+        /// Adds the specified cached ranges.
+        /// </summary>
+        /// <param name="ranges">The ranges.</param>
+        private void AddCachedRanges(IEnumerable<AddressRange> ranges)
+        {
+            if (_cachedRanges == null)
+            {
+                UpdateCachedRanges();
+                return;
+            }
+
+            _cachedRanges = _cachedRanges.Concat(ranges)
+                                         .OrderBy(x => x.Address)
+                                         .Aggregate(new List<AddressRange>(), AddAddressRange);
+        }
+
+        /// <summary>
         /// Updates the cached ranges.
         /// </summary>
         private void UpdateCachedRanges()
@@ -118,29 +135,35 @@ namespace Axh.Retro.CPU.Z80.Cache
             _cachedRanges =
                 _cache.SelectMany(x => x.Value.AddressRanges)
                       .OrderBy(x => x.Address)
-                      .Aggregate(new List<AddressRange>(),
-                                 (list, range) =>
-                                 {
-                                     if (!list.Any())
-                                     {
-                                         list.Add(range);
-                                         return list;
-                                     }
+                      .Aggregate(new List<AddressRange>(), AddAddressRange);
+        }
 
-                                     var last = list.Last();
-                                     if (last.IntersectsOrAdjacent(range))
-                                     {
-                                         list.Remove(last);
-                                         list.Add(last.Merge(range));
-                                     }
-                                     else
-                                     {
-                                         list.Add(range);
-                                     }
+        /// <summary>
+        /// Adds the specified address range to the list, combining ranges that are adjacent or intersecting.
+        /// </summary>
+        /// <param name="list">The list.</param>
+        /// <param name="range">The range.</param>
+        /// <returns></returns>
+        private static List<AddressRange> AddAddressRange(List<AddressRange> list, AddressRange range)
+        {
+            if (!list.Any())
+            {
+                list.Add(range);
+                return list;
+            }
 
-                                     return list;
-                                 });
+            var last = list.Last();
+            if (last.IntersectsOrAdjacent(range))
+            {
+                list.Remove(last);
+                list.Add(last.Merge(range));
+            }
+            else
+            {
+                list.Add(range);
+            }
 
+            return list;
         }
     }
 }

@@ -2,27 +2,29 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Axh.Retro.CPU.Common.Contracts.Memory;
+using Axh.Retro.CPU.Common.Contracts.Memory.Dma;
 using Axh.Retro.CPU.Common.Contracts.Timing;
 
-namespace Axh.Retro.CPU.Common.Memory
+namespace Axh.Retro.CPU.Common.Memory.Dma
 {
     /// <summary>
-    /// Direct memory access controller.
-    /// Required to avoid a cyclical dependency on the MMU for IO peripherals with DMA capabilities.
+    /// DMA controller implemented with a blocking queue so that overlapping DMA operations are not lost.
+    /// This is only required when the DMA hardware supports this feature, e.g. the GameBoy DMA is single threaded so this is unnecessary.
     /// </summary>
-    public class DmaController : IDmaController
+    public class QueuingDmaController : IDmaController
     {
-        private const int Timeout = 100;
+        private const int Timeout = 500;
         private readonly object _disposingContext = new object();
         private readonly BlockingCollection<IDmaOperation> _dmaOperations;
         private bool _disposed;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="DmaController" /> class.
+        /// Initializes a new instance of the <see cref="QueuingDmaController" /> class.
         /// </summary>
-        public DmaController()
+        public QueuingDmaController()
         {
             _dmaOperations = new BlockingCollection<IDmaOperation>();
         }
@@ -40,25 +42,20 @@ namespace Axh.Retro.CPU.Common.Memory
             int length,
             InstructionTimings timings,
             IEnumerable<AddressRange> lockedAddressesRanges)
-        {
-            _dmaOperations.Add(new DmaCopyOperation(sourceAddress, destinationAddress, length, timings, lockedAddressesRanges));
-        }
+            => _dmaOperations.Add(new DmaCopyOperation(sourceAddress, destinationAddress, length, timings, lockedAddressesRanges));
 
         /// <summary>
-        /// Tries to get a dma operation from the queue.
-        /// This should have a reasonable timeout.
+        /// Gets the next DMA operation.
         /// </summary>
-        /// <param name="operation">The operation.</param>
-        /// <returns>True if an operation has successfully been returned from the queue.</returns>
-        public bool TryGet(out IDmaOperation operation)
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        public Task<IDmaOperation> GetNextAsync(CancellationToken cancellationToken)
         {
-            if (!_disposed)
+            IDmaOperation operation;
+            while (!_dmaOperations.TryTake(out operation, Timeout, cancellationToken))
             {
-                return _dmaOperations.TryTake(out operation, Timeout) && operation != null;
             }
-
-            operation = null;
-            return false;
+            return Task.FromResult(operation);
         }
 
         /// <summary>
@@ -82,8 +79,7 @@ namespace Axh.Retro.CPU.Common.Memory
             }
 
             _dmaOperations.CompleteAdding();
-
-            var minimumTimeout = Task.Delay(Timeout);
+            
             var timeout = Task.Delay(Timeout * 10);
             while (_dmaOperations.Any())
             {
@@ -95,8 +91,7 @@ namespace Axh.Retro.CPU.Common.Memory
                     throw new Exception("Cannot dispose");
                 }
             }
-
-            minimumTimeout.Wait();
+            
             _dmaOperations.Dispose();
         }
     }

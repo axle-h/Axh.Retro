@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Axh.Retro.CPU.Common.Contracts.Timing;
 
-namespace Axh.Retro.CPU.Common.Contracts.Memory
+namespace Axh.Retro.CPU.Common.Contracts.Memory.Dma
 {
     /// <summary>
     /// A DMA operation.

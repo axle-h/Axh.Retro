@@ -1,4 +1,5 @@
 ﻿using Axh.Retro.CPU.Common.Contracts.Memory;
+using Axh.Retro.CPU.Common.Contracts.Memory.Dma;
 using Axh.Retro.CPU.Common.Contracts.Timing;
 using Axh.Retro.GameBoy.Registers.Interfaces;
 

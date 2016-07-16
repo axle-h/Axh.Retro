@@ -1,7 +1,9 @@
 ﻿using System;
 using Axh.Retro.CPU.Common.Contracts.Memory;
+using Axh.Retro.CPU.Common.Contracts.Memory.Dma;
 using Axh.Retro.CPU.Common.Contracts.Timing;
 using Axh.Retro.CPU.Common.Memory;
+using Axh.Retro.CPU.Common.Memory.Dma;
 using Axh.Retro.CPU.Z80.Cache;
 using Axh.Retro.CPU.Z80.Contracts.Cache;
 using Axh.Retro.CPU.Z80.Contracts.Config;
@@ -115,14 +117,17 @@ namespace Axh.Retro.CPU.Z80.Wiring
             switch (platformConfig.CpuMode)
             {
                 case CpuMode.Intel8080:
+                    _container.Register<IDmaController, QueuingDmaController>();
                     _container.Register<IFlagsRegister, Intel8080FlagsRegister>();
                     registerType = typeof(Z80Registers);
                     break;
                 case CpuMode.Z80:
+                    _container.Register<IDmaController, QueuingDmaController>();
                     _container.Register<IFlagsRegister, Intel8080FlagsRegister>();
                     registerType = typeof(Intel8080Registers);
                     break;
                 case CpuMode.GameBoy:
+                    _container.Register<IDmaController, SimpleDmaController>();
                     _container.Register<IFlagsRegister, GameBoyFlagsRegister>();
                     registerType = typeof(Intel8080Registers);
                     break;
@@ -149,7 +154,6 @@ namespace Axh.Retro.CPU.Z80.Wiring
 
             _container.Register<IInterruptManager, InterruptManager>();
             _container.Register<IInstructionTimer, MachineCycleTimer>();
-            _container.Register<IDmaController, DmaController>();
 
             var runtimeConfig = _container.Resolve<IRuntimeConfig>();
             switch (runtimeConfig.CoreMode)

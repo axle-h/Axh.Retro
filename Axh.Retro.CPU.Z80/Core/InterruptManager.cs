@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Axh.Retro.CPU.Z80.Contracts.Core;
 using Axh.Retro.CPU.Z80.Contracts.Registers;
@@ -8,20 +8,19 @@ using Axh.Retro.CPU.Z80.Contracts.Registers;
 namespace Axh.Retro.CPU.Z80.Core
 {
     /// <summary>
-    /// The interrupt manager.
     /// </summary>
     /// <seealso cref="Axh.Retro.CPU.Z80.Contracts.Core.IInterruptManager" />
     public class InterruptManager : IInterruptManager
     {
-        private readonly BlockingCollection<ushort> _interruptQueue;
         private readonly IRegisters _registers;
-        private readonly object _disposingContext = new object();
-        private bool _disposed, _disposing;
 
         private TaskCompletionSource<bool> _haltTaskSource;
         private Task<ushort> _interruptTask;
 
         private TaskCompletionSource<ushort> _interruptTaskSource;
+
+        private TaskCompletionSource<ushort> _nextInterruptSource;
+        private readonly CancellationTokenSource _cancellationSource;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="InterruptManager"/> class.
@@ -31,7 +30,8 @@ namespace Axh.Retro.CPU.Z80.Core
         {
             _registers = registers;
             _haltTaskSource = new TaskCompletionSource<bool>();
-            _interruptQueue = new BlockingCollection<ushort>();
+            _nextInterruptSource = new TaskCompletionSource<ushort>();
+            _cancellationSource = new CancellationTokenSource();
             Task.Factory.StartNew(InterruptTask, TaskCreationOptions.LongRunning);
         }
 
@@ -47,7 +47,7 @@ namespace Axh.Retro.CPU.Z80.Core
         /// Interrupts the CPU, pushing all registers to the stack and setting the program counter to the specified address.
         /// </summary>
         /// <param name="address">The address.</param>
-        public void Interrupt(ushort address) => _interruptQueue.TryAdd(address);
+        public void Interrupt(ushort address) => _nextInterruptSource.TrySetResult(address);
 
         /// <summary>
         /// Halts the CPU.
@@ -124,37 +124,10 @@ namespace Axh.Retro.CPU.Z80.Core
         /// </summary>
         public void Dispose()
         {
-            if (_disposed || _disposing)
+            if (!_cancellationSource.IsCancellationRequested)
             {
-                return;
+                _cancellationSource.Cancel();
             }
-
-            lock (_disposingContext)
-            {
-                if (_disposed || _disposing)
-                {
-                    return;
-                }
-
-                _disposing = true;
-            }
-
-            _interruptQueue.CompleteAdding();
-
-            var timeout = Task.Delay(1000);
-            while (_interruptQueue.Any())
-            {
-                var iteration = Task.Delay(100);
-                var completedTask = Task.WhenAny(timeout, iteration).Result;
-
-                if (completedTask == timeout)
-                {
-                    throw new Exception("Cannot dispose");
-                }
-            }
-
-            _interruptQueue.Dispose();
-            _disposed = true;
         }
 
         /// <summary>
@@ -163,38 +136,53 @@ namespace Axh.Retro.CPU.Z80.Core
         /// <returns></returns>
         private async Task InterruptTask()
         {
-            while (!_disposing)
+            try
             {
-                ushort address;
-                if (!_interruptQueue.TryTake(out address, 100))
+                while (!_cancellationSource.IsCancellationRequested)
                 {
-                    continue;
-                }
+                    var address = await _nextInterruptSource.Task;
+                    _nextInterruptSource = new TaskCompletionSource<ushort>();
 
-                if (!_registers.InterruptFlipFlop1)
+                    if (!_registers.InterruptFlipFlop1)
+                    {
+                        // Interrupts disabled. Discard this interrupt.
+                        continue;
+                    }
+
+                    IsInterrupted = true;
+
+                    // Disable interrupts whilst we're... interrupting.
+                    _registers.InterruptFlipFlop1 = false;
+
+                    // Halt the CPU if not already halted
+                    if (!IsHalted)
+                    {
+                        Halt();
+                    }
+
+                    // Wait for the halt to be confirmed
+                    await _haltTaskSource.Task.ConfigureAwait(false);
+                    _haltTaskSource = new TaskCompletionSource<bool>();
+
+                    // Resume the CPU with the program counter set to address
+                    var task = Task.Run(() => _interruptTaskSource.TrySetResult(address));
+                    IsInterrupted = false;
+                }
+            }
+            catch (TaskCanceledException tce)
+            {
+                if (tce.InnerException != null)
                 {
-                    // Interrupts disabled. Discard this interrupt.
-                    continue;
+                    throw;
                 }
-
-                IsInterrupted = true;
-
-                // Disable interrupts whilst we're... interrupting.
-                _registers.InterruptFlipFlop1 = false;
-
-                // Halt the CPU if not already halted
-                if (!IsHalted)
+            }
+            catch (AggregateException ae)
+            {
+                var taskCanceledException = ae.InnerExceptions.OfType<TaskCanceledException>().FirstOrDefault();
+                if (taskCanceledException == null || taskCanceledException.InnerException != null)
                 {
-                    Halt();
+                    throw;
                 }
-
-                // Wait for the halt to be confirmed
-                await _haltTaskSource.Task.ConfigureAwait(false);
-                _haltTaskSource = new TaskCompletionSource<bool>();
-
-                // Resume the CPU with the program counter set to address
-                var task = Task.Run(() => _interruptTaskSource.TrySetResult(address));
-                IsInterrupted = false;
             }
         }
     }

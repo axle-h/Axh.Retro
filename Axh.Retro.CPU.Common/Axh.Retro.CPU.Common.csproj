@@ -44,12 +44,13 @@
     <Compile Include="Config\SimpleMemoryBankConfig.cs" />
     <Compile Include="Memory\ArrayBackedMemoryBank.cs" />
     <Compile Include="Memory\BankedReadOnlyMemoryBank.cs" />
-    <Compile Include="Memory\DmaController.cs" />
-    <Compile Include="Memory\DmaCopyOperation.cs" />
+    <Compile Include="Memory\Dma\QueuingDmaController.cs" />
+    <Compile Include="Memory\Dma\DmaCopyOperation.cs" />
     <Compile Include="Memory\NullMemoryBank.cs" />
     <Compile Include="Memory\PrefetchQueue.cs" />
     <Compile Include="Memory\ReadOnlyMemoryBank.cs" />
     <Compile Include="Memory\SegmentMmu.cs" />
+    <Compile Include="Memory\Dma\SimpleDmaController.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

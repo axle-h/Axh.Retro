@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Axh.Retro.CPU.Common.Contracts.Exceptions;
 using Axh.Retro.CPU.Common.Contracts.Memory;
+using Axh.Retro.CPU.Common.Contracts.Memory.Dma;
 using Axh.Retro.CPU.Common.Contracts.Timing;
 
 namespace Axh.Retro.CPU.Common.Memory
@@ -26,9 +28,8 @@ namespace Axh.Retro.CPU.Common.Memory
 
         private readonly ushort[] _writeSegmentAddresses;
         private readonly IWriteableAddressSegment[] _writeSegments;
-
-        private bool _disposed;
-
+        private readonly CancellationTokenSource _dmaThreadCancellation;
+        
         /// <summary>
         /// Initializes a new instance of the <see cref="SegmentMmu" /> class.
         /// </summary>
@@ -55,6 +56,7 @@ namespace Axh.Retro.CPU.Common.Memory
             _lockedAddressRanges = new List<AddressRange>();
 
             // Dma task.
+            _dmaThreadCancellation = new CancellationTokenSource();
             Task.Factory.StartNew(DmaTask, TaskCreationOptions.LongRunning);
         }
 
@@ -286,32 +288,49 @@ namespace Axh.Retro.CPU.Common.Memory
         /// </summary>
         public void Dispose()
         {
-            _disposed = true;
+            if (!_dmaThreadCancellation.IsCancellationRequested)
+            {
+                _dmaThreadCancellation.Cancel();
+            }
         }
 
         /// <summary>
         /// The long running DMA task.
         /// </summary>
-        private void DmaTask()
+        private async Task DmaTask()
         {
-            while (!_disposed)
+            try
             {
-                IDmaOperation operation;
-                if (!_dmaController.TryGet(out operation))
+                while (!_dmaThreadCancellation.IsCancellationRequested)
                 {
-                    continue;
+                    var operation = await _dmaController.GetNextAsync(_dmaThreadCancellation.Token);
+
+                    // Check if we need lock any address ranges.
+                    _lockedAddressRanges.AddRange(operation.LockedAddressesRanges);
+
+                    // Execute the operation.
+                    operation.Execute(this);
+
+                    _instructionTimer.SyncToTimingsNow(operation.Timings);
+
+                    // Unlock the locked address ranges.
+                    _lockedAddressRanges.Clear();
                 }
-
-                // Check if we need lock any address ranges.
-                _lockedAddressRanges.AddRange(operation.LockedAddressesRanges);
-
-                // Execute the operation.
-                operation.Execute(this);
-
-                _instructionTimer.SyncToTimingsNow(operation.Timings);
-
-                // Unlock the locked address ranges.
-                _lockedAddressRanges.Clear();
+            }
+            catch (TaskCanceledException tce)
+            {
+                if (tce.InnerException != null)
+                {
+                    throw;
+                }
+            }
+            catch (AggregateException ae)
+            {
+                var taskCanceledException = ae.InnerExceptions.OfType<TaskCanceledException>().FirstOrDefault();
+                if (taskCanceledException == null || taskCanceledException.InnerException != null)
+                {
+                    throw;
+                }
             }
         }
 

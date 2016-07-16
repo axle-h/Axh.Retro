@@ -178,7 +178,7 @@ namespace Axh.Retro.GameBoy.Config
         /// <value>
         /// The instruction timing synchronize mode.
         /// </value>
-        public InstructionTimingSyncMode InstructionTimingSyncMode => InstructionTimingSyncMode.MachineCycles;
+        public InstructionTimingSyncMode InstructionTimingSyncMode => InstructionTimingSyncMode.Null;
 
         /// <summary>
         /// Gets a value indicating whether [lock on undefined instruction].

@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
 using Axh.Retro.CPU.Common.Contracts.Memory;
+using Axh.Retro.CPU.Common.Contracts.Memory.Dma;
 using Axh.Retro.CPU.Common.Contracts.Timing;
 
-namespace Axh.Retro.CPU.Common.Memory
+namespace Axh.Retro.CPU.Common.Memory.Dma
 {
     /// <summary>
     /// A DMA operation to copy bytes from one address to another.

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Axh.Retro.CPU.Common.Contracts.Config;
 using Axh.Retro.CPU.Common.Contracts.Memory;
+using Axh.Retro.CPU.Common.Contracts.Memory.Dma;
 using Axh.Retro.CPU.Common.Contracts.Timing;
 using Axh.Retro.CPU.Common.Memory;
 using Axh.Retro.CPU.Z80.Contracts.Cache;

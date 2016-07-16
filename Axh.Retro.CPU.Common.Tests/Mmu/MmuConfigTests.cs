@@ -1,5 +1,6 @@
 ﻿using Axh.Retro.CPU.Common.Contracts.Exceptions;
 using Axh.Retro.CPU.Common.Contracts.Memory;
+using Axh.Retro.CPU.Common.Contracts.Memory.Dma;
 using Axh.Retro.CPU.Common.Contracts.Timing;
 using Axh.Retro.CPU.Common.Memory;
 using Moq;

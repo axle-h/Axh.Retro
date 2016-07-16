@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Axh.Retro.CPU.Common.Contracts.Timing;
 
-namespace Axh.Retro.CPU.Common.Contracts.Memory
+namespace Axh.Retro.CPU.Common.Contracts.Memory.Dma
 {
     /// <summary>
     /// Direct memory access controller.
@@ -23,13 +25,12 @@ namespace Axh.Retro.CPU.Common.Contracts.Memory
             int length,
             InstructionTimings timings,
             IEnumerable<AddressRange> lockedAddressesRanges);
-
+        
         /// <summary>
-        /// Tries to get a dma operation from the queue.
-        /// This should have a reasonable timeout.
+        /// Gets the next DMA operation.
         /// </summary>
-        /// <param name="operation">The operation.</param>
-        /// <returns>True if an operation has successfully been returned from the queue.</returns>
-        bool TryGet(out IDmaOperation operation);
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        Task<IDmaOperation> GetNextAsync(CancellationToken cancellationToken);
     }
 }
