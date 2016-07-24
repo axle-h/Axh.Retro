@@ -30,7 +30,7 @@ namespace Axh.Retro.CPU.Z80.Contracts.Config
         /// <value>
         /// The machine cycle speed in MHZ.
         /// </value>
-        double MachineCycleSpeedMhz { get; }
+        double MachineCycleFrequencyMhz { get; }
 
         /// <summary>
         /// Gets the instruction timing synchronize mode.

@@ -25,26 +25,25 @@ namespace Axh.Retro.GameBoy.Devices
         /// <param name="joyPad">The joy pad.</param>
         /// <param name="serialPort">The serial port.</param>
         /// <param name="gpuRegisters">The gpu registers.</param>
+        /// <param name="timerRegisters">The timer registers.</param>
         public HardwareRegisters(IEnumerable<IRegister> registers,
             IJoyPadRegister joyPad,
             ISerialPortRegister serialPort,
-            IGpuRegisters gpuRegisters)
+            IGpuRegisters gpuRegisters,
+            ITimerRegisters timerRegisters)
         {
             JoyPad = joyPad;
             SerialPort = serialPort;
             _registers =
                 registers.Concat(new[]
                                  {
-                                     joyPad,
-                                     serialPort,
-                                     serialPort.SerialData,
-                                     gpuRegisters.ScrollXRegister,
-                                     gpuRegisters.ScrollYRegister,
-                                     gpuRegisters.CurrentScanlineRegister,
-                                     gpuRegisters.LcdControlRegister,
-                                     gpuRegisters.LcdMonochromePaletteRegister,
-                                     gpuRegisters.LcdStatusRegister
-                                 }).ToDictionary(x => (ushort) (x.Address - Address));
+                                     joyPad, serialPort, serialPort.SerialData, gpuRegisters.ScrollXRegister,
+                                     gpuRegisters.ScrollYRegister, gpuRegisters.CurrentScanlineRegister,
+                                     gpuRegisters.LcdControlRegister, gpuRegisters.LcdMonochromePaletteRegister,
+                                     gpuRegisters.LcdStatusRegister, timerRegisters.TimerControlRegister,
+                                     timerRegisters.TimerCounterRegister, timerRegisters.TimerModuloRegister
+                                 })
+                         .ToDictionary(x => (ushort) (x.Address - Address));
         }
 
         /// <summary>

@@ -101,6 +101,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             runtimeConfig.Setup(x => x.DebugMode).Returns(true);
 
             // TODO: we should be testing the opcode decoder separate from the core.
+            // TODO: we should be testing both implementations of IInstructionBlockDecoder with this code.
             DynaRecBlockDecoder = new DynaRec(platformConfig.Object,
                                               runtimeConfig.Object,
                                               Cache.Object,

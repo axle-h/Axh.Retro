@@ -34,7 +34,7 @@ namespace Axh.Retro.GameBoy.Registers
         /// <value>
         /// The type.
         /// </value>
-        public MemoryBankType Type => MemoryBankType.RandomAccessMemory;
+        public MemoryBankType Type => MemoryBankType.Peripheral;
 
         /// <summary>
         /// Gets the address.

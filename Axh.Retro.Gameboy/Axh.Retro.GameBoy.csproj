@@ -50,6 +50,8 @@
     <Compile Include="Registers\Interfaces\IJoyPadRegister.cs" />
     <Compile Include="Registers\Interfaces\ILcdStatusRegister.cs" />
     <Compile Include="Registers\Interfaces\ILcdMonochromePaletteRegister.cs" />
+    <Compile Include="Registers\Interfaces\ITimerControlRegister.cs" />
+    <Compile Include="Registers\Interfaces\ITimerRegisters.cs" />
     <Compile Include="Registers\SimpleRegister.cs" />
     <Compile Include="Registers\InterruptFlagsRegister.cs" />
     <Compile Include="Devices\MemoryBankController1.cs" />
@@ -77,6 +79,8 @@
     <Compile Include="Registers\LcdMonochromePaletteRegister.cs" />
     <Compile Include="Registers\LcdOamDmaTransferRegister.cs" />
     <Compile Include="Registers\LcdStatusRegister.cs" />
+    <Compile Include="Registers\TimerControlRegister.cs" />
+    <Compile Include="Registers\TimerRegisters.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Axh.Retro.CPU.Common.Contracts\Axh.Retro.CPU.Common.Contracts.csproj">

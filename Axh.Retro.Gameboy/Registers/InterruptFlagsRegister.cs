@@ -1,3 +1,4 @@
+using System;
 using Axh.Retro.CPU.Z80.Contracts.Core;
 using Axh.Retro.GameBoy.Contracts.Devices;
 using Axh.Retro.GameBoy.Registers.Interfaces;

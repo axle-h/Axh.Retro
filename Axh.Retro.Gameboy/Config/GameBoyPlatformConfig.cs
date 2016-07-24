@@ -169,7 +169,7 @@ namespace Axh.Retro.GameBoy.Config
         /// <value>
         /// The machine cycle speed in MHZ.
         /// </value>
-        double IPlatformConfig.MachineCycleSpeedMhz => CpuFrequency;
+        double IPlatformConfig.MachineCycleFrequencyMhz => CpuFrequency;
 
 
         /// <summary>

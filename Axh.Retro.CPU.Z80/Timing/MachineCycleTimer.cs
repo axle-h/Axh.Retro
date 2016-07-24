@@ -27,6 +27,8 @@ namespace Axh.Retro.CPU.Z80.Timing
         /// </summary>
         private const int CyclesPerSyncEvent = 80;
 
+        private readonly double _machineCycleFrequencyHz;
+
         private readonly Timer _syncTimer;
         private readonly int _cyclesPerSync;
         
@@ -34,8 +36,9 @@ namespace Axh.Retro.CPU.Z80.Timing
 
         private int _cyclesSinceLastSync;
         private int _cyclesSinceLastEventSync;
+        
 
-        private readonly ConcurrentQueue<int> _syncQueue;
+        private int _syncCycles;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MachineCycleTimer"/> class.
@@ -44,23 +47,23 @@ namespace Axh.Retro.CPU.Z80.Timing
         /// <exception cref="System.ArgumentOutOfRangeException"></exception>
         public MachineCycleTimer(IPlatformConfig platformConfig)
         {
+            _machineCycleFrequencyHz = platformConfig.MachineCycleFrequencyMhz / 1000000;
+
             switch (platformConfig.InstructionTimingSyncMode)
             {
                 case InstructionTimingSyncMode.Null:
                     // Run ASAP
                     _ticksPerCycle = 0;
+                    _cyclesPerSync = 0;
                     break;
                 case InstructionTimingSyncMode.MachineCycles:
-                    _ticksPerCycle = 1 / platformConfig.MachineCycleSpeedMhz * 10;
+                    _ticksPerCycle = 1 / platformConfig.MachineCycleFrequencyMhz * 10;
+                    _cyclesPerSync = (int) Math.Ceiling(MillisecondsPerSync / (_ticksPerCycle / TimeSpan.TicksPerMillisecond));
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-
-            _syncQueue = new ConcurrentQueue<int>();
-
-            // ~70,000 on a GameBoy.
-            _cyclesPerSync = (int) Math.Ceiling(MillisecondsPerSync / (_ticksPerCycle / TimeSpan.TicksPerMillisecond));
+            
             _syncTimer = new Timer(MillisecondsPerSync);
             _syncTimer.Elapsed += (sender, args) =>
                                   {
@@ -70,7 +73,7 @@ namespace Axh.Retro.CPU.Z80.Timing
                                       if (extraCycles > 0)
                                       {
                                           // TODO: Why does only waiting for ~40% of the extra cycles give a better result? Is it timer accuracy? Or my maths? If it's the timer will it always be 40%?!
-                                          _syncQueue.Enqueue((int) (extraCycles * 0.4));
+                                          Interlocked.Add(ref _syncCycles, (int) (extraCycles * 0.4));
                                       }
 
                                       _cyclesSinceLastSync = 0;
@@ -95,10 +98,11 @@ namespace Axh.Retro.CPU.Z80.Timing
         public async Task SyncToTimings(InstructionTimings timings)
         {
             _cyclesSinceLastSync += timings.MachineCycles;
-
-            int syncCycles;
-            if (_syncQueue.TryDequeue(out syncCycles))
+ 
+            if (_syncCycles > 0)
             {
+                var syncCycles = _syncCycles;
+                Interlocked.Exchange(ref _syncCycles, 0);
                 await Task.Delay(new TimeSpan((long) (_ticksPerCycle * syncCycles)));
             }
             
@@ -110,7 +114,7 @@ namespace Axh.Retro.CPU.Z80.Timing
                 _cyclesSinceLastEventSync = 0;
             }
         }
-
+        
         /// <summary>
         /// Occurs when [timing synchronize].
         /// </summary>

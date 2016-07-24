@@ -37,6 +37,8 @@ namespace Axh.Retro.GameBoy.Wiring
             container.Register<IJoyPadRegister, JoyPad>();
             container.RegisterMany(new[] { typeof (ISerialPort), typeof (ISerialPortRegister) }, typeof (SyncSerialPort));
             container.Register<IMemoryBankController, MemoryBankController1>();
+            container.Register<ITimerControlRegister, TimerControlRegister>();
+            container.Register<ITimerRegisters, TimerRegisters>();
 
             // GPU registers.
             container.Register<IGpuRegisters, GpuRegisters>();

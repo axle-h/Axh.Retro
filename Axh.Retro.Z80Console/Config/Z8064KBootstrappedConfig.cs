@@ -54,7 +54,7 @@ namespace Axh.Retro.Z80Console.Config
         /// <value>
         /// The machine cycle speed in MHZ.
         /// </value>
-        public double MachineCycleSpeedMhz => 4;
+        public double MachineCycleFrequencyMhz => 4;
 
         /// <summary>
         /// Gets the instruction timing synchronize mode.
