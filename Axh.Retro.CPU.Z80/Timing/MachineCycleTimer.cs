@@ -17,6 +17,7 @@ namespace Axh.Retro.CPU.Z80.Timing
         /// <summary>
         /// The number of millisends to wait before syncing real-time to CPU time.
         /// Sync up every 16.6ms. I.e. will run sync a 60 fps device e.g. GameBoy well.
+        /// This uses <see cref="Thread.Sleep(TimeSpan)"/> for increased accuracy over <see cref="Task.Delay(TimeSpan)"/>.
         /// </summary>
         private const double MillisecondsPerSync = 1000 / 60.0;
 
@@ -68,8 +69,8 @@ namespace Axh.Retro.CPU.Z80.Timing
                                       var extraCycles = _cyclesSinceLastSync - _cyclesPerSync;
                                       if (extraCycles > 0)
                                       {
-                                          // TODO: Why does only waiting for ~90% of the extra cycles give a better result? Is it timer accuracy? Or my maths?
-                                          _syncQueue.Enqueue((int) (extraCycles * 0.90));
+                                          // TODO: Why does only waiting for ~40% of the extra cycles give a better result? Is it timer accuracy? Or my maths? If it's the timer will it always be 40%?!
+                                          _syncQueue.Enqueue((int) (extraCycles * 0.4));
                                       }
 
                                       _cyclesSinceLastSync = 0;
@@ -84,22 +85,21 @@ namespace Axh.Retro.CPU.Z80.Timing
         /// <param name="timings">The timings.</param>
         /// <returns></returns>
         /// <exception cref="System.ArgumentOutOfRangeException"></exception>
-        public void SyncToTimingsNow(InstructionTimings timings)
-            => Thread.Sleep(new TimeSpan((long) _ticksPerCycle * timings.MachineCycles));
+        public async Task SyncToTimingsNow(InstructionTimings timings) => await Task.Delay(new TimeSpan((long) _ticksPerCycle * timings.MachineCycles));
 
         /// <summary>
         /// Uses the configured instruction timings to sync real time to the CPU.
         /// </summary>
         /// <param name="timings">The timings.</param>
         /// <returns></returns>
-        public void SyncToTimings(InstructionTimings timings)
+        public async Task SyncToTimings(InstructionTimings timings)
         {
             _cyclesSinceLastSync += timings.MachineCycles;
 
             int syncCycles;
             if (_syncQueue.TryDequeue(out syncCycles))
             {
-                Thread.Sleep(new TimeSpan((long) (_ticksPerCycle * syncCycles)));
+                await Task.Delay(new TimeSpan((long) (_ticksPerCycle * syncCycles)));
             }
             
             // Check if we need to call the sync event.
@@ -112,14 +112,6 @@ namespace Axh.Retro.CPU.Z80.Timing
         }
 
         /// <summary>
-        /// Gets the ticks required to sync to the specified timings.
-        /// </summary>
-        /// <param name="timings">The timings.</param>
-        /// <returns></returns>
-        /// <exception cref="System.ArgumentOutOfRangeException"></exception>
-        private long GetTicks(InstructionTimings timings) => (long) _ticksPerCycle * timings.MachineCycles;
-
-        /// <summary>
         /// Occurs when [timing synchronize].
         /// </summary>
         public event Action<InstructionTimings> TimingSync;
@@ -127,9 +119,6 @@ namespace Axh.Retro.CPU.Z80.Timing
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
-        public void Dispose()
-        {
-            _syncTimer.Dispose();
-        }
+        public void Dispose() => _syncTimer.Dispose();
     }
 }

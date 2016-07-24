@@ -14,7 +14,7 @@ namespace Axh.Retro.CPU.Z80.Core
         private readonly IRegisters _registers;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Alu{TRegisters}"/> class.
+        /// Initializes a new instance of the <see cref="Alu"/> class.
         /// </summary>
         /// <param name="registers">The registers.</param>
         public Alu(IRegisters registers)
@@ -44,7 +44,7 @@ namespace Axh.Retro.CPU.Z80.Core
             flags.ParityOverflow = b == 0x7f;
             flags.Subtract = false;
 
-            b = unchecked((byte) result);
+            b = (byte) result;
             flags.SetResultFlags(b);
             return b;
         }
@@ -63,7 +63,7 @@ namespace Axh.Retro.CPU.Z80.Core
             flags.ParityOverflow = b == 0x80;
             flags.Subtract = true;
 
-            b = unchecked((byte) result);
+            b = (byte) result;
             flags.SetResultFlags(b);
             return b;
         }
@@ -136,7 +136,7 @@ namespace Axh.Retro.CPU.Z80.Core
 
             // Overflow = (added signs are same) && (result sign differs from the sign of either of operands)
             flags.ParityOverflow = (((a ^ ~b) & 0x8000) == 0) && (((result ^ a) & 0x8000) != 0);
-            b = unchecked((ushort) result);
+            b = (ushort) result;
             flags.SetResultFlags(b);
 
             return b;
@@ -286,7 +286,7 @@ namespace Axh.Retro.CPU.Z80.Core
         public byte RotateLeftWithCarry(byte a)
         {
             var carry = (a & 0x80) > 0;
-            var result = unchecked((byte) ((a << 1) | (carry ? 1 : 0)));
+            var result = (byte) ((a << 1) | (carry ? 1 : 0));
 
             var flags = Flags;
             flags.Carry = carry;
@@ -305,7 +305,7 @@ namespace Axh.Retro.CPU.Z80.Core
         public byte RotateLeft(byte a)
         {
             var flags = Flags;
-            var result = unchecked((byte) ((a << 1) | (flags.Carry ? 1 : 0)));
+            var result = (byte) ((a << 1) | (flags.Carry ? 1 : 0));
 
             flags.Carry = (a & 0x80) > 0;
             flags.HalfCarry = false;
@@ -324,7 +324,7 @@ namespace Axh.Retro.CPU.Z80.Core
         public byte RotateRightWithCarry(byte a)
         {
             var carry = (a & 1) > 0;
-            var result = unchecked((byte) ((a >> 1) | (carry ? 0x80 : 0)));
+            var result = (byte) ((a >> 1) | (carry ? 0x80 : 0));
 
             var flags = Flags;
             flags.Carry = carry;
@@ -344,7 +344,7 @@ namespace Axh.Retro.CPU.Z80.Core
         public byte RotateRight(byte a)
         {
             var flags = Flags;
-            var result = unchecked((byte) ((a >> 1) | (flags.Carry ? 0x80 : 0)));
+            var result = (byte) ((a >> 1) | (flags.Carry ? 0x80 : 0));
 
             flags.Carry = (a & 1) > 0;
             flags.HalfCarry = false;
@@ -365,7 +365,7 @@ namespace Axh.Retro.CPU.Z80.Core
         {
             var flags = Flags;
             flags.Carry = (a & 0x80) > 0;
-            var result = unchecked((byte) (a << 1));
+            var result = (byte) (a << 1);
 
             flags.SetParityFlags(result);
             flags.HalfCarry = false;
@@ -384,7 +384,7 @@ namespace Axh.Retro.CPU.Z80.Core
         {
             var flags = Flags;
             flags.Carry = (a & 0x80) > 0;
-            var result = unchecked((byte) ((a << 1) | 0x01));
+            var result = (byte) ((a << 1) | 0x01);
 
             flags.SetParityFlags(result);
             flags.HalfCarry = false;
@@ -402,7 +402,7 @@ namespace Axh.Retro.CPU.Z80.Core
         {
             var flags = Flags;
             flags.Carry = (a & 0x01) > 0;
-            var result = unchecked((byte) ((a >> 1) | (a & 0x80)));
+            var result = (byte) ((a >> 1) | (a & 0x80));
 
             flags.SetParityFlags(result);
             flags.HalfCarry = false;
@@ -420,7 +420,7 @@ namespace Axh.Retro.CPU.Z80.Core
         {
             var flags = Flags;
             flags.Carry = (a & 0x01) > 0;
-            var result = unchecked((byte) (a >> 1));
+            var result = (byte) (a >> 1);
 
             flags.SetParityFlags(result);
             flags.HalfCarry = false;
@@ -516,7 +516,7 @@ namespace Axh.Retro.CPU.Z80.Core
             flags.Zero = false;
             flags.Subtract = false;
 
-            return unchecked ((ushort) result);
+            return (ushort) result;
         }
 
         /// <summary>
@@ -560,7 +560,7 @@ namespace Axh.Retro.CPU.Z80.Core
 
             flags.Subtract = false;
 
-            b = unchecked((byte) result);
+            b = (byte) result;
             flags.SetResultFlags(b);
             return b;
         }
@@ -589,7 +589,7 @@ namespace Axh.Retro.CPU.Z80.Core
             {
                 // Overflow = (added signs are same) && (result sign differs from the sign of either of operands)
                 flags.ParityOverflow = (((a ^ b) & 0x8000) == 0) && (((result ^ a) & 0x8000) != 0);
-                b = unchecked((ushort) result);
+                b = (ushort) result;
                 flags.SetResultFlags(b);
             }
             else
@@ -597,7 +597,7 @@ namespace Axh.Retro.CPU.Z80.Core
                 // S & Z are unaffected so we're only setting the undocumented flags from the last 8-bit addition
                 var b0 = (result & 0xff00) >> 8;
                 flags.SetUndocumentedFlags((byte) b0);
-                b = unchecked((ushort) result);
+                b = (ushort) result;
             }
 
             return b;
@@ -626,7 +626,7 @@ namespace Axh.Retro.CPU.Z80.Core
             flags.Carry = result < 0;
             flags.Subtract = true;
 
-            b = unchecked((byte) result);
+            b = (byte) result;
             flags.SetResultFlags(b);
             return b;
         }

@@ -134,7 +134,7 @@ namespace Axh.Retro.CPU.Common.Memory
         /// </summary>
         private void NudgeCache()
         {
-            _address = unchecked((ushort) (_address + CacheSize));
+            _address = (ushort) (_address + CacheSize);
             _cachePointer = 0;
             _cache = _mmu.ReadBytes(_address, CacheSize);
         }

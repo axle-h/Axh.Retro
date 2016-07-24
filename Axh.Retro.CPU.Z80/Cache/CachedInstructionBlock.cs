@@ -1,25 +1,23 @@
 ﻿using System.Collections.Generic;
 using Axh.Retro.CPU.Common.Contracts.Memory;
 using Axh.Retro.CPU.Z80.Contracts.Core;
-using Axh.Retro.CPU.Z80.Contracts.Registers;
 
 namespace Axh.Retro.CPU.Z80.Cache
 {
     /// <summary>
     /// Instruction block cache wrapper with two ranges.
     /// </summary>
-    internal class CachedInstructionBlock<TRegisters> : ICachedInstructionBlock<TRegisters> where TRegisters : IRegisters
+    internal class CachedInstructionBlock : ICachedInstructionBlock
     {
         private readonly AddressRange _addressRange0;
         private readonly AddressRange _addressRange1;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CachedInstructionBlock{TRegisters}"/> class.
+        /// Initializes a new instance of the <see cref="CachedInstructionBlock"/> class.
         /// </summary>
         /// <param name="addressRanges">The address ranges.</param>
         /// <param name="instructionBlock">The instruction block.</param>
-        public CachedInstructionBlock(IReadOnlyList<AddressRange> addressRanges,
-            IInstructionBlock<TRegisters> instructionBlock)
+        public CachedInstructionBlock(IReadOnlyList<AddressRange> addressRanges, IInstructionBlock instructionBlock)
         {
             InstructionBlock = instructionBlock;
             _addressRange0 = addressRanges[0];
@@ -32,7 +30,7 @@ namespace Axh.Retro.CPU.Z80.Cache
         /// <value>
         /// The instruction block.
         /// </value>
-        public IInstructionBlock<TRegisters> InstructionBlock { get; }
+        public IInstructionBlock InstructionBlock { get; }
 
         /// <summary>
         /// Gets or sets the accessed count.

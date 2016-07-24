@@ -6,7 +6,7 @@ namespace Axh.Retro.CPU.Z80.Core.Decode
     /// <summary>
     /// A Z80/8080 operation - an op-code with optional operands, flag tests, literals, displacement and meta describing which of the former are actually used.
     /// </summary>
-    internal struct Operation
+    public struct Operation
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="Operation"/> struct.

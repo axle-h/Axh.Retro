@@ -5,42 +5,46 @@ using Axh.Retro.CPU.Z80.Contracts.Core;
 using Axh.Retro.CPU.Z80.Contracts.Peripherals;
 using Axh.Retro.CPU.Z80.Contracts.Registers;
 
-namespace Axh.Retro.CPU.Z80.Core.DynaRec
+namespace Axh.Retro.CPU.Z80.Core
 {
     /// <summary>
-    /// An instruction block for operations decoded with <see cref="DynaRec{TRegisters}"/>.
+    /// An instruction block.
     /// </summary>
-    /// <typeparam name="TRegisters">The type of the registers.</typeparam>
-    /// <seealso cref="Axh.Retro.CPU.Z80.Contracts.Core.IInstructionBlock{TRegisters}" />
-    internal class DynaRecInstructionBlock<TRegisters> : IInstructionBlock<TRegisters> where TRegisters : IRegisters
+    /// <seealso cref="Axh.Retro.CPU.Z80.Contracts.Core.IInstructionBlock" />
+    internal class InstructionBlock : IInstructionBlock
     {
-        private readonly Func<TRegisters, IMmu, IAlu, IPeripheralManager, InstructionTimings> _action;
+        private readonly Func<IRegisters, IMmu, IAlu, IPeripheralManager, InstructionTimings> _action;
 
         /// <summary>
         /// Static instruction timings, known at compile time
         /// </summary>
         private readonly InstructionTimings _staticTimings;
-
+        
         /// <summary>
-        /// Initializes a new instance of the <see cref="DynaRecInstructionBlock{TRegisters}"/> class.
+        /// Initializes a new instance of the <see cref="InstructionBlock"/> class.
         /// </summary>
         /// <param name="address">The address.</param>
         /// <param name="length">The length.</param>
         /// <param name="action">The action.</param>
         /// <param name="staticTimings">The static timings.</param>
-        /// <param name="lastDecodeResult">The last decode result.</param>
-        public DynaRecInstructionBlock(ushort address,
+        /// <param name="halt">if set to <c>true</c> [halt].</param>
+        /// <param name="stop">if set to <c>true</c> [stop].</param>
+        /// <param name="debugInfo">The debug information.</param>
+        public InstructionBlock(ushort address,
             ushort length,
-            Func<TRegisters, IMmu, IAlu, IPeripheralManager, InstructionTimings> action,
+            Func<IRegisters, IMmu, IAlu, IPeripheralManager, InstructionTimings> action,
             InstructionTimings staticTimings,
-            DecodeResult lastDecodeResult)
+            bool halt,
+            bool stop,
+            string debugInfo = null)
         {
             _action = action;
             _staticTimings = staticTimings;
             Address = address;
             Length = length;
-            HaltCpu = lastDecodeResult == DecodeResult.Halt;
-            HaltPeripherals = lastDecodeResult == DecodeResult.Stop;
+            HaltCpu = halt || stop;
+            HaltPeripherals = stop;
+            DebugInfo = debugInfo;
         }
 
         /// <summary>
@@ -82,7 +86,7 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
         /// <value>
         /// The debug information.
         /// </value>
-        public string DebugInfo { get; internal set; }
+        public string DebugInfo { get; }
 
         /// <summary>
         /// Executes the instruction block.
@@ -92,12 +96,9 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
         /// <param name="alu">The alu.</param>
         /// <param name="peripheralManager">The peripheral manager.</param>
         /// <returns></returns>
-        public InstructionTimings ExecuteInstructionBlock(TRegisters registers,
+        public InstructionTimings ExecuteInstructionBlock(IRegisters registers,
             IMmu mmu,
             IAlu alu,
-            IPeripheralManager peripheralManager)
-        {
-            return _action(registers, mmu, alu, peripheralManager) + _staticTimings;
-        }
+            IPeripheralManager peripheralManager) => _action(registers, mmu, alu, peripheralManager) + _staticTimings;
     }
 }

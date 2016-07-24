@@ -22,7 +22,7 @@ namespace Axh.Retro.CPU.Z80.Peripherals
         public byte ReadByte(byte addressMsb)
         {
             var key = Console.ReadKey();
-            return unchecked((byte) key.KeyChar);
+            return (byte) key.KeyChar;
         }
 
         /// <summary>

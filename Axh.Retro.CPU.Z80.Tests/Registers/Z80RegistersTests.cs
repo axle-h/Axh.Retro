@@ -8,7 +8,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Registers
     [TestFixture]
     public class Z80RegistersTests
     {
-        private IZ80Registers _z80Registers;
+        private IRegisters _z80Registers;
         
         [TestFixtureSetUp]
         public void TestFixtureSetUp()

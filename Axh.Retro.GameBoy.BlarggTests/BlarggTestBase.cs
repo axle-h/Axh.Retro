@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Axh.Retro.CPU.Z80.Contracts.Registers;
 using Axh.Retro.CPU.Z80.Wiring;
 using Axh.Retro.GameBoy.BlarggTests.Config;
 using Axh.Retro.GameBoy.Contracts.Peripherals;
@@ -13,14 +12,14 @@ namespace Axh.Retro.GameBoy.BlarggTests
     [TestFixture]
     public class BlarggTestBase : IDisposable
     {
-        private readonly Intel8080WiringBase<IRegisters> _coreWiring;
+        private readonly Z80Wiring _coreWiring;
 
         private readonly BlarggTestGameBoyConfig _config;
 
         public BlarggTestBase()
         {
             var blarggTest = new BlarggTest();
-            _coreWiring = new GameBoyWiring().With<GameBoyHardware>().With(blarggTest).Init();
+            _coreWiring = new Z80Wiring().With<GameBoyHardware>().With(blarggTest).Init();
             _config = blarggTest.Config;
         }
 

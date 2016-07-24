@@ -3,7 +3,7 @@
     /// <summary>
     /// An operand.
     /// </summary>
-    internal enum Operand : byte
+    public enum Operand : byte
     {
         None = 0,
 

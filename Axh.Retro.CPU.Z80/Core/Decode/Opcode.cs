@@ -5,7 +5,7 @@ namespace Axh.Retro.CPU.Z80.Core.Decode
     /// <summary>
     /// A Z80/8080 op-code.
     /// </summary>
-    internal enum OpCode : byte
+    public enum OpCode : byte
     {
         NoOperation,
         Halt,

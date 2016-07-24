@@ -7,7 +7,7 @@ using NUnit.Framework;
 namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
 {
     [TestFixture]
-    public class ExchangeTests : InstructionBlockDecoderTestsBase<IZ80Registers>
+    public class ExchangeTests : InstructionBlockDecoderTestsBase
     {
         public ExchangeTests() : base(CpuMode.Z80)
         {

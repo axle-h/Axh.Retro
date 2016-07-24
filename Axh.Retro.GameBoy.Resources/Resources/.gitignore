@@ -1,0 +1,4 @@
+## Ignore ROMs. Don't want these on GitHub.
+
+*.zip
+*.bin

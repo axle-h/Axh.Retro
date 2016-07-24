@@ -1,23 +1,22 @@
 using System.Collections.Generic;
 using Axh.Retro.CPU.Common.Contracts.Memory;
 using Axh.Retro.CPU.Z80.Contracts.Core;
-using Axh.Retro.CPU.Z80.Contracts.Registers;
 
 namespace Axh.Retro.CPU.Z80.Cache
 {
     /// <summary>
     /// Instruction block cache wrapper with a single normal range.
     /// </summary>
-    internal class NormalCachedInstructionBlock<TRegisters> : ICachedInstructionBlock<TRegisters> where TRegisters : IRegisters
+    internal class NormalCachedInstructionBlock : ICachedInstructionBlock
     {
         private readonly AddressRange _addressRange;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="NormalCachedInstructionBlock{TRegisters}"/> class.
+        /// Initializes a new instance of the <see cref="NormalCachedInstructionBlock"/> class.
         /// </summary>
         /// <param name="range">The range.</param>
         /// <param name="instructionBlock">The instruction block.</param>
-        public NormalCachedInstructionBlock(AddressRange range, IInstructionBlock<TRegisters> instructionBlock)
+        public NormalCachedInstructionBlock(AddressRange range, IInstructionBlock instructionBlock)
         {
             InstructionBlock = instructionBlock;
             _addressRange = range;
@@ -37,7 +36,7 @@ namespace Axh.Retro.CPU.Z80.Cache
         /// <value>
         /// The instruction block.
         /// </value>
-        public IInstructionBlock<TRegisters> InstructionBlock { get; }
+        public IInstructionBlock InstructionBlock { get; }
 
         /// <summary>
         /// Checks if the specified range intersects this cached instruction block.

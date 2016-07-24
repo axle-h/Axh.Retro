@@ -5,8 +5,7 @@ namespace Axh.Retro.CPU.Z80.Contracts.Core
     /// <summary>
     /// Instruction block decoder.
     /// </summary>
-    /// <typeparam name="TRegisters">The type of the registers.</typeparam>
-    public interface IInstructionBlockDecoder<in TRegisters> where TRegisters : IRegisters
+    public interface IInstructionBlockDecoder
     {
         /// <summary>
         /// Gets a value indicating whether this instruction block decoder [supports instruction block caching].
@@ -21,6 +20,6 @@ namespace Axh.Retro.CPU.Z80.Contracts.Core
         /// </summary>
         /// <param name="address">The address.</param>
         /// <returns></returns>
-        IInstructionBlock<TRegisters> DecodeNextBlock(ushort address);
+        IInstructionBlock DecodeNextBlock(ushort address);
     }
 }

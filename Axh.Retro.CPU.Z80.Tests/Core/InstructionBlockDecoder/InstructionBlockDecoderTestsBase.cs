@@ -7,14 +7,16 @@ using Axh.Retro.CPU.Z80.Contracts.Core;
 using Axh.Retro.CPU.Z80.Contracts.OpCodes;
 using Axh.Retro.CPU.Z80.Contracts.Peripherals;
 using Axh.Retro.CPU.Z80.Contracts.Registers;
+using Axh.Retro.CPU.Z80.Core.Decode;
 using Axh.Retro.CPU.Z80.Core.DynaRec;
+using Axh.Retro.CPU.Z80.Core.Interpreted;
 using Axh.Retro.CPU.Z80.Tests.Registers;
 using Moq;
 using NUnit.Framework;
 
 namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
 {
-    public abstract class InstructionBlockDecoderTestsBase<TRegisters> where TRegisters : class, IRegisters
+    public abstract class InstructionBlockDecoderTestsBase
     {
         protected const ushort Address = 0x0000;
 
@@ -56,7 +58,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
 
         protected Mock<IPrefetchQueue> Cache;
 
-        protected IInstructionBlockDecoder<TRegisters> DynaRecBlockDecoder;
+        protected IInstructionBlockDecoder DynaRecBlockDecoder;
 
         protected Mock<IFlagsRegister> FlagsRegister;
 
@@ -66,7 +68,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
 
         protected Mock<IMmu> Mmu;
 
-        protected Mock<TRegisters> Registers;
+        protected Mock<IRegisters> Registers;
 
         protected InstructionBlockDecoderTestsBase(CpuMode cpuMode)
         {
@@ -76,7 +78,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
         [TestFixtureSetUp]
         public void TestFixtureSetUp()
         {
-            Registers = new Mock<TRegisters>();
+            Registers = new Mock<IRegisters>();
             GpRegisters = new GeneralPurposeRegisterSet();
             FlagsRegister = new Mock<IFlagsRegister>();
             AfRegisters = new AccumulatorAndFlagsRegisterSet(FlagsRegister.Object);
@@ -97,7 +99,12 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
 
             var runtimeConfig = new Mock<IRuntimeConfig>();
             runtimeConfig.Setup(x => x.DebugMode).Returns(true);
-            DynaRecBlockDecoder = new DynaRec<TRegisters>(platformConfig.Object, runtimeConfig.Object, Cache.Object);
+
+            // TODO: we should be testing the opcode decoder separate from the core.
+            DynaRecBlockDecoder = new DynaRec(platformConfig.Object,
+                                              runtimeConfig.Object,
+                                              Cache.Object,
+                                              new OpCodeDecoder(platformConfig.Object, Cache.Object));
         }
 
         protected void SetupRegisters(ushort? bc = null)
@@ -119,18 +126,14 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
             FlagsRegister.SetupProperty(x => x.Carry, false);
 
             // Z80 Specific
-            var z80Mock = Registers as Mock<IZ80Registers>;
-            if (z80Mock != null)
-            {
-                z80Mock.SetupProperty(x => x.I, I);
-                z80Mock.SetupProperty(x => x.R, R);
-                z80Mock.SetupProperty(x => x.IX, IX);
-                z80Mock.SetupProperty(x => x.IY, IY);
-                z80Mock.SetupProperty(x => x.IXh, IXh);
-                z80Mock.SetupProperty(x => x.IXl, IXl);
-                z80Mock.SetupProperty(x => x.IYh, IYh);
-                z80Mock.SetupProperty(x => x.IYl, IYl);
-            }
+            Registers.SetupProperty(x => x.I, I);
+            Registers.SetupProperty(x => x.R, R);
+            Registers.SetupProperty(x => x.IX, IX);
+            Registers.SetupProperty(x => x.IY, IY);
+            Registers.SetupProperty(x => x.IXh, IXh);
+            Registers.SetupProperty(x => x.IXl, IXl);
+            Registers.SetupProperty(x => x.IYh, IYh);
+            Registers.SetupProperty(x => x.IYl, IYl);
 
             GpRegisters.BC = bc ?? BC;
             GpRegisters.DE = DE;

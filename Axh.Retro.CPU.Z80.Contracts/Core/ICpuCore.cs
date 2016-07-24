@@ -9,9 +9,8 @@ namespace Axh.Retro.CPU.Z80.Contracts.Core
     /// <summary>
     /// A Z80 CPU core.
     /// </summary>
-    /// <typeparam name="TRegisters">The type of the registers.</typeparam>
     /// <seealso cref="System.IDisposable" />
-    public interface ICpuCore<TRegisters> : IDisposable where TRegisters : IRegisters
+    public interface ICpuCore : IDisposable
     {
         /// <summary>
         /// Starts the core process.

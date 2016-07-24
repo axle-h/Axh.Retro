@@ -164,5 +164,117 @@ namespace Axh.Retro.CPU.Z80.Registers
                                      InterruptFlipFlop1,
                                      InterruptFlipFlop2,
                                      InterruptMode);
+
+        /// <summary>
+        /// Gets or sets the IX register.
+        /// </summary>
+        /// <value>
+        /// The IX register.
+        /// </value>
+        public ushort IX
+        {
+            get { throw new NotSupportedException(); }
+            set { throw new NotSupportedException(); }
+        }
+
+        /// <summary>
+        /// Gets or sets the IY register.
+        /// </summary>
+        /// <value>
+        /// The IY register.
+        /// </value>
+        public ushort IY
+        {
+            get { throw new NotSupportedException(); }
+            set { throw new NotSupportedException(); }
+        }
+
+        /// <summary>
+        /// Gets or sets the lower byte of the IX register.
+        /// </summary>
+        /// <value>
+        /// The lower byte of the IX register.
+        /// </value>
+        public byte IXl
+        {
+            get { throw new NotSupportedException(); }
+            set { throw new NotSupportedException(); }
+        }
+
+        /// <summary>
+        /// Gets or sets the upper byte of the IX register.
+        /// </summary>
+        /// <value>
+        /// The upper byte of the IX register.
+        /// </value>
+        public byte IXh
+        {
+            get { throw new NotSupportedException(); }
+            set { throw new NotSupportedException(); }
+        }
+
+        /// <summary>
+        /// Gets or sets the lower byte of the IY register.
+        /// </summary>
+        /// <value>
+        /// The lower byte of the IY register.
+        /// </value>
+        public byte IYl
+        {
+            get { throw new NotSupportedException(); }
+            set { throw new NotSupportedException(); }
+        }
+
+        /// <summary>
+        /// Gets or sets the upper byte of the IY register.
+        /// </summary>
+        /// <value>
+        /// The upper byte of the IY register.
+        /// </value>
+        public byte IYh
+        {
+            get { throw new NotSupportedException(); }
+            set { throw new NotSupportedException(); }
+        }
+
+        /// <summary>
+        /// Gets or sets the I register.
+        /// </summary>
+        /// <value>
+        /// The I register.
+        /// </value>
+        public byte I
+        {
+            get { throw new NotSupportedException(); }
+            set { throw new NotSupportedException(); }
+        }
+
+        /// <summary>
+        /// Gets or sets the R register.
+        /// </summary>
+        /// <value>
+        /// The R register.
+        /// </value>
+        public byte R
+        {
+            get { throw new NotSupportedException(); }
+            set { throw new NotSupportedException(); }
+        }
+
+        /// <summary>
+        /// Switches to alternative general purpose registers.
+        /// </summary>
+        public void SwitchToAlternativeGeneralPurposeRegisters()
+        {
+            throw new NotSupportedException();
+        }
+
+        /// <summary>
+        /// Switches to alternative accumulator and flags registers.
+        /// </summary>
+        public void SwitchToAlternativeAccumulatorAndFlagsRegisters()
+        {
+            throw new NotSupportedException();
+        }
     }
 }

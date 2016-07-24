@@ -48,9 +48,11 @@
     <Compile Include="Config\RuntimeConfig.cs" />
     <Compile Include="Core\Alu.cs" />
     <Compile Include="Core\CachingCpuCore.cs" />
+    <Compile Include="Core\CpuCore.cs" />
     <Compile Include="Core\CpuCoreBase.cs" />
     <Compile Include="Core\Decode\DecodedBlock.cs" />
     <Compile Include="Core\Decode\IndexRegisterOperands.cs" />
+    <Compile Include="Core\Decode\IOpCodeDecoder.cs" />
     <Compile Include="Core\Decode\Operation.cs" />
     <Compile Include="Core\Decode\FlagTest.cs" />
     <Compile Include="Core\Decode\OpCode.cs" />
@@ -60,18 +62,18 @@
     <Compile Include="Core\Decode\OpCodeMeta.cs" />
     <Compile Include="Core\Decode\Operand.cs" />
     <Compile Include="Core\Decode\OpCodeDecoder.cs" />
-    <Compile Include="Core\DynaRec\DecodeResult.cs" />
     <Compile Include="Core\DynaRec\DynaRec.cs" />
     <Compile Include="Core\DynaRec\DynaRec.Helpers.cs" />
     <Compile Include="Core\DynaRec\DynaRec.Recompile.cs" />
-    <Compile Include="Core\DynaRec\DynaRecInstructionBlock.cs" />
+    <Compile Include="Core\InstructionBlock.cs" />
     <Compile Include="Core\Decode\IndexRegister.cs" />
     <Compile Include="Core\InterruptManager.cs" />
+    <Compile Include="Memory\Z80Mmu.cs" />
     <Compile Include="Timing\InstructionTimingsBuilder.cs" />
     <Compile Include="Core\DynaRec\DynaRec.Expressions.cs" />
-    <Compile Include="Core\Interpreted\InterpretedInstructionBlockDecoder.cs" />
+    <Compile Include="Core\Interpreted\Interpreter.cs" />
     <Compile Include="Timing\MachineCycleTimer.cs" />
-    <Compile Include="Memory\Z80Mmu.cs" />
+    <Compile Include="Memory\CacheAwareZ80Mmu.cs" />
     <Compile Include="Peripherals\AsciiSystemConsole.cs" />
     <Compile Include="Peripherals\SystemConsoleStatus.cs" />
     <Compile Include="Peripherals\PeripheralManager.cs" />
@@ -97,6 +99,9 @@
       <Project>{15e8bff0-aa13-420f-8527-9187a37f6360}</Project>
       <Name>Axh.Retro.CPU.Z80.Contracts</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Core\Interpreted\InterpreterHelper.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

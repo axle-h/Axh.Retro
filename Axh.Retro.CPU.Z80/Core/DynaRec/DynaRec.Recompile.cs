@@ -10,9 +10,8 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
     /// <summary>
     /// Instruction block decoder using a dynamic translation from Z80 operations to expression trees.
     /// </summary>
-    /// <typeparam name="TRegisters">The type of the registers.</typeparam>
-    /// <seealso cref="Axh.Retro.CPU.Z80.Contracts.Core.IInstructionBlockDecoder{TRegisters}" />
-    public partial class DynaRec<TRegisters> where TRegisters : IRegisters
+    /// <seealso cref="Axh.Retro.CPU.Z80.Contracts.Core.IInstructionBlockDecoder" />
+    public partial class DynaRec
     {
         /// <summary>
         /// Recompiles the specified operation.
@@ -31,8 +30,9 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
             {
                 case OpCode.NoOperation:
                     break;
+                case OpCode.Stop:
                 case OpCode.Halt:
-                    _lastDecodeResult = DecodeResult.Halt;
+                    yield return SyncProgramCounter;
                     break;
 
                 case OpCode.Load:
@@ -171,7 +171,6 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
                                                   Expression.Assign(PC, ReadOperand1(operation, true)),
                                                   SyncProgramCounter);
                     }
-                    _lastDecodeResult = DecodeResult.Finalize;
                     break;
 
                 case OpCode.JumpRelative:
@@ -186,7 +185,9 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
                             Expression.IfThen(GetFlagTestExpression(operation.FlagTest),
                                               Expression.Block(JumpToDisplacement(operation), GetDynamicTimings(1, 5)));
                     }
-                    _lastDecodeResult = DecodeResult.FinalizeAndSync;
+
+                    // Relative jump so must also sync the PC.
+                    yield return SyncProgramCounter;
                     break;
 
                 case OpCode.DecrementJumpRelativeIfNonZero:
@@ -198,7 +199,9 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
                     yield return
                         Expression.IfThen(Expression.NotEqual(B, Expression.Constant((byte) 0)),
                                           Expression.Block(JumpToDisplacement(operation), GetDynamicTimings(1, 5)));
-                    _lastDecodeResult = DecodeResult.FinalizeAndSync;
+
+                    // Relative jump so must also sync the PC.
+                    yield return SyncProgramCounter;
                     break;
 
                 case OpCode.Call:
@@ -207,7 +210,7 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
                     if (operation.FlagTest == FlagTest.None)
                     {
                         yield return PushSP;
-                        yield return Expression.Call(Mmu, MmuWriteWord, SP, PC);
+                        yield return WritePCToStack;
                         yield return Expression.Assign(PC, ReadOperand1(operation));
                     }
                     else
@@ -220,7 +223,6 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
                                                                Expression.Assign(PC, ReadOperand1(operation)),
                                                                GetDynamicTimings(2, 7)));
                     }
-                    _lastDecodeResult = DecodeResult.Finalize;
                     break;
 
                 case OpCode.Return:
@@ -237,29 +239,25 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
                                                   Expression.Block(ReadPCFromStack, PopSP, GetDynamicTimings(2, 6)),
                                                   SyncProgramCounter);
                     }
-                    _lastDecodeResult = DecodeResult.Finalize;
                     break;
 
                 case OpCode.ReturnFromInterrupt:
                     yield return ReadPCFromStack;
                     yield return PopSP;
                     yield return Expression.Assign(IFF1, Expression.Constant(true));
-                    _lastDecodeResult = DecodeResult.Finalize;
                     break;
 
                 case OpCode.ReturnFromNonmaskableInterrupt:
                     yield return ReadPCFromStack;
                     yield return PopSP;
                     yield return Expression.Assign(IFF1, IFF2);
-                    _lastDecodeResult = DecodeResult.Finalize;
                     break;
 
                 case OpCode.Reset:
                     yield return SyncProgramCounter;
                     yield return PushSP;
-                    yield return Expression.Call(Mmu, MmuWriteWord, SP, PC);
+                    yield return WritePCToStack;
                     yield return Expression.Assign(PC, ReadOperand1(operation, true));
-                    _lastDecodeResult = DecodeResult.Finalize;
                     break;
 
                 case OpCode.Input:
@@ -518,10 +516,6 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
                 case OpCode.LoadDecrement:
                     yield return WriteOperand1(operation, ReadOperand2(operation));
                     yield return Expression.PreDecrementAssign(HL); // No support for indexes but GB doesnt have them
-                    break;
-
-                case OpCode.Stop:
-                    _lastDecodeResult = DecodeResult.Stop;
                     break;
 
                 default:

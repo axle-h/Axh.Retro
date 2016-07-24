@@ -9,7 +9,7 @@ using NUnit.Framework;
 namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
 {
     [TestFixture]
-    public class CallReturnResetTests : InstructionBlockDecoderTestsBase<IZ80Registers>
+    public class CallReturnResetTests : InstructionBlockDecoderTestsBase
     {
         public CallReturnResetTests() : base(CpuMode.Z80)
         {

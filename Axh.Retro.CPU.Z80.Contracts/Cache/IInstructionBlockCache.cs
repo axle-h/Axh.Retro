@@ -1,6 +1,5 @@
 ﻿using System;
 using Axh.Retro.CPU.Z80.Contracts.Core;
-using Axh.Retro.CPU.Z80.Contracts.Registers;
 
 namespace Axh.Retro.CPU.Z80.Contracts.Cache
 {
@@ -8,8 +7,7 @@ namespace Axh.Retro.CPU.Z80.Contracts.Cache
     /// An instruction block cache.
     /// Implementation notice: this doesn't need to be thread safe.
     /// </summary>
-    /// <typeparam name="TRegisters"></typeparam>
-    public interface IInstructionBlockCache<TRegisters> where TRegisters : IRegisters
+    public interface IInstructionBlockCache
     {
         /// <summary>
         /// Get an instruction block from the cache at address. If not present then call getInstanceFunc and add to the cache.
@@ -17,7 +15,7 @@ namespace Axh.Retro.CPU.Z80.Contracts.Cache
         /// <param name="address"></param>
         /// <param name="getInstanceFunc"></param>
         /// <returns></returns>
-        IInstructionBlock<TRegisters> GetOrSet(ushort address, Func<IInstructionBlock<TRegisters>> getInstanceFunc);
+        IInstructionBlock GetOrSet(ushort address, Func<IInstructionBlock> getInstanceFunc);
 
         /// <summary>
         /// Invalidates all cache from address for length

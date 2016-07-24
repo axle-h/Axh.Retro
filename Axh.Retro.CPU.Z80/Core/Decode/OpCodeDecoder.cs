@@ -12,7 +12,7 @@ namespace Axh.Retro.CPU.Z80.Core.Decode
     /// This will decode blocks of raw 8080/GBCPU/Z80 operands from a prefetch queue as collections of <see cref="DecodedBlock"/>.
     /// Blocks begin at the address specified when calling <see cref="DecodeNextBlock"/> and end with an operand that could potentially change the value of the PC register.
     /// </summary>
-    internal partial class OpCodeDecoder
+    public partial class OpCodeDecoder : IOpCodeDecoder
     {
         private readonly CpuMode _cpuMode;
         private readonly IDictionary<IndexRegister, IndexRegisterOperands> _indexRegisterOperands;
@@ -32,6 +32,8 @@ namespace Axh.Retro.CPU.Z80.Core.Decode
         private Operand _operand1;
         private Operand _operand2;
         private ushort _wordLiteral;
+
+        private bool _stop, _halt;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="OpCodeDecoder"/> class.
@@ -75,7 +77,7 @@ namespace Axh.Retro.CPU.Z80.Core.Decode
         public DecodedBlock DecodeNextBlock(ushort address)
         {
             var operations = DecodeOperations(address);
-            return new DecodedBlock(operations.ToArray(), _timer.GetInstructionTimings());
+            return new DecodedBlock(operations.ToArray(), _timer.GetInstructionTimings(), _halt, _stop);
         }
 
         /// <summary>
@@ -83,8 +85,9 @@ namespace Axh.Retro.CPU.Z80.Core.Decode
         /// </summary>
         /// <param name="address">The address.</param>
         /// <returns></returns>
-        public IEnumerable<Operation> DecodeOperations(ushort address)
+        private IEnumerable<Operation> DecodeOperations(ushort address)
         {
+            _halt = _stop = false;
             _timer.Reset();
             _index = _indexRegisterOperands[IndexRegister.HL];
             _prefetch.ReBuildCache(address);

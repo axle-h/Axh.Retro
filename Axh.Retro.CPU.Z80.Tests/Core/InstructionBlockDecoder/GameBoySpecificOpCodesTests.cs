@@ -8,7 +8,7 @@ using NUnit.Framework;
 namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
 {
     [TestFixture]
-    public class GameBoySpecificOpCodesTests : InstructionBlockDecoderTestsBase<IRegisters>
+    public class GameBoySpecificOpCodesTests : InstructionBlockDecoderTestsBase
     {
         public GameBoySpecificOpCodesTests() : base(CpuMode.GameBoy)
         {

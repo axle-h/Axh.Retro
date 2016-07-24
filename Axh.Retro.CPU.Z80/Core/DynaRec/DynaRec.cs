@@ -18,33 +18,31 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
     /// <summary>
     /// Instruction block decoder using a dynamic translation from Z80 operations to expression trees.
     /// </summary>
-    /// <typeparam name="TRegisters">The type of the registers.</typeparam>
-    /// <seealso cref="Axh.Retro.CPU.Z80.Contracts.Core.IInstructionBlockDecoder{TRegisters}" />
-    public partial class DynaRec<TRegisters> : IInstructionBlockDecoder<TRegisters> where TRegisters : IRegisters
+    /// <seealso cref="Axh.Retro.CPU.Z80.Contracts.Core.IInstructionBlockDecoder" />
+    public partial class DynaRec : IInstructionBlockDecoder
     {
         private readonly CpuMode _cpuMode;
         private readonly bool _debug;
-        private readonly OpCodeDecoder _decoder;
+        private readonly IOpCodeDecoder _decoder;
         private readonly IPrefetchQueue _prefetch;
-
-        private DecodeResult _lastDecodeResult;
 
         private bool _usesAccumulatorAndResult;
         private bool _usesDynamicTimings;
         private bool _usesLocalWord;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="DynaRec{TRegisters}"/> class.
+        /// Initializes a new instance of the <see cref="DynaRec"/> class.
         /// </summary>
         /// <param name="platformConfig">The platform configuration.</param>
         /// <param name="runtimeConfig">The runtime configuration.</param>
         /// <param name="prefetch">The prefetch.</param>
-        public DynaRec(IPlatformConfig platformConfig, IRuntimeConfig runtimeConfig, IPrefetchQueue prefetch) : this()
+        /// <param name="decoder">The decoder.</param>
+        public DynaRec(IPlatformConfig platformConfig, IRuntimeConfig runtimeConfig, IPrefetchQueue prefetch, IOpCodeDecoder decoder) : this()
         {
             _prefetch = prefetch;
             _cpuMode = platformConfig.CpuMode;
             _debug = runtimeConfig.DebugMode;
-            _decoder = new OpCodeDecoder(platformConfig, prefetch);
+            _decoder = decoder;
         }
 
         /// <summary>
@@ -69,49 +67,43 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
         /// </summary>
         /// <param name="address">The address.</param>
         /// <returns></returns>
-        public IInstructionBlock<TRegisters> DecodeNextBlock(ushort address)
+        public IInstructionBlock DecodeNextBlock(ushort address)
         {
             var decodedBlock = _decoder.DecodeNextBlock(address);
-            var lambda = BuildExpressionTree(decodedBlock.Operations);
+            var lambda = BuildExpressionTree(decodedBlock);
+            var debugInfo = _debug
+                                ? $"{string.Join("\n", decodedBlock.Operations.Select(x => x.ToString()))}\n\n{lambda.DebugView()}"
+                                : null;
 
-            var block = new DynaRecInstructionBlock<TRegisters>(address,
-                                                                (ushort) _prefetch.TotalBytesRead,
-                                                                lambda.Compile(),
-                                                                decodedBlock.Timings,
-                                                                _lastDecodeResult);
-            if (_debug)
-            {
-                block.DebugInfo =
-                    $"{string.Join("\n", decodedBlock.Operations.Select(x => x.ToString()))}\n\n{lambda.DebugView()}";
-            }
-
-            return block;
+            return new InstructionBlock(address,
+                                        (ushort) _prefetch.TotalBytesRead,
+                                        lambda.Compile(),
+                                        decodedBlock.Timings,
+                                        decodedBlock.Halt,
+                                        decodedBlock.Stop,
+                                        debugInfo);
         }
 
         /// <summary>
         /// Builds the expression tree.
         /// </summary>
-        /// <param name="operations">The operations.</param>
+        /// <param name="block">The decoded block.</param>
         /// <returns></returns>
-        private Expression<Func<TRegisters, IMmu, IAlu, IPeripheralManager, InstructionTimings>> BuildExpressionTree(
-            IEnumerable<Operation> operations)
+        private Expression<Func<IRegisters, IMmu, IAlu, IPeripheralManager, InstructionTimings>> BuildExpressionTree(DecodedBlock block)
         {
             // Reset
-            _usesDynamicTimings = false;
-            _usesLocalWord = false;
-            _usesAccumulatorAndResult = false;
-            _lastDecodeResult = DecodeResult.Continue;
+            _usesDynamicTimings = _usesLocalWord = _usesAccumulatorAndResult = false;
 
             // Run this first so we know what init & final expressions to add.
-            var blockExpressions = operations.SelectMany(Recompile).ToArray();
+            var blockExpressions = block.Operations.SelectMany(Recompile).ToArray();
             var initExpressions = GetBlockInitExpressions();
-            var finalExpressions = GetBlockFinalExpressions();
+            var finalExpressions = GetBlockFinalExpressions(block);
 
             var expressions = initExpressions.Concat(blockExpressions).Concat(finalExpressions).ToArray();
 
             var expressionBlock = Expression.Block(GetParameterExpressions(), expressions);
 
-            var lambda = Expression.Lambda<Func<TRegisters, IMmu, IAlu, IPeripheralManager, InstructionTimings>>(expressionBlock,
+            var lambda = Expression.Lambda<Func<IRegisters, IMmu, IAlu, IPeripheralManager, InstructionTimings>>(expressionBlock,
                                                                                                                  Registers,
                                                                                                                  Mmu,
                                                                                                                  Alu,
@@ -158,19 +150,13 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
         /// <summary>
         /// Gets any expressions required to finalize the expression block.
         /// </summary>
+        /// <param name="block">The decoded block.</param>
         /// <returns></returns>
-        private IEnumerable<Expression> GetBlockFinalExpressions()
+        private IEnumerable<Expression> GetBlockFinalExpressions(DecodedBlock block)
         {
             if (_debug)
             {
                 yield return GetDebugExpression("Block Finalize");
-            }
-
-            if (_lastDecodeResult == DecodeResult.FinalizeAndSync || _lastDecodeResult == DecodeResult.Halt ||
-                _lastDecodeResult == DecodeResult.Stop)
-            {
-                // Increment the program counter by how many bytes were read.
-                yield return SyncProgramCounter;
             }
 
             if (_cpuMode == CpuMode.Z80)

@@ -12,9 +12,8 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
     /// <summary>
     /// Expressions used in the dynamic translation from Z80 to expression trees.
     /// </summary>
-    /// <typeparam name="TRegisters">The type of the registers.</typeparam>
-    /// <seealso cref="Axh.Retro.CPU.Z80.Contracts.Core.IInstructionBlockDecoder{TRegisters}" />
-    public partial class DynaRec<TRegisters> where TRegisters : IRegisters
+    /// <seealso cref="Axh.Retro.CPU.Z80.Contracts.Core.IInstructionBlockDecoder" />
+    public partial class DynaRec
     {
         private readonly ParameterExpression Registers;
         private readonly ParameterExpression Mmu;
@@ -154,11 +153,11 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
         private readonly MethodInfo IoWriteByte;
 
         /// <summary>
-        /// Prevents a default instance of the <see cref="DynaRec{TRegisters}"/> class from being created.
+        /// Prevents a default instance of the <see cref="DynaRec"/> class from being created.
         /// </summary>
         private DynaRec()
         {
-            Registers = Expression.Parameter(typeof (TRegisters), "registers");
+            Registers = Expression.Parameter(typeof (IRegisters), "registers");
             Mmu = Expression.Parameter(typeof (IMmu), "mmu");
             Alu = Expression.Parameter(typeof (IAlu), "alu");
             IO = Expression.Parameter(typeof (IPeripheralManager), "io");
@@ -281,24 +280,21 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
                                                                                       (io, port, addressMsb, value) =>
                                                                                       io.WriteByteToPort(port, addressMsb, value));
 
-            if (typeof (TRegisters) == typeof (IZ80Registers))
-            {
-                // Z80 specific register expressions
-                I = Registers.GetPropertyExpression<IZ80Registers, byte>(r => r.I);
-                R = Registers.GetPropertyExpression<IZ80Registers, byte>(r => r.R);
-                IX = Registers.GetPropertyExpression<IZ80Registers, ushort>(r => r.IX);
-                IXl = Registers.GetPropertyExpression<IZ80Registers, byte>(r => r.IXl);
-                IXh = Registers.GetPropertyExpression<IZ80Registers, byte>(r => r.IXh);
-                IY = Registers.GetPropertyExpression<IZ80Registers, ushort>(r => r.IY);
-                IYl = Registers.GetPropertyExpression<IZ80Registers, byte>(r => r.IYl);
-                IYh = Registers.GetPropertyExpression<IZ80Registers, byte>(r => r.IYh);
+            // Z80 specific register expressions
+            I = Registers.GetPropertyExpression<IRegisters, byte>(r => r.I);
+            R = Registers.GetPropertyExpression<IRegisters, byte>(r => r.R);
+            IX = Registers.GetPropertyExpression<IRegisters, ushort>(r => r.IX);
+            IXl = Registers.GetPropertyExpression<IRegisters, byte>(r => r.IXl);
+            IXh = Registers.GetPropertyExpression<IRegisters, byte>(r => r.IXh);
+            IY = Registers.GetPropertyExpression<IRegisters, ushort>(r => r.IY);
+            IYl = Registers.GetPropertyExpression<IRegisters, byte>(r => r.IYl);
+            IYh = Registers.GetPropertyExpression<IRegisters, byte>(r => r.IYh);
 
-                // Z80 specific register methods
-                SwitchToAlternativeGeneralPurposeRegisters = Expression.Call(Registers,
-                    ExpressionHelpers.GetMethodInfo<IZ80Registers>(registers => registers.SwitchToAlternativeGeneralPurposeRegisters()));
-                SwitchToAlternativeAccumulatorAndFlagsRegisters = Expression.Call(Registers,
-                    ExpressionHelpers.GetMethodInfo<IZ80Registers>(registers => registers.SwitchToAlternativeAccumulatorAndFlagsRegisters()));
-            }
+            // Z80 specific register methods
+            SwitchToAlternativeGeneralPurposeRegisters = Expression.Call(Registers,
+                ExpressionHelpers.GetMethodInfo<IRegisters>(registers => registers.SwitchToAlternativeGeneralPurposeRegisters()));
+            SwitchToAlternativeAccumulatorAndFlagsRegisters = Expression.Call(Registers,
+                ExpressionHelpers.GetMethodInfo<IRegisters>(registers => registers.SwitchToAlternativeAccumulatorAndFlagsRegisters()));
         }
     }
 }

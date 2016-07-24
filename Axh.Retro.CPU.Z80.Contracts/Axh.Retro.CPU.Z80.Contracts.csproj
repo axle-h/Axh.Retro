@@ -71,7 +71,6 @@
     <Compile Include="State\AccumulatorAndFlagsRegisterState.cs" />
     <Compile Include="State\GeneralPurposeRegisterState.cs" />
     <Compile Include="Registers\IFlagsRegister.cs" />
-    <Compile Include="Registers\IZ80Registers.cs" />
     <Compile Include="State\Z80RegisterState.cs" />
     <Compile Include="Core\IInstructionBlockDecoder.cs" />
   </ItemGroup>

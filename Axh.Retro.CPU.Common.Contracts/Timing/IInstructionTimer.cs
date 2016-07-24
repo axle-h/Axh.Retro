@@ -18,13 +18,13 @@ namespace Axh.Retro.CPU.Common.Contracts.Timing
         /// </summary>
         /// <param name="timings">The timings.</param>
         /// <returns></returns>
-        void SyncToTimingsNow(InstructionTimings timings);
+        Task SyncToTimingsNow(InstructionTimings timings);
 
         /// <summary>
         /// Uses the configured instruction timings to sync real time to the CPU.
         /// </summary>
         /// <param name="timings">The timings.</param>
         /// <returns></returns>
-        void SyncToTimings(InstructionTimings timings);
+        Task SyncToTimings(InstructionTimings timings);
     }
 }

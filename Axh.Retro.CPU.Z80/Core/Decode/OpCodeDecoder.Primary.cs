@@ -7,7 +7,7 @@ namespace Axh.Retro.CPU.Z80.Core.Decode
     /// <summary>
     /// Core op-code decoder functions.
     /// </summary>
-    internal partial class OpCodeDecoder
+    public partial class OpCodeDecoder
     {
         /// <summary>
         /// Decodes the next opcode.
@@ -27,6 +27,7 @@ namespace Axh.Retro.CPU.Z80.Core.Decode
                     return OpCode.NoOperation;
                 case PrimaryOpCode.HALT:
                     _opCodeMeta = OpCodeMeta.EndBlock;
+                    _halt = true;
                     return OpCode.Halt;
 
                 // ********* Prefixes *********
@@ -1173,6 +1174,7 @@ namespace Axh.Retro.CPU.Z80.Core.Decode
                     {
                         // Runs as STOP on GB
                         _opCodeMeta = OpCodeMeta.EndBlock;
+                        _stop = true;
                         return OpCode.Stop;
                     }
 

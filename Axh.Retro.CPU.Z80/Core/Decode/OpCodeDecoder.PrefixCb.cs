@@ -7,7 +7,7 @@ namespace Axh.Retro.CPU.Z80.Core.Decode
     /// <summary>
     /// Core op-code decoder functions for op-codes prefixed with 0xCB.
     /// </summary>
-    internal partial class OpCodeDecoder
+    public partial class OpCodeDecoder
     {
         /// <summary>
         /// Fixes the timings and operands of a CB and DD/FD prefixed operation.

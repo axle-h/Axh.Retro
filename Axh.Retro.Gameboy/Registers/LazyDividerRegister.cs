@@ -28,7 +28,7 @@ namespace Axh.Retro.GameBoy.Registers
                 var timeSinceLastSet = DateTime.UtcNow - _dateLastSet;
                 var totalIncrements = timeSinceLastSet.TotalSeconds * RegisterIncrementRate % RegisterIncrementRate;
 
-                _registerValue = unchecked((byte) (_registerValue + totalIncrements));
+                _registerValue = (byte) (_registerValue + totalIncrements);
                 _dateLastSet = DateTime.UtcNow;
 
                 return _registerValue;

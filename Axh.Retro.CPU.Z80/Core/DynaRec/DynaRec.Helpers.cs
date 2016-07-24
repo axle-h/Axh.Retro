@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using Axh.Retro.CPU.Z80.Contracts.Registers;
 using Axh.Retro.CPU.Z80.Core.Decode;
 using Axh.Retro.CPU.Z80.Util;
 
@@ -11,9 +10,8 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
     /// <summary>
     /// Helpers for the dynamic translation from Z80 to expression trees.
     /// </summary>
-    /// <typeparam name="TRegisters">The type of the registers.</typeparam>
-    /// <seealso cref="Axh.Retro.CPU.Z80.Contracts.Core.IInstructionBlockDecoder{TRegisters}" />
-    public partial class DynaRec<TRegisters> where TRegisters : IRegisters
+    /// <seealso cref="Axh.Retro.CPU.Z80.Contracts.Core.IInstructionBlockDecoder" />
+    public partial class DynaRec
     {
         /// <summary>
         /// Reads the first operand from the operation as an expression
@@ -279,9 +277,7 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
         /// <param name="tStates">The t-states.</param>
         /// <returns></returns>
         private Expression GetDynamicTimings(int mCycles, int tStates)
-        {
-            return Expression.Call(DynamicTimer, DynamicTimerAdd, Expression.Constant(mCycles), Expression.Constant(tStates));
-        }
+            => Expression.Call(DynamicTimer, DynamicTimerAdd, Expression.Constant(mCycles), Expression.Constant(tStates));
 
         /// <summary>
         /// Gets an expression that updates the memory refresh register.
@@ -372,12 +368,7 @@ namespace Axh.Retro.CPU.Z80.Core.DynaRec
             var expressions = GetSearchExpressions(decrement);
             var iterationExpressions = new[]
                                        {
-                                           Expression.IfThen(
-                                                             Expression.OrElse(
-                                                                               Expression.Equal(BC,
-                                                                                                Expression.Constant(
-                                                                                                                    (ushort)
-                                                                                                                    0)),
+                                           Expression.IfThen(Expression.OrElse(Expression.Equal(BC, Expression.Constant((ushort) 0)),
                                                                                Zero),
                                                              Expression.Break(breakLabel)),
                                            GetDynamicTimings(5, 21),

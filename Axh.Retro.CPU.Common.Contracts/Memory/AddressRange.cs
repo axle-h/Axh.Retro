@@ -75,7 +75,7 @@ namespace Axh.Retro.CPU.Common.Contracts.Memory
         /// <returns></returns>
         public static IEnumerable<AddressRange> GetRanges(ushort address, ushort length)
         {
-            var maxAddress = unchecked((ushort) (address + length - 1));
+            var maxAddress = (ushort) (address + length - 1);
             if (maxAddress >= address)
             {
                 yield return new AddressRange(address, maxAddress);

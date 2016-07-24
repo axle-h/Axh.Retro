@@ -13,34 +13,37 @@ namespace Axh.Retro.CPU.Z80.Core
     /// <summary>
     /// Base class for CPU cores with external api implemented and dispose wired up.
     /// </summary>
-    /// <typeparam name="TRegisters">The type of the registers.</typeparam>
-    /// <seealso cref="Axh.Retro.CPU.Z80.Contracts.Core.ICpuCore{TRegisters}" />
-    public abstract class CpuCoreBase<TRegisters> : ICpuCore<TRegisters>
-        where TRegisters : IRegisters
+    public abstract class CpuCoreBase : ICpuCore
     {
-        protected TRegisters Registers;
+        protected IRegisters Registers;
         protected readonly IInterruptManager InterruptManager;
         protected readonly IPeripheralManager PeripheralManager;
         protected readonly IMmu Mmu;
         protected readonly IInstructionTimer InstructionTimer;
         protected readonly IAlu Alu;
-        protected readonly IInstructionBlockCache<TRegisters> InstructionBlockCache;
-        protected readonly IInstructionBlockDecoder<TRegisters> InstructionBlockDecoder;
+        protected readonly IInstructionBlockDecoder InstructionBlockDecoder;
         protected readonly IDmaController DmaController;
 
         private ushort? _interruptAddress;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="T:System.Object"/> class.
+        /// Initializes a new instance of the <see cref="CpuCoreBase"/> class.
         /// </summary>
-        protected CpuCoreBase(TRegisters registers,
+        /// <param name="registers">The registers.</param>
+        /// <param name="interruptManager">The interrupt manager.</param>
+        /// <param name="peripheralManager">The peripheral manager.</param>
+        /// <param name="mmu">The mmu.</param>
+        /// <param name="instructionTimer">The instruction timer.</param>
+        /// <param name="alu">The alu.</param>
+        /// <param name="instructionBlockDecoder">The instruction block decoder.</param>
+        /// <param name="dmaController">The dma controller.</param>
+        protected CpuCoreBase(IRegisters registers,
             IInterruptManager interruptManager,
             IPeripheralManager peripheralManager,
             IMmu mmu,
             IInstructionTimer instructionTimer,
             IAlu alu,
-            IInstructionBlockCache<TRegisters> instructionBlockCache,
-            IInstructionBlockDecoder<TRegisters> instructionBlockDecoder,
+            IInstructionBlockDecoder instructionBlockDecoder,
             IDmaController dmaController)
         {
             Registers = registers;
@@ -49,7 +52,6 @@ namespace Axh.Retro.CPU.Z80.Core
             Mmu = mmu;
             InstructionTimer = instructionTimer;
             Alu = alu;
-            InstructionBlockCache = instructionBlockCache;
             InstructionBlockDecoder = instructionBlockDecoder;
             DmaController = dmaController;
         }
@@ -91,7 +93,7 @@ namespace Axh.Retro.CPU.Z80.Core
         /// </summary>
         /// <param name="instructionBlock">The instruction block.</param>
         /// <returns></returns>
-        protected async Task ExecuteInstructionBlockAsync(IInstructionBlock<TRegisters> instructionBlock)
+        protected async Task ExecuteInstructionBlockAsync(IInstructionBlock instructionBlock)
         {
             var timings = instructionBlock.ExecuteInstructionBlock(Registers, Mmu, Alu, PeripheralManager);
 
@@ -115,7 +117,7 @@ namespace Axh.Retro.CPU.Z80.Core
                     _interruptAddress = await InterruptManager.WaitForNextInterrupt().ConfigureAwait(false);
 
                     // Push the program counter onto the stack
-                    Registers.StackPointer = unchecked((ushort)(Registers.StackPointer - 2));
+                    Registers.StackPointer = (ushort) (Registers.StackPointer - 2);
                     Mmu.WriteWord(Registers.StackPointer, Registers.ProgramCounter);
                 }
                 else
@@ -131,7 +133,7 @@ namespace Axh.Retro.CPU.Z80.Core
                 _interruptAddress = null;
             }
 
-            InstructionTimer.SyncToTimings(timings);
+            await InstructionTimer.SyncToTimings(timings);
         }
     }
 }

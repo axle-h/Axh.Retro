@@ -1,20 +1,19 @@
 ﻿using Axh.Retro.CPU.Z80.Contracts.Config;
 using Axh.Retro.CPU.Z80.Contracts.OpCodes;
-using Axh.Retro.CPU.Z80.Contracts.Registers;
 using Moq;
 using NUnit.Framework;
 
 namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
 {
     [TestFixture]
-    public class GeneralTests : InstructionBlockDecoderTestsBase<IZ80Registers>
+    public class GeneralTests : InstructionBlockDecoderTestsBase
     {
         public GeneralTests() : base(CpuMode.Z80)
         {
         }
 
         [Test]
-        public void HaltIncrentsProgramCounterAndMemoryRefreshRegistersWithCorrectOverflow()
+        public void HaltIncrementsProgramCounterAndMemoryRefreshRegistersWithCorrectOverflow()
         {
             ResetMocks();
 
@@ -29,7 +28,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
         }
 
         [Test]
-        public void NopIncrentsProgramCounterAndMemoryRefreshRegisters()
+        public void NopIncrementsProgramCounterAndMemoryRefreshRegisters()
         {
             ResetMocks();
 

@@ -16,7 +16,7 @@ namespace Axh.Retro.CPU.Z80.Tests.Core
         public void TestFixtureSetUp()
         {
             _flags = new Mock<IFlagsRegister>();
-            var registers = new Mock<IZ80Registers>();
+            var registers = new Mock<IRegisters>();
             registers.Setup(x => x.AccumulatorAndFlagsRegisters).Returns(new AccumulatorAndFlagsRegisterSet(_flags.Object));
 
             _alu = new Alu(registers.Object);

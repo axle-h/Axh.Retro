@@ -9,7 +9,7 @@ using NUnit.Framework;
 namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
 {
     [TestFixture]
-    public class ShiftTests : InstructionBlockDecoderTestsBase<IZ80Registers>
+    public class ShiftTests : InstructionBlockDecoderTestsBase
     {
         public ShiftTests() : base(CpuMode.Z80)
         {

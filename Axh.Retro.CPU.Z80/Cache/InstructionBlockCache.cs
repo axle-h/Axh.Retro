@@ -2,31 +2,27 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Timers;
 using Axh.Retro.CPU.Common.Contracts.Memory;
 using Axh.Retro.CPU.Z80.Contracts.Cache;
 using Axh.Retro.CPU.Z80.Contracts.Core;
-using Axh.Retro.CPU.Z80.Contracts.Registers;
 
 namespace Axh.Retro.CPU.Z80.Cache
 {
     /// <summary>
     /// An instruction block cache.
     /// </summary>
-    /// <typeparam name="TRegisters">The type of the registers.</typeparam>
-    /// <seealso cref="Axh.Retro.CPU.Z80.Contracts.Cache.IInstructionBlockCache{TRegisters}" />
-    public class InstructionBlockCache<TRegisters> : IInstructionBlockCache<TRegisters> where TRegisters : IRegisters
+    public class InstructionBlockCache : IInstructionBlockCache
     {
-        private readonly ConcurrentDictionary<ushort, ICachedInstructionBlock<TRegisters>> _cache;
+        private readonly ConcurrentDictionary<ushort, ICachedInstructionBlock> _cache;
 
         private ICollection<AddressRange> _cachedRanges;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="InstructionBlockCache{TRegisters}"/> class.
+        /// Initializes a new instance of the <see cref="InstructionBlockCache"/> class.
         /// </summary>
         public InstructionBlockCache()
         {
-            _cache = new ConcurrentDictionary<ushort, ICachedInstructionBlock<TRegisters>>();
+            _cache = new ConcurrentDictionary<ushort, ICachedInstructionBlock>();
         }
 
         /// <summary>
@@ -35,9 +31,9 @@ namespace Axh.Retro.CPU.Z80.Cache
         /// <param name="address"></param>
         /// <param name="getInstanceFunc"></param>
         /// <returns></returns>
-        public IInstructionBlock<TRegisters> GetOrSet(ushort address, Func<IInstructionBlock<TRegisters>> getInstanceFunc)
+        public IInstructionBlock GetOrSet(ushort address, Func<IInstructionBlock> getInstanceFunc)
         {
-            ICachedInstructionBlock<TRegisters> cachedInstructionBlock;
+            ICachedInstructionBlock cachedInstructionBlock;
             if (_cache.TryGetValue(address, out cachedInstructionBlock))
             {
                 cachedInstructionBlock.AccessedCount++;
@@ -48,11 +44,11 @@ namespace Axh.Retro.CPU.Z80.Cache
                 var ranges = AddressRange.GetRanges(block.Address, block.Length).ToArray();
                 if (ranges.Length == 1)
                 {
-                    cachedInstructionBlock = new NormalCachedInstructionBlock<TRegisters>(ranges[0], block);
+                    cachedInstructionBlock = new NormalCachedInstructionBlock(ranges[0], block);
                 }
                 else
                 {
-                    cachedInstructionBlock = new CachedInstructionBlock<TRegisters>(ranges, block);
+                    cachedInstructionBlock = new CachedInstructionBlock(ranges, block);
                 }
 
                 _cache.TryAdd(block.Address, cachedInstructionBlock);
@@ -82,7 +78,7 @@ namespace Axh.Retro.CPU.Z80.Cache
 
                 foreach (var kvp in _cache.Where(x => x.Value.Intersects(range)).ToArray())
                 {
-                    ICachedInstructionBlock<TRegisters> dummy;
+                    ICachedInstructionBlock dummy;
                     _cache.TryRemove(kvp.Key, out dummy);
                     UpdateCachedRanges();
                 }

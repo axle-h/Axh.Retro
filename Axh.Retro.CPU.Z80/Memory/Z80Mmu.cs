@@ -6,38 +6,31 @@ using Axh.Retro.CPU.Common.Contracts.Memory;
 using Axh.Retro.CPU.Common.Contracts.Memory.Dma;
 using Axh.Retro.CPU.Common.Contracts.Timing;
 using Axh.Retro.CPU.Common.Memory;
-using Axh.Retro.CPU.Z80.Contracts.Cache;
 using Axh.Retro.CPU.Z80.Contracts.Config;
 using Axh.Retro.CPU.Z80.Contracts.Peripherals;
-using Axh.Retro.CPU.Z80.Contracts.Registers;
 
 namespace Axh.Retro.CPU.Z80.Memory
 {
     /// <summary>
-    /// Z80 MMU builds a segment MMU taking memory bank configs from IPlatformConfig and IPeripheralManager
+    /// Z80 MMU builds a segment MMU taking memory bank configs from <see cref="IPlatformConfig"/> and <see cref="IPeripheralManager"/>.
     /// </summary>
-    public class Z80Mmu<TRegisters> : SegmentMmu where TRegisters : IRegisters
+    public class Z80Mmu : SegmentMmu
     {
-        private readonly IInstructionBlockCache<TRegisters> _instructionBlockCache;
-
         /// <summary>
-        /// Initializes a new instance of the <see cref="Z80Mmu{TRegisters}"/> class.
+        /// Initializes a new instance of the <see cref="CacheAwareZ80Mmu"/> class.
         /// </summary>
         /// <param name="peripheralManager">The peripheral manager.</param>
         /// <param name="platformConfig">The platform configuration.</param>
         /// <param name="memoryBankController">The memory bank controller.</param>
-        /// <param name="instructionBlockCache">The instruction block cache.</param>
         /// <param name="dmaController">The dma controller.</param>
         /// <param name="instructionTimer">The instruction timer.</param>
         public Z80Mmu(IPeripheralManager peripheralManager,
             IPlatformConfig platformConfig,
             IMemoryBankController memoryBankController,
-            IInstructionBlockCache<TRegisters> instructionBlockCache,
             IDmaController dmaController,
             IInstructionTimer instructionTimer)
             : base(GetAddressSegments(peripheralManager, platformConfig, memoryBankController), dmaController, instructionTimer)
         {
-            _instructionBlockCache = instructionBlockCache;
         }
 
         /// <summary>
@@ -96,12 +89,5 @@ namespace Axh.Retro.CPU.Z80.Memory
                     throw new ArgumentOutOfRangeException();
             }
         }
-
-        /// <summary>
-        /// When overridden in a derived class, registers an address write event.
-        /// </summary>
-        /// <param name="address"></param>
-        /// <param name="length"></param>
-        protected override void OnAddressWrite(ushort address, ushort length) => _instructionBlockCache.InvalidateCache(address, length);
     }
 }

@@ -5,7 +5,7 @@ namespace Axh.Retro.CPU.Z80.Core.Decode
     /// <summary>
     /// Core op-code decoder functions for op-codes prefixed with 0xED.
     /// </summary>
-    internal partial class OpCodeDecoder
+    public partial class OpCodeDecoder
     {
         /// <summary>
         /// Decodes an op-code that has been prefixed with 0xED.

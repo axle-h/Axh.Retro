@@ -8,7 +8,7 @@ using NUnit.Framework;
 namespace Axh.Retro.CPU.Z80.Tests.Core.InstructionBlockDecoder
 {
     [TestFixture]
-    public class Load16BitTests : InstructionBlockDecoderTestsBase<IZ80Registers>
+    public class Load16BitTests : InstructionBlockDecoderTestsBase
     {
         public Load16BitTests() : base(CpuMode.Z80)
         {

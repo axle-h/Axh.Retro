@@ -1,15 +1,13 @@
 ﻿using System.Collections.Generic;
 using Axh.Retro.CPU.Common.Contracts.Memory;
 using Axh.Retro.CPU.Z80.Contracts.Core;
-using Axh.Retro.CPU.Z80.Contracts.Registers;
 
 namespace Axh.Retro.CPU.Z80.Cache
 {
     /// <summary>
     /// An instruction block cache item.
     /// </summary>
-    /// <typeparam name="TRegisters">The type of the registers.</typeparam>
-    internal interface ICachedInstructionBlock<in TRegisters> where TRegisters : IRegisters
+    internal interface ICachedInstructionBlock
     {
         /// <summary>
         /// Gets the instruction block.
@@ -17,7 +15,7 @@ namespace Axh.Retro.CPU.Z80.Cache
         /// <value>
         /// The instruction block.
         /// </value>
-        IInstructionBlock<TRegisters> InstructionBlock { get; }
+        IInstructionBlock InstructionBlock { get; }
 
         /// <summary>
         /// Gets or sets the accessed count.

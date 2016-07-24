@@ -120,7 +120,7 @@ namespace Axh.Retro.GameBoy.Devices
         {
             for (var i = 0; i < buffer.Length; i++)
             {
-                buffer[i] = ReadByte(unchecked((ushort) (address + i)));
+                buffer[i] = ReadByte((ushort) (address + i));
             }
         }
 
@@ -164,7 +164,7 @@ namespace Axh.Retro.GameBoy.Devices
         {
             for (var i = 0; i < values.Length; i++)
             {
-                WriteByte(unchecked((ushort) (address + i)), values[i]);
+                WriteByte((ushort) (address + i), values[i]);
             }
         }
 

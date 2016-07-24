@@ -3,7 +3,7 @@
     /// <summary>
     /// A method of testing a register value or ALU result.
     /// </summary>
-    internal enum FlagTest : byte
+    public enum FlagTest : byte
     {
         /// <summary>
         /// No testing.

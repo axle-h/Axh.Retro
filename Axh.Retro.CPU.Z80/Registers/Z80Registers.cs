@@ -23,7 +23,7 @@ namespace Axh.Retro.CPU.Z80.Registers
     /// </summary>
     /// <seealso cref="Axh.Retro.CPU.Z80.Contracts.Registers.IRegisters" />
     /// /// <seealso cref="Axh.Retro.CPU.Z80.Contracts.Registers.IZ80Registers" />
-    public class Z80Registers : IZ80Registers
+    public class Z80Registers : IRegisters
     {
         private readonly Z80RegisterState _initialState;
 

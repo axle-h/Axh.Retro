@@ -8,8 +8,7 @@ namespace Axh.Retro.CPU.Z80.Contracts.Core
     /// <summary>
     /// An instruction block.
     /// </summary>
-    /// <typeparam name="TRegisters">The type of the registers.</typeparam>
-    public interface IInstructionBlock<in TRegisters> where TRegisters : IRegisters
+    public interface IInstructionBlock
     {
         /// <summary>
         /// Gets the address.
@@ -60,6 +59,6 @@ namespace Axh.Retro.CPU.Z80.Contracts.Core
         /// <param name="alu">The alu.</param>
         /// <param name="peripheralManager">The peripheral manager.</param>
         /// <returns></returns>
-        InstructionTimings ExecuteInstructionBlock(TRegisters registers, IMmu mmu, IAlu alu, IPeripheralManager peripheralManager);
+        InstructionTimings ExecuteInstructionBlock(IRegisters registers, IMmu mmu, IAlu alu, IPeripheralManager peripheralManager);
     }
 }
