@@ -8,9 +8,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Interactivity;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using Axh.Retro.GameBoy.Contracts.Devices;
 using Axh.Retro.GameBoy.Contracts.Graphics;
+using Axh.Retro.GameBoy.Wpf.Config;
 using Color = System.Windows.Media.Color;
 using Image = System.Windows.Controls.Image;
 
@@ -23,14 +26,18 @@ namespace Axh.Retro.GameBoy.Wpf
     internal class SimpleLcd : IRenderHandler
     {
         private readonly CancellationTokenSource _cancellationTokenSource;
+        private readonly IHardwareRegisters _hardware;
+        private readonly IWpfConfig _config;
         private Image _image;
         private Window _window;
         private WriteableBitmap _writeableBitmap;
         private Label _metricsLabel;
 
-        public SimpleLcd(CancellationTokenSource cancellationTokenSource)
+        public SimpleLcd(CancellationTokenSource cancellationTokenSource, IHardwareRegisters hardware, IWpfConfig config)
         {
             _cancellationTokenSource = cancellationTokenSource;
+            _hardware = hardware;
+            _config = config;
             StartStaTask(Init);
         }
 
@@ -69,6 +76,8 @@ namespace Axh.Retro.GameBoy.Wpf
             panel.Children.Add(_image);
 
             _window = new Window { Content = panel };
+            var behavior = new KeyboardJoyPadBehavior(_hardware.JoyPad, _config);
+            Interaction.GetBehaviors(_window).Add(behavior);
 
             RenderOptions.SetBitmapScalingMode(_image, BitmapScalingMode.NearestNeighbor);
             RenderOptions.SetEdgeMode(_image, EdgeMode.Aliased);

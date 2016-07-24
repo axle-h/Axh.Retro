@@ -136,7 +136,6 @@ namespace Axh.Retro.GameBoy.Devices
                 _registers[address].Register = value;
             }
             /*
-             * Removed this because I haven't implemented sound yet and the GameBoy loves to write to sound registers all the time.
             else
             {
                 Debug.WriteLine("Missing Hardware Register: 0x" + (address + Address).ToString("x4"));

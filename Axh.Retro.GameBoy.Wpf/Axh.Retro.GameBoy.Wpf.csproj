@@ -45,6 +45,10 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Interactivity, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Expression.Blend.Sdk3.1.0.1340.1\lib\net35\System.Windows.Interactivity.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.Xaml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -56,7 +60,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Config\GameBoyWpf.cs" />
+    <Compile Include="Config\IWpfConfig.cs" />
+    <Compile Include="Config\WpfConfig.cs" />
     <Compile Include="Config\StaticGameBoyConfig.cs" />
+    <Compile Include="KeyboardJoypadBehavior.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SimpleLcd.cs" />
@@ -66,6 +73,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Axh.Retro.CPU.Common.Contracts\Axh.Retro.CPU.Common.Contracts.csproj">
+      <Project>{5a958c82-d6ea-4bd1-9cc6-3727afe1874c}</Project>
+      <Name>Axh.Retro.CPU.Common.Contracts</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Axh.Retro.CPU.Z80.Wiring\Axh.Retro.CPU.Z80.Wiring.csproj">
       <Project>{23bbd87e-c5a0-407d-b892-1f2718d05788}</Project>
       <Name>Axh.Retro.CPU.Z80.Wiring</Name>

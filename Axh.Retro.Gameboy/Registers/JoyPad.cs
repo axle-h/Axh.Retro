@@ -71,16 +71,16 @@ namespace Axh.Retro.GameBoy.Registers
                 {
                     case MatrixColumn.None:
                         return 0xff;
-                    case MatrixColumn.P14:
-                        return GetRegister(Buttons.HasFlag(JoyPadButton.Right),
-                                           Buttons.HasFlag(JoyPadButton.Left),
-                                           Buttons.HasFlag(JoyPadButton.Up),
-                                           Buttons.HasFlag(JoyPadButton.Down));
                     case MatrixColumn.P15:
-                        return GetRegister(Buttons.HasFlag(JoyPadButton.A),
-                                           Buttons.HasFlag(JoyPadButton.B),
-                                           Buttons.HasFlag(JoyPadButton.Select),
-                                           Buttons.HasFlag(JoyPadButton.Start));
+                        return GetRegister(_buttons.HasFlag(JoyPadButton.Right),
+                                           _buttons.HasFlag(JoyPadButton.Left),
+                                           _buttons.HasFlag(JoyPadButton.Up),
+                                           _buttons.HasFlag(JoyPadButton.Down));
+                    case MatrixColumn.P14:
+                        return GetRegister(_buttons.HasFlag(JoyPadButton.A),
+                                           _buttons.HasFlag(JoyPadButton.B),
+                                           _buttons.HasFlag(JoyPadButton.Select),
+                                           _buttons.HasFlag(JoyPadButton.Start));
                     default:
                         throw new ArgumentOutOfRangeException();
                 }

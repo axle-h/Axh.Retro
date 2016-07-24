@@ -44,6 +44,8 @@ namespace Axh.Retro.GameBoy.Wpf.Config
                                                                                                                      _cancellationTokenSource)));
             container.Register<IGameBoyConfig, StaticGameBoyConfig>(Reuse.Singleton,
                                                                     Parameters.Of.Type<byte[]>(serviceKey: nameof(_cartridge)));
+
+            container.Register<IWpfConfig, WpfConfig>(Reuse.Singleton);
         }
     }
 }
