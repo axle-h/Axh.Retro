@@ -1,6 +1,4 @@
 ﻿using System.Threading;
-using Axh.Retro.CPU.Z80.Contracts.Registers;
-using Axh.Retro.CPU.Z80.Contracts.State;
 using Axh.Retro.CPU.Z80.Wiring;
 using Axh.Retro.Z80Console.Config;
 

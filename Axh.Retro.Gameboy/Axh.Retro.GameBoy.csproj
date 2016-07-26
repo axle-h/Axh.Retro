@@ -43,6 +43,9 @@
   <ItemGroup>
     <Compile Include="Config\GameBoyPlatformConfig.cs" />
     <Compile Include="Devices\RenderSettings.cs" />
+    <Compile Include="Devices\RenderState.cs" />
+    <Compile Include="Devices\RenderStateChange.cs" />
+    <Compile Include="Devices\TileCache.cs" />
     <Compile Include="Devices\TileMapPointer.cs" />
     <Compile Include="Media\CartridgeHeader.cs" />
     <Compile Include="Registers\Interfaces\ISerialPortRegister.cs" />

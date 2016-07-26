@@ -1,3 +1,5 @@
+using Axh.Retro.GameBoy.Registers.Interfaces;
+
 namespace Axh.Retro.GameBoy.Devices
 {
     /// <summary>
@@ -5,46 +7,176 @@ namespace Axh.Retro.GameBoy.Devices
     /// </summary>
     internal struct RenderSettings
     {
-        public readonly ushort TileMapAddress;
-        public readonly ushort TileSetAddress;
-        public readonly bool TileSetIsSigned;
-        public readonly byte ScrollX;
-        public readonly byte ScrollY;
-        public readonly byte SpriteHeight;
-        public readonly bool SpritesEnabled;
+        public static ushort TileMap1Address = 0x1800;
+        public static ushort TileMap2Address = 0x1c00;
+
+        public static ushort TileSet1Address = 0;
+        public static ushort TileSet2Address = 0x800;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="RenderSettings" /> struct.
+        /// Initializes a new instance of the <see cref="RenderSettings"/> struct.
         /// </summary>
-        /// <param name="tileMapAddress">The tile map address.</param>
-        /// <param name="tileSetAddress">The tile set address.</param>
-        /// <param name="tileSetIsSigned">if set to <c>true</c> [tile set is signed].</param>
-        /// <param name="scrollX">The scroll x.</param>
-        /// <param name="scrollY">The scroll y.</param>
-        /// <param name="bigSprites">if set to <c>true</c> [big sprites].</param>
-        /// <param name="spritesEnabled">if set to <c>true</c> [sprites enabled].</param>
-        public RenderSettings(ushort tileMapAddress,
-            ushort tileSetAddress,
-            bool tileSetIsSigned,
-            byte scrollX,
-            byte scrollY,
-            bool bigSprites,
-            bool spritesEnabled) : this()
+        /// <param name="registers">The registers.</param>
+        public RenderSettings(IGpuRegisters registers)
         {
-            TileMapAddress = tileMapAddress;
-            TileSetAddress = tileSetAddress;
-            TileSetIsSigned = tileSetIsSigned;
-            ScrollX = scrollX;
-            ScrollY = scrollY;
-            SpriteHeight = (byte) (bigSprites ? 16 : 8);
-            SpritesEnabled = spritesEnabled;
+            BackgroundTileMapAddress = registers.LcdControlRegister.BackgroundTileMap ? TileMap2Address : TileMap1Address;
+            WindowTileMapAddress = registers.LcdControlRegister.WindowTileMap ? TileMap2Address : TileMap1Address;
+            WindowEnabled = registers.LcdControlRegister.WindowDisplay;
+            WindowAndBackgroundTileMapShared = BackgroundTileMapAddress == WindowTileMapAddress;
+
+            if (registers.LcdControlRegister.TilePatternTable)
+            {
+                SpriteAndBackgroundTileSetShared = true;
+                TileSetAddress = TileSet1Address;
+                TileSetIsSigned = false;
+            }
+            else
+            {
+                SpriteAndBackgroundTileSetShared = false;
+                TileSetAddress = TileSet2Address;
+                TileSetIsSigned = true;
+            }
+
+            ScrollX = registers.ScrollXRegister.Register;
+            ScrollY = registers.ScrollYRegister.Register;
+            SpriteHeight = (byte)(registers.LcdControlRegister.SpriteSize ? 16 : 8);
+            SpritesEnabled = registers.LcdControlRegister.SpriteDisplayEnable;
         }
+
+        /// <summary>
+        /// Gets the tile map address.
+        /// </summary>
+        /// <value>
+        /// The tile map address.
+        /// </value>
+        public ushort BackgroundTileMapAddress { get; }
+
+        /// <summary>
+        /// Gets the window tile map address.
+        /// </summary>
+        /// <value>
+        /// The window tile map address.
+        /// </value>
+        public ushort WindowTileMapAddress { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether [window enabled].
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if [window enabled]; otherwise, <c>false</c>.
+        /// </value>
+        public bool WindowEnabled { get; }
+
+        /// <summary>
+        /// Gets the tile set address.
+        /// </summary>
+        /// <value>
+        /// The tile set address.
+        /// </value>
+        public ushort TileSetAddress { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether [sprite and background tile set shared].
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if [sprite and background tile set shared]; otherwise, <c>false</c>.
+        /// </value>
+        public bool SpriteAndBackgroundTileSetShared { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether [window and background tile map shared].
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if [window and background tile map shared]; otherwise, <c>false</c>.
+        /// </value>
+        public bool WindowAndBackgroundTileMapShared { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether [tile set is signed].
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if [tile set is signed]; otherwise, <c>false</c>.
+        /// </value>
+        public bool TileSetIsSigned { get; }
+
+        /// <summary>
+        /// Gets the scroll x.
+        /// </summary>
+        /// <value>
+        /// The scroll x.
+        /// </value>
+        public byte ScrollX { get; }
+
+        /// <summary>
+        /// Gets the scroll y.
+        /// </summary>
+        /// <value>
+        /// The scroll y.
+        /// </value>
+        public byte ScrollY { get; }
+
+        /// <summary>
+        /// Gets the height of the sprite.
+        /// </summary>
+        /// <value>
+        /// The height of the sprite.
+        /// </value>
+        public byte SpriteHeight { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether [sprites enabled].
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if [sprites enabled]; otherwise, <c>false</c>.
+        /// </value>
+        public bool SpritesEnabled { get; }
 
         public bool Equals(RenderSettings other)
         {
-            return TileMapAddress == other.TileMapAddress && TileSetAddress == other.TileSetAddress &&
-                   TileSetIsSigned == other.TileSetIsSigned && ScrollX == other.ScrollX && ScrollY == other.ScrollY &&
-                   SpriteHeight == other.SpriteHeight && SpritesEnabled == other.SpritesEnabled;
+            return BackgroundTileMapAddress == other.BackgroundTileMapAddress && TileSetAddress == other.TileSetAddress &&
+                   ScrollX == other.ScrollX && ScrollY == other.ScrollY && SpriteHeight == other.SpriteHeight &&
+                   SpritesEnabled == other.SpritesEnabled && WindowEnabled == other.WindowEnabled &&
+                   WindowTileMapAddress == other.WindowTileMapAddress;
+        }
+
+        /// <summary>
+        /// Gets the render settings that have changed in comparison to the specified render settings.
+        /// </summary>
+        /// <param name="other">The other.</param>
+        /// <returns></returns>
+        public RenderStateChange GetRenderStateChange(RenderSettings other)
+        {
+            var result = RenderStateChange.None;
+            if (BackgroundTileMapAddress != other.BackgroundTileMapAddress)
+            {
+                result |= RenderStateChange.BackgroundTileMap;
+            }
+
+            if (WindowEnabled != other.WindowEnabled || WindowTileMapAddress != other.WindowTileMapAddress)
+            {
+                result |= RenderStateChange.WindowTileMap;
+            }
+
+            if (TileSetAddress != other.TileSetAddress)
+            {
+                result |= RenderStateChange.TileSet;
+            }
+
+            if (ScrollX != other.ScrollX || ScrollY != other.ScrollY)
+            {
+                result |= RenderStateChange.Scroll;
+            }
+
+            if (SpriteHeight != other.SpriteHeight)
+            {
+                result |= RenderStateChange.SpriteSize;
+            }
+
+            if (SpritesEnabled != other.SpritesEnabled)
+            {
+                result |= RenderStateChange.SpriteTileSet | RenderStateChange.SpriteOam;
+            }
+            return result;
         }
 
         /// <summary>
@@ -73,13 +205,14 @@ namespace Axh.Retro.GameBoy.Devices
         {
             unchecked
             {
-                var hashCode = TileMapAddress.GetHashCode();
+                var hashCode = BackgroundTileMapAddress.GetHashCode();
                 hashCode = (hashCode * 397) ^ TileSetAddress.GetHashCode();
-                hashCode = (hashCode * 397) ^ TileSetIsSigned.GetHashCode();
                 hashCode = (hashCode * 397) ^ ScrollX.GetHashCode();
                 hashCode = (hashCode * 397) ^ ScrollY.GetHashCode();
                 hashCode = (hashCode * 397) ^ SpriteHeight.GetHashCode();
                 hashCode = (hashCode * 397) ^ SpritesEnabled.GetHashCode();
+                hashCode = (hashCode * 397) ^ WindowEnabled.GetHashCode();
+                hashCode = (hashCode * 397) ^ WindowTileMapAddress.GetHashCode();
                 return hashCode;
             }
         }

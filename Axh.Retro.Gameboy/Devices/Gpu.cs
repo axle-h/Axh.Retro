@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
@@ -83,11 +84,11 @@ namespace Axh.Retro.GameBoy.Devices
         private bool _disposed;
 
         private bool _isEnabled;
-
-        private RenderSettings _lastRenderSettings;
+        
 
         // TODO: move to state object.
-        private byte[] _lastTileMapBytes, _lastTileSetBytes, _lastSpriteBytes, _lastSpriteTileSetBytes;
+        private RenderState _lastRenderState;
+        private TileMapPointer _tileMapPointer;
 
         private TaskCompletionSource<bool> _paintingTaskCompletionSource;
 
@@ -277,9 +278,9 @@ namespace Axh.Retro.GameBoy.Devices
                 }
 
                 _paintingTaskCompletionSource = null;
-
+                
                 Paint();
-
+                
                 _paintingTaskCompletionSource = new TaskCompletionSource<bool>();
             }
         }
@@ -289,44 +290,38 @@ namespace Axh.Retro.GameBoy.Devices
         /// </summary>
         private void Paint()
         {
-            var renderSettings = _gpuRegisters.LcdControlRegister.BackgroundTileMap
-                                     ? new RenderSettings(0x1c00,
-                                                          0x800,
-                                                          true,
-                                                          _gpuRegisters.ScrollXRegister.Register,
-                                                          _gpuRegisters.ScrollYRegister.Register,
-                                                          _gpuRegisters.LcdControlRegister.SpriteSize,
-                                                          _gpuRegisters.LcdControlRegister.SpriteDisplayEnable)
-                                     : new RenderSettings(0x1800,
-                                                          0x0,
-                                                          false,
-                                                          _gpuRegisters.ScrollXRegister.Register,
-                                                          _gpuRegisters.ScrollYRegister.Register,
-                                                          _gpuRegisters.LcdControlRegister.SpriteSize,
-                                                          _gpuRegisters.LcdControlRegister.SpriteDisplayEnable);
+            var renderSettings = new RenderSettings(_gpuRegisters);
 
-            var tileMapBytes = _tileRam.ReadBytes(renderSettings.TileMapAddress, 0x400);
-            var tileSetBytes = _tileRam.ReadBytes(renderSettings.TileSetAddress, 0x1000);
-            var spriteBytes = _spriteRam.ReadBytes(0x0, 0xa0);
-            var spriteTileSetBytes = renderSettings.TileSetAddress == 0 ? tileSetBytes : _tileRam.ReadBytes(0x0, 0x1000);
+            var backgroundTileMap = _tileRam.ReadBytes(renderSettings.BackgroundTileMapAddress, 0x400);
+            var tileSet = _tileRam.ReadBytes(renderSettings.TileSetAddress, 0x1000);
+            var windowTileMap = renderSettings.WindowEnabled ? _tileRam.ReadBytes(renderSettings.WindowTileMapAddress, 0x400) : new byte[0];
 
-            if (renderSettings.Equals(_lastRenderSettings) && tileMapBytes.SequenceEqual(_lastTileMapBytes) &&
-                tileSetBytes.SequenceEqual(_lastTileSetBytes) && spriteBytes.SequenceEqual(_lastSpriteBytes) &&
-                spriteTileSetBytes.SequenceEqual(_lastSpriteTileSetBytes))
+            byte[] spriteOam, spriteTileSet;
+            if (renderSettings.SpritesEnabled)
+            {
+                // If the background tiles are read from the sprite pattern table then we can reuse the bytes.
+                spriteTileSet = renderSettings.SpriteAndBackgroundTileSetShared ? tileSet : _tileRam.ReadBytes(0x0, 0x1000);
+                spriteOam = _spriteRam.ReadBytes(0x0, 0xa0);
+            }
+            else
+            {
+                spriteOam = spriteTileSet = new byte[0];
+            }
+
+            var renderState = new RenderState(renderSettings, tileSet, backgroundTileMap, windowTileMap, spriteOam, spriteTileSet);
+
+            var renderStateChange = renderState.GetRenderStateChange(_lastRenderState);
+            if (renderStateChange == RenderStateChange.None)
             {
                 // No need to render the same frame twice.
                 _frameSkip = 0;
                 _framesRendered++;
                 return;
             }
-            
-            _lastRenderSettings = renderSettings;
-            _lastTileMapBytes = tileMapBytes;
-            _lastTileSetBytes = tileSetBytes;
-            _lastSpriteBytes = spriteBytes;
-            _lastSpriteTileSetBytes = spriteTileSetBytes;
 
-            var tileMap = new TileMapPointer(renderSettings, tileSetBytes, tileMapBytes, spriteBytes, spriteTileSetBytes);
+            _lastRenderState = renderState;
+
+            _tileMapPointer = _tileMapPointer == null ? new TileMapPointer(renderState) : _tileMapPointer.Reset(renderState, renderStateChange);
             var frameBounds = new Rectangle(0, 0, LcdWidth, LcdHeight);
 
             var bitmapPalette = _lcdBuffer.Palette;
@@ -340,15 +335,16 @@ namespace Axh.Retro.GameBoy.Devices
 
             var buffer = new byte[frameData.Stride];
             var ptr = frameData.Scan0;
+            
             for (var y = 0; y < LcdHeight; y++)
             {
                 for (var x = 0; x < LcdWidth; x++)
                 {
-                    buffer[x] = (byte) tileMap.Pixel;
+                    buffer[x] = (byte) _tileMapPointer.Pixel;
 
                     if (x + 1 < LcdWidth)
                     {
-                        tileMap.NextColumn();
+                        _tileMapPointer.NextColumn();
                     }
                 }
 
@@ -356,11 +352,11 @@ namespace Axh.Retro.GameBoy.Devices
 
                 if (y + 1 < LcdHeight)
                 {
-                    tileMap.NextRow();
+                    _tileMapPointer.NextRow();
                     ptr += frameData.Stride;
                 }
             }
-
+            
             _lcdBuffer.UnlockBits(frameData);
             _renderHandler.Paint(_lcdBuffer);
 
