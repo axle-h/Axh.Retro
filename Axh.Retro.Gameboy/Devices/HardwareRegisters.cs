@@ -40,7 +40,8 @@ namespace Axh.Retro.GameBoy.Devices
                                      joyPad, serialPort, serialPort.SerialData, gpuRegisters.ScrollXRegister,
                                      gpuRegisters.ScrollYRegister, gpuRegisters.CurrentScanlineRegister,
                                      gpuRegisters.LcdControlRegister, gpuRegisters.LcdMonochromePaletteRegister,
-                                     gpuRegisters.LcdStatusRegister, timerRegisters.TimerControlRegister,
+                                     gpuRegisters.LcdStatusRegister, gpuRegisters.WindowXPositionRegister,
+                                     gpuRegisters.WindowYPositionRegister, timerRegisters.TimerControlRegister,
                                      timerRegisters.TimerCounterRegister, timerRegisters.TimerModuloRegister
                                  })
                          .ToDictionary(x => (ushort) (x.Address - Address));

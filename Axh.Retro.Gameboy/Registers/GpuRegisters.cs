@@ -26,6 +26,8 @@ namespace Axh.Retro.GameBoy.Registers
             LcdMonochromePaletteRegister = lcdMonochromePaletteRegister;
             ScrollXRegister = new SimpleRegister(0xff43, "Background Horizontal Scrolling (SCROLLX R/W)");
             ScrollYRegister = new SimpleRegister(0xff42, "Background Vertical Scrolling (SCROLLY R/W)");
+            WindowYPositionRegister = new SimpleRegister(0xff4a, "Window Y Position (WY R/W)");
+            WindowXPositionRegister = new SimpleRegister(0xff4b, "Window X Position minus 7 (WX R/W)");
         }
 
         /// <summary>
@@ -75,5 +77,27 @@ namespace Axh.Retro.GameBoy.Registers
         /// The LCD status register.
         /// </value>
         public ILcdStatusRegister LcdStatusRegister { get; }
+
+        /// <summary>
+        /// Gets the window X position register.
+        /// This is the upper left corner of the window minus 7.
+        /// Values can be 0 - 166.
+        /// WX=7 locates the window at upper left of the screen, it is then completely covering normal background in the horizontal direction.
+        /// </summary>
+        /// <value>
+        /// The window X position register.
+        /// </value>
+        public IRegister WindowXPositionRegister { get; }
+
+        /// <summary>
+        /// Gets the window Y position register.
+        /// This is the upper left corner of the window.
+        /// Values can be 0 - 143.
+        /// WY=0 locates the window at upper left of the screen, it is then completely covering normal background in the vertical direction.
+        /// </summary>
+        /// <value>
+        /// The window Y position register.
+        /// </value>
+        public IRegister WindowYPositionRegister { get; }
     }
 }

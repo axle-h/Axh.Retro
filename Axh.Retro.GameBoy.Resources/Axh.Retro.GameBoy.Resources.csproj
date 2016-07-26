@@ -61,6 +61,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="Resources\Alleyway %28W%29 [!].zip" />
     <None Include="Resources\cpu_instrs\01-special.gb" />
     <None Include="Resources\cpu_instrs\02-interrupts.gb" />
     <None Include="Resources\cpu_instrs\03-op sp,hl.gb" />

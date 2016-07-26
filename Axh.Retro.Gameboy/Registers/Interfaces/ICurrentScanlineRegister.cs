@@ -10,12 +10,12 @@
     public interface ICurrentScanlineRegister : IRegister
     {
         /// <summary>
-        /// Gets the scanline.
+        /// Gets or sets the scanline.
         /// </summary>
         /// <value>
         /// The scanline.
         /// </value>
-        byte Scanline { get; }
+        byte Scanline { get; set; }
 
         /// <summary>
         /// Increments the scanline.

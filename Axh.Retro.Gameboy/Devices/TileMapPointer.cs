@@ -13,21 +13,30 @@ namespace Axh.Retro.GameBoy.Devices
     internal class TileMapPointer
     {
         private RenderSettings _renderSettings;
-        private Sprite[] _allSprites;
-        private TileCache _tiles;
-        private TileCache _spriteTiles;
-        private byte[] _backgroundTileMap;
-
-        private int _column;
         
-        private Sprite[] _currentSprites;
-
-        private Tile _currentTile;
+        private int _column;
         private int _row;
-        private int _tileColumn;
-        private int _tileMapColumn;
-        private int _tileMapRow;
-        private int _tileRow;
+
+        private int _lcdColumn;
+        private int _lcdRow;
+
+        private TileCache _tiles;
+
+        private byte[] _backgroundTileMap;
+        private Tile _currentBackgroundTile;
+        private int _backgroundTileMapColumn;
+        private int _backgroundTileMapRow;
+        private int _backgroundTileColumn;
+        private int _backgroundTileRow;
+
+        private byte[] _windowTileMap;
+        private Tile _currentWindowTile;
+        private int _windowTileColumn;
+        private int _windowTileRow;
+
+        private TileCache _spriteTiles;
+        private Sprite[] _allSprites;
+        private Sprite[] _currentSprites;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TileMapPointer"/> class.
@@ -46,16 +55,29 @@ namespace Axh.Retro.GameBoy.Devices
         public TileMapPointer Reset(RenderState renderState, RenderStateChange stateChange)
         {
             _renderSettings = renderState.RenderSettings;
-            _column = renderState.RenderSettings.ScrollX;
-            _tileMapColumn = renderState.RenderSettings.ScrollX / 8;
-            _tileColumn = renderState.RenderSettings.ScrollX % 8;
 
+            _lcdColumn = 0;
+            _lcdRow = 0;
+
+            _column = renderState.RenderSettings.ScrollX;
             _row = renderState.RenderSettings.ScrollY;
-            _tileMapRow = renderState.RenderSettings.ScrollY / 8;
-            _tileRow = renderState.RenderSettings.ScrollY % 8;
 
             _backgroundTileMap = renderState.BackgroundTileMap;
+            _backgroundTileMapColumn = renderState.RenderSettings.ScrollX / 8;
+            _backgroundTileMapRow = renderState.RenderSettings.ScrollY / 8;
+            _backgroundTileColumn = renderState.RenderSettings.ScrollX % 8;
+            _backgroundTileRow = renderState.RenderSettings.ScrollY % 8;
 
+            if (_renderSettings.WindowEnabled)
+            {
+                _windowTileMap = renderState.WindowTileMap;
+            }
+            else
+            {
+                _windowTileMap = null;
+                _currentWindowTile = null;
+            }
+            
             // Can use existing cache if the tile set has not changed.
             if (stateChange.HasFlag(RenderStateChange.TileSet))
             {
@@ -85,7 +107,7 @@ namespace Axh.Retro.GameBoy.Devices
                 _currentSprites = null;
             }
             
-            UpdateCurrentTile();
+            UpdateCurrentTiles();
 
             return this;
         }
@@ -100,10 +122,13 @@ namespace Axh.Retro.GameBoy.Devices
         {
             get
             {
-                var background = _currentTile.Get(_tileRow, _tileColumn);
+                // Check window first as it overlays background.
+                var pixel = _currentWindowTile?.Get(_windowTileRow, _windowTileColumn) ??
+                            _currentBackgroundTile.Get(_backgroundTileRow, _backgroundTileColumn);
+                
                 if (!_renderSettings.SpritesEnabled)
                 {
-                    return background;
+                    return pixel;
                 }
 
                 foreach (var sprite in _currentSprites.Where(s => _column >= s.X && _column < s.X + 8))
@@ -114,7 +139,7 @@ namespace Axh.Retro.GameBoy.Devices
                     return spriteTile.Get(_row - sprite.Y, _column - sprite.X);
                 }
 
-                return background;
+                return pixel;
             }
         }
 
@@ -124,11 +149,12 @@ namespace Axh.Retro.GameBoy.Devices
         public void NextColumn()
         {
             _column++;
-            _tileColumn = (_tileColumn + 1) % 8;
-            if (_tileColumn == 0)
+            _lcdColumn++;
+            _backgroundTileColumn = (_backgroundTileColumn + 1) % 8;
+            if (_backgroundTileColumn == 0)
             {
-                _tileMapColumn++;
-                UpdateCurrentTile();
+                _backgroundTileMapColumn++;
+                UpdateCurrentTiles();
             }
         }
 
@@ -138,19 +164,21 @@ namespace Axh.Retro.GameBoy.Devices
         public void NextRow()
         {
             _row++;
-            _tileRow = (_tileRow + 1) % 8;
-            if (_tileRow == 0)
+            _lcdRow++;
+            _backgroundTileRow = (_backgroundTileRow + 1) % 8;
+            if (_backgroundTileRow == 0)
             {
-                _tileMapRow++;
+                _backgroundTileMapRow++;
             }
 
             UpdateRowSprites();
 
             // Reset column.
             _column = _renderSettings.ScrollX;
-            _tileMapColumn = _renderSettings.ScrollX / 8;
-            _tileColumn = _renderSettings.ScrollX % 8;
-            UpdateCurrentTile();
+            _lcdColumn = 0;
+            _backgroundTileMapColumn = _renderSettings.ScrollX / 8;
+            _backgroundTileColumn = _renderSettings.ScrollX % 8;
+            UpdateCurrentTiles();
         }
 
         /// <summary>
@@ -170,15 +198,40 @@ namespace Axh.Retro.GameBoy.Devices
         }
 
         /// <summary>
-        /// Updates the current tile.
+        /// Updates the background current tile.
         /// </summary>
-        private void UpdateCurrentTile()
+        private void UpdateCurrentTiles()
         {
-            var tileMapIndex = _tileMapRow * 32 + _tileMapColumn;
-            var tileMapValue = _backgroundTileMap[tileMapIndex];
+            var tileMapIndex = _backgroundTileMapRow * 32 + _backgroundTileMapColumn;
 
+            _currentBackgroundTile = GetTile(_backgroundTileMap[tileMapIndex]);
+            _currentWindowTile = null; // reset now just in case we don't set this later.
+
+            if (!_renderSettings.WindowEnabled)
+            {
+                return;
+            }
+
+            var windowX = _lcdColumn - _renderSettings.WindowXPosition;
+            var windowY = _lcdRow - _renderSettings.WindowYPosition;
+
+            if (windowX < 0 || windowY < 0)
+            {
+                // Window only covers to bottom right of background.
+                return;
+            }
+
+            var windowTileMapColumn = windowX / 8;
+            var windowTileMapRow = windowY / 8;
+
+            _windowTileColumn = windowX % 8;
+            _windowTileRow = windowY % 8;
+            _currentWindowTile = GetTile(_windowTileMap[windowTileMapRow * 32 + windowTileMapColumn]);
+        }
+
+        private Tile GetTile(byte tileMapValue)
+        {
             int index;
-
             if (_renderSettings.TileSetIsSigned)
             {
                 var signedTileMapValue = (sbyte) tileMapValue;
@@ -189,7 +242,7 @@ namespace Axh.Retro.GameBoy.Devices
                 index = tileMapValue;
             }
 
-            _currentTile = _tiles.GetTile(index);
+            return _tiles.GetTile(index);
         }
 
         /// <summary>

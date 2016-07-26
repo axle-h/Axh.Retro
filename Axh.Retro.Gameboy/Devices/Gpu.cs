@@ -82,8 +82,6 @@ namespace Axh.Retro.GameBoy.Devices
         
         private int _currentTimings;
         private bool _disposed;
-
-        private bool _isEnabled;
         
 
         // TODO: move to state object.
@@ -114,8 +112,7 @@ namespace Axh.Retro.GameBoy.Devices
 
             _spriteRam = new ArrayBackedMemoryBank(SpriteRamConfig);
             _tileRam = new ArrayBackedMemoryBank(MapRamConfig);
-
-            _isEnabled = false;
+            
             _lcdStatusRegister.GpuMode = GpuMode.VerticalBlank;
             _currentTimings = 0;
 
@@ -196,16 +193,12 @@ namespace Axh.Retro.GameBoy.Devices
         {
             if (!_gpuRegisters.LcdControlRegister.LcdOperation)
             {
-                if (_isEnabled)
-                {
-                    _lcdStatusRegister.GpuMode = GpuMode.VerticalBlank;
-                    _currentTimings = 0;
-                    _gpuRegisters.CurrentScanlineRegister.Register = 0x00;
-                }
+                _lcdStatusRegister.GpuMode = GpuMode.VerticalBlank;
+                _currentTimings = 0;
+                _gpuRegisters.CurrentScanlineRegister.Scanline = 0x92;
                 return;
             }
-
-            _isEnabled = true;
+            
             _currentTimings += instructionTimings.MachineCycles;
 
             switch (_lcdStatusRegister.GpuMode)
@@ -233,7 +226,7 @@ namespace Axh.Retro.GameBoy.Devices
                             }
 
                             // Reset
-                            _gpuRegisters.CurrentScanlineRegister.Register = 0x00;
+                            _gpuRegisters.CurrentScanlineRegister.Scanline = 0x00;
                             _lcdStatusRegister.GpuMode = GpuMode.ReadingOam;
                             _interruptFlagsRegister.UpdateInterrupts(InterruptFlag.VerticalBlank);
                             _currentTimings -= VerticalBlankCycles;

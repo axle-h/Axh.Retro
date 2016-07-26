@@ -63,6 +63,16 @@ namespace Axh.Retro.GameBoy {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
+        public static byte[] Alleyway_W_Gb_Zip {
+            get {
+                object obj = ResourceManager.GetObject("Alleyway_W_Gb_Zip", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
         public static byte[] cpu_instrs {
             get {
                 object obj = ResourceManager.GetObject("cpu_instrs", resourceCulture);

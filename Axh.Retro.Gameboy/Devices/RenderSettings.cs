@@ -39,6 +39,8 @@ namespace Axh.Retro.GameBoy.Devices
 
             ScrollX = registers.ScrollXRegister.Register;
             ScrollY = registers.ScrollYRegister.Register;
+            WindowXPosition = registers.WindowXPositionRegister.Register - 7;
+            WindowYPosition = registers.WindowYPositionRegister.Register;
             SpriteHeight = (byte)(registers.LcdControlRegister.SpriteSize ? 16 : 8);
             SpritesEnabled = registers.LcdControlRegister.SpriteDisplayEnable;
         }
@@ -114,6 +116,22 @@ namespace Axh.Retro.GameBoy.Devices
         /// The scroll y.
         /// </value>
         public byte ScrollY { get; }
+
+        /// <summary>
+        /// Gets the window x position.
+        /// </summary>
+        /// <value>
+        /// The window x position.
+        /// </value>
+        public int WindowXPosition { get; }
+
+        /// <summary>
+        /// Gets the window y position.
+        /// </summary>
+        /// <value>
+        /// The window y position.
+        /// </value>
+        public byte WindowYPosition { get; }
 
         /// <summary>
         /// Gets the height of the sprite.

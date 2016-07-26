@@ -53,12 +53,12 @@ namespace Axh.Retro.GameBoy.Registers
         public void IncrementScanline() => Scanline = (byte) ((Scanline + 1) % 154);
 
         /// <summary>
-        /// Gets the scanline.
+        /// Gets or sets the scanline.
         /// </summary>
         /// <value>
         /// The scanline.
         /// </value>
-        public byte Scanline { get; private set; }
+        public byte Scanline { get; set; }
 
         /// <summary>
         /// Returns a <see cref="System.String" /> that represents this instance.
