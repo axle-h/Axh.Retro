@@ -1,4 +1,6 @@
-﻿namespace Axh.Retro.GameBoy.Registers.Interfaces
+﻿using Axh.Retro.GameBoy.Devices;
+
+namespace Axh.Retro.GameBoy.Registers.Interfaces
 {
     /// <summary>
     /// GameBoy GPU registers.
@@ -31,11 +33,21 @@
 
         /// <summary>
         /// Gets the current scanline register.
+        /// FF44 - LY - LCDC Y-Coordinate (R)
         /// </summary>
         /// <value>
         /// The current scanline register.
         /// </value>
         ICurrentScanlineRegister CurrentScanlineRegister { get; }
+
+        /// <summary>
+        /// Gets the current scanline compare register.
+        /// FF45 - LYC - LY Compare (R/W)
+        /// </summary>
+        /// <value>
+        /// The current scanline compare register.
+        /// </value>
+        IRegister CurrentScanlineCompareRegister { get; }
 
         /// <summary>
         /// Gets the LCD monochrome palette register.
@@ -74,5 +86,18 @@
         /// The window Y position register.
         /// </value>
         IRegister WindowYPositionRegister { get; }
+
+        /// <summary>
+        /// Gets or sets the gpu mode.
+        /// </summary>
+        /// <value>
+        /// The gpu mode.
+        /// </value>
+        GpuMode GpuMode { get; set; }
+
+        /// <summary>
+        /// Increments the current scanline, updates the LCD status register and checks for interrupts.
+        /// </summary>
+        void IncrementScanline();
     }
 }

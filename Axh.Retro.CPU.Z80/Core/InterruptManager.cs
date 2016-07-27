@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Axh.Retro.CPU.Common.Contracts.Timing;
 using Axh.Retro.CPU.Z80.Contracts.Core;
 using Axh.Retro.CPU.Z80.Contracts.Registers;
 
@@ -21,14 +22,17 @@ namespace Axh.Retro.CPU.Z80.Core
 
         private TaskCompletionSource<ushort> _nextInterruptSource;
         private readonly CancellationTokenSource _cancellationSource;
-
+        private readonly IInstructionTimer _instructionTimer;
+        
         /// <summary>
         /// Initializes a new instance of the <see cref="InterruptManager"/> class.
         /// </summary>
         /// <param name="registers">The registers.</param>
-        public InterruptManager(IRegisters registers)
+        /// <param name="instructionTimer">The instruction timer.</param>
+        public InterruptManager(IRegisters registers, IInstructionTimer instructionTimer)
         {
             _registers = registers;
+            _instructionTimer = instructionTimer;
             _haltTaskSource = new TaskCompletionSource<bool>();
             _nextInterruptSource = new TaskCompletionSource<ushort>();
             _cancellationSource = new CancellationTokenSource();
@@ -106,12 +110,20 @@ namespace Axh.Retro.CPU.Z80.Core
         /// <summary>
         /// Notifies this interrupt manager that the CPU has accepted the halt and is halted.
         /// </summary>
-        public void NotifyHalt() => Task.Run(() => _haltTaskSource.TrySetResult(true));
+        public void NotifyHalt()
+        {
+            _instructionTimer.NotifyHalt();
+            Task.Run(() => _haltTaskSource.TrySetResult(true));
+        }
 
         /// <summary>
         /// Notifies this interrupt manager that the CPU has accepted the interrupt and is running again.
         /// </summary>
-        public void NotifyResume() => IsHalted = false;
+        public void NotifyResume()
+        {
+            _instructionTimer.NotifyResume();
+            IsHalted = false;
+        } 
 
         /// <summary>
         /// Gets a task that will wait for next interrupt.

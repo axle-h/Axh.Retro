@@ -36,7 +36,7 @@ namespace Axh.Retro.GameBoy.Registers
         public byte Register
         {
             get { return Scanline; }
-            set { Scanline = 0x00; }
+            set { }
         }
 
         /// <summary>

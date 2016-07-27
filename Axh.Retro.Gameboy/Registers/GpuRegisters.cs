@@ -1,4 +1,7 @@
-﻿using Axh.Retro.GameBoy.Registers.Interfaces;
+﻿using Axh.Retro.CPU.Z80.Contracts.Core;
+using Axh.Retro.GameBoy.Contracts.Devices;
+using Axh.Retro.GameBoy.Devices;
+using Axh.Retro.GameBoy.Registers.Interfaces;
 
 namespace Axh.Retro.GameBoy.Registers
 {
@@ -8,24 +11,30 @@ namespace Axh.Retro.GameBoy.Registers
     /// <seealso cref="Axh.Retro.GameBoy.Registers.Interfaces.IGpuRegisters" />
     public class GpuRegisters : IGpuRegisters
     {
+        private readonly IInterruptFlagsRegister _interruptFlagsRegister;
+        
         /// <summary>
-        /// Initializes a new instance of the <see cref="GpuRegisters" /> class.
+        /// Initializes a new instance of the <see cref="GpuRegisters"/> class.
         /// </summary>
         /// <param name="lcdControlRegister">The LCD control register.</param>
         /// <param name="currentScanlineRegister">The current scanline register.</param>
         /// <param name="lcdMonochromePaletteRegister">The LCD monochrome palette register.</param>
         /// <param name="lcdStatusRegister">The LCD status register.</param>
+        /// <param name="interruptFlagsRegister">The interrupt flags register.</param>
         public GpuRegisters(ILcdControlRegister lcdControlRegister,
             ICurrentScanlineRegister currentScanlineRegister,
             ILcdMonochromePaletteRegister lcdMonochromePaletteRegister,
-            ILcdStatusRegister lcdStatusRegister)
+            ILcdStatusRegister lcdStatusRegister,
+            IInterruptFlagsRegister interruptFlagsRegister)
         {
             LcdStatusRegister = lcdStatusRegister;
+            _interruptFlagsRegister = interruptFlagsRegister;
             LcdControlRegister = lcdControlRegister;
             CurrentScanlineRegister = currentScanlineRegister;
             LcdMonochromePaletteRegister = lcdMonochromePaletteRegister;
             ScrollXRegister = new SimpleRegister(0xff43, "Background Horizontal Scrolling (SCROLLX R/W)");
             ScrollYRegister = new SimpleRegister(0xff42, "Background Vertical Scrolling (SCROLLY R/W)");
+            CurrentScanlineCompareRegister = new SimpleRegister(0xff45, "LY Compare (LYC R/W)");
             WindowYPositionRegister = new SimpleRegister(0xff4a, "Window Y Position (WY R/W)");
             WindowXPositionRegister = new SimpleRegister(0xff4b, "Window X Position minus 7 (WX R/W)");
         }
@@ -56,11 +65,21 @@ namespace Axh.Retro.GameBoy.Registers
 
         /// <summary>
         /// Gets the current scanline register.
+        /// FF44 - LY - LCDC Y-Coordinate (R)
         /// </summary>
         /// <value>
         /// The current scanline register.
         /// </value>
         public ICurrentScanlineRegister CurrentScanlineRegister { get; }
+
+        /// <summary>
+        /// Gets the current scanline compare register.
+        /// FF45 - LYC - LY Compare (R/W)
+        /// </summary>
+        /// <value>
+        /// The current scanline compare register.
+        /// </value>
+        public IRegister CurrentScanlineCompareRegister { get; }
 
         /// <summary>
         /// Gets the LCD monochrome palette register.
@@ -99,5 +118,48 @@ namespace Axh.Retro.GameBoy.Registers
         /// The window Y position register.
         /// </value>
         public IRegister WindowYPositionRegister { get; }
+
+        /// <summary>
+        /// Increments the current scanline, updates the LCD status register and checks for interrupts.
+        /// </summary>
+        public void IncrementScanline()
+        {
+            CurrentScanlineRegister.IncrementScanline();
+            
+            LcdStatusRegister.CoincidenceFlag = CurrentScanlineRegister.Scanline == CurrentScanlineCompareRegister.Register;
+
+            if (LcdStatusRegister.CoincidenceFlag && LcdStatusRegister.CoincidenceInterrupt)
+            {
+                _interruptFlagsRegister.UpdateInterrupts(InterruptFlag.LcdStatusTriggers);
+            }
+        }
+
+
+        /// <summary>
+        /// Gets or sets the gpu mode.
+        /// </summary>
+        /// <value>
+        /// The gpu mode.
+        /// </value>
+        public GpuMode GpuMode
+        {
+            get { return LcdStatusRegister.GpuMode; }
+            set
+            {
+                LcdStatusRegister.GpuMode = value;
+                if (LcdStatusRegister.Mode0HBlankInterrupt && LcdStatusRegister.GpuMode == GpuMode.HorizontalBlank)
+                {
+                    _interruptFlagsRegister.UpdateInterrupts(InterruptFlag.LcdStatusTriggers);
+                }
+                else if (LcdStatusRegister.Mode1VBlankInterrupt && LcdStatusRegister.GpuMode == GpuMode.VerticalBlank)
+                {
+                    _interruptFlagsRegister.UpdateInterrupts(InterruptFlag.LcdStatusTriggers);
+                }
+                else if (LcdStatusRegister.Mode2OamInterrupt && LcdStatusRegister.GpuMode == GpuMode.ReadingOam)
+                {
+                    _interruptFlagsRegister.UpdateInterrupts(InterruptFlag.LcdStatusTriggers);
+                }
+            }
+        }
     }
 }

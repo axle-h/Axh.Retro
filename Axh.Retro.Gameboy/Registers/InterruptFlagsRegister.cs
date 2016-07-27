@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using Axh.Retro.CPU.Z80.Contracts.Core;
 using Axh.Retro.GameBoy.Contracts.Devices;
 using Axh.Retro.GameBoy.Registers.Interfaces;
@@ -156,6 +157,8 @@ namespace Axh.Retro.GameBoy.Registers
                 // Interrupt flag is not set or enabled.
                 return false;
             }
+
+            //Debug.WriteLine($"Interrupt {interrupt}");
 
             // Do interrupt.
             _interruptManager.Interrupt(address);

@@ -72,7 +72,7 @@
     <Compile Include="Timing\InstructionTimingsBuilder.cs" />
     <Compile Include="Core\DynaRec\DynaRec.Expressions.cs" />
     <Compile Include="Core\Interpreted\Interpreter.cs" />
-    <Compile Include="Timing\MachineCycleTimer.cs" />
+    <Compile Include="Timing\InstructionTimer.cs" />
     <Compile Include="Memory\CacheAwareZ80Mmu.cs" />
     <Compile Include="Peripherals\AsciiSystemConsole.cs" />
     <Compile Include="Peripherals\SystemConsoleStatus.cs" />

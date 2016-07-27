@@ -235,7 +235,8 @@ namespace Axh.Retro.GameBoy.Devices
             if (_renderSettings.TileSetIsSigned)
             {
                 var signedTileMapValue = (sbyte) tileMapValue;
-                index = signedTileMapValue < 0 ? Math.Abs(signedTileMapValue) - 1 : signedTileMapValue + 128;
+                //index = signedTileMapValue < 0 ? Math.Abs(signedTileMapValue) - 1 : signedTileMapValue + 128;
+                index = signedTileMapValue + 128;
             }
             else
             {

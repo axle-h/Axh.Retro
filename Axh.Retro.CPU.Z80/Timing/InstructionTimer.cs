@@ -12,10 +12,10 @@ namespace Axh.Retro.CPU.Z80.Timing
     /// <summary>
     /// An instruction timer based on machine cycles.
     /// </summary>
-    public class MachineCycleTimer : IInstructionTimer
+    public class InstructionTimer : IInstructionTimer
     {
         /// <summary>
-        /// The number of millisends to wait before syncing real-time to CPU time.
+        /// The number of milliseconds to wait before syncing real-time to CPU time.
         /// Sync up every 16.6ms. I.e. will run sync a 60 fps device e.g. GameBoy well.
         /// This uses <see cref="Thread.Sleep(TimeSpan)"/> for increased accuracy over <see cref="Task.Delay(TimeSpan)"/>.
         /// </summary>
@@ -27,8 +27,6 @@ namespace Axh.Retro.CPU.Z80.Timing
         /// </summary>
         private const int CyclesPerSyncEvent = 80;
 
-        private readonly double _machineCycleFrequencyHz;
-
         private readonly Timer _syncTimer;
         private readonly int _cyclesPerSync;
         
@@ -37,18 +35,17 @@ namespace Axh.Retro.CPU.Z80.Timing
         private int _cyclesSinceLastSync;
         private int _cyclesSinceLastEventSync;
         
-
         private int _syncCycles;
 
+        private bool _isHalted;
+
         /// <summary>
-        /// Initializes a new instance of the <see cref="MachineCycleTimer"/> class.
+        /// Initializes a new instance of the <see cref="InstructionTimer"/> class.
         /// </summary>
         /// <param name="platformConfig">The platform configuration.</param>
         /// <exception cref="System.ArgumentOutOfRangeException"></exception>
-        public MachineCycleTimer(IPlatformConfig platformConfig)
+        public InstructionTimer(IPlatformConfig platformConfig)
         {
-            _machineCycleFrequencyHz = platformConfig.MachineCycleFrequencyMhz / 1000000;
-
             switch (platformConfig.InstructionTimingSyncMode)
             {
                 case InstructionTimingSyncMode.Null:
@@ -79,6 +76,7 @@ namespace Axh.Retro.CPU.Z80.Timing
                                       _cyclesSinceLastSync = 0;
                                   };
             _syncTimer.Start();
+            
         }
 
         /// <summary>
@@ -114,15 +112,47 @@ namespace Axh.Retro.CPU.Z80.Timing
                 _cyclesSinceLastEventSync = 0;
             }
         }
-        
+
+        /// <summary>
+        /// Notifies the instruction timer that the CPU has accepted the halt and is halted.
+        /// I.e. we'll need to stop waiting for instruction blocks to trigger timing sync events and generate our own fake ones.
+        /// </summary>
+        public void NotifyHalt()
+        {
+            _isHalted = true;
+
+            Task.Run(() =>
+                     {
+                         while (_isHalted)
+                         {
+                             TimingSync?.Invoke(new InstructionTimings(CyclesPerSyncEvent));
+                         }
+                     });
+
+        }
+
+        /// <summary>
+        /// Notifies the instruction timer that the CPU has accepted the interrupt and is running again.
+        /// I.e. we'll need to stop generating fake timing sync events.
+        /// </summary>
+        public void NotifyResume()
+        {
+            _isHalted = false;
+        }
+
         /// <summary>
         /// Occurs when [timing synchronize].
         /// </summary>
         public event Action<InstructionTimings> TimingSync;
 
+
+
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
-        public void Dispose() => _syncTimer.Dispose();
+        public void Dispose()
+        {
+            _syncTimer.Dispose();
+        }
     }
 }

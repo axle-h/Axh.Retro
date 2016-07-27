@@ -81,7 +81,9 @@ namespace Axh.Retro.GameBoy.Devices
             // TODO: remove check once all registers implemented.
             if (_registers.ContainsKey(address))
             {
-                return _registers[address].Register;
+                var value = _registers[address].Register;
+                //Debug.WriteLine($"Read 0x{address + Address:x4} = 0x{value:x2}");
+                return value;
             }
             Debug.WriteLine("Missing Hardware Register: 0x" + (address + Address).ToString("x4"));
             return 0x00;
@@ -131,6 +133,8 @@ namespace Axh.Retro.GameBoy.Devices
         /// <param name="value">The value.</param>
         public void WriteByte(ushort address, byte value)
         {
+            //Debug.WriteLine($"Write 0x{address + Address:x4} = 0x{value:x2}");
+
             // TODO: remove check once all registers implemented.
             if (_registers.ContainsKey(address))
             {

@@ -146,7 +146,7 @@ namespace Axh.Retro.CPU.Z80.Wiring
             _container.Register<IInstructionBlockCache, InstructionBlockCache>();
 
             _container.Register<IInterruptManager, InterruptManager>();
-            _container.Register<IInstructionTimer, MachineCycleTimer>();
+            _container.Register<IInstructionTimer, InstructionTimer>();
 
             _container.Register<IOpCodeDecoder, OpCodeDecoder>();
 

@@ -60,8 +60,6 @@ namespace Axh.Retro.GameBoy.Devices
         /// </summary>
         private readonly Bitmap _lcdBuffer;
 
-        private readonly ILcdStatusRegister _lcdStatusRegister;
-
         /// <summary>
         /// $FE00-$FE9F	OAM - Object Attribute Memory
         /// </summary>
@@ -90,6 +88,9 @@ namespace Axh.Retro.GameBoy.Devices
 
         private TaskCompletionSource<bool> _paintingTaskCompletionSource;
 
+        private readonly Stopwatch _frameStopwatch;
+        private const double ExpectedFrameTime = 1000 / 60.0; // 60 fps => ~16.6ms.
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Gpu"/> class.
         /// </summary>
@@ -108,13 +109,16 @@ namespace Axh.Retro.GameBoy.Devices
             _gpuRegisters = gpuRegisters;
             _renderHandler = renderHandler;
             _gameBoyConfig = gameBoyConfig;
-            _lcdStatusRegister = gpuRegisters.LcdStatusRegister;
 
             _spriteRam = new ArrayBackedMemoryBank(SpriteRamConfig);
             _tileRam = new ArrayBackedMemoryBank(MapRamConfig);
             
-            _lcdStatusRegister.GpuMode = GpuMode.VerticalBlank;
+            _gpuRegisters.GpuMode = GpuMode.VerticalBlank;
             _currentTimings = 0;
+
+            _gpuRegisters.GpuMode = GpuMode.VerticalBlank;
+            _currentTimings = 0;
+            _gpuRegisters.CurrentScanlineRegister.Scanline = 0x92;
 
             if (gameBoyConfig.RunGpu)
             {
@@ -134,6 +138,7 @@ namespace Axh.Retro.GameBoy.Devices
                                          _framesRendered = _frameSkip = 0;
                                      };
             _metricsTimer.Start();
+            _frameStopwatch = new Stopwatch();
         }
 
         /// <summary>
@@ -193,23 +198,20 @@ namespace Axh.Retro.GameBoy.Devices
         {
             if (!_gpuRegisters.LcdControlRegister.LcdOperation)
             {
-                _lcdStatusRegister.GpuMode = GpuMode.VerticalBlank;
-                _currentTimings = 0;
-                _gpuRegisters.CurrentScanlineRegister.Scanline = 0x92;
                 return;
             }
             
             _currentTimings += instructionTimings.MachineCycles;
 
-            switch (_lcdStatusRegister.GpuMode)
+            switch (_gpuRegisters.GpuMode)
             {
                 case GpuMode.HorizontalBlank:
                     if (_currentTimings >= HorizontalBlankCycles)
                     {
-                        _gpuRegisters.CurrentScanlineRegister.IncrementScanline();
-                        _lcdStatusRegister.GpuMode = _gpuRegisters.CurrentScanlineRegister.Scanline == ScanLines - 1
-                                                         ? GpuMode.VerticalBlank
-                                                         : GpuMode.ReadingOam;
+                        _gpuRegisters.IncrementScanline();
+                        _gpuRegisters.GpuMode = _gpuRegisters.CurrentScanlineRegister.Scanline == ScanLines - 1
+                                                    ? GpuMode.VerticalBlank
+                                                    : GpuMode.ReadingOam;
                         _currentTimings -= HorizontalBlankCycles;
                     }
                     break;
@@ -225,29 +227,44 @@ namespace Axh.Retro.GameBoy.Devices
                                 _frameSkip++;
                             }
 
+                            if (!_frameStopwatch.IsRunning)
+                            {
+                                _frameStopwatch.Start();
+                            }
+                            else
+                            {
+                                // Check frame time.
+                                var overTime = ExpectedFrameTime - _frameStopwatch.ElapsedMilliseconds;
+                                if (overTime > 0)
+                                {
+                                    Task.Delay(TimeSpan.FromMilliseconds(overTime * 0.2)).Wait();
+                                }
+                                _frameStopwatch.Restart();
+                            }
+                            
                             // Reset
                             _gpuRegisters.CurrentScanlineRegister.Scanline = 0x00;
-                            _lcdStatusRegister.GpuMode = GpuMode.ReadingOam;
+                            _gpuRegisters.GpuMode = GpuMode.ReadingOam;
                             _interruptFlagsRegister.UpdateInterrupts(InterruptFlag.VerticalBlank);
                             _currentTimings -= VerticalBlankCycles;
                             break;
                         }
 
-                        _gpuRegisters.CurrentScanlineRegister.IncrementScanline();
+                        _gpuRegisters.IncrementScanline();
                         _currentTimings -= VerticalBlankCycles;
                     }
                     break;
                 case GpuMode.ReadingOam:
                     if (_currentTimings >= ReadingOamCycles)
                     {
-                        _lcdStatusRegister.GpuMode = GpuMode.ReadingVram;
+                        _gpuRegisters.GpuMode = GpuMode.ReadingVram;
                         _currentTimings -= ReadingOamCycles;
                     }
                     break;
                 case GpuMode.ReadingVram:
                     if (_currentTimings >= ReadingVramCycles)
                     {
-                        _lcdStatusRegister.GpuMode = GpuMode.HorizontalBlank;
+                        _gpuRegisters.GpuMode = GpuMode.HorizontalBlank;
                         _currentTimings -= ReadingVramCycles;
                     }
                     break;
