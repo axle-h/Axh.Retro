@@ -158,8 +158,6 @@ namespace Axh.Retro.GameBoy.Registers
                 return false;
             }
 
-            //Debug.WriteLine($"Interrupt {interrupt}");
-
             // Do interrupt.
             _interruptManager.Interrupt(address);
 

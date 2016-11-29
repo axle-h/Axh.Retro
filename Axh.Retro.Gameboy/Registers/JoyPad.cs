@@ -70,7 +70,12 @@ namespace Axh.Retro.GameBoy.Registers
                 switch (_matrixColumn)
                 {
                     case MatrixColumn.None:
-                        return 0xff;
+                        return (byte) ((byte) _matrixColumn | 0xf);
+                    case MatrixColumn.Both:
+                        return GetRegister(_buttons.HasFlag(JoyPadButton.Right) || _buttons.HasFlag(JoyPadButton.A),
+                                           _buttons.HasFlag(JoyPadButton.Left) || _buttons.HasFlag(JoyPadButton.B),
+                                           _buttons.HasFlag(JoyPadButton.Up) || _buttons.HasFlag(JoyPadButton.Select),
+                                           _buttons.HasFlag(JoyPadButton.Down) || _buttons.HasFlag(JoyPadButton.Start));
                     case MatrixColumn.P15:
                         return GetRegister(_buttons.HasFlag(JoyPadButton.Right),
                                            _buttons.HasFlag(JoyPadButton.Left),
@@ -87,21 +92,7 @@ namespace Axh.Retro.GameBoy.Registers
             }
             set
             {
-                // Check which matrix column is set.
-                // No idea what happens when both are set...
-                if ((value & 0x10) > 0)
-                {
-                    _matrixColumn = MatrixColumn.P14;
-                    return;
-                }
-
-                if ((value & 0x20) > 0)
-                {
-                    _matrixColumn = MatrixColumn.P15;
-                    return;
-                }
-
-                _matrixColumn = MatrixColumn.None;
+                _matrixColumn = (MatrixColumn) value;
             }
         }
 
@@ -150,6 +141,7 @@ namespace Axh.Retro.GameBoy.Registers
         /// <summary>
         /// The column in the joypad matrix to read.
         /// </summary>
+        [Flags]
         private enum MatrixColumn
         {
             /// <summary>
@@ -160,12 +152,16 @@ namespace Axh.Retro.GameBoy.Registers
             /// <summary>
             /// Column P14.
             /// </summary>
-            P14 = 1,
+            P14 = 0x10,
 
             /// <summary>
             /// Column P15.
             /// </summary>
-            P15 = 2
+            P15 = 0x20,
+
+
+            Both = P14 | P15
+
         }
 
         /// <summary>

@@ -88,9 +88,6 @@ namespace Axh.Retro.GameBoy.Devices
 
         private TaskCompletionSource<bool> _paintingTaskCompletionSource;
 
-        private readonly Stopwatch _frameStopwatch;
-        private const double ExpectedFrameTime = 1000 / 60.0; // 60 fps => ~16.6ms.
-
         /// <summary>
         /// Initializes a new instance of the <see cref="Gpu"/> class.
         /// </summary>
@@ -138,7 +135,6 @@ namespace Axh.Retro.GameBoy.Devices
                                          _framesRendered = _frameSkip = 0;
                                      };
             _metricsTimer.Start();
-            _frameStopwatch = new Stopwatch();
         }
 
         /// <summary>
@@ -225,21 +221,6 @@ namespace Axh.Retro.GameBoy.Devices
                             if (!painted.GetValueOrDefault())
                             {
                                 _frameSkip++;
-                            }
-
-                            if (!_frameStopwatch.IsRunning)
-                            {
-                                _frameStopwatch.Start();
-                            }
-                            else
-                            {
-                                // Check frame time.
-                                var overTime = ExpectedFrameTime - _frameStopwatch.ElapsedMilliseconds;
-                                if (overTime > 0)
-                                {
-                                    Task.Delay(TimeSpan.FromMilliseconds(overTime * 0.2)).Wait();
-                                }
-                                _frameStopwatch.Restart();
                             }
                             
                             // Reset

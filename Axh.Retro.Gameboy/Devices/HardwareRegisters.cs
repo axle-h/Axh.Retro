@@ -17,6 +17,7 @@ namespace Axh.Retro.GameBoy.Devices
         private const ushort Address = 0xff00;
         private const ushort Length = 0x80;
         private readonly IDictionary<ushort, IRegister> _registers;
+        private HashSet<ushort> _missingRegisters;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="HardwareRegisters"/> class.
@@ -45,6 +46,7 @@ namespace Axh.Retro.GameBoy.Devices
                                      timerRegisters.TimerCounterRegister, timerRegisters.TimerModuloRegister
                                  })
                          .ToDictionary(x => (ushort) (x.Address - Address));
+            _missingRegisters = new HashSet<ushort>();
         }
 
         /// <summary>
@@ -85,7 +87,13 @@ namespace Axh.Retro.GameBoy.Devices
                 //Debug.WriteLine($"Read 0x{address + Address:x4} = 0x{value:x2}");
                 return value;
             }
-            Debug.WriteLine("Missing Hardware Register: 0x" + (address + Address).ToString("x4"));
+
+            if (!_missingRegisters.Contains(address))
+            {
+                Debug.WriteLine("Missing Hardware Register: 0x" + (address + Address).ToString("x4"));
+                _missingRegisters.Add(address);
+            }
+            
             return 0x00;
         }
 
@@ -140,11 +148,11 @@ namespace Axh.Retro.GameBoy.Devices
             {
                 _registers[address].Register = value;
             }
-            /*
-            else
+            else if (!_missingRegisters.Contains(address))
             {
                 Debug.WriteLine("Missing Hardware Register: 0x" + (address + Address).ToString("x4"));
-            }*/
+                _missingRegisters.Add(address);
+            }
         }
 
         /// <summary>

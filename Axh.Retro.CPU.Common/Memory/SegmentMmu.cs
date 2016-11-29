@@ -311,7 +311,7 @@ namespace Axh.Retro.CPU.Common.Memory
                     // Execute the operation.
                     operation.Execute(this);
 
-                    await _instructionTimer.SyncToTimingsNow(operation.Timings);
+                    _instructionTimer.SyncToTimings(operation.Timings, true);
 
                     // Unlock the locked address ranges.
                     _lockedAddressRanges.Clear();
