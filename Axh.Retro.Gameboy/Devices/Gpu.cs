@@ -1,9 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Timers;
@@ -58,7 +54,7 @@ namespace Axh.Retro.GameBoy.Devices
         /// <summary>
         /// Normal frame buffer.
         /// </summary>
-        private readonly Bitmap _lcdBuffer;
+        private readonly Frame _lcdBuffer;
 
         /// <summary>
         /// $FE00-$FE9F	OAM - Object Attribute Memory
@@ -122,7 +118,7 @@ namespace Axh.Retro.GameBoy.Devices
                 timer.TimingSync += Sync;
             }
 
-            _lcdBuffer = new Bitmap(LcdWidth, LcdHeight, PixelFormat.Format8bppIndexed);
+            _lcdBuffer = new Frame(LcdWidth, LcdHeight);
             _paintingTaskCompletionSource = new TaskCompletionSource<bool>();
             _disposed = false;
 
@@ -313,25 +309,16 @@ namespace Axh.Retro.GameBoy.Devices
             _lastRenderState = renderState;
 
             _tileMapPointer = _tileMapPointer == null ? new TileMapPointer(renderState) : _tileMapPointer.Reset(renderState, renderStateChange);
-            var frameBounds = new Rectangle(0, 0, LcdWidth, LcdHeight);
 
-            var bitmapPalette = _lcdBuffer.Palette;
-            foreach (var palette in _gpuRegisters.LcdMonochromePaletteRegister.Pallette)
-            {
-                bitmapPalette.Entries[(int) palette.Key] = _gameBoyConfig.MonocromePalette[palette.Value];
-            }
-            _lcdBuffer.Palette = bitmapPalette;
-
-            var frameData = _lcdBuffer.LockBits(frameBounds, ImageLockMode.ReadOnly, _lcdBuffer.PixelFormat);
-
-            var buffer = new byte[frameData.Stride];
-            var ptr = frameData.Scan0;
+            var bitmapPalette = _gpuRegisters.LcdMonochromePaletteRegister.Pallette;
             
             for (var y = 0; y < LcdHeight; y++)
             {
+                var buffer = _lcdBuffer.GetRow(y);
+
                 for (var x = 0; x < LcdWidth; x++)
                 {
-                    buffer[x] = (byte) _tileMapPointer.Pixel;
+                    buffer[x] = (byte) bitmapPalette[_tileMapPointer.Pixel];
 
                     if (x + 1 < LcdWidth)
                     {
@@ -339,16 +326,12 @@ namespace Axh.Retro.GameBoy.Devices
                     }
                 }
 
-                Marshal.Copy(buffer, 0, ptr, buffer.Length);
-
                 if (y + 1 < LcdHeight)
                 {
                     _tileMapPointer.NextRow();
-                    ptr += frameData.Stride;
                 }
             }
             
-            _lcdBuffer.UnlockBits(frameData);
             _renderHandler.Paint(_lcdBuffer);
 
             _frameSkip = 0;

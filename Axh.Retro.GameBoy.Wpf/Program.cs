@@ -13,7 +13,7 @@ namespace Axh.Retro.GameBoy.Wpf
         {
             var cancellationTokenSource = new CancellationTokenSource();
             using (var gameBoy = new Z80Wiring().With<GameBoyHardware>()
-                                                .With(new GameBoyWpf(cancellationTokenSource, Resources.Alleyway_W_Gb_Zip.UnZip()))
+                                                .With(new GameBoyWpf(cancellationTokenSource, Resources.Tetris_W_Gb_Zip.UnZip()))
                                                 .Init())
             using (var core = gameBoy.GetNewCore())
             {

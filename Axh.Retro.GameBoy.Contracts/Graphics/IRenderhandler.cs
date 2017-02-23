@@ -1,6 +1,4 @@
-﻿using System.Drawing;
-
-namespace Axh.Retro.GameBoy.Contracts.Graphics
+﻿namespace Axh.Retro.GameBoy.Contracts.Graphics
 {
     /// <summary>
     /// An external render handler.
@@ -13,7 +11,7 @@ namespace Axh.Retro.GameBoy.Contracts.Graphics
         /// Obviously the longer you block, the more frames will be skipped.
         /// </summary>
         /// <param name="frame"></param>
-        void Paint(Bitmap frame);
+        void Paint(Frame frame);
 
         /// <summary>
         /// Updates the rendering metrics.

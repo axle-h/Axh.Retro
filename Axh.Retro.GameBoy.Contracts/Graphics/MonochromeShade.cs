@@ -3,26 +3,26 @@
     /// <summary>
     /// 4 shades of... gray (!)
     /// </summary>
-    public enum MonochromeShade
+    public enum MonochromeShade : byte
     {
         /// <summary>
         /// White.
         /// </summary>
-        White = 0,
+        White = 0x0,
 
         /// <summary>
         /// Light gray.
         /// </summary>
-        LightGray = 1,
+        LightGray = 0x1,
 
         /// <summary>
         /// Dark gray.
         /// </summary>
-        DarkGray = 2,
+        DarkGray = 0x2,
 
         /// <summary>
         /// Black.
         /// </summary>
-        Black = 3
+        Black = 0x3
     }
 }

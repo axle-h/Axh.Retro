@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Drawing.Imaging;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -14,8 +12,7 @@ using System.Windows.Media.Imaging;
 using Axh.Retro.GameBoy.Contracts.Devices;
 using Axh.Retro.GameBoy.Contracts.Graphics;
 using Axh.Retro.GameBoy.Wpf.Config;
-using Color = System.Windows.Media.Color;
-using Image = System.Windows.Controls.Image;
+using Frame = Axh.Retro.GameBoy.Contracts.Graphics.Frame;
 
 namespace Axh.Retro.GameBoy.Wpf
 {
@@ -33,6 +30,14 @@ namespace Axh.Retro.GameBoy.Wpf
         private WriteableBitmap _writeableBitmap;
         private Label _metricsLabel;
 
+        private static readonly IDictionary<byte, Color> _monocromePalette = new Dictionary<byte, Color>
+                {
+                    [(byte) MonochromeShade.White] = Color.FromRgb(255, 255, 255),
+                    [(byte) MonochromeShade.LightGray] = Color.FromRgb(192, 192, 192),
+                    [(byte) MonochromeShade.DarkGray] = Color.FromRgb(96, 96, 96),
+                    [(byte) MonochromeShade.Black] = Color.FromRgb(0, 0, 0)
+                };
+
         public SimpleLcd(CancellationTokenSource cancellationTokenSource, IHardwareRegisters hardware, IWpfConfig config)
         {
             _cancellationTokenSource = cancellationTokenSource;
@@ -46,7 +51,7 @@ namespace Axh.Retro.GameBoy.Wpf
         /// Don't hang on to frame instances.
         /// </summary>
         /// <param name="frame"></param>
-        public void Paint(Bitmap frame) => _window.Dispatcher.Invoke(() => UpdateUi(frame));
+        public void Paint(Frame frame) => _window.Dispatcher.Invoke(() => UpdateUi(frame));
 
         /// <summary>
         /// Updates the rendering metrics.
@@ -111,37 +116,37 @@ namespace Axh.Retro.GameBoy.Wpf
             return tcs.Task;
         }
 
-        private static Color GetColor(System.Drawing.Color color) => Color.FromRgb(color.R, color.G, color.B);
-
-        public void UpdateUi(Bitmap frame)
+        public void UpdateUi(Frame frame)
         {
-            var palette = frame.Palette.Entries.Select(GetColor).ToList();
-
-            if (_image.Source == null || !IsPaletteOk(palette))
+            if (_image.Source == null)
             {
+                var palette = _monocromePalette.Values.ToList();
                 _writeableBitmap = new WriteableBitmap(frame.Width,
                                                        frame.Height,
                                                        96,
                                                        96,
                                                        PixelFormats.Indexed8,
                                                        new BitmapPalette(palette));
+
                 _image.Width = frame.Width * 4;
                 _image.Height = frame.Height * 4;
                 _image.Source = _writeableBitmap;
             }
-
-            // Copy source buffer into managed memory.
-            var srcData = frame.LockBits(new Rectangle(0, 0, frame.Width, frame.Height), ImageLockMode.ReadOnly, frame.PixelFormat);
-            var srcPtr = srcData.Scan0;
-            var buffer = new byte[srcData.Stride * frame.Height];
-            Marshal.Copy(srcPtr, buffer, 0, buffer.Length);
-            frame.UnlockBits(srcData);
-
+            
             // Copy managed source buffer to unmanaged back buffer.
             _writeableBitmap.Lock();
             var targetPtr = _writeableBitmap.BackBuffer;
-            Marshal.Copy(buffer, 0, targetPtr, buffer.Length);
 
+            for (var y = 0; y < frame.Height; y++)
+            {
+                var row = frame.GetRow(y);
+                Marshal.Copy(row, 0, targetPtr, row.Length);
+                if (y + 1 < frame.Height)
+                {
+                    targetPtr = targetPtr + frame.Width;
+                }
+            }
+            
             // Specify the area of the bitmap that changed.
             _writeableBitmap.AddDirtyRect(new Int32Rect(0, 0, frame.Width, frame.Height));
 

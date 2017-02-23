@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Drawing;
-using Axh.Retro.GameBoy.Contracts.Graphics;
-
-namespace Axh.Retro.GameBoy.Contracts.Config
+﻿namespace Axh.Retro.GameBoy.Contracts.Config
 {
     /// <summary>
     /// Immutable gameboy config.
@@ -42,21 +38,5 @@ namespace Axh.Retro.GameBoy.Contracts.Config
         /// <c>true</c> if [run gpu]; otherwise, <c>false</c>.
         /// </value>
         public bool RunGpu => true;
-
-        /// <summary>
-        /// Gets the monocrome palette.
-        /// </summary>
-        /// <value>
-        /// The monocrome palette.
-        /// </value>
-        public IDictionary<MonochromeShade, Color> MonocromePalette
-            =>
-                new Dictionary<MonochromeShade, Color>
-                {
-                    [MonochromeShade.White] = Color.FromArgb(255, 255, 255),
-                    [MonochromeShade.LightGray] = Color.FromArgb(192, 192, 192),
-                    [MonochromeShade.DarkGray] = Color.FromArgb(96, 96, 96),
-                    [MonochromeShade.Black] = Color.FromArgb(0, 0, 0)
-                };
     }
 }
