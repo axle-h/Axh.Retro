@@ -26,7 +26,7 @@ namespace Axh.Retro.CPU.Z80.Wiring
     /// Intel 8080 wiring with DryIoc.
     /// </summary>
     /// <seealso cref="System.IDisposable" />
-    public class Z80Wiring : IDisposable
+    public class Z80Wiring : IWiredCpuCoreFactory
     {
         private readonly IContainer _container;
         private bool _isInitialized;

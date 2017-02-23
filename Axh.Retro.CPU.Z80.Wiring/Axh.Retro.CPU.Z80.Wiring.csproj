@@ -45,6 +45,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ICpuCoreContext.cs" />
+    <Compile Include="IWiredCpuCoreFactory.cs" />
+    <Compile Include="CpuCoreContext.cs" />
     <Compile Include="Z80Wiring.cs" />
     <Compile Include="IZ80Module.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

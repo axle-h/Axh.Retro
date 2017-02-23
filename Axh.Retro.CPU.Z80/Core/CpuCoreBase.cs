@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Axh.Retro.CPU.Common.Contracts.Memory;
 using Axh.Retro.CPU.Common.Contracts.Memory.Dma;
@@ -46,6 +47,7 @@ namespace Axh.Retro.CPU.Z80.Core
             IInstructionBlockDecoder instructionBlockDecoder,
             IDmaController dmaController)
         {
+            CoreId = Guid.NewGuid();
             Registers = registers;
             InterruptManager = interruptManager;
             PeripheralManager = peripheralManager;
@@ -55,7 +57,15 @@ namespace Axh.Retro.CPU.Z80.Core
             InstructionBlockDecoder = instructionBlockDecoder;
             DmaController = dmaController;
         }
-        
+
+        /// <summary>
+        /// Gets the core identifier.
+        /// </summary>
+        /// <value>
+        /// The core identifier.
+        /// </value>
+        public Guid CoreId { get; }
+
         /// <summary>
         /// Starts the core process.
         /// </summary>

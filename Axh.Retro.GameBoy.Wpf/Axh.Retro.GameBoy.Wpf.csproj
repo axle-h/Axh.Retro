@@ -62,7 +62,6 @@
     <Compile Include="Config\GameBoyWpf.cs" />
     <Compile Include="Config\IWpfConfig.cs" />
     <Compile Include="Config\WpfConfig.cs" />
-    <Compile Include="Config\StaticGameBoyConfig.cs" />
     <Compile Include="KeyboardJoypadBehavior.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

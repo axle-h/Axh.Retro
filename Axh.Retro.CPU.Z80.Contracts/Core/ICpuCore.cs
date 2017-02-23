@@ -13,6 +13,14 @@ namespace Axh.Retro.CPU.Z80.Contracts.Core
     public interface ICpuCore : IDisposable
     {
         /// <summary>
+        /// Gets the core identifier.
+        /// </summary>
+        /// <value>
+        /// The core identifier.
+        /// </value>
+        Guid CoreId { get; }
+
+        /// <summary>
         /// Starts the core process.
         /// </summary>
         /// <param name="cancellationToken">The cancellation token.</param>

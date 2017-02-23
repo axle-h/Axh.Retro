@@ -130,14 +130,16 @@ namespace Axh.Retro.GameBoy.Wpf
                 _image.Source = _writeableBitmap;
             }
 
-            // Reserve the back buffer for updates.
-            _writeableBitmap.Lock();
+            // Copy source buffer into managed memory.
             var srcData = frame.LockBits(new Rectangle(0, 0, frame.Width, frame.Height), ImageLockMode.ReadOnly, frame.PixelFormat);
             var srcPtr = srcData.Scan0;
-            var targetPtr = _writeableBitmap.BackBuffer;
-
             var buffer = new byte[srcData.Stride * frame.Height];
             Marshal.Copy(srcPtr, buffer, 0, buffer.Length);
+            frame.UnlockBits(srcData);
+
+            // Copy managed source buffer to unmanaged back buffer.
+            _writeableBitmap.Lock();
+            var targetPtr = _writeableBitmap.BackBuffer;
             Marshal.Copy(buffer, 0, targetPtr, buffer.Length);
 
             // Specify the area of the bitmap that changed.
@@ -145,7 +147,7 @@ namespace Axh.Retro.GameBoy.Wpf
 
             // Release the back buffer and make it available for display.
             _writeableBitmap.Unlock();
-            frame.UnlockBits(srcData);
+            
         }
 
         private bool IsPaletteOk(IEnumerable<Color> expected)

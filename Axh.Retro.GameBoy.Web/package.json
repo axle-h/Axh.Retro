@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "name": "Axh.Retro.GameBoy.Web.Client",
+  "name": "axh-retro",
   "private": true,
   "devDependencies": {
     "gulp": "^3.9.1",
